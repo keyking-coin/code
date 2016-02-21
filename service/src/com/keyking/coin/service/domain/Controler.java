@@ -1,0 +1,354 @@
+package com.keyking.coin.service.domain;
+
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
+import org.apache.mina.core.session.IoSession;
+import org.joda.time.DateTime;
+
+import com.keyking.coin.service.domain.deal.Deal;
+import com.keyking.coin.service.domain.deal.DealOrder;
+import com.keyking.coin.service.domain.deal.Revert;
+import com.keyking.coin.service.domain.deal.SimpleOrderModule;
+import com.keyking.coin.service.domain.user.RankEntity;
+import com.keyking.coin.service.domain.user.UserCharacter;
+import com.keyking.coin.service.net.data.SearchCondition;
+import com.keyking.coin.service.net.resp.impl.GeneralResp;
+import com.keyking.coin.util.Instances;
+import com.keyking.coin.util.ServerLog;
+import com.keyking.coin.util.TimeUtils;
+
+public class Controler implements Instances{
+	
+	private static Controler instance = new Controler();
+	
+	Map<String,UserCharacter> characters = new ConcurrentHashMap<String,UserCharacter>();
+	
+	List<Deal> deals = new ArrayList<Deal>();
+	
+	List<Deal> dels = new ArrayList<Deal>();//已撤销帖子
+	
+	List<DealOrder> recents = new ArrayList<DealOrder>();//最近成交的20条记录
+	
+	public static Controler getInstance() {
+		return instance;
+	}
+	
+	public void load(){
+		List<Deal> lis = DB.getDealDao().searchMore();
+		for (Deal deal : lis){
+			deal.read(recents);
+			if (deal.isRevoke()){
+				dels.add(deal);
+			}else{
+				deals.add(deal);
+			}
+		}
+		Collections.sort(recents);
+		ServerLog.info("load all deals");
+	}
+	
+	public UserCharacter login(String account,String pwd,GeneralResp resp){
+		UserCharacter user = search(account);
+		if (user == null){//不存在账号是account
+			resp.setError("账号:" + account + "不存");
+		}else{
+			if (user.getPwd().equals(pwd)){
+				resp.add(user);
+				resp.setSucces();
+				return user;
+			}else{//密码错误
+				resp.setError("密码错误");
+			}
+		}
+		return null;
+	}
+	
+	public UserCharacter search(String accout){
+		UserCharacter user = characters.get(accout);
+		if (user == null){
+			user = DB.getUserDao().search(accout);
+			if (user != null){
+				user.load();
+				characters.put(accout,user);
+			}
+		}
+		return user;
+	}
+	
+	public UserCharacter searchByAccountOrNickName(String value){
+		for (UserCharacter user : characters.values()){
+			if (user.getAccount().equals(value)){
+				return user;
+			}
+			if (user.getNikeName().equals(value)){
+				return user;
+			}
+		}
+		UserCharacter user = DB.getUserDao().search(value);
+		if (user != null){
+			return user;
+		}
+		user = DB.getUserDao().checkNikeName(value);
+		if (user != null){
+			return user;
+		}
+		return null;
+	}
+	
+	public boolean checkAccout(String account,String nickName,GeneralResp resp){
+		for (UserCharacter user : characters.values()){
+			if (user.getAccount().equals(account)){
+				resp.setError(account + "已被注册");
+				return false;
+			}
+			if (user.getNikeName().equals(nickName)){
+				resp.setError(nickName + "已被使用");
+				return false;
+			}
+		}
+		if (DB.getUserDao().search(account) != null){
+			resp.setError(account + "已被注册");
+			return false;
+		}
+		if (DB.getUserDao().checkNikeName(nickName) != null){
+			resp.setError(nickName + "已被使用");
+			return false;
+		}
+		return true;
+	}
+	
+	public UserCharacter search(long id){
+		for (UserCharacter user : characters.values()){
+			if (user.getId() == id){
+				return user;
+			}
+		}
+		UserCharacter user = DB.getUserDao().search(id);
+		if (user != null){
+			user.load();
+			characters.put(user.getAccount(),user);
+		}
+		return user;
+	}
+	
+	public boolean register(UserCharacter user){
+		long id = PK.key("users");
+		user.setId(id);
+		characters.put(user.getAccount(),user);
+		return true;
+	}
+	
+	public void tick() {
+		for (UserCharacter user : characters.values()){
+			user.tick();
+		}
+	}
+	
+	public void save(){
+		for (UserCharacter user : characters.values()){
+			user.save();
+		}
+		for (Deal deal : deals){
+			deal.save();
+		}
+		for (Deal deal : dels){
+			deal.save();
+		}
+	}
+	
+	public void haveUserOutNet(IoSession session){
+		for (UserCharacter user : characters.values()){
+			String addressKey = user.getSessionAddress();
+			if (addressKey != null && addressKey.equals(session.getRemoteAddress().toString())){
+				user.setSessionAddress(null);
+				ServerLog.info(user.getAccount() + " closed connect");
+				break;
+			}
+		}
+	}
+	
+	public List<Deal> getDels() {
+		return dels;
+	}
+
+	public List<Deal> getSearchDeals(SearchCondition condition) {
+		List<Deal> result = new ArrayList<Deal>();
+		for (Deal deal : deals){
+			if (condition.legal(deal)){
+				result.add(deal);
+			}
+		}
+		return result;
+	}
+	
+	public List<Deal> getWeekDeals() {
+		List<Deal> result = new ArrayList<Deal>();
+		DateTime time = TimeUtils.now();
+		int year = time.getYear();
+		int month = time.getMonthOfYear();
+		int day = time.getDayOfMonth();
+		int preDay = day - 7;
+		int preMonth = month;
+		int preYear = year;
+		if (preDay < 1){
+			preMonth --;
+			if (preMonth <= 0){
+				preMonth = 12;
+				preYear --;
+			}
+			Calendar cal = Calendar.getInstance();   
+			cal.set(Calendar.YEAR,preYear);   
+			cal.set(Calendar.MONTH,preMonth);
+			int maxDate = cal.getActualMaximum(Calendar.DATE);
+			preDay += maxDate;
+		}
+		String start = preYear + "-" + preMonth + "-" + preDay + " 00:00:00";
+		long startTime = TimeUtils.getTime(start).getMillis();
+		String end = year + "-" + month + "-" + day + " 23:59:59";
+		long endTime = TimeUtils.getTime(end).getMillis();
+		for (Deal deal : deals){
+			long dealTime = TimeUtils.getTime(deal.getCreateTime()).getMillis();
+			if (dealTime >= startTime && dealTime <= endTime){
+				result.add(deal);
+			}
+		}
+		//compareDeals(result,false);
+		return result;
+	}
+	
+	
+	public void compareDeals(List<Deal> list , boolean init){
+		if (list == null || list.size() == 0){
+			return;
+		}
+		Collections.sort(list);
+		if (init){
+			for (Deal deal : list){
+				List<Revert> reverts = DB.getRevertDao().search(deal.getId());
+				if (reverts != null){
+					deal.setReverts(reverts);
+				}
+				List<DealOrder> orders = DB.getDealOrderDao().search(deal.getId());
+				if (orders != null){
+					deal.setOrders(orders);
+				}
+				deal.compare();
+			}
+		}
+	}
+	
+	public Deal tryToSearch(long id) {
+		for (Deal deal : deals){
+			if (deal.getId() == id){
+				return deal;
+			}
+		}
+		for (Deal deal : dels){
+			if (deal.getId() == id){
+				return deal;
+			}
+		}
+		return DB.getDealDao().search(id);
+	}
+
+	public boolean tryToInsert(Deal deal) {
+		synchronized (deal) {
+			deals.add(0,deal);
+			return true;
+		}
+	}
+
+	public boolean tryToDeleteDeal(Deal deal) {
+		if (deals.contains(deal)){
+			deals.remove(deal);
+			deal.delete();
+			dels.add(deal);
+			return true;
+		}
+		return false;
+	}
+	
+	public List<Deal> tryToSearchDeals(long uid){
+		List<Deal> result = new ArrayList<Deal>();
+		for (Deal deal : deals){//未撤销的
+			if (deal.getUid() == uid || deal.checkBuyerId(uid)){//是卖家或者有购买
+				result.add(deal);
+			}
+		}
+		for (Deal deal : dels){//已撤销的
+			if (deal.getUid() == uid || deal.checkBuyerId(uid)){
+				result.add(deal);
+			}
+		}
+		return result;
+	}
+	
+	public List<RankEntity> rankDeal(){
+		List<RankEntity> result = new ArrayList<RankEntity>();
+		List<RankEntity> temp = new ArrayList<RankEntity>();
+		for (Deal deal : deals){//未撤销的
+			Map<Long,RankEntity> map = deal.compute();
+			for (RankEntity re : map.values()){
+				RankEntity target = null;
+				for (RankEntity entity : temp){
+					if (entity.getUid() == re.getUid()){
+						target = entity;
+					}
+				}
+				if (target != null){
+					target.addCount(re.getCount());
+				}else{
+					temp.add(re);
+				}
+			}
+		}
+		for (Deal deal : dels){//已撤销的
+			Map<Long,RankEntity> map = deal.compute();
+			for (RankEntity re : map.values()){
+				RankEntity target = null;
+				for (RankEntity entity : temp){
+					if (entity.getUid() == re.getUid()){
+						target = entity;
+					}
+				}
+				if (target != null){
+					target.addCount(re.getCount());
+				}else{
+					temp.add(re);
+				}
+			}
+		}
+		Collections.sort(temp);
+		int max = Math.min(100,temp.size());
+		for (int i = 0 ; i < max ; i++){
+			RankEntity entity = temp.get(i);
+			result.add(entity);
+		}
+		return result;
+	}
+	
+	public List<SimpleOrderModule> trySearchRecentOrder(){
+		List<SimpleOrderModule> modules = new ArrayList<SimpleOrderModule>();
+		for (DealOrder order : recents){
+			SimpleOrderModule module = new SimpleOrderModule();
+			order.getSimpleDes(module);
+			modules.add(module);
+		}
+		return modules;
+	}
+	
+	public void addRecents(DealOrder order){
+		synchronized (recents) {
+			if (recents.size() >= 20){
+				recents.remove(recents.size() - 1);
+			}
+			recents.add(0,order);
+		}
+	}
+}
+ 

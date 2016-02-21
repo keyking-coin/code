@@ -1,0 +1,12 @@
+/android/bin/
+/service/bin/
+/CoinWeb/build/
+/service/logs/
+/service/dist/
+/client/Assets/UnityVS/
+/client/*.*
+/client/Temp/
+/client/obj/
+/client/test_Data/
+/client/iphone/
+/client/Library/

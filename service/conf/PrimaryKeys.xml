@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PrimaryKeys>
+	<PrimaryKey sql="select max(id) from " table="deal"/>
+	<PrimaryKey sql="select max(id) from " table="deal_order"/>
+	<PrimaryKey sql="select max(id) from " table="deal_revert"/>
+	<PrimaryKey sql="select max(id) from " table="email"/>
+	<PrimaryKey sql="select max(id) from " table="message"/>
+	<PrimaryKey sql="select max(id) from " table="users"/>
+</PrimaryKeys>

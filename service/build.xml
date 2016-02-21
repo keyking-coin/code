@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<project name="coin" default="clean" basedir=".">
+  <property environment="env" />
+	<property file="build.properties" />
+	
+	<path id="build.classpath">
+		<fileset dir="${lib}">
+    	<include name="*.jar"/>
+    </fileset>
+	</path>
+	
+	<target name="init">
+       <property name="project_name" value="coin" />
+       <property name="srcDir" value="." />
+       <property name="classDir" value="classes" />
+       <property name="jar" value="${basedir}/dist/coin.jar" />
+       <property name="mainclass" value="com.keyking.coin.service.Service" />	
+	</target>
+	
+	<target name="compile" depends="init" description="compile java source file">
+		<mkdir dir="${build}"/>
+		<delete>
+			<fileset dir="${build}">
+				<include name="**/*.*"/>
+			</fileset>
+		</delete>
+		<javac srcdir="${src}" destdir="${build}" classpathref="build.classpath" source="${source}" target="${target}" deprecation="on" debug="on" optimize="off">
+			 <compilerarg line="-encoding UTF-8 "/>
+		</javac>
+		<copy todir="${build}" preservelastmodified="true">
+			<fileset dir="${resources}">
+				<include name="**/*.*"/>
+			</fileset>
+		</copy>
+	</target>
+	
+	<target name="jar" depends="compile">
+		<mkdir dir="${dist}"/>
+		<jar jarfile="${jar}">
+			<fileset dir="${build}" casesensitive="yes">
+				<include name="**/*.class"/>
+			</fileset>
+			 <manifest>
+        <attribute name="Built-By" value="letang"/>
+        <attribute name="Main-Class" value="com.keyking.coin.service.Service"/>
+      </manifest>
+		</jar>
+		<copy todir="${dist}" preservelastmodified="true">
+			<fileset dir="${resources}">
+				<include name="**/*.*"/>
+			</fileset>
+		</copy>
+	</target>
+	
+  <target name="clean" depends="jar">
+     <delete dir="${classDir}" includeEmptyDirs="true" />
+  </target>
+    	
+</project>
