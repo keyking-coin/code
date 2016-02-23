@@ -16,6 +16,10 @@ import com.keyking.coin.util.TimeUtils;
 
 public class DealOrder extends EntitySaver implements Comparable<DealOrder>{
 	
+	private static final byte ORDER_FINISH_RUKU    = 3;
+	
+	private static final byte ORDER_FINISH_XIANHUO = 5;
+	
 	long id;
 	
 	long dealId;
@@ -33,8 +37,8 @@ public class DealOrder extends EntitySaver implements Comparable<DealOrder>{
 	DealAppraise buyerAppraise = new DealAppraise();//买家评价
 	
 	byte state;
-	//非中介模式:0买家下单,1买家付款,2卖家发货,3买家确认收货 (互评-> 交易完成);
-	//中介模式：0买家下单,1买家付款给中介,2卖家发货,3买家确认收货 ,4中介给卖家付款,5卖家收钱(互评-> 交易完成);
+	//非中介模式:0买家下单,1买家已付款,2卖家已发货(入库),3买家确认收货() (互评-> 交易完成);
+	//中介模式：0买家下单,1买家付款给中介,2中介已收款,3卖家发货,4买家确认收货 ,5中介给卖家付款(互评-> 交易完成);
 	
 	boolean revoke;//是否撤销了
 	
@@ -190,7 +194,7 @@ public class DealOrder extends EntitySaver implements Comparable<DealOrder>{
 		String str = TimeUtils.formatYear(TimeUtils.now());
 		times.add(state,str);
 		this.state = state;
-		if ((state == 3 && helpFlag == 0) || (state == 5 && helpFlag == 1)){
+		if ((state == ORDER_FINISH_RUKU && helpFlag == 0) || (state == ORDER_FINISH_XIANHUO && helpFlag == 1)){
 			//释放买家信用,提升双方信用积分
 			float total_value = num * price;
 			UserCharacter buyer = CTRL.search(buyId);
@@ -260,7 +264,7 @@ public class DealOrder extends EntitySaver implements Comparable<DealOrder>{
 		if (deal != null){
 			String str = null;
 			String[] ss = deal.getBourse().split(",");
-			if ((helpFlag == 0 && state == 3) || (helpFlag == 1 && state == 5)){
+			if ((helpFlag == 0 && state == ORDER_FINISH_RUKU) || (helpFlag == 1 && state == ORDER_FINISH_XIANHUO)){
 				str = ss[1] + "[0000ff](" + (deal.getType() == 0 ? "入库" : "现货") + ")[-][ff0000]" + deal.getName() + "[-]已经成交[ff0000]" + num + "[-]" + deal.getMonad();
 			}else{
 				str = ss[1] + "[0000ff](" + (deal.getType() == 0 ? "入库" : "现货") + ")[-][ff0000]" + deal.getName() + "[-]正在交易[ff0000]" + num + "[-]" + deal.getMonad();

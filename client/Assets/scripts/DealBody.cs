@@ -206,10 +206,11 @@ public class DealBody : Object, System.IComparable<DealBody>
                 }
             }
             label.text = year + "-" + month + "-" + day + " " + ts[1];
+            bool ruku = item.typeStr.Equals("入库");
             if (!helpflag)
             {
                 label = obj.transform.FindChild("fk").FindChild("value").GetComponent<UILabel>();
-                label.text = "买已付款";
+                label.text = "买家已付款";
                 if (state >= 1)
                 {
                     label.transform.parent.FindChild("icon-ok").gameObject.SetActive(true);
@@ -236,7 +237,7 @@ public class DealBody : Object, System.IComparable<DealBody>
                     }
                 }
                 label = obj.transform.FindChild("fh").FindChild("value").GetComponent<UILabel>();
-                label.text = "卖家已" + (item.typeStr.Equals("入库") ? "入库" : "发货");
+                label.text = "卖家已" + (ruku ? "入库" : "发货");
                 if (state >= 2)
                 {
                     label.transform.parent.FindChild("icon-ok").gameObject.SetActive(true);
@@ -263,7 +264,7 @@ public class DealBody : Object, System.IComparable<DealBody>
                     }
                 }
                 label = obj.transform.FindChild("qr").FindChild("value").GetComponent<UILabel>();
-                label.text = "买已" + (item.typeStr.Equals("入库") ? "确认账户" : "确认收货");
+                label.text = "买家确认" + (ruku ? "货已入库" : "收货");
                 if (state >= 3)
                 {
                     label.transform.parent.FindChild("icon-ok").gameObject.SetActive(true);
@@ -281,6 +282,18 @@ public class DealBody : Object, System.IComparable<DealBody>
                         (!item.seller && MainData.instance.user.id == item.uid)) && state >= 2)
                     {//我是买家
                         label.transform.GetComponent<UIButton>().enabled = true;
+                        if (ruku)
+                        {
+                            Transform line = label.transform.parent.FindChild("icon-no").FindChild("line");
+                            line.localPosition = new Vector3(185,0,0);
+                            line.GetComponent<UITexture>().width = 270;
+                        }
+                        else
+                        {
+                            Transform line = label.transform.parent.FindChild("icon-no").FindChild("line");
+                            line.localPosition = new Vector3(150,0,0);
+                            line.GetComponent<UITexture>().width = 200;
+                        }
                     }
                     else
                     {
@@ -309,7 +322,7 @@ public class DealBody : Object, System.IComparable<DealBody>
                     label.transform.parent.FindChild("value").localPosition = Vector3.zero;
                 }
                 label = obj.transform.FindChild("fh").FindChild("value").GetComponent<UILabel>();
-                label.text = "卖家已" + (item.typeStr.Equals("入库") ? "入库" : "发货");
+                label.text = "中介已收款";
                 if (state >= 2)
                 {
                     label.transform.parent.FindChild("icon-ok").gameObject.SetActive(true);
@@ -325,7 +338,7 @@ public class DealBody : Object, System.IComparable<DealBody>
                     label.transform.parent.FindChild("value").localPosition = Vector3.zero;
                 }
                 label = obj.transform.FindChild("qr1").FindChild("value").GetComponent<UILabel>();
-                label.text = "买家已" + (item.typeStr.Equals("入库") ? "确认账户" : "确认收货");
+                label.text = "卖家已" + (ruku ? "入库" : "发货");
                 if (state >= 3)
                 {
                     label.transform.parent.FindChild("icon-ok").gameObject.SetActive(true);
@@ -342,7 +355,7 @@ public class DealBody : Object, System.IComparable<DealBody>
                     label.transform.parent.FindChild("value").localPosition = Vector3.zero;
                 }
                 label = obj.transform.FindChild("fk2").FindChild("value").GetComponent<UILabel>();
-                label.text = "中介已付款给卖家";
+                label.text = "买家确认" + (ruku ? "货已入库" : "收货");
                 if (state >= 4)
                 {
                     label.transform.parent.FindChild("icon-ok").gameObject.SetActive(true);
@@ -358,7 +371,7 @@ public class DealBody : Object, System.IComparable<DealBody>
                     label.transform.parent.FindChild("value").localPosition = Vector3.zero;
                 }
                 label = obj.transform.FindChild("qr2").FindChild("value").GetComponent<UILabel>();
-                label.text = "卖家已确认收款";
+                label.text = "中介付款给卖家";
                 if (state >= 5)
                 {
                     label.transform.parent.FindChild("icon-ok").gameObject.SetActive(true);
