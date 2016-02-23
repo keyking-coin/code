@@ -20,8 +20,8 @@ public class UserLook extends AbstractLogic{
 			boolean look = (deal.getUid() == uid && deal.checkBuyerId(mid)) || (deal.getUid() == mid && deal.checkBuyerId(uid));
 			resp.add(user.getFace());
 			resp.add(user.getNikeName());
-			resp.add(look?user.getWeixin_num():"保密");
-			resp.add(look?user.getQq_num():"保密");
+			resp.add(user.getTitle());
+			resp.add(user.getRegistTime());
 			resp.add(look?user.getAddress():"保密");
 			resp.add(look?user.getName():"保密");
 			resp.add(look?user.getAccount():"保密");

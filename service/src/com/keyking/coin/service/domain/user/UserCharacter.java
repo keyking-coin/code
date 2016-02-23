@@ -30,9 +30,9 @@ public class UserCharacter extends EntitySaver{
 	
 	String nikeName="";//昵称
 	
-	String weixin_num ="";//微信号
+	String title = "普通营销员";//称号
 	
-	String qq_num = "";//qq号
+	String registTime = "";//注册时间
 	
 	String address ="";//地址
 	
@@ -146,21 +146,21 @@ public class UserCharacter extends EntitySaver{
 	public void setIdentity(String identity) {
 		this.identity = identity;
 	}
-
-	public String getWeixin_num() {
-		return weixin_num;
+	
+	public String getTitle() {
+		return title;
 	}
 
-	public void setWeixin_num(String weixin_num) {
-		this.weixin_num = weixin_num;
+	public void setTitle(String title) {
+		this.title = title;
 	}
 
-	public String getQq_num() {
-		return qq_num;
+	public String getRegistTime() {
+		return registTime;
 	}
 
-	public void setQq_num(String qq_num) {
-		this.qq_num = qq_num;
+	public void setRegistTime(String registTime) {
+		this.registTime = registTime;
 	}
 
 	public String getName() {

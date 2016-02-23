@@ -10,7 +10,7 @@ Target Server Type    : MYSQL
 Target Server Version : 50520
 File Encoding         : 65001
 
-Date: 2016-01-18 23:10:55
+Date: 2016-02-24 01:28:30
 */
 
 SET FOREIGN_KEY_CHECKS=0;
@@ -62,6 +62,7 @@ CREATE TABLE `deal` (
 -- ----------------------------
 -- Records of deal
 -- ----------------------------
+INSERT INTO `deal` VALUES ('0', '1', '1', '0', '0', '0,南京文交所', '猴年有喜', '50', '版', '1000', '2016-03-03 23:59:00', '2016-02-22 20:36:20', '速度了，没多少了', '50000', '0');
 INSERT INTO `deal` VALUES ('7', '1', '0', '0', '1', '1,合肥', '飞机小版', '0', '盒', '500', '2015-10-10 10:14:24', '2015-10-03 10:14:57', '急需，有的电话联系我13856094894', '0', '1');
 INSERT INTO `deal` VALUES ('8', '1', '1', '0', '0', '0,南京文交所', '观音像', '20', '版', '1000', '2015-10-10 22:42:24', '2015-10-03 22:42:57', '急售，要的速度了', '0', '0');
 INSERT INTO `deal` VALUES ('9', '1', '1', '0', '0', '0,南京文交所', '观音像大', '20', '签', '2000', '2015-10-17 22:42:24', '2015-10-03 22:43:22', '急售，要的速度了', '0', '1');
@@ -102,6 +103,9 @@ INSERT INTO `deal_order` VALUES ('7', '14', '2', '0', '[\"2016-01-02 12:06:45\"]
 INSERT INTO `deal_order` VALUES ('8', '14', '2', '0', '[\"2016-01-02 12:08:30\"]', '50', '25', '0,0,null,null|0,0,null,null', '0', '0');
 INSERT INTO `deal_order` VALUES ('9', '14', '2', '0', '[\"2016-01-02 16:34:56\"]', '50', '25', '0,0,null,null|0,0,null,null', '0', '0');
 INSERT INTO `deal_order` VALUES ('10', '14', '2', '0', '[\"2016-01-03 16:06:45\"]', '50', '25', '0,0,null,null|0,0,null,null', '0', '0');
+INSERT INTO `deal_order` VALUES ('11', '0', '2', '0', '[\"2016-02-22 20:43:03\"]', '20', '50', '0,0,null,null|0,0,null,null', '0', '0');
+INSERT INTO `deal_order` VALUES ('12', '0', '2', '0', '[\"2016-02-22 20:49:25\"]', '1', '50', '0,0,null,null|0,0,null,null', '0', '0');
+INSERT INTO `deal_order` VALUES ('13', '0', '2', '0', '[\"2016-02-22 21:03:17\"]', '1', '50', '0,0,null,null|0,0,null,null', '0', '0');
 
 -- ----------------------------
 -- Table structure for `deal_revert`
@@ -187,6 +191,8 @@ CREATE TABLE `message` (
 -- ----------------------------
 -- Records of message
 -- ----------------------------
+INSERT INTO `message` VALUES ('1', '[1,2]', '1', '2016-02-21 23:06:16', '你好，我爱你', '0', '0', '0');
+INSERT INTO `message` VALUES ('2', '[2,1]', '2', '2016-02-21 23:07:00', '恩，我也爱你', '0', '0', '1');
 
 -- ----------------------------
 -- Table structure for `timeline`
@@ -222,8 +228,8 @@ CREATE TABLE `users` (
   `pwd` varchar(32) CHARACTER SET utf8 NOT NULL,
   `face` varchar(16) CHARACTER SET utf8 NOT NULL DEFAULT 'face1',
   `nikeName` varchar(32) CHARACTER SET utf8 NOT NULL,
-  `weixin_num` varchar(32) CHARACTER SET utf8 NOT NULL,
-  `qq_num` varchar(32) CHARACTER SET utf8 NOT NULL,
+  `title` varchar(32) CHARACTER SET utf8 NOT NULL,
+  `registTime` varchar(32) CHARACTER SET utf8 NOT NULL,
   `name` varchar(32) CHARACTER SET utf8 NOT NULL,
   `address` varchar(128) CHARACTER SET utf8 NOT NULL,
   `age` int(3) DEFAULT NULL,
@@ -244,6 +250,6 @@ CREATE TABLE `users` (
 -- ----------------------------
 -- Records of users
 -- ----------------------------
-INSERT INTO `users` VALUES ('1', '13856094894', '123456789', 'face1', '萝莉控', 'keyking@163.com', '13565422', '张三', 'adadada', '30', '510725198507073834', '1', '大家好', '{\"curMoney\":100000,\"historyMoney\":100000,\"orders\":[]}', '[]', null, '0.0,100000.0,100000.0,0.0,0,0,0,', '{\"deposit\":1233456,\"key\":\"124548766645\",\"needSave\":true,\"pass\":true,\"pic\":\"13856094894-indent-front.png\",\"time\":\"2015-06-23 10:15:30\",\"type\":1}', '0|null', '0', '[]');
-INSERT INTO `users` VALUES ('2', '13721056986', '123456789', 'face2', '大叔控', 'luoji@163.com', '125644221', '李四', '是是是', '16', '125648335544565254', '1', '大家好', '{\"curMoney\":100000,\"historyMoney\":100000,\"orders\":[]}', '[]', null, '0.0,100000.0,100000.0,0.0,0,0,0,', '{\"deposit\":1233456,\"key\":\"124548766645\",\"needSave\":true,\"pass\":true,\"pic\":\"13856094894-indent-front.png\",\"time\":\"2015-06-23 10:15:30\",\"type\":1}', '0|null', '0', '[14]');
-INSERT INTO `users` VALUES ('3', '13135648865', '123456789', 'face3', '张三', 'zhangsan@163.com', '1596895412511', '王五', 'sss', '25', '356451125465546454', '1', '大家好', '', '[]', null, '', '{\"deposit\":1233456,\"key\":\"124548766645\",\"needSave\":true,\"pass\":true,\"pic\":\"13856094894-indent-front.png\",\"time\":\"2015-06-23 10:15:30\",\"type\":1}', '0|null', '0', '[]');
+INSERT INTO `users` VALUES ('1', '13856094894', '123456789', 'face1', '萝莉控', '金牌卖家', '2015-07-24 08:45:36', '张三', 'adadada', '30', '510725198507073834', '1', '大家好', '{\"curMoney\":100000,\"historyMoney\":100000,\"orders\":[]}', '[]', null, '0.0,100000.0,100000.0,1000.0,0,0,0,', '{\"deposit\":1233456,\"key\":\"124548766645\",\"needSave\":true,\"pass\":true,\"pic\":\"13856094894-indent-front.png\",\"time\":\"2015-06-23 10:15:30\",\"type\":1}', '0|null', '0', '[]');
+INSERT INTO `users` VALUES ('2', '13721056986', '123456789', 'face2', '大叔控', '普通会员', '2015-08-02 11:23:15', '李四', '是是是', '16', '125648335544565254', '1', '大家好', '{\"curMoney\":100000,\"historyMoney\":100000,\"orders\":[]}', '[]', null, '0.0,100000.0,100000.0,1000.0,0,0,0,', '{\"deposit\":1233456,\"key\":\"124548766645\",\"needSave\":true,\"pass\":true,\"pic\":\"13856094894-indent-front.png\",\"time\":\"2015-06-23 10:15:30\",\"type\":1}', '0|null', '0', '[14]');
+INSERT INTO `users` VALUES ('3', '13135648865', '123456789', 'face3', '张三', '普通会员', '2015-08-23 15:33:29', '王五', 'sss', '25', '356451125465546454', '1', '大家好', '', '[]', null, '', '{\"deposit\":1233456,\"key\":\"124548766645\",\"needSave\":true,\"pass\":true,\"pic\":\"13856094894-indent-front.png\",\"time\":\"2015-06-23 10:15:30\",\"type\":1}', '0|null', '0', '[]');

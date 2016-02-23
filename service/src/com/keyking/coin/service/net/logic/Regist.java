@@ -15,9 +15,9 @@ public class Regist extends AbstractLogic {
 		String code      = buffer.getUTF();
 		String pwd       = buffer.getUTF();
 		String nickname  = buffer.getUTF();
-		String weixin    = buffer.getUTF();
 		String name      = buffer.getUTF();
 		String address   = buffer.getUTF();
+		String registTime = TimeUtils.nowChStr();
 		if (CTRL.checkAccout(account,nickname,resp)){
 			int result = TOKEN.check(account,code);
 			if (result == 0){
@@ -25,14 +25,14 @@ public class Regist extends AbstractLogic {
 				user.setAccount(account);
 				user.setPwd(pwd);
 				user.setNikeName(nickname);
-				user.setWeixin_num(weixin);
 				user.setName(name);
 				user.setAddress(address);
+				user.setRegistTime(registTime);
 				if (CTRL.register(user)){
 					TOKEN.remove(account);
 					resp.setSucces();
 				}
-				ServerLog.info(user.getAccount() + " regist ok at " + TimeUtils.nowChStr());
+				ServerLog.info(user.getAccount() + " regist ok at " + registTime);
 			}else if (result == 2){
 				resp.setError("验证码已失效");
 			}else{

@@ -391,6 +391,7 @@ public class DealEvent : CenterEvent{
         {
             gameObject.SetActive(false);
             transform.parent.FindChild("body").GetComponent<UIPanel>().alpha = 1f;
+            GameObject.Find("main").transform.FindChild("back").gameObject.SetActive(true);
             CameraUtil.pop(3);
             Destroy(this);
         }
@@ -618,6 +619,7 @@ public class DealEvent : CenterEvent{
         button_close.onClick.Add(new EventDelegate(grab_scritp.grabBack));
         CameraUtil.push(3,2);
         grab_scritp.change(1,10,grab);
+        GameObject.Find("main").transform.FindChild("back").gameObject.SetActive(false);
     }
 
     void backAndShow()

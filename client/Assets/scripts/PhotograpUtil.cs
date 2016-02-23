@@ -9,10 +9,10 @@ public class PhotograpUtil : MonoBehaviour
 	// Use this for initialization
 	void Start ()
     {
-        UISprite rect = transform.parent.GetComponent<UISprite>();
+        //UISprite rect = transform.parent.GetComponent<UISprite>();
         target = transform.parent.FindChild("context").GetComponent<UITexture>();
-        target.width  = rect.width;
-        target.height = rect.height;
+        //target.width  = rect.width;
+        //target.height = rect.height;
 	}
 	
 	// Update is called once per frame

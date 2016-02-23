@@ -18,8 +18,8 @@ public class UserRow implements RowMapper<UserCharacter>{
 		user.setPwd(rs.getString("pwd"));
 		user.setFace(rs.getString("face"));
 		user.setNikeName(rs.getString("nikeName"));
-		user.setWeixin_num(rs.getString("weixin_num"));
-		user.setQq_num(rs.getString("qq_num"));
+		user.setTitle(rs.getString("title"));
+		user.setRegistTime(rs.getString("registTime"));
 		user.setName(rs.getString("name"));
 		user.setAddress(rs.getString("address"));
 		user.setAge(rs.getInt("age"));

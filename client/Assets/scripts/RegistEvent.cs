@@ -16,7 +16,7 @@ public class RegistEvent : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-        string[] keyNames = new string[] {"account", "token", "pwd","rpwd","nikeName","weixin","name","address"};
+        string[] keyNames = new string[] {"account", "token", "pwd","rpwd","nikeName","name","address"};
         Transform trans1 = transform.FindChild("container");
         Transform trans2 = trans1.FindChild("more").FindChild("suns");
         for (int i = 0 ; i < keyNames.Length ; i++ )
@@ -121,17 +121,10 @@ public class RegistEvent : MonoBehaviour {
 			DialogUtil.tip("昵称过长");
 			return;
 		}
-        UIInput weixin = inputs["weixin"];
         UIInput name = inputs["name"];
         UIInput address = inputs["address"];
         if (isOpen)
         {
-            if (MyUtilTools.stringIsNull(weixin.value))
-            {
-                UILabel label = weixin.transform.FindChild("tips").GetComponent<UILabel>();
-                DialogUtil.tip(label.text);
-                return;
-            }
             if (MyUtilTools.stringIsNull(name.value))
             {
                 UILabel label = name.transform.FindChild("tips").GetComponent<UILabel>();
@@ -152,7 +145,6 @@ public class RegistEvent : MonoBehaviour {
         buffer.WriteString(token.value);
         buffer.WriteString(pwd.value);
         buffer.WriteString(nikeName.value);
-        buffer.WriteString(weixin.value);
         buffer.WriteString(name.value);
         buffer.WriteString(address.value);
 		NetUtil.getInstance.SendMessage (buffer);
@@ -197,7 +189,7 @@ public class RegistEvent : MonoBehaviour {
         while (obj != null)
         {
             float x = obj.transform.localPosition.x;
-            float y = obj.transform.localPosition.y + (isOpen ? -1 : 1) * 300;
+            float y = obj.transform.localPosition.y + (isOpen ? -1 : 1) * 200;
             obj.transform.localPosition = new Vector3(x, y, 0);
             DownOpenLink link = obj.GetComponent<DownOpenLink>();
             obj = link == null ? null : link.next;

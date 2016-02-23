@@ -15,11 +15,11 @@ import com.keyking.coin.util.ServerLog;
 
 public class UserDAO extends JdbcDaoSupport {
 	
-	private static String INSERT_SQL_STR = "insert into users (id,account,pwd,face,nikeName,weixin_num,qq_num,name,address,signature,recharge,bankAccount,credit,forbid,breach,favorites)values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+	private static String INSERT_SQL_STR = "insert into users (id,account,pwd,face,nikeName,title,registTime,name,address,signature,recharge,bankAccount,credit,forbid,breach,favorites)values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 	
-	private static String UPDATE_SQL_STR = "update users set pwd=?,face=?,nikeName=?,weixin_num=?,qq_num=?,name=?,address=?,age=?,identity=?,signature=?,recharge=?,bankAccount=?,seller=?,push=?,credit=?,forbid=?,breach=?,favorites=? where id=?";
+	private static String UPDATE_SQL_STR = "update users set pwd=?,face=?,nikeName=?,title=?,registTime=?,name=?,address=?,age=?,identity=?,signature=?,recharge=?,bankAccount=?,seller=?,push=?,credit=?,forbid=?,breach=?,favorites=? where id=?";
 
-	private static String LOGIN_SQL_STR = "select * from users where account=? and pwd=?";
+	private static String LOGIN_SQL_STR  = "select * from users where account=? and pwd=?";
 
 	private static String CHECK_SQL_STR1 = "select * from users where account=?";
 	
@@ -83,8 +83,8 @@ public class UserDAO extends JdbcDaoSupport {
 					ps.setString(cursor++,user.getPwd());
 					ps.setString(cursor++,user.getFace());
 					ps.setString(cursor++,user.getNikeName());
-					ps.setString(cursor++,user.getWeixin_num());
-					ps.setString(cursor++,user.getQq_num());
+					ps.setString(cursor++,user.getTitle());
+					ps.setString(cursor++,user.getRegistTime());
 					ps.setString(cursor++,user.getName());
 					ps.setString(cursor++,user.getAddress());
 					ps.setString(cursor++,user.getSignature());
@@ -108,7 +108,7 @@ public class UserDAO extends JdbcDaoSupport {
 		try {
 			getJdbcTemplate().update(UPDATE_SQL_STR,user.getPwd(),
 					          user.getFace(),user.getNikeName(),
-					          user.getWeixin_num(),user.getQq_num(),
+					          user.getTitle(),user.getRegistTime(),
 					          user.getName(),user.getAddress(),
 					          user.getAge(),user.getIdentity(),
 					          user.getSignature(),user.getRecharge().serialize(),
