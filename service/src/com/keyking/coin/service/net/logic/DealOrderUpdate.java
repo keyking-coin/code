@@ -22,26 +22,25 @@ public class DealOrderUpdate extends AbstractLogic {
 			DealOrder order = deal.searchOrder(orderId);
 			if (order != null){
 				resp.add(order);
-				if (index == 2){
-					if (deal.getUid() == uid){
-						byte pre = order.getState();
-						order.addTimes(index);
-						UserCharacter user = CTRL.search(order.getBuyId());
-						NET.sendMessageToClent(deal.clientMessage(Module.UPDATE_FLAG),user);
-						resp.setSucces();
-						ServerLog.info(CTRL.search(uid).getAccount() + " update deal-order state from " + pre + " to " + order.getState() + " ----> id is " + orderId);
-					}else{
-						resp.setError("您没有权限那么做");
+				boolean couldUpdate = false;
+				if (index == 1 || index == 3){//买家付款，确认收货
+					if ((deal.getSellFlag() == 0 && deal.getUid() == uid) || (deal.getSellFlag() == 1 && order.getBuyId() == uid)){
+						couldUpdate = true;
 					}
-				}else {
-					if (order.getBuyId() == uid){
-						UserCharacter user = CTRL.search(deal.getUid());
-						NET.sendMessageToClent(deal.clientMessage(Module.UPDATE_FLAG),user);
-						order.addTimes(index);
-						resp.setSucces();
-					}else{
-						resp.setError("您没有权限那么做");
+				}else if (index == 2){//卖家发货
+					if ((deal.getSellFlag() == 1 && deal.getUid() == uid) || (deal.getSellFlag() == 0 && order.getBuyId() == uid)){
+						couldUpdate = true;
 					}
+				}
+				if (couldUpdate){
+					byte pre = order.getState();
+					order.addTimes(index);
+					UserCharacter user = CTRL.search(order.getBuyId());
+					NET.sendMessageToClent(deal.clientMessage(Module.UPDATE_FLAG),user);
+					resp.setSucces();
+					ServerLog.info(CTRL.search(uid).getAccount() + " update deal-order state from " + pre + " to " + order.getState() + " ----> id is " + orderId);
+				}else{
+					resp.setError("您没有权限那么做");
 				}
 			}else{
 				resp.setError("订单编号错误");
