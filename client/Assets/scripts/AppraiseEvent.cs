@@ -58,7 +58,7 @@ public class AppraiseEvent : MonoBehaviour {
         container.SetActive(true);
         CameraUtil.push(3,2);
         transform.parent.parent.GetComponent<UIPanel>().alpha = 0.1f;
-        container.GetComponent<JustChangeLayer>().change(1,10,container);
+        container.GetComponent<JustChangeLayer>().change(1,10);
         Transform tips = container.transform.FindChild("tips");
         tips.gameObject.SetActive(false);
         UIButton button = tips.FindChild("close").GetComponent<UIButton>();

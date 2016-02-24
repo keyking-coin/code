@@ -21,7 +21,7 @@ public class DealOrderRow implements RowMapper<DealOrder> {
 		order.appraiseDeserialize(rs.getString("appraise"));
 		order.setState(rs.getByte("state"));
 		order.setHelpFlag(rs.getByte("helpFlag"));
-		order.setRevoke(rs.getByte("_revoke") == 1);
+		order.setRevoke(rs.getByte("_revoke"));
 		return order;
 	}
 

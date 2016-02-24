@@ -16,9 +16,13 @@ import com.keyking.coin.util.TimeUtils;
 
 public class DealOrder extends EntitySaver implements Comparable<DealOrder>{
 	
-	private static final byte ORDER_FINISH_RUKU    = 3;
+	public static final byte ORDER_FINISH_RUKU    = 3;
 	
-	private static final byte ORDER_FINISH_XIANHUO = 5;
+	public static final byte ORDER_FINISH_XIANHUO = 5;
+	
+	public static final int ORDER_REVOKE_BUYER     = 1;
+	
+	public static final int ORDER_REVOKE_SELLER    = 1 << 1;
 	
 	long id;
 	
@@ -40,7 +44,7 @@ public class DealOrder extends EntitySaver implements Comparable<DealOrder>{
 	//非中介模式:0买家下单,1买家已付款,2卖家已发货(入库),3买家确认收货() (互评-> 交易完成);
 	//中介模式：0买家下单,1买家付款给中介,2中介已收款,3卖家发货,4买家确认收货 ,5中介给卖家付款(互评-> 交易完成);
 	
-	boolean revoke;//是否撤销了
+	int revoke = 0 ;//0正常，1买家撤销,2卖家撤销,3撤销完成
 	
 	List<String> times = new ArrayList<String>();
 	
@@ -59,6 +63,7 @@ public class DealOrder extends EntitySaver implements Comparable<DealOrder>{
 		}
 		sellerAppraise.serialize(buffer);
 		buyerAppraise.serialize(buffer);
+		buffer.putInt(revoke);
 	}
 	
 	public void serialize(DataBuffer buffer) {
@@ -124,14 +129,23 @@ public class DealOrder extends EntitySaver implements Comparable<DealOrder>{
 		this.buyerAppraise = buyerAppraise;
 	}
 
-	public boolean isRevoke() {
+	public int getRevoke() {
 		return revoke;
 	}
 
-	public void setRevoke(boolean revoke) {
+	public void setRevoke(int revoke) {
 		this.revoke = revoke;
 	}
-
+	
+	public void  addRevoke(int flag) {
+		revoke |= flag;
+	}
+	
+	public boolean  checkRevoke(int flag) {
+		int result = revoke & flag;
+		return result != 0;
+	}
+	
 	public String appraiseSerialize(){
 		return sellerAppraise.serialize() + "|" + buyerAppraise.serialize();
 	}

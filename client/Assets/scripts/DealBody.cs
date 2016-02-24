@@ -37,16 +37,16 @@ public class DealBody : Object, System.IComparable<DealBody>
             sprite.spriteName = icon;
             obj = obj_item.transform.FindChild("name").gameObject;
             UILabel label = obj.GetComponent<UILabel>();
-            label.text = userName + ":";
+            label.text = userName + " ";
             if (!tar.Equals("null"))
             {
-                label.text = userName + " 回复 " + tar + ":";
+                label.text = userName + " 回复 " + tar + " ";
             }
             float name_len = MyUtilTools.computeLen(label);
             obj = obj_item.transform.FindChild("time").gameObject;
             label = obj.GetComponent<UILabel>();
             label.text = time;
-            obj.transform.localPosition = new Vector3(name_len + 20,5,0);
+            obj.transform.localPosition = new Vector3(name_len + 20,-2,0);
             obj = obj_item.transform.FindChild("context").gameObject;
             label = obj.GetComponent<UILabel>();
             label.text = context;
@@ -156,7 +156,9 @@ public class DealBody : Object, System.IComparable<DealBody>
         public List<string> times = new List<string>();
         public DealBody item;
         public bool refresh = true;
-
+        public int revoke;//撤销
+        public const int ORDER_REVOKE_BUYER     = 1;
+        public const int ORDER_REVOKE_SELLER    = 1 << 1;
         public static Order read(ByteBuffer data)
         {
             Order order = new Order();
@@ -175,37 +177,25 @@ public class DealBody : Object, System.IComparable<DealBody>
             }
             order.sellerAppraise = Appraise.read(data,order);
             order.buyerAppraise = Appraise.read(data,order);
+            order.revoke = data.ReadInt();
             return order;
+        }
+
+        public bool checkRevoke(int flag)
+        {
+            int result = revoke & flag;
+            return result != 0;
         }
 
         public void insterToObj(GameObject obj)
         {
             UILabel label = obj.transform.FindChild("title").GetComponent<UILabel>();
             string[] ss = item.bourse.Split(","[0]);
-            label.text = "[0000ff]" + ss[1] + "[-]的[ff0000]" + item.stampName + "[-] " + item.monad;
+            label.text = "(编号：[00ff00]" + id + ")[-][0000ff]" + ss[1] + "[-]的[ff0000]" + item.stampName + "[-]";
             label = obj.transform.FindChild("num").FindChild("value").GetComponent<UILabel>();
-            label.text = num + " " + item.monad;
+            label.text = num + "(" + item.price + "/" + item.monad + ")";
             label = obj.transform.FindChild("time").FindChild("value").GetComponent<UILabel>();
-            string[] ts = times[0].Split(" "[0]);
-            string[] ys = ts[0].Split("-"[0]);
-            int year = int.Parse(ys[0]);
-            int month = int.Parse(ys[1]);
-            int day = int.Parse(ys[2]);
-            int maxDays = System.DateTime.DaysInMonth(year, month);
-            if (day == maxDays)
-            {
-                day = 1;
-                if (month == 12)
-                {
-                    month = 1;
-                    year++;
-                }
-                else
-                {
-                    month++;
-                }
-            }
-            label.text = year + "-" + month + "-" + day + " " + ts[1];
+            label.text = times[0];
             bool ruku = item.typeStr.Equals("入库");
             if (!helpflag)
             {
@@ -387,6 +377,19 @@ public class DealBody : Object, System.IComparable<DealBody>
                     label.transform.parent.FindChild("value").localPosition = Vector3.zero;
                 }
             }
+            Transform revoke_trans = obj.transform.FindChild("revoke");
+            if (((item.seller && MainData.instance.user.id == buyId) || (!item.seller && MainData.instance.user.id == item.uid)) && !checkRevoke(ORDER_REVOKE_BUYER))
+            {//我是买家
+                revoke_trans.gameObject.SetActive(true);
+            }
+            else if (((!item.seller && MainData.instance.user.id == buyId) || (item.seller && MainData.instance.user.id == item.uid)) && !checkRevoke(ORDER_REVOKE_SELLER))
+            {//我是卖家
+                revoke_trans.gameObject.SetActive(true);
+            }
+            else
+            {
+                revoke_trans.gameObject.SetActive(false);
+            }
         }
 
         public int CompareTo(Order other)
@@ -412,6 +415,7 @@ public class DealBody : Object, System.IComparable<DealBody>
             }
             sellerAppraise.copy(order.sellerAppraise);
             buyerAppraise.copy(order.buyerAppraise);
+            revoke = order.revoke;
         }
     }
 
@@ -480,12 +484,12 @@ public class DealBody : Object, System.IComparable<DealBody>
         sprite.spriteName = icon;
         obj = obj_item.transform.FindChild("name").gameObject;
         UILabel label = obj.GetComponent<UILabel>();
-        label.text = userName + ":";
+        label.text = userName + " ";
         float name_len = MyUtilTools.computeLen(label);
         obj = obj_item.transform.FindChild("time").gameObject;
         label = obj.GetComponent<UILabel>();
         label.text = time;
-        obj.transform.localPosition = new Vector3(name_len + 20, 5, 0);
+        obj.transform.localPosition = new Vector3(name_len + 20,-2,0);
         obj = obj_item.transform.FindChild("context").gameObject;
         label = obj.GetComponent<UILabel>();
         string[] ss = bourse.Split(","[0]);
@@ -509,6 +513,7 @@ public class DealBody : Object, System.IComparable<DealBody>
                 keyNames[2] + stampName + "\n" +
                 keyNames[3] + monad + "\n" +
                 keyNames[4] + curNum + "\n" +
+                keyNames[6] + price + "\n" +
                 keyNames[5] + validTime  +
                 (MyUtilTools.stringIsNull(context) ? "" : "\n" + context);
         }

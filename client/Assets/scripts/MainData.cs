@@ -248,8 +248,8 @@ public class MainData{
         public string nikeName = "萝莉控";
         public string realyName = "王五";
         public string address ="银河系太阳系地球";
-        public string weixin = "ceshi12635373";
-        public string qq = "823894529";
+        public string title = "普通会员";
+        public string registTime = "2015-06-25";
         public string indentity = "325647844455412545";
         public string signature = "热爱自由";
         public bool pushFlag = true;
@@ -268,7 +268,9 @@ public class MainData{
             account  = buffer.ReadString();
             face = buffer.ReadString();
             nikeName = buffer.ReadString();
-            realyName = buffer.ReadString();
+            realyName  = buffer.ReadString();
+            title      = buffer.ReadString();
+            registTime = buffer.ReadString();
             address = buffer.ReadString();
             indentity = buffer.ReadString();
             signature = buffer.ReadString();

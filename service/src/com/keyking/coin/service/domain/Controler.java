@@ -335,9 +335,11 @@ public class Controler implements Instances{
 	public List<SimpleOrderModule> trySearchRecentOrder(){
 		List<SimpleOrderModule> modules = new ArrayList<SimpleOrderModule>();
 		for (DealOrder order : recents){
-			SimpleOrderModule module = new SimpleOrderModule();
-			order.getSimpleDes(module);
-			modules.add(module);
+			if (order.getRevoke() == 0){
+				SimpleOrderModule module = new SimpleOrderModule();
+				order.getSimpleDes(module);
+				modules.add(module);
+			}
 		}
 		return modules;
 	}

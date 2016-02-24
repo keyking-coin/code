@@ -3,8 +3,6 @@ using System.Collections;
 
 public class GrabInputEvent : MonoBehaviour {
 
-    int baseNum = 10;
-
     int maxNUm = 0;
 
     UIInput input = null;
@@ -18,18 +16,18 @@ public class GrabInputEvent : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-	
+
 	}
 
-    public void init(int min , int max)
+    public void init(int max)
     {
-        saveNum = baseNum = min;
+        saveNum = 1;
         maxNUm = max;
         if (input == null)
         {
             input = transform.GetComponent<UIInput>();
         }
-        input.value = min + "";
+        input.value = "1";
     }
 
     public void check()
@@ -37,15 +35,9 @@ public class GrabInputEvent : MonoBehaviour {
         if (input != null)
         {
             int num = int.Parse(input.value);
-            if (num % baseNum != 0)
+            if (num < maxNUm)
             {
-                DialogUtil.tip("输入错误必须是" + baseNum + "的倍数");
-                input.value = saveNum + "";
-                return;
-            }
-            if (num < baseNum )
-            {
-                DialogUtil.tip("输入数量小于" + baseNum + "了");
+                DialogUtil.tip("剩余数量不足" + maxNUm);
                 input.value = saveNum + "";
                 return;
             }

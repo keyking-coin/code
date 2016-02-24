@@ -19,18 +19,18 @@ public class JustChangeLayer : MonoBehaviour {
         run();
 	}
 
-    public void change(int c , int l,GameObject target)
+    public void change(int c,int l,GameObject target = null)
     {
         count = c;
         layer = l;
-        target_obj = target;
-    }
-
-    public void change(int c, int l)
-    {
-        count = c;
-        layer = l;
-        target_obj = gameObject;
+        if (target == null)
+        {
+            target_obj = gameObject;
+        }
+        else
+        {
+            target_obj = target;
+        }
     }
 
     public void run()

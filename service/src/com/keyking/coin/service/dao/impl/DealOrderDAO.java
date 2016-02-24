@@ -40,7 +40,7 @@ public class DealOrderDAO extends JdbcDaoSupport {
 					ps.setString(cursor++,order.appraiseSerialize());
 					ps.setByte(cursor++,order.getState());
 					ps.setByte(cursor++,order.getHelpFlag());
-					ps.setByte(cursor++,(byte)(order.isRevoke() ? 1 : 0));
+					ps.setInt(cursor++,order.getRevoke());
 					return ps;
 				}
 			});
@@ -58,7 +58,7 @@ public class DealOrderDAO extends JdbcDaoSupport {
 					order.timesTostr(),order.getNum(),
 					order.getPrice(),order.appraiseSerialize(),
 					order.getState(),order.getHelpFlag(),
-					(order.isRevoke() ? 1 : 0),order.getId());
+					order.getRevoke(),order.getId());
 		} catch (DataAccessException e) {
 			ServerLog.error("save dealOrder error",e);
 			return false;

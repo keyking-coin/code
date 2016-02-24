@@ -108,16 +108,16 @@ public class UserInfoEvent : CenterEvent {
         account.text = MainData.instance.user.account;
         UILabel nikeName = container.FindChild("nikeName").GetComponent<UILabel>();
         nikeName.text = MainData.instance.user.nikeName;
-        UIInput weixin = container.FindChild("weixin").FindChild("inputer").GetComponent<UIInput>();
-        weixin.value = MainData.instance.user.weixin;
-        save_strs.Add(MainData.instance.user.weixin);
-        UIInput qq = container.FindChild("qq").FindChild("inputer").GetComponent<UIInput>();
-        qq.value = MainData.instance.user.qq;
-        save_strs.Add(MainData.instance.user.qq);
+        UILabel title = container.FindChild("title").FindChild("value").GetComponent<UILabel>();
+        title.text = MainData.instance.user.title;
+        UILabel registTime = container.FindChild("registTime").FindChild("value").GetComponent<UILabel>();
+        string[] ss = MainData.instance.user.registTime.Split(" "[0]);
+        string[] ssy = ss[0].Split("-"[0]);
+        registTime.text = ssy[0] + "年" + ssy[1] + "月" + ssy[2] + "日";
         UILabel bank_list = container.FindChild("bank").FindChild("value").GetComponent<UILabel>();
         if (MainData.instance.user.bacnkAccount.names.Count > 0)
         {
-            bank_list.text = MainData.instance.user.bacnkAccount.names[0] + ":" + MainData.instance.user.bacnkAccount.accounts[0];
+            bank_list.text = MainData.instance.user.bacnkAccount.accounts[0];
         }
         else
         {
@@ -205,7 +205,7 @@ public class UserInfoEvent : CenterEvent {
 		clears();
 		//CameraUtil.pop(7);
 		title.GetComponentInChildren<UILabel>().text = "个人中心";
-		title.GetComponent<JustChangeLayer>().change(1,5,title);
+		title.GetComponent<JustChangeLayer>().change(1,5);
 		title.transform.FindChild ("ok").gameObject.SetActive(true);
 		callback = null;
 	}
@@ -274,7 +274,7 @@ public class UserInfoEvent : CenterEvent {
             UILabel bank_list = needshow[0].transform.FindChild("scroll").FindChild("body").FindChild("container").FindChild("bank").FindChild("value").GetComponent<UILabel>();
             if (MainData.instance.user.bacnkAccount.names.Count > 0)
             {
-                bank_list.text = MainData.instance.user.bacnkAccount.names[0] + ":" + MainData.instance.user.bacnkAccount.accounts[0];
+                bank_list.text = MainData.instance.user.bacnkAccount.accounts[0];
             }
             else
             {
@@ -372,7 +372,7 @@ public class UserInfoEvent : CenterEvent {
 		clears();
 		//CameraUtil.pop(7);
 		title.GetComponentInChildren<UILabel>().text = "个人中心";
-		title.GetComponent<JustChangeLayer>().change(1,5,title);
+		title.GetComponent<JustChangeLayer>().change(1,5);
 		title.transform.FindChild ("ok").gameObject.SetActive(true);
 		callback = null;
 	}
@@ -418,6 +418,7 @@ public class UserInfoEvent : CenterEvent {
         preShow.Add(obj1);
         obj2.SetActive(true);
         curShow.Add(obj2);
+        obj2.transform.FindChild("inputer").GetComponent<UIInput>().value = save_strs[1];
         UILabel label = title.GetComponentInChildren<UILabel>();
         label.text = "修改签名";
         callback = new EventDelegate(backFromSignature);
@@ -448,6 +449,7 @@ public class UserInfoEvent : CenterEvent {
         preShow.Add(obj1);
         obj2.SetActive(true);
         curShow.Add(obj2);
+        obj2.transform.FindChild("inputer").GetComponent<UIInput>().value = save_strs[2];
         UILabel label = title.GetComponentInChildren<UILabel>();
         label.text = "修改收货地址";
         callback = new EventDelegate(backFromAddress);
@@ -518,16 +520,12 @@ public class UserInfoEvent : CenterEvent {
         needSave = save_strs[0].Equals(icon.spriteName);
         UILabel signature_save = container.FindChild("signature").FindChild("save").GetComponent<UILabel>();
         needSave = needSave ? needSave : save_strs[1].Equals(signature_save.text);
-        UIInput weixin = container.FindChild("weixin").FindChild("inputer").GetComponent<UIInput>();
-        needSave = needSave ? needSave : save_strs[2].Equals(weixin.value);
-        UIInput qq = container.FindChild("qq").FindChild("inputer").GetComponent<UIInput>();
-        needSave = needSave ? needSave : save_strs[3].Equals(qq.value);
         UILabel address_save = container.FindChild("address").FindChild("save").GetComponent<UILabel>();
-        needSave = needSave ? needSave : save_strs[4].Equals(address_save.text);
+        needSave = needSave ? needSave : save_strs[2].Equals(address_save.text);
         UIInput name = container.FindChild("name").FindChild("inputer").GetComponent<UIInput>();
-        needSave = needSave ? needSave : save_strs[5].Equals(name.value);
+        needSave = needSave ? needSave : save_strs[3].Equals(name.value);
         UIInput indent = container.FindChild("indent").FindChild("inputer").GetComponent<UIInput>();
-        needSave = needSave ? needSave : save_strs[6].Equals(indent.value);
+        needSave = needSave ? needSave : save_strs[4].Equals(indent.value);
         UIToggle toggle = container.FindChild("push-flag").FindChild("toggle").GetComponent<UIToggle>();
         needSave = needSave ? needSave : toggle.value != MainData.instance.user.pushFlag;
         if (needSave)
@@ -570,8 +568,6 @@ public class UserInfoEvent : CenterEvent {
         Transform container = needshow[0].transform.FindChild("scroll").FindChild("body").FindChild("container");
         UISprite icon = container.FindChild("icon").GetComponent<UISprite>();
         UILabel signature_save = container.FindChild("signature").FindChild("save").GetComponent<UILabel>();
-        UIInput weixin = container.FindChild("weixin").FindChild("inputer").GetComponent<UIInput>();
-        UIInput qq = container.FindChild("qq").FindChild("inputer").GetComponent<UIInput>();
         UILabel address_save = container.FindChild("address").FindChild("save").GetComponent<UILabel>();
         UIInput name = container.FindChild("name").FindChild("inputer").GetComponent<UIInput>();
         UIInput indent = container.FindChild("indent").FindChild("inputer").GetComponent<UIInput>();
@@ -582,8 +578,6 @@ public class UserInfoEvent : CenterEvent {
         buffer.WriteLong(MainData.instance.user.id);//编号
         buffer.WriteString(icon.spriteName);
         buffer.WriteString(signature_save.text);
-        buffer.WriteString(weixin.value);
-        buffer.WriteString(qq.value);
         buffer.WriteString(address_save.text);
         buffer.WriteByte((byte)(toggle.value ? 1 : 0));
         if (!MyUtilTools.stringIsNull(name.value))

@@ -105,13 +105,12 @@ public class PushEvent : MonoBehaviour
     public void grab()
     {
         DealBody item = pushs[index];
-        int min = 1;
         int max = item.curNum;
         transform.FindChild("base").gameObject.SetActive(false);
         GameObject grab = transform.FindChild("grab").gameObject;
         grab.SetActive(true);
         GameObject num_input = grab.transform.FindChild("inputer").gameObject;
-        num_input.GetComponent<GrabInputEvent>().init(min, max);
+        num_input.GetComponent<GrabInputEvent>().init(max);
         GameObject flag_obj = grab.transform.FindChild("flag").gameObject;
         flag_obj.SetActive(item.helpFlag);
         num_input.transform.localPosition = new Vector3(0,item.helpFlag?40:0,0);

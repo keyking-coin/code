@@ -217,19 +217,6 @@ public class Deal extends EntitySaver implements Comparable<Deal>{
 		compare_o();
 	}
 	
-	public void simpleSerialize(DataBuffer buffer) {
-		buffer.putLong(id);
-		buffer.put(sellFlag);
-		buffer.putLong(uid);
-		UserCharacter user = CTRL.search(uid);
-		buffer.putUTF(user.getNikeName());
-		buffer.putUTF(name);
-		buffer.putInt(orders.size());
-		for (DealOrder order : orders){
-			order._serialize(buffer);
-		}
-	}
-	
 	public void serialize(DataBuffer buffer) {
 		buffer.putLong(id);
 		buffer.put(sellFlag);

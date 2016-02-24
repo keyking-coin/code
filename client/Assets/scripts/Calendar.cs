@@ -50,7 +50,7 @@ public class Calendar : JustChangeLayer
         calendar_script.tryToUpdate(true);
         calendar_obj.name = "calendar";
         calendar_obj.transform.localScale = new Vector3(1.5f,1.2f,1f);
-        calendar_script.change(1,11,calendar_obj);
+        calendar_script.change(1,11);
         return calendar_script;
     }
 

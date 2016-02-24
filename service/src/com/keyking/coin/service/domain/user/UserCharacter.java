@@ -291,6 +291,8 @@ public class UserCharacter extends EntitySaver{
 		buffer.putUTF(face);
 		buffer.putUTF(nikeName);
 		buffer.putUTF(name);
+		buffer.putUTF(title);
+		buffer.putUTF(registTime);
 		buffer.putUTF(address);
 		buffer.putUTF(identity);
 		buffer.putUTF(signature);

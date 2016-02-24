@@ -39,8 +39,8 @@ public class DealLookEvent : MonoBehaviour
         gameObject.SetActive(true);
         string icon_str = buffer.ReadString();
         string nikeName = buffer.ReadString();
-        string wx_str = buffer.ReadString();
-        string qq_str = buffer.ReadString();
+        string title = buffer.ReadString();
+        string registTime = buffer.ReadString();
         string address = buffer.ReadString();
         string name = buffer.ReadString();
         cur_tel_str = buffer.ReadString();
@@ -51,10 +51,12 @@ public class DealLookEvent : MonoBehaviour
         icon.spriteName = icon_str;
         UILabel label = container.FindChild("nikeName").GetComponent<UILabel>();
         label.text = nikeName;
-        label = container.FindChild("weixin").FindChild("value").GetComponent<UILabel>();
-        label.text = wx_str;
-        label = container.FindChild("qq").FindChild("value").GetComponent<UILabel>();
-        label.text = qq_str; 
+        label = container.FindChild("title").FindChild("value").GetComponent<UILabel>();
+        label.text = title;
+        label = container.FindChild("registTime").FindChild("value").GetComponent<UILabel>();
+        string[] ss  = registTime.Split(" "[0]);
+        string[] ssy = ss[0].Split("-"[0]);
+        label.text = ssy[0] + "年" + ssy[1] + "月" + ssy[2] + "日";
         label = container.FindChild("address").FindChild("value").GetComponent<UILabel>();
         label.text = address;
         label = container.FindChild("name").FindChild("value").GetComponent<UILabel>();
@@ -101,20 +103,13 @@ public class DealLookEvent : MonoBehaviour
         int hp = buffer.ReadInt();
         int zp = buffer.ReadInt();
         int cp = buffer.ReadInt();
-        Transform credit = container.FindChild("credit");
-        UILabel cur_value = credit.FindChild("cur-value").FindChild("Label").GetComponent<UILabel>();
-        cur_value.text = curValue;
-        UILabel max_value = credit.FindChild("max-value").FindChild("Label").GetComponent<UILabel>();
-        max_value.text = maxValue;
-        UILabel temp_value = credit.FindChild("temp-value").FindChild("Label").GetComponent<UILabel>();
-        temp_value.text = tempMaxValue;
-        UILabel deal_value = credit.FindChild("deal-value").FindChild("Label").GetComponent<UILabel>();
+        UILabel deal_value = container.FindChild("deal-value").FindChild("Label").GetComponent<UILabel>();
         deal_value.text = totalDealVale;
-        UILabel hp_value = credit.FindChild("hp").FindChild("Label").GetComponent<UILabel>();
+        UILabel hp_value = container.FindChild("hp").FindChild("Label").GetComponent<UILabel>();
         hp_value.text = hp + "";
-        UILabel zp_value = credit.FindChild("zp").FindChild("Label").GetComponent<UILabel>();
+        UILabel zp_value = container.FindChild("zp").FindChild("Label").GetComponent<UILabel>();
         zp_value.text = zp + "";
-        UILabel cp_value = credit.FindChild("cp").FindChild("Label").GetComponent<UILabel>();
+        UILabel cp_value = container.FindChild("cp").FindChild("Label").GetComponent<UILabel>();
         cp_value.text = cp + "";
     }
 
