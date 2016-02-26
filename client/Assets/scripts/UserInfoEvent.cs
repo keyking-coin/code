@@ -206,7 +206,7 @@ public class UserInfoEvent : CenterEvent {
 		//CameraUtil.pop(7);
 		title.GetComponentInChildren<UILabel>().text = "个人中心";
 		title.GetComponent<JustChangeLayer>().change(1,5);
-		title.transform.FindChild ("ok").gameObject.SetActive(true);
+		//title.transform.FindChild ("ok").gameObject.SetActive(true);
 		callback = null;
 	}
 
@@ -224,7 +224,7 @@ public class UserInfoEvent : CenterEvent {
         label.text = "修改头像";
         //JustChangeLayer layer = title.GetComponent<JustChangeLayer>();
         //layer.change(1,10,title);
-		title.transform.FindChild ("ok").gameObject.SetActive(false);
+		//title.transform.FindChild ("ok").gameObject.SetActive(false);
         callback = new EventDelegate(backFromSelectIcon);
     }
 
@@ -373,7 +373,7 @@ public class UserInfoEvent : CenterEvent {
 		//CameraUtil.pop(7);
 		title.GetComponentInChildren<UILabel>().text = "个人中心";
 		title.GetComponent<JustChangeLayer>().change(1,5);
-		title.transform.FindChild ("ok").gameObject.SetActive(true);
+		//title.transform.FindChild ("ok").gameObject.SetActive(true);
 		callback = null;
 	}
 
@@ -390,7 +390,7 @@ public class UserInfoEvent : CenterEvent {
 		label.text = "用户认证";
 		//JustChangeLayer layer = title.GetComponent<JustChangeLayer>();
 		//layer.change(1,10,title);
-		title.transform.FindChild ("ok").gameObject.SetActive(false);
+		//title.transform.FindChild ("ok").gameObject.SetActive(false);
         callback = new EventDelegate(backFromRZ);
 	}
 
