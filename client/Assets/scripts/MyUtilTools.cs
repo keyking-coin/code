@@ -73,14 +73,14 @@ public class MyUtilTools  {
 
     public static void ChangeLayer(GameObject obj, int layer)
     {
-        for (int i = 0; i < obj.transform.childCount; i++)
+        for (int i = 0 ; i < obj.transform.childCount ; i++)
         {
-            GameObject o = obj.transform.GetChild(i).gameObject;
-            if (o.transform.childCount > 0)
+            GameObject child = obj.transform.GetChild(i).gameObject;
+            child.layer = layer;
+            if (child.transform.childCount > 0)
             {
-                ChangeLayer(o,layer);
+                ChangeLayer(child,layer);
             }
-            o.layer = layer;
         }
         obj.layer = layer;
     }

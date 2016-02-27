@@ -2,14 +2,8 @@
 using System.Collections;
 
 public class JustChangeLayer : MonoBehaviour {
-
-    int count = 0;
-
     int layer = 5;
-
     GameObject target_obj;
-
-	// Use this for initialization
 	void Start () {
 	
 	}
@@ -19,9 +13,8 @@ public class JustChangeLayer : MonoBehaviour {
         run();
 	}
 
-    public void change(int c,int l,GameObject target = null)
+    public void change(int l,GameObject target = null)
     {
-        count = c;
         layer = l;
         if (target == null)
         {
@@ -35,10 +28,6 @@ public class JustChangeLayer : MonoBehaviour {
 
     public void run()
     {
-        if (count > 0)
-        {
-            MyUtilTools.ChangeLayer(target_obj,layer);
-            count--;
-        }
+        MyUtilTools.ChangeLayer(target_obj, layer);
     }
 }

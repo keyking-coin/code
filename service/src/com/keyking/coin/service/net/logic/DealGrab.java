@@ -62,6 +62,7 @@ public class DealGrab extends AbstractLogic {
 			order.getSimpleDes(module);
 			ModuleResp modules = new ModuleResp();
 			modules.addModule(module);
+			order.clientMessage(Module.ADD_FLAG,modules);
 			deal.clientMessage(Module.ADD_FLAG,modules);
 			NET.sendMessageToAllClent(modules,null);
 			ServerLog.info(user.getAccount() + " grab deal ok ----> id is " + id);

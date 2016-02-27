@@ -205,7 +205,7 @@ public class UserInfoEvent : CenterEvent {
 		clears();
 		//CameraUtil.pop(7);
 		title.GetComponentInChildren<UILabel>().text = "个人中心";
-		title.GetComponent<JustChangeLayer>().change(1,5);
+		title.GetComponent<JustChangeLayer>().change(5);
 		//title.transform.FindChild ("ok").gameObject.SetActive(true);
 		callback = null;
 	}
@@ -372,7 +372,7 @@ public class UserInfoEvent : CenterEvent {
 		clears();
 		//CameraUtil.pop(7);
 		title.GetComponentInChildren<UILabel>().text = "个人中心";
-		title.GetComponent<JustChangeLayer>().change(1,5);
+		title.GetComponent<JustChangeLayer>().change(5);
 		//title.transform.FindChild ("ok").gameObject.SetActive(true);
 		callback = null;
 	}

@@ -421,8 +421,7 @@ public class DealEvent : CenterEvent{
                 }
             }
             do_obj.transform.FindChild("inputer").transform.localPosition = new Vector3(0,item.helpFlag ? 50 : 0,0);
-            do_obj.GetComponent<JustChangeLayer>().change(1,10);
-            tips.GetComponent<JustChangeLayer>().change(1, 10);
+            transform.GetComponent<JustChangeLayer>().change(10);
         }
 
         void Update()
@@ -945,7 +944,7 @@ public class DealEvent : CenterEvent{
         ButtonSelectEvent mbs = rbs.flag ? rbs.transform.FindChild("suns").FindChild("mm").GetComponent<ButtonSelectEvent>() : xbs.transform.FindChild("suns").FindChild("mm").GetComponent<ButtonSelectEvent>();
         string key = rbs.flag ? "入库" : "现货";
         list_container.transform.parent.GetComponent<UIPanel>().clipOffset = Vector2.zero;
-        list_container.transform.parent.localPosition = new Vector3(0,-200,0);
+        list_container.transform.parent.localPosition = new Vector3(0,-180,0);
         if (mbs.flag)
         {//买卖盘
             List<DealBody> temp = new List<DealBody>();
@@ -1047,7 +1046,7 @@ public class DealEvent : CenterEvent{
             return;
         }
         list_container.transform.parent.parent.FindChild("no-tip").gameObject.SetActive(false);
-        float starty = 480 , len = 140;
+        float starty = 450 , len = 140;
         for (int i = 0 ; i < items.Count ; i++ )
         {
             DealBody item = items[i];

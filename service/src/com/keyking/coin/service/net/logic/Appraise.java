@@ -34,7 +34,7 @@ public class Appraise extends AbstractLogic {
 					if (user != null){
 						user.getCredit().addNum(star);
 						user = CTRL.search(type == 1 ? deal.getUid() : order.getBuyId());
-						NET.sendMessageToClent(deal.clientMessage(Module.UPDATE_FLAG),user);
+						NET.sendMessageToAllClent(order.clientMessage(Module.UPDATE_FLAG),null);
 						ServerLog.info(user.getAccount() + " appraised : star = " + star + " context = " + value);
 					}
 					resp.setSucces();

@@ -178,7 +178,7 @@ public class DealEditEvent : JustChangeLayer
     public void show(DealBody item)
     {
         curItem = item;
-        change(1,10,gameObject);
+        change(10,gameObject);
         gameObject.SetActive(true);
         if (curItem.seller)
         {

@@ -21,6 +21,7 @@ public class JustRun : MonoBehaviour {
     public static byte MODULE_CODE_SIMPLE_ORDER = 7;//最进成交模块
     public static byte MODULE_CODE_FRIEND       = 8;//好友
     public static byte MODULE_CODE_MESSAGE      = 9;//聊天
+	public static byte MODULE_CODE_ORDER        = 10;//成交订单
 
     public static string PIC_PHP_URL = "http://www.sh-yxwlkj.com:321";
 
@@ -90,7 +91,8 @@ public class JustRun : MonoBehaviour {
         put(MODULE_CODE_EAMIL,MainData.instance.deserializeEmailModule);
         put(MODULE_CODE_SIMPLE_ORDER,MainData.instance.deserializeSimpleOrderModuleOne);
         put(MODULE_CODE_FRIEND,MainData.instance.deserializeFriendModuleOne);
-        put(MODULE_CODE_MESSAGE,MainData.instance.deserializeMessageModuleOne); 
+        put(MODULE_CODE_MESSAGE,MainData.instance.deserializeMessageModuleOne);
+        put(MODULE_CODE_ORDER, MainData.instance.deserializeOrderModuleOne); 
 		pushEvent = GameObject.Find ("push").GetComponent<PushEvent>();
 	}
 

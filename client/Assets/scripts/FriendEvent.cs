@@ -548,7 +548,7 @@ public class FriendEvent : CenterEvent {
         transform.FindChild("new-body").GetComponent<UIWidget>().alpha = 0.2f;
         Transform pop = transform.FindChild("pop");
         pop.gameObject.SetActive(true);
-        pop.GetComponent<JustChangeLayer>().change(1,10);
+        pop.GetComponent<JustChangeLayer>().change(10);
         CameraUtil.push(8,2);
         UILabel content = pop.FindChild("content").GetComponent<UILabel>();
         content.text = friend.other;
@@ -759,7 +759,7 @@ public class FriendEvent : CenterEvent {
         GameObject result = transform.FindChild("list").FindChild("result").gameObject;
         result.SetActive(true);
         transform.FindChild("list").FindChild("body").GetComponent<UIPanel>().alpha = 0.2f;
-        result.GetComponent<JustChangeLayer>().change(1,10);
+        result.GetComponent<JustChangeLayer>().change(10);
         CameraUtil.push(8,2);
         Transform sure = result.transform.FindChild("bg").FindChild("down").FindChild("sure");
         UIButton sure_button = sure.GetComponent<UIButton>();

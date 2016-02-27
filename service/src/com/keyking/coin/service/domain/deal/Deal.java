@@ -240,7 +240,7 @@ public class Deal extends EntitySaver implements Comparable<Deal>{
 		}
 		buffer.putInt(orders.size());
 		for (DealOrder order : orders){
-			order._serialize(buffer);
+			order.serialize(buffer);
 		}
 	}
 
@@ -520,12 +520,8 @@ public class Deal extends EntitySaver implements Comparable<Deal>{
 	}
 	
 	public ModuleResp clientMessage(byte type){
-		Module module = new Module();
-		module.setCode(Module.MODULE_CODE_DEAL);
-		module.setFlag(type);
-		module.add(this);
 		ModuleResp modules = new ModuleResp();
-		modules.addModule(module);
+		clientMessage(type,modules);
 		return modules;
 	}
 	

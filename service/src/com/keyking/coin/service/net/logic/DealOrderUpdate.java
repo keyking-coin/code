@@ -2,7 +2,6 @@ package com.keyking.coin.service.net.logic;
 
 import com.keyking.coin.service.domain.deal.Deal;
 import com.keyking.coin.service.domain.deal.DealOrder;
-import com.keyking.coin.service.domain.user.UserCharacter;
 import com.keyking.coin.service.net.buffer.DataBuffer;
 import com.keyking.coin.service.net.resp.impl.GeneralResp;
 import com.keyking.coin.service.net.resp.module.Module;
@@ -35,8 +34,7 @@ public class DealOrderUpdate extends AbstractLogic {
 				if (couldUpdate){
 					byte pre = order.getState();
 					order.addTimes(index);
-					UserCharacter user = CTRL.search(order.getBuyId());
-					NET.sendMessageToClent(deal.clientMessage(Module.UPDATE_FLAG),user);
+					NET.sendMessageToAllClent(order.clientMessage(Module.UPDATE_FLAG),null);
 					resp.setSucces();
 					ServerLog.info(CTRL.search(uid).getAccount() + " update deal-order state from " + pre + " to " + order.getState() + " ----> id is " + orderId);
 				}else{

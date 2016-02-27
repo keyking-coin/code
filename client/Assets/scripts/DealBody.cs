@@ -378,18 +378,26 @@ public class DealBody : Object, System.IComparable<DealBody>
                 }
             }
             Transform revoke_trans = obj.transform.FindChild("revoke");
-            if (((item.seller && MainData.instance.user.id == buyId) || (!item.seller && MainData.instance.user.id == item.uid)) && !checkRevoke(ORDER_REVOKE_BUYER))
-            {//我是买家
-                revoke_trans.gameObject.SetActive(true);
+            if (state < 1)
+            {//已进行的流程没法取消
+                if (((item.seller && MainData.instance.user.id == buyId) || (!item.seller && MainData.instance.user.id == item.uid)) && !checkRevoke(ORDER_REVOKE_BUYER))
+                {//我是买家
+                    revoke_trans.gameObject.SetActive(true);
+                }
+                else if (((!item.seller && MainData.instance.user.id == buyId) || (item.seller && MainData.instance.user.id == item.uid)) && !checkRevoke(ORDER_REVOKE_SELLER))
+                {//我是卖家
+                    revoke_trans.gameObject.SetActive(true);
+                }
+                else
+                {
+                    revoke_trans.gameObject.SetActive(false);
+                }
             }
-            else if (((!item.seller && MainData.instance.user.id == buyId) || (item.seller && MainData.instance.user.id == item.uid)) && !checkRevoke(ORDER_REVOKE_SELLER))
-            {//我是卖家
-                revoke_trans.gameObject.SetActive(true);
-            }
-            else
+            else 
             {
                 revoke_trans.gameObject.SetActive(false);
             }
+           
         }
 
         public int CompareTo(Order other)
@@ -409,6 +417,7 @@ public class DealBody : Object, System.IComparable<DealBody>
             price = order.price;
             state = order.state;
             helpflag = order.helpflag;
+            times.Clear();
             for (byte i = 0; i <= order.state; i++)
             {
                 times.Add(order.times[i]);
@@ -616,7 +625,7 @@ public class DealBody : Object, System.IComparable<DealBody>
     {
         System.DateTime mt = System.DateTime.Parse(validTime);
         System.DateTime tt = System.DateTime.Parse(other.validTime);
-        return System.DateTime.Compare(mt,tt);
+        return System.DateTime.Compare(tt,mt);
     }
 
     public void showMustUseHelpTip()

@@ -21,8 +21,9 @@ public class AppraiseEvent : MonoBehaviour {
             appraise.star = buffer.ReadByte();
             appraise.detail = buffer.ReadString();
             appraise.time = buffer.ReadString();
-            transform.FindChild("tips").gameObject.SetActive(true);
-            transform.FindChild("do").gameObject.SetActive(false);
+            Transform appraise_trans = transform.parent.parent.parent.FindChild("appraise");
+            appraise_trans.FindChild("tips").gameObject.SetActive(true);
+            appraise_trans.FindChild("do").gameObject.SetActive(false);
         }
         buffer = MyUtilTools.tryToLogic("DealOrderUpdate");
         if (buffer != null)
@@ -58,14 +59,14 @@ public class AppraiseEvent : MonoBehaviour {
         container.SetActive(true);
         CameraUtil.push(3,2);
         transform.parent.parent.GetComponent<UIPanel>().alpha = 0.1f;
-        container.GetComponent<JustChangeLayer>().change(1,10);
         Transform tips = container.transform.FindChild("tips");
         tips.gameObject.SetActive(false);
+        container.GetComponent<JustChangeLayer>().change(10);
         UIButton button = tips.FindChild("close").GetComponent<UIButton>();
-        button.onClick.Clear();
         EventDelegate backEvent = new EventDelegate(this,"backFromAppraise");
         backEvent.parameters[0] = new EventDelegate.Parameter();
         backEvent.parameters[0].obj = container;
+        button.onClick.Clear();
         button.onClick.Add(backEvent);
         Transform do_trans = container.transform.FindChild("do");
         do_trans.FindChild("title").GetComponent<UILabel>().text = src.name.Equals("buyer-appraise") ? "买家评价" : "卖家评价";
@@ -78,26 +79,27 @@ public class AppraiseEvent : MonoBehaviour {
             level = show.FindChild("level");
             edit.gameObject.SetActive(false);
             show.gameObject.SetActive(true);
+            UILabel star_value = level.FindChild("value").GetComponent<UILabel>();
             if (appraise.star == 3)
             {
-                level.FindChild("good").GetComponent<UIToggle>().value = true;
-                level.FindChild("normal").GetComponent<UIToggle>().value = false;
-                level.FindChild("bad").GetComponent<UIToggle>().value = false;
+                star_value.text = "好评";
+                star_value.color = Color.red;
             }
             else if (appraise.star == 2)
             {
-                level.FindChild("good").GetComponent<UIToggle>().value = false;
-                level.FindChild("normal").GetComponent<UIToggle>().value = true;
-                level.FindChild("bad").GetComponent<UIToggle>().value = false;
+                star_value.text = "中评";
+                star_value.color = Color.green;
             }
             else
             {
-                level.FindChild("good").GetComponent<UIToggle>().value = false;
-                level.FindChild("normal").GetComponent<UIToggle>().value = false;
-                level.FindChild("bad").GetComponent<UIToggle>().value = true;
+                star_value.text = "差评";
+                star_value.color = Color.black;
             }
             UILabel content = show.FindChild("content").GetComponent<UILabel>();
             content.text = appraise.detail;
+            button = show.FindChild("cancle").GetComponent<UIButton>();
+            button.onClick.Clear();
+            button.onClick.Add(backEvent);
         }
         else
         {
@@ -144,10 +146,12 @@ public class AppraiseEvent : MonoBehaviour {
             sureEvent.parameters[0].obj = edit.gameObject;
             button.onClick.Clear();
             button.onClick.Add(sureEvent);
+
             button = edit.FindChild("cancle").GetComponent<UIButton>();
             button.onClick.Clear();
             button.onClick.Add(backEvent);
         }
+        
     }
 
     public void sellerSure(GameObject container)

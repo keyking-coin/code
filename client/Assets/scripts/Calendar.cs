@@ -53,7 +53,7 @@ public class Calendar : JustChangeLayer
         //≥ı ºªØ
         calendar_script.tryToUpdate(true);
         calendar_obj.name = "calendar";
-        calendar_script.change(1,11);
+        calendar_script.change(11);
         return calendar_script;
     }
 
@@ -343,7 +343,7 @@ public class Calendar : JustChangeLayer
         {
             int row = selectIndex / 7;
             int col = selectIndex % 7;
-            GameObject select = gameObject.transform.FindChild("days").FindChild("row" + row).FindChild("" + col).gameObject;
+            GameObject select = gameObject.transform.FindChild("days").FindChild("row" + row).FindChild("col" + col).gameObject;
             CalendarData cd = select.GetComponent<CalendarData>();
             GameObject time_obj = gameObject.transform.FindChild("time").gameObject;
             GameObject hour_obj = time_obj.transform.FindChild("hour").gameObject;

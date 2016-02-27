@@ -10,6 +10,7 @@ import com.keyking.coin.service.domain.user.Credit;
 import com.keyking.coin.service.domain.user.UserCharacter;
 import com.keyking.coin.service.net.buffer.DataBuffer;
 import com.keyking.coin.service.net.resp.module.Module;
+import com.keyking.coin.service.net.resp.module.ModuleResp;
 import com.keyking.coin.util.JsonUtil;
 import com.keyking.coin.util.StringUtil;
 import com.keyking.coin.util.TimeUtils;
@@ -48,7 +49,8 @@ public class DealOrder extends EntitySaver implements Comparable<DealOrder>{
 	
 	List<String> times = new ArrayList<String>();
 	
-	public void _serialize(DataBuffer buffer) {
+	@Override
+	public void serialize(DataBuffer buffer) {
 		buffer.putLong(id);
 		buffer.putLong(dealId);
 		buffer.putLong(buyId);
@@ -66,13 +68,7 @@ public class DealOrder extends EntitySaver implements Comparable<DealOrder>{
 		buffer.putInt(revoke);
 	}
 	
-	public void serialize(DataBuffer buffer) {
-		buffer.put(state);
-		for (byte i = 0  ; i <= state ; i++){
-			buffer.putUTF(times.get(i));
-		}
-	}
-	
+
 	public long getId() {
 		return id;
 	}
@@ -293,5 +289,19 @@ public class DealOrder extends EntitySaver implements Comparable<DealOrder>{
 	
 	public boolean Appraise(){
 		return sellerAppraise.isCompleted() && buyerAppraise.isCompleted();
+	}
+	
+	public ModuleResp clientMessage(byte type){
+		ModuleResp modules = new ModuleResp();
+		clientMessage(type,modules);
+		return modules;
+	}
+	
+	public void clientMessage(byte type,ModuleResp modules){
+		Module module = new Module();
+		module.setCode(Module.MODULE_CODE_ORDER);
+		module.setFlag(type);
+		module.add(this);
+		modules.addModule(module);
 	}
 }

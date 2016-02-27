@@ -28,5 +28,9 @@ public class CameraUtil {
         }
         camera.eventReceiverMask.value = saveLayer[corsur];
     }
+
+    public static UICamera Camera(){
+        return camera;
+    }
 }
  

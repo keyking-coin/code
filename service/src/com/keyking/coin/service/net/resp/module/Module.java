@@ -36,6 +36,8 @@ public class Module implements SerializeEntity{
 	
 	public static final byte MODULE_CODE_MESSAGE      = 9;//聊天信息
 	
+	public static final byte MODULE_CODE_ORDER        = 10;//成交订单
+	
 	protected ParametersEntity params = new ParametersEntity();
 
 	public ParametersEntity getParams() {

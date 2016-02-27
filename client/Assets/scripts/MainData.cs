@@ -392,6 +392,58 @@ public class MainData{
         return newItem;
     }
 
+    public void deserializeOrderModuleOne(ByteBuffer data)
+    {
+        byte flag = data.ReadByte();
+        DealBody.Order order = DealBody.Order.read(data);
+        foreach (DealBody deal in deal_all){
+            if (deal.id == order.dealId)
+            {
+                order.item = deal;
+                if (flag == JustRun.ADD_FLAG)
+                {
+                    bool insert = true;
+                    foreach ( DealBody.Order dor in deal.orders)
+                    {
+                        if (dor.id == order.id)
+                        {
+                            insert = false;
+                            break;
+                        }
+                    }
+                    if (insert)
+                    {
+                        deal.orders.Add(order);
+                    }                }
+                else if (flag == JustRun.DEL_FLAG)
+                {
+                    foreach (DealBody.Order dor in deal.orders)
+                    {
+                        if (dor.id == order.id)
+                        {
+                            deal.orders.Remove(order);
+                            break;
+                        }
+                    }
+                }
+                else if (flag == JustRun.UPDATE_FLAG)
+                {
+                    foreach (DealBody.Order dor in deal.orders)
+                    {
+                        if (dor.id == order.id)
+                        {
+                            dor.copy(order);
+                            dor.refresh = true;
+                            break;
+                        }
+                    }
+                }
+                break;
+            }
+        }
+        
+    }
+
     public void deserializeEmailModule(ByteBuffer data)
     {
         byte flag = data.ReadByte();
