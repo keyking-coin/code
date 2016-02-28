@@ -25,7 +25,7 @@ public class UserLook extends AbstractLogic{
 			resp.add(look?user.getAddress():"保密");
 			resp.add(look?user.getName():"保密");
 			resp.add(look?user.getAccount():"保密");
-			resp.add(look?user.getBankAccount():0);
+			resp.add(user.getBankAccount());
 			resp.add(user.getCredit());
 			resp.setSucces();
 			ServerLog.info("look for user's info ---> account is " + user.getAccount());

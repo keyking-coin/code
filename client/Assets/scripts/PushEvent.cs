@@ -41,6 +41,19 @@ public class PushEvent : MonoBehaviour
         {
             DialogUtil.tip("抢单成功",true);
         }
+        buffer = MyUtilTools.tryToLogic("DealFavorite");
+        if (buffer != null)
+        {
+            int type = buffer.ReadInt();
+            int len = buffer.ReadInt();
+            MainData.instance.user.favorites.Clear();
+            for (int i = 0; i < len; i++)
+            {
+                long value = buffer.ReadLong();
+                MainData.instance.user.favorites.Add(value);
+            }
+            DialogUtil.tip(type == 0 ? "收藏成功" : "取消收藏成功",true);
+        }
 	}
 
     void tryToOpenPush()
@@ -68,7 +81,7 @@ public class PushEvent : MonoBehaviour
 
     void _refresh()
     {
-        DealBody item = pushs[index];
+        //DealBody item = pushs[index];
         Transform content = transform.FindChild("base").FindChild("content");
         Transform arrows = content.parent.FindChild("arrows");
         arrows.FindChild("left").gameObject.SetActive(index > 0);
@@ -132,6 +145,40 @@ public class PushEvent : MonoBehaviour
         }
     }
 
+    public void favorite()
+    {
+        if (!MainData.instance.user.login())
+        {
+            LoginEvent.tryToLogin();
+            return;
+        }
+        DealBody deal = pushs[index];
+        ByteBuffer buffer = ByteBuffer.Allocate(1024);
+        buffer.skip(4);
+        buffer.WriteString("DealFavorite");
+        buffer.WriteInt(0);
+        buffer.WriteLong(deal.id);
+        buffer.WriteLong(MainData.instance.user.id);
+        NetUtil.getInstance.SendMessage(buffer);
+    }
+
+    public void cancleFavorite()
+    {
+        if (!MainData.instance.user.login())
+        {
+            LoginEvent.tryToLogin();
+            return;
+        }
+        DealBody deal = pushs[index];
+        ByteBuffer buffer = ByteBuffer.Allocate(1024);
+        buffer.skip(4);
+        buffer.WriteString("DealFavorite");
+        buffer.WriteInt(1);
+        buffer.WriteLong(deal.id);
+        buffer.WriteLong(MainData.instance.user.id);
+        NetUtil.getInstance.SendMessage(buffer);
+    }
+
     void initLook(DealBody item)
     {
         transform.FindChild("base").gameObject.SetActive(false);
@@ -163,19 +210,10 @@ public class PushEvent : MonoBehaviour
             GameObject obj_sun_item = NGUITools.AddChild(obj_suns,DealEvent.pref_detail);
             obj_sun_item.name = "sun" + i;
             obj_sun_item.transform.localPosition = new Vector3(0,-sun_desc,0);
-            revert.update(obj_sun_item);
-            sun_desc += 50;
-            if (revert.context != null)
-            {
-                GameObject obj_context = obj_sun_item.transform.FindChild("context").gameObject;
-                UILabel label = obj_context.GetComponents<UILabel>()[0];
-                int len = MyUtilTools.computeRow(label);
-                label.height = len * label.fontSize;
-                float a = len * label.fontSize / 2 + 30;
-                obj_context.transform.localPosition = new Vector3(100, -a, 0);
-                sun_desc += len * label.fontSize + 10;
-            }
+            sun_desc += revert.update(obj_sun_item);
+            obj_sun_item.transform.FindChild("events").gameObject.SetActive(false);
         }
+        obj_item.transform.FindChild("events").gameObject.SetActive(false);
     }
 
     public void look()

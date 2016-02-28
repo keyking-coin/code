@@ -84,6 +84,7 @@ public class InfoDecoder : MonoBehaviour
         }
         catch (Exception e)
         {
+            Debug.Log(e.ToString());
             return null;
         }
     }

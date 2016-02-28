@@ -41,4 +41,14 @@ public class BankAccount implements SerializeEntity{
 		account.setOpenName(peopleName);
 		accounts.add(account);
 	}
+
+	public boolean remove(String key) {
+		for (Account account : accounts){
+			if (account.getAccount().equals(key)){
+				accounts.remove(account);
+				return true;
+			}
+		}
+		return false;
+	}
 }

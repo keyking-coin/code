@@ -7,8 +7,6 @@ public class PageDragEvent : MonoBehaviour {
 
     Transform page2;
 
-    Vector2 target = Vector2.zero;
-
     float moveSpeed = 0;
 
     Transform t1;
@@ -59,7 +57,7 @@ public class PageDragEvent : MonoBehaviour {
     {
         if (!pressed)
         {
-            float x1 = page1.localPosition.x;
+            //float x1 = page1.localPosition.x;
             float x2 = page2.localPosition.x;
             if (x2 < 400)
             {

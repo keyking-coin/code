@@ -169,7 +169,6 @@ public class AppraiseEvent : MonoBehaviour {
         Transform level = container.transform.FindChild("level");
         UIToggle good   = level.FindChild("good").GetComponent<UIToggle>();
         UIToggle normal = level.FindChild("normal").GetComponent<UIToggle>();
-        UIToggle bad    = level.FindChild("bad").GetComponent<UIToggle>();
         byte type = (byte)(good.value ? 3 : (normal ? 2 : 1));
         UIInput inputFiled = container.transform.FindChild("inputer").GetComponent<UIInput>();
         if (MyUtilTools.stringIsNull(inputFiled.value))

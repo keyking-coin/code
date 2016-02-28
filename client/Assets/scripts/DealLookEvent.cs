@@ -10,6 +10,8 @@ public class DealLookEvent : MonoBehaviour
 
     string cur_tel_str;
 
+    static GameObject bank_account_pref = null;
+
 	// Use this for initialization
 	void Start () {
 	
@@ -36,6 +38,10 @@ public class DealLookEvent : MonoBehaviour
 
     public void show(ByteBuffer buffer)
     {
+        if (bank_account_pref == null)
+        {
+            bank_account_pref = Resources.Load<GameObject>("prefabs/look-bank-account");
+        }
         gameObject.SetActive(true);
         string icon_str = buffer.ReadString();
         string nikeName = buffer.ReadString();
@@ -45,6 +51,13 @@ public class DealLookEvent : MonoBehaviour
         string name = buffer.ReadString();
         cur_tel_str = buffer.ReadString();
         bacnkAccount.deserialize(buffer);
+        buffer.ReadString();
+        buffer.ReadString();
+        buffer.ReadString();
+        string totalDealVale = buffer.ReadString();
+        int hp = buffer.ReadInt();
+        int zp = buffer.ReadInt();
+        int cp = buffer.ReadInt();
 
         Transform container = transform.FindChild("scroll").FindChild("body").FindChild("container");
         UISprite icon = container.FindChild("icon").GetComponent<UISprite>();
@@ -75,41 +88,50 @@ public class DealLookEvent : MonoBehaviour
             tel_button.onClick.Clear();
             tel_button.onClick.Add(new EventDelegate(telphone));
         }
-        UILabel account_label = container.FindChild("bank").FindChild("value").GetComponent<UILabel>();
+        Transform bank_trans = container.FindChild("bank");
+        UILabel account_label = bank_trans.FindChild("value").GetComponent<UILabel>();
+        GameObject suns = bank_trans.FindChild("suns").gameObject;
+        suns.SetActive(false);
+        Transform other_trans = container.FindChild("other");
         if (bacnkAccount.names.Count == 0){
             account_label.text = "未绑定银行卡";
+            bank_trans.FindChild("down").gameObject.SetActive(false);
+            bank_trans.FindChild("up").gameObject.SetActive(false);
+            other_trans.localPosition = new Vector3(0, 0, 0);
         }
         else
         {
-            account_label.text = bacnkAccount.names[0] + ":" + bacnkAccount.accounts[0];
+            account_label.text = "已绑定" + bacnkAccount.names.Count + "张";
+            bank_trans.FindChild("down").gameObject.SetActive(true);
+            bank_trans.FindChild("up").gameObject.SetActive(false);
+            other_trans.localPosition = new Vector3(0, 0, 0);
+            DownOpenLink openLink = bank_trans.GetComponent<DownOpenLink>();
+            MyUtilTools.clearChild(suns.transform);
+            float y = 0;
+            for (int i = 0; i < bacnkAccount.names.Count ; i++)
+            {
+                GameObject look_account = NGUITools.AddChild(suns,bank_account_pref);
+                look_account.name = "look_account" + i;
+                UILabel bank_value = look_account.transform.FindChild("name").FindChild("value").GetComponent<UILabel>();
+                bank_value.text = bacnkAccount.names[i];
+                bank_value = look_account.transform.FindChild("account").FindChild("value").GetComponent<UILabel>();
+                bank_value.text = bacnkAccount.accounts[i];
+                bank_value = look_account.transform.FindChild("openAddress").FindChild("value").GetComponent<UILabel>();
+                bank_value.text = bacnkAccount.openAddresses[i];
+                bank_value = look_account.transform.FindChild("openNames").FindChild("value").GetComponent<UILabel>();
+                bank_value.text = bacnkAccount.openNames[i];
+                look_account.transform.localPosition = new Vector3(0,y,0);
+                y -= 420;
+            }
+            openLink.offset = -y - 30;
         }
-        GameObject more = account_label.transform.parent.FindChild("more").gameObject;
-        if (bacnkAccount.names.Count > 1)
-        {
-            more.SetActive(true);
-            UIButton button = more.GetComponent<UIButton>();
-            button.onClick.Clear();
-            EventDelegate doOpen = new EventDelegate(openMore);
-            button.onClick.Add(doOpen);
-        }
-        else
-        {
-            more.SetActive(false);
-        }
-        string curValue = buffer.ReadString();
-        string maxValue = buffer.ReadString();
-        string tempMaxValue = buffer.ReadString();
-        string totalDealVale = buffer.ReadString();
-        int hp = buffer.ReadInt();
-        int zp = buffer.ReadInt();
-        int cp = buffer.ReadInt();
-        UILabel deal_value = container.FindChild("deal-value").FindChild("Label").GetComponent<UILabel>();
+        UILabel deal_value = other_trans.FindChild("deal-value").FindChild("Label").GetComponent<UILabel>();
         deal_value.text = totalDealVale;
-        UILabel hp_value = container.FindChild("hp").FindChild("Label").GetComponent<UILabel>();
+        UILabel hp_value = other_trans.FindChild("hp").FindChild("Label").GetComponent<UILabel>();
         hp_value.text = hp + "";
-        UILabel zp_value = container.FindChild("zp").FindChild("Label").GetComponent<UILabel>();
+        UILabel zp_value = other_trans.FindChild("zp").FindChild("Label").GetComponent<UILabel>();
         zp_value.text = zp + "";
-        UILabel cp_value = container.FindChild("cp").FindChild("Label").GetComponent<UILabel>();
+        UILabel cp_value = other_trans.FindChild("cp").FindChild("Label").GetComponent<UILabel>();
         cp_value.text = cp + "";
     }
 

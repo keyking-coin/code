@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class DealEditEvent : JustChangeLayer
+public class DealEditEvent : MonoBehaviour
 {
 
     public EventDelegate callback = null;
@@ -13,7 +13,6 @@ public class DealEditEvent : JustChangeLayer
 	}
 	
 	void Update () {
-        run();
         ByteBuffer buffer = MyUtilTools.tryToLogic("DealEdit");
         if (buffer != null)
         {
@@ -178,7 +177,6 @@ public class DealEditEvent : JustChangeLayer
     public void show(DealBody item)
     {
         curItem = item;
-        change(10,gameObject);
         gameObject.SetActive(true);
         if (curItem.seller)
         {

@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class DealRevertEvent : JustChangeLayer
+public class DealRevertEvent : MonoBehaviour
 {
     public EventDelegate callback = null;
 
@@ -15,7 +15,6 @@ public class DealRevertEvent : JustChangeLayer
 	
 	// Update is called once per frame
 	void Update () {
-        run();
         ByteBuffer buffer = MyUtilTools.tryToLogic("RevertAdd");
         if (buffer != null)
         {
@@ -57,7 +56,6 @@ public class DealRevertEvent : JustChangeLayer
 
     public void show(DealBody item)
     {
-        //change(1,10,gameObject);
         gameObject.SetActive(true);
         curItem = item;
     }

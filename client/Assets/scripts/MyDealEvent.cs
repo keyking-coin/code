@@ -6,17 +6,16 @@ public class MyDealEvent :  CenterEvent {
 
     public DealEvent dealEvent;
 
-	// Use this for initialization
 	void Start () {
 	
 	}
-	
-	// Update is called once per frame
+
 	void Update () {
         ByteBuffer buffer = MyUtilTools.tryToLogic("DealSearch");
         if (buffer != null)
         {
             int type = buffer.ReadInt();
+            Debug.Log("DealSearch type =" + type);
             MainData.instance.deserializeDeals(buffer);
             if (MainData.instance.deal_all.Count == 0)
             {

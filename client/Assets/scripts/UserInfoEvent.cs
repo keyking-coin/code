@@ -51,6 +51,94 @@ public class UserInfoEvent : CenterEvent {
 		}
 	}
 
+    public class UserAccountDel : MonoBehaviour
+    {
+        int index;
+
+        UserInfoEvent infoEvent = null;
+
+        int count = 0;
+
+        bool isPressed = false;
+
+        GameObject delete_obj;
+
+        int popCount = 0;
+
+        public void init(int index,UserInfoEvent infoEvent){
+            this.index = index;
+            this.infoEvent = infoEvent;
+        }
+
+        void Start(){
+            delete_obj = transform.FindChild("delete").gameObject;
+            UIButton button = delete_obj.GetComponent<UIButton>();
+            button.onClick.Clear();
+            button.onClick.Add(new EventDelegate(doDelete));
+        }
+
+        void Update()
+        {
+            ByteBuffer buffer = MyUtilTools.tryToLogic("BankAccountDel");
+            if (buffer != null)
+            {
+                DialogUtil.tip("删除成功", true, new EventDelegate(infoEvent.refreshAccountList));
+            }
+            if (isPressed)
+            {
+                count++;
+                if (count > 50)
+                {
+                    openPop();
+                    count = 0;
+                }
+            }
+            else
+            {
+                if (delete_obj.activeSelf)
+                {
+                    popCount--;
+                    if (popCount <= 0)
+                    {
+                        delete_obj.SetActive(false);
+                    }
+                }
+            }
+        }
+
+        void comfirmDelete()
+        {
+            ConfirmUtil.TryToDispear();
+            ByteBuffer buffer = ByteBuffer.Allocate(1024);
+            buffer.skip(4);
+            buffer.WriteString("BankAccountDel");
+            buffer.WriteLong(MainData.instance.user.id);
+            buffer.WriteString(MainData.instance.user.bacnkAccount.accounts[index]);
+            NetUtil.getInstance.SendMessage(buffer);
+        }
+
+        void doDelete()
+        {
+            delete_obj.SetActive(false);
+            ConfirmUtil.confirm("确定删除次条银行卡记录?",comfirmDelete);
+        }
+
+        void openPop()
+        {
+            if (delete_obj.activeSelf)
+            {
+                return;
+            }
+            delete_obj.SetActive(true);
+            popCount = 500;
+        }
+
+        void OnPress(bool pressed)
+        {
+            isPressed = pressed;
+        }
+    }
+
 	// Use this for initialization
 	void Start () {
 		needshow[0].AddComponent<UserInfoReceive>().uEvent = this;
@@ -250,12 +338,13 @@ public class UserInfoEvent : CenterEvent {
         for (int i = 0; i < MainData.instance.user.bacnkAccount.names.Count ; i++ )
         {
             GameObject bank = NGUITools.AddChild(container.gameObject,pref_bank_account);
-            bank.transform.localPosition = new Vector3(0, startY, 0);
+            bank.AddComponent<UserAccountDel>().init(i,this);
+            bank.transform.localPosition = new Vector3(0,startY,0);
             bank.name = "bank" + i;
             UILabel label = bank.transform.FindChild("one").GetComponent<UILabel>();
-            label.text = MainData.instance.user.bacnkAccount.names[i] + ":" + MainData.instance.user.bacnkAccount.accounts[i];
+            label.text = MainData.instance.user.bacnkAccount.names[i] + " : " + MainData.instance.user.bacnkAccount.accounts[i];
             label = bank.transform.FindChild("two").GetComponent<UILabel>();
-            label.text = MainData.instance.user.bacnkAccount.openAddresses[i] + ":" + MainData.instance.user.bacnkAccount.openNames[i];
+            label.text = MainData.instance.user.bacnkAccount.openAddresses[i] + " : " + MainData.instance.user.bacnkAccount.openNames[i];
             startY -= len;
         }
         container.FindChild("addMore").transform.localPosition = new Vector3(0,startY == 430?0:startY,0);

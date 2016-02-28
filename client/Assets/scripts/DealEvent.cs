@@ -145,7 +145,7 @@ public class DealEvent : CenterEvent{
                 UILabel label3 = transform.FindChild("title3").GetComponentInChildren<UILabel>();
                 label3.text = (order.item.typeStr.Equals("入库") ? "文交所" : "交易地") + ": " + ss[1];
                 UILabel label = transform.FindChild("state").GetComponentInChildren<UILabel>();
-                System.DateTime time = System.DateTime.Parse(order.item.validTime);
+               //System.DateTime time = System.DateTime.Parse(order.item.validTime);
                 if (order.helpflag)
                 {
                     label.text = "中介中";
@@ -260,13 +260,24 @@ public class DealEvent : CenterEvent{
                         event_revert.parameters[0].obj = dealBody;
                         button_event.onClick.Add(event_revert);
 
-                        button = NGUITools.AddChild(events, _dealEvent.pref_button);
+                        button = NGUITools.AddChild(events,_dealEvent.pref_button);
                         button.name = "favorite";
                         button_label = button.GetComponentInChildren<UILabel>();
-                        button_label.text = "收  藏";
                         button.transform.localPosition = new Vector3(290, -30, 0);
                         button_event = button.GetComponent<UIButton>();
-                        EventDelegate event_favorite = new EventDelegate(_dealEvent, "favorite");
+                        EventDelegate event_favorite = null;
+                        if (MainData.instance.user.isFavorite(dealBody.id))
+                        {
+                            button_label.text = "取消收藏";
+                            UISprite sprite = button.GetComponent<UISprite>();
+                            sprite.width = 140;
+                            event_favorite = new EventDelegate(_dealEvent,"cancleFavorite");
+                        }
+                        else
+                        {
+                            button_label.text = "收  藏";
+                            event_favorite = new EventDelegate(_dealEvent,"favorite");
+                        }
                         event_favorite.parameters[0] = new EventDelegate.Parameter();
                         event_favorite.parameters[0].obj = dealBody;
                         button_event.onClick.Add(event_favorite);
@@ -312,10 +323,21 @@ public class DealEvent : CenterEvent{
                         button = NGUITools.AddChild(events, _dealEvent.pref_button);
                         button.name = "favorite";
                         button_label = button.GetComponentInChildren<UILabel>();
-                        button_label.text = "收  藏";
-                        button.transform.localPosition = new Vector3(290, -30, 0);
+                        button.transform.localPosition = new Vector3(290,-30,0);
                         button_event = button.GetComponent<UIButton>();
-                        EventDelegate event_favorite = new EventDelegate(_dealEvent, "favorite");
+                        EventDelegate event_favorite = null;
+                        if (MainData.instance.user.isFavorite(dealBody.id))
+                        {
+                            button_label.text = "取消收藏";
+                            UISprite sprite = button.GetComponent<UISprite>();
+                            sprite.width = 140;
+                            event_favorite = new EventDelegate(_dealEvent, "cancleFavorite");
+                        }
+                        else
+                        {
+                            button_label.text = "收  藏";
+                            event_favorite = new EventDelegate(_dealEvent, "favorite");
+                        }
                         event_favorite.parameters[0] = new EventDelegate.Parameter();
                         event_favorite.parameters[0].obj = dealBody;
                         button_event.onClick.Add(event_favorite);
@@ -330,7 +352,15 @@ public class DealEvent : CenterEvent{
             ByteBuffer buffer = MyUtilTools.tryToLogic("DealFavorite");
             if (buffer != null)
             {
-                DialogUtil.tip("收藏成功",true);
+                int type = buffer.ReadInt();
+                int len = buffer.ReadInt();
+                MainData.instance.user.favorites.Clear();
+                for (int i = 0; i < len; i++)
+                {
+                    long value = buffer.ReadLong();
+                    MainData.instance.user.favorites.Add(value);
+                }
+                DialogUtil.tip(type == 0 ? "收藏成功":"取消收藏成功",true);
             }
         }
 
@@ -762,18 +792,7 @@ public class DealEvent : CenterEvent{
             GameObject obj_sun_item = NGUITools.AddChild(obj_suns,pref_detail);
             obj_sun_item.name = "sun" + i;
             obj_sun_item.transform.localPosition = new Vector3(0, -sun_desc, 0);
-            revert.update(obj_sun_item);
-            sun_desc += 50;
-            if (revert.context != null)
-            {
-                GameObject obj_context = obj_sun_item.transform.FindChild("context").gameObject;
-                UILabel label = obj_context.GetComponents<UILabel>()[0];
-                int len = MyUtilTools.computeRow(label);
-                label.height = len * label.fontSize + 10;
-                float a = len * label.fontSize / 2 + 40;
-                obj_context.transform.localPosition = new Vector3(100, -a, 0);
-                sun_desc += len * label.fontSize + 40;
-            }
+            sun_desc += revert.update(obj_sun_item);
             GameObject sun_events = obj_sun_item.transform.FindChild("events").gameObject;
             if (MainData.instance.user.id == item.uid && MainData.instance.user.id != revert.uid)
             {
@@ -887,6 +906,7 @@ public class DealEvent : CenterEvent{
         ByteBuffer buffer = ByteBuffer.Allocate(1024);
         buffer.skip(4);
         buffer.WriteString("DealFavorite");
+        buffer.WriteInt(0);
         buffer.WriteLong(item.id);
         buffer.WriteLong(MainData.instance.user.id);
         NetUtil.getInstance.SendMessage(buffer);
@@ -902,10 +922,38 @@ public class DealEvent : CenterEvent{
             LoginEvent.callback.parameters[0].obj = item;
             return;
         }
-        EventDelegate sure = new EventDelegate(this, "comfirmFavorite");
+        EventDelegate sure = new EventDelegate(this,"comfirmFavorite");
         sure.parameters[0] = new EventDelegate.Parameter();
         sure.parameters[0].obj = item;
         ConfirmUtil.confirm("确定收藏？",sure);
+    }
+
+    void comfirmCancleFavorite(DealBody item)
+    {
+        ConfirmUtil.TryToDispear();
+        ByteBuffer buffer = ByteBuffer.Allocate(1024);
+        buffer.skip(4);
+        buffer.WriteString("DealFavorite");
+        buffer.WriteInt(1);
+        buffer.WriteLong(item.id);
+        buffer.WriteLong(MainData.instance.user.id);
+        NetUtil.getInstance.SendMessage(buffer);
+    }
+
+    void cancleFavorite(DealBody item)
+    {
+        if (!MainData.instance.user.login())
+        {
+            LoginEvent.tryToLogin();
+            LoginEvent.callback = new EventDelegate(this, "back_deal_detail");
+            LoginEvent.callback.parameters[0] = new EventDelegate.Parameter();
+            LoginEvent.callback.parameters[0].obj = item;
+            return;
+        }
+        EventDelegate sure = new EventDelegate(this,"comfirmCancleFavorite");
+        sure.parameters[0] = new EventDelegate.Parameter();
+        sure.parameters[0].obj = item;
+        ConfirmUtil.confirm("取消收藏？",sure);
     }
 
     void deal_detail(DealBody item)

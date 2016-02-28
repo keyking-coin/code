@@ -138,7 +138,7 @@ public class MyUtilTools  {
         float result = 0 ,preData = 0;
         string text = label.processedText;
         if (string.IsNullOrEmpty(text)) return result;
-        int def = label.defaultFontSize;
+        //int def = label.defaultFontSize;
         label.UpdateNGUIText();
         NGUIText.PrintCharacterPositions(text, UILabel.mTempVerts, UILabel.mTempIndices);
         if (UILabel.mTempVerts.size > 0)
@@ -267,6 +267,7 @@ public class MyUtilTools  {
         }
         catch (System.Exception e)
         {
+            Debug.LogException(e);
             return true;
         }
     }

@@ -91,20 +91,30 @@ public class MainData{
         public List<string> openAddresses = new List<string>();//开户行
         public List<string> openNames = new List<string>();//开户人
 
+        public void deserializeModule(ByteBuffer buffer)
+        {
+            buffer.ReadByte();
+            clear();
+            int len = buffer.ReadInt();
+            for (int i = 0; i < len; i++)
+            {
+                names.Add(buffer.ReadString());
+                accounts.Add(buffer.ReadString());
+                openAddresses.Add(buffer.ReadString());
+                openNames.Add(buffer.ReadString());
+            }
+        }
+
         public void deserialize(ByteBuffer buffer)
         {
-			clear ();
+			clear();
             int len  = buffer.ReadInt();
             for (int i = 0; i < len; i++ )
             {
-                string name = buffer.ReadString();
-                string account = buffer.ReadString();
-                string openAddress = buffer.ReadString();
-                string openName = buffer.ReadString();
-                names.Add(name);
-                accounts.Add(account);
-                openAddresses.Add(openAddress);
-                openNames.Add(openName);
+                names.Add(buffer.ReadString());
+                accounts.Add(buffer.ReadString());
+                openAddresses.Add(buffer.ReadString());
+                openNames.Add(buffer.ReadString());
             }
         }
 
@@ -112,6 +122,8 @@ public class MainData{
         {
             names.Clear();
             accounts.Clear();
+            openAddresses.Clear();
+            openNames.Clear();
         }
     }
 
@@ -261,6 +273,7 @@ public class MainData{
         public List<MessageBody> messages = new List<MessageBody>();
         public List<SimpleOrderModule> recentOrders = new List<SimpleOrderModule>();
         public bool simpleOrderModuleNeedRefresh = false;
+        public List<long> favorites = new List<long>();//收藏的帖子
 
         public void deserialize(ByteBuffer buffer)
         {
@@ -311,6 +324,16 @@ public class MainData{
                     messages.Add(message);
                 }
             }
+            len = buffer.ReadInt();
+            if (len > 0)
+            {
+                favorites.Clear();
+                for (int i = 0; i < len; i++)
+                {
+                    long value = buffer.ReadLong();
+                    favorites.Add(value);
+                }
+            }
         }
 
         public bool login()
@@ -330,6 +353,10 @@ public class MainData{
             return false;
         }
 
+        public bool isFavorite(long dealId)
+        {
+            return favorites.Contains(dealId);
+        }
     }
 
     public UserData user = new UserData();

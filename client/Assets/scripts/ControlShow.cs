@@ -13,7 +13,7 @@ public class ControlShow : MonoBehaviour
 	
 	// Update is called once per frame
 	void Update () {
-        if (link != null && !link.active)
+        if (link != null && !link.activeSelf)
         {
             link.SetActive(true);
         }

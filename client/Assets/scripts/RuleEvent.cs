@@ -38,9 +38,9 @@ public class RuleEvent : CenterEvent {
     //public FaceInAndOutEvent in_out;
 
 
-    string nextShow = null;
+    //string nextShow = null;
 
-    bool flag = false;
+    //bool flag = false;
 
 	// Use this for initialization
 	void Start () {

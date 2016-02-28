@@ -6,7 +6,8 @@ using DotNet.Utilities;
 
 public class Calendar : JustChangeLayer
 {
-    static Texture selectTexture = null;
+    public static Texture selectTexture = null;
+
 	int _year;
 
 	int _month;
@@ -99,7 +100,9 @@ public class Calendar : JustChangeLayer
             preYear--;
         }
         int stand = start == 0 ? 1 : 0;
-        int dayIndex = DateTime.DaysInMonth(preYear, preMonth);
+        int temp = start == 0 ? 7 : start;
+        int preLastDay = DateTime.DaysInMonth(preYear, preMonth);
+        int dayIndex = preLastDay - temp + 1;
         int dayCount = 0;
         int nextMonth = _month;
         int nextYear  = _year;
@@ -110,8 +113,6 @@ public class Calendar : JustChangeLayer
             GameObject row_obj = days_obj.transform.FindChild("row" + i).gameObject;
             if (i <= stand)
             {
-                int temp = (start == 0 && i < stand) ? 7 : start;
-                dayIndex -= temp - 1;
                 for (int j = 0 ; j < 7 ; j++)
                 {
                     GameObject day = row_obj.transform.FindChild("col" + j).gameObject;
@@ -123,13 +124,13 @@ public class Calendar : JustChangeLayer
                         event_select.parameters[0].obj = day;
                         button.onClick.Add(event_select);
                     }
-                    if (j < temp -1)
+                    if (dayIndex < preLastDay - 1 && !thisMonthStart)
                     {
                         day.SetActive(false);
                     }
                     else
                     {
-                        if (!thisMonthStart && j > temp - 1)
+                        if (!thisMonthStart && dayIndex > preLastDay)
                         {
                             thisMonthStart = true;
                             dayIndex = 1;
@@ -143,25 +144,32 @@ public class Calendar : JustChangeLayer
                         day.SetActive(true);
                         UILabel label = day.transform.FindChild("gl").GetComponent<UILabel>();
                         label.text = dayIndex + "";
-                        DateTime dateTime = DateTime.Parse(preYear + "-" + MyUtilTools.numToString(preMonth) + "-" + MyUtilTools.numToString(dayIndex) + " 00:00:00");
-                        CNDate cnDate = ChinaDate.getChinaDate(dateTime);
                         label = day.transform.FindChild("nl").GetComponent<UILabel>();
-                        if (!cnDate.cnFtvl.Equals(""))
+                        if (dayIndex == DateTime.Now.Day && preMonth == DateTime.Now.Month && preYear == DateTime.Now.Year)
                         {
-                            label.text = cnDate.cnFtvl;
-                        }
-                        else if (!cnDate.cnFtvs.Equals(""))
-                        {
-                            label.text = cnDate.cnFtvs;
-                        }
-                        else if (!cnDate.cnSolarTerm.Equals(""))
-                        {
-                            label.text = cnDate.cnSolarTerm;
+                            label.text = "今天";
                         }
                         else
                         {
-                            label.text = cnDate.cnStrDay;
-                        } 
+                            DateTime dateTime = DateTime.Parse(preYear + "-" + MyUtilTools.numToString(preMonth) + "-" + MyUtilTools.numToString(dayIndex) + " 00:00:00");
+                            CNDate cnDate = ChinaDate.getChinaDate(dateTime);
+                            if (!cnDate.cnFtvl.Equals(""))
+                            {
+                                label.text = cnDate.cnFtvl;
+                            }
+                            else if (!cnDate.cnFtvs.Equals(""))
+                            {
+                                label.text = cnDate.cnFtvs;
+                            }
+                            else if (!cnDate.cnSolarTerm.Equals(""))
+                            {
+                                label.text = cnDate.cnSolarTerm;
+                            }
+                            else
+                            {
+                                label.text = cnDate.cnStrDay;
+                            }
+                        }
                         if (selectIndex == -1 && _day == dayIndex && nextMonth == _month && nextYear == _year)
                         {
                             selectIndex = dayCount;
@@ -196,29 +204,39 @@ public class Calendar : JustChangeLayer
                         day.SetActive(true);
                         UILabel label = day.transform.FindChild("gl").GetComponent<UILabel>();
                         label.text = dayIndex + "";
-                        DateTime dateTime = DateTime.Parse(nextYear + "-" + MyUtilTools.numToString(nextMonth) + "-" + MyUtilTools.numToString(dayIndex) + " 00:00:00");
-                        CNDate cnDate = ChinaDate.getChinaDate(dateTime);
                         label = day.transform.FindChild("nl").GetComponent<UILabel>();
-                        if (!cnDate.cnFtvl.Equals(""))
+                        if (dayIndex == DateTime.Now.Day && nextMonth == DateTime.Now.Month && nextYear == DateTime.Now.Year)
                         {
-                            label.text = cnDate.cnFtvl;
-                        }
-                        else if (!cnDate.cnFtvs.Equals(""))
-                        {
-                            label.text = cnDate.cnFtvs;
-                        }
-                        else if (!cnDate.cnSolarTerm.Equals(""))
-                        {
-                            label.text = cnDate.cnSolarTerm;
+                            label.text = "今天";
                         }
                         else
                         {
-                            label.text = cnDate.cnStrDay;
-                        } 
+                            DateTime dateTime = DateTime.Parse(nextYear + "-" + MyUtilTools.numToString(nextMonth) + "-" + MyUtilTools.numToString(dayIndex) + " 00:00:00");
+                            CNDate cnDate = ChinaDate.getChinaDate(dateTime);
+                            if (!cnDate.cnFtvl.Equals(""))
+                            {
+                                label.text = cnDate.cnFtvl;
+                            }
+                            else if (!cnDate.cnFtvs.Equals(""))
+                            {
+                                label.text = cnDate.cnFtvs;
+                            }
+                            else if (!cnDate.cnSolarTerm.Equals(""))
+                            {
+                                label.text = cnDate.cnSolarTerm;
+                            }
+                            else
+                            {
+                                label.text = cnDate.cnStrDay;
+                            }
+                        }
                         if (selectIndex == -1 && _day == dayIndex && nextMonth == _month && nextYear == _year)
                         {
                             selectIndex = dayCount;
                         }
+                        CalendarData cd = day.GetComponent<CalendarData>();
+                        cd.Value = MyUtilTools.numToString(nextYear) + "-" + MyUtilTools.numToString(nextMonth) + "-" + MyUtilTools.numToString(dayIndex);
+                        cd.Index = dayCount;
                         dayIndex++;
                         if (dayIndex > maxDays)
                         {//下一个月的天数
@@ -231,9 +249,6 @@ public class Calendar : JustChangeLayer
                                 nextYear++;
                             }
                         }
-                        CalendarData cd = day.GetComponent<CalendarData>();
-                        cd.Value = MyUtilTools.numToString(nextYear) + "-" + MyUtilTools.numToString(nextMonth) + "-" + MyUtilTools.numToString(dayIndex);
-                        cd.Index = dayCount;
                     } 
                     dayCount++;
                 }

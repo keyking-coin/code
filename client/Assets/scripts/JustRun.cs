@@ -86,7 +86,7 @@ public class JustRun : MonoBehaviour {
 	void Start () {
 		instance = this;
         put(MODULE_CODE_DEAL,MainData.instance.deserializeDealModuleOne);
-		put(MODULE_CODE_BANK_ACCOUNT,MainData.instance.user.bacnkAccount.deserialize);
+        put(MODULE_CODE_BANK_ACCOUNT, MainData.instance.user.bacnkAccount.deserializeModule);
 		put(MODULE_CODE_SIMPLE_DEAL,readPushData);
         put(MODULE_CODE_EAMIL,MainData.instance.deserializeEmailModule);
         put(MODULE_CODE_SIMPLE_ORDER,MainData.instance.deserializeSimpleOrderModuleOne);

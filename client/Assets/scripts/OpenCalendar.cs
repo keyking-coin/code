@@ -34,7 +34,7 @@ public class OpenCalendar : MonoBehaviour {
     public void open()
     {
         panel.alpha = 0.1f;
-        UILabel target = gameObject.GetComponent<UILabel>();
+        //UILabel target = gameObject.GetComponent<UILabel>();
         string str = year.value + "-" + month.value + "-" + day.value + " " + hour.value + ":" + minute.value + ":00";
         Calendar calender = Calendar.create(base_obj,str);
         CameraUtil.push(5,3);

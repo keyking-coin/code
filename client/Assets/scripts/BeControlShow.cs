@@ -3,10 +3,10 @@ using System.Collections;
 
 public class BeControlShow : MonoBehaviour
 {
-    UILabel label;
+    //UILabel label;
 	// Use this for initialization
 	void Start () {
-        label = transform.GetComponent<UILabel>();
+        //label = transform.GetComponent<UILabel>();
 	}
 	
 	// Update is called once per frame

@@ -5,7 +5,7 @@ public class ShowExpressionEvent : MonoBehaviour {
 
     public GameObject list = null;
 
-    public UICamera camera;
+    //public UICamera camera;
 
 	void Start () {
         list.SetActive(false);
@@ -26,7 +26,7 @@ public class ShowExpressionEvent : MonoBehaviour {
 
     public void show()
     {
-        camera.enabled = false;
+        //camera.enabled = false;
         list.SetActive(true);
     }
 }

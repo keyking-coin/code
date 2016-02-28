@@ -317,6 +317,10 @@ public class UserCharacter extends EntitySaver{
 		for (Message message : messages){
 			message.serialize(buffer);
 		}
+		buffer.putInt(favorites.size());
+		for (Long favorite : favorites){
+			buffer.putLong(favorite.longValue());
+		}
 	}
 
 	public void save() {

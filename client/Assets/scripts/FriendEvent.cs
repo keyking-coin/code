@@ -328,7 +328,7 @@ public class FriendEvent : CenterEvent {
             UILabel time_label = time_tran.GetComponent<UILabel>();
             System.DateTime dateTime = System.DateTime.Parse(message.time);
             string showStr = null;
-            int days = System.DateTime.DaysInMonth(dateTime.Year, dateTime.Month);
+            //int days = System.DateTime.DaysInMonth(dateTime.Year, dateTime.Month);
             if (System.DateTime.Now.Year == dateTime.Year && System.DateTime.Now.Month == dateTime.Month && System.DateTime.Now.Day == dateTime.Day)
             {//同一天
                 showStr = "今天" + MyUtilTools.numToString(dateTime.Hour) + ":" + MyUtilTools.numToString(dateTime.Minute);

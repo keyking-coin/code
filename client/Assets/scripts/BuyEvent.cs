@@ -122,7 +122,6 @@ public class BuyEvent : CenterEvent {
             return;
         }
         UIPopupList danweiList = trans.FindChild("danwei").GetComponent<UIPopupList>();
-        string minNum = danweiList.value;
         Transform time_trans = trans.FindChild("time");
         UIInput year = time_trans.FindChild("year").GetComponent<UIInput>();
         UIInput month = time_trans.FindChild("month").GetComponent<UIInput>();

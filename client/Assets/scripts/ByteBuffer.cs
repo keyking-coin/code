@@ -103,7 +103,7 @@ public class ByteBuffer{
 	{
 		lock (this)
 		{
-			int len = buf.Length;
+			///int len = buf.Length;
 			FixSizeAndReset(buf.Length, writeIndex + length);
 			for (int i = startIndex, j = 0; j < length ; i++, j++)
 			{

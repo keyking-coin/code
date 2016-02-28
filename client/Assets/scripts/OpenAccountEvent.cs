@@ -6,7 +6,7 @@ public class OpenAccountEvent : CenterEvent {
 
     long startTime = 0;
 
-    UIButton tokenButton;
+    //UIButton tokenButton;
 
     bool isUploaded = false;
 
@@ -191,12 +191,12 @@ public class OpenAccountEvent : CenterEvent {
 
     void initPhoneSend()
     {
-        startTime = 0;
+        //startTime = 0;
         //tokenLabe.text = "发送短信";
-        float r = (float)(43 / 255);
-        float g = (float)(130 / 255);
+        //float r = (float)(43 / 255);
+        //float g = (float)(130 / 255);
         //tokenLabe.color = new Color(r, g, 1f, 1);
-        tokenButton.SetState(UIButtonColor.State.Normal,true);
+        //tokenButton.SetState(UIButtonColor.State.Normal,true);
     }
 
     public override void click()

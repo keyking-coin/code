@@ -2,6 +2,7 @@
 using System.Collections;
 using System;
 using System.Collections.Generic;
+using DotNet.Utilities;
 
 public class TimeLineEvent : CenterEvent
 {
@@ -163,7 +164,7 @@ public class TimeLineEvent : CenterEvent
         _update();
         int row = selectIndex / 7;
         int col = selectIndex % 7;
-        CalendarData cd = list_container.FindChild("days").FindChild("detail").FindChild("row" + row).FindChild("" + col).GetComponent<CalendarData>();
+        CalendarData cd = list_container.FindChild("days").FindChild("row" + row).FindChild("col" + col).GetComponent<CalendarData>();
         _updateEvent_CalendarData(cd);
     }
 
@@ -176,38 +177,51 @@ public class TimeLineEvent : CenterEvent
     void _update_flags(GameObject obj,int year,int month,int day)
     {
         Transform trans = obj.transform.FindChild("flags");
-        Dictionary<byte, List<TimeLine>> maps = search(year, month, day);
-        if (maps.Count > 0)
+        if (trans != null)
         {
-            trans.gameObject.SetActive(true);
-            string fn = maps.Count + "";
-            Transform flags = trans.FindChild(fn);
-            flags.gameObject.SetActive(true);
-            int count = 1;
-            for (byte a = 1 ; a < 5; a++)
-            {
-                if (maps.ContainsKey(a))
-                {
-                    Texture texture = null;
-                    texture = a == 1 ? texture1 : texture;
-                    texture = a == 2 ? texture2 : texture;
-                    texture = a == 3 ? texture3 : texture;
-                    texture = a == 4 ? texture4 : texture;
-                    if (maps.Count == 1)
-                    {
-                        flags.GetComponent<UITexture>().mainTexture = texture;
-                    }
-                    else
-                    {
-                        flags.FindChild(count + "").GetComponent<UITexture>().mainTexture = texture;
-                    }
-                    count++;
-                }
-            }
+            MyUtilTools.clearChild(trans);
         }
         else
         {
-            trans.gameObject.SetActive(false);
+            GameObject flags = NGUITools.AddChild(obj);
+            flags.name = "flags";
+            trans = flags.transform;
+        }
+        Dictionary<byte, List<TimeLine>> maps = search(year, month, day);
+        if (maps.Count > 0)
+        {
+            float startx = 0;
+            if (maps.Count == 2)
+            {
+                startx = -10;
+            }
+            else if (maps.Count == 3)
+            {
+                startx = -20;
+            }
+            else if (maps.Count == 4)
+            {
+                startx = -30;
+            }
+            int count = 0;
+            for (byte a = 1; a < 5; a++)
+            {
+                if (maps.ContainsKey(a))
+                {
+                    UITexture texture = NGUITools.AddChild<UITexture>(trans.gameObject);
+                    texture.gameObject.name = a + "";
+                    texture.transform.localPosition = new Vector3(startx+count*20,-70,0);
+                    Texture tt = null;
+                    tt = a == 1 ? texture1 : tt;
+                    tt = a == 2 ? texture2 : tt;
+                    tt = a == 3 ? texture3 : tt;
+                    tt = a == 4 ? texture4 : tt;
+                    texture.mainTexture = tt;
+                    texture.width  = 16;
+                    texture.height = 16;
+                    count++;
+                }
+            }
         }
     }
 
@@ -223,134 +237,187 @@ public class TimeLineEvent : CenterEvent
             TimeLineRefresh refresh = needshow[0].AddComponent<TimeLineRefresh>();
             refresh.timeEvent = this;
         }
-        list_container.parent.GetComponent<UIPanel>().clipOffset = Vector2.zero;
-        list_container.parent.localPosition = new Vector3(0, 0, 0);
-        UILabel year_label = list_container.FindChild("up").GetComponent<UILabel>();
-        year_label.text = MyUtilTools.numToString(_year) + "年" + MyUtilTools.numToString(_month) + "月" + MyUtilTools.numToString(_day) + "日";
-        Transform days_trans = list_container.FindChild("days").FindChild("detail");
-        GameObject preSelect = null , select = null;
-        if (selectIndex != -1)
+        if (Calendar.selectTexture == null)
         {
-            int row = selectIndex / 7;
-            int col = selectIndex % 7;
-            preSelect = days_trans.FindChild("row" + row).FindChild("" + col).gameObject;
+            Calendar.selectTexture = Resources.Load<Texture>("pic/time-sb");
         }
-        int dayIndex = 1;
-        int maxDays = DateTime.DaysInMonth(_year,_month);
-        DateTime fisrt = new DateTime(_year,_month,1);
+        list_container.parent.GetComponent<UIPanel>().clipOffset = Vector2.zero;
+        list_container.parent.localPosition = new Vector3(0,0,0);
+        UILabel year_label = list_container.FindChild("up").GetComponent<UILabel>();
+        year_label.text = MyUtilTools.numToString(_year) + "年" + MyUtilTools.numToString(_month) + "月";
+        Transform days_trans = list_container.FindChild("days");
+        int maxDays = DateTime.DaysInMonth(_year, _month);
+        DateTime fisrt = new DateTime(_year, _month, 1);
         DayOfWeek week = fisrt.DayOfWeek;
-        int start    = MyUtilTools.GetWeekDays(week);//这个月的第一天
-        int preMonth = DateTime.Now.Month - 1;
-        int preYear  = DateTime.Now.Year;
+        int start = MyUtilTools.GetWeekDays(week);//这个月的第一天
+        int preMonth = _month - 1;
+        int preYear = _year;
         if (preMonth == 0)
         {
             preMonth = 12;
             preYear--;
         }
         int stand = start == 0 ? 1 : 0;
-        int days = DateTime.DaysInMonth(preYear,preMonth);
+        int temp  = start == 0 ? 7 : start;
+        int preLastDay = DateTime.DaysInMonth(preYear, preMonth);
+        int dayIndex  = preLastDay - temp + 1;
         int dayCount = 0;
         int nextMonth = _month;
-        int nextYear  = _year;
-        bool isNext = false;
-        for (int i = 0 ; i < 6; i++)
+        int nextYear = _year;
+        bool nextMonthStart = false;
+        bool thisMonthStart = false;
+        for (int i = 0; i < 6; i++)
         {
-            Transform row_trans = days_trans.FindChild("row" + i);
+            GameObject row_obj = days_trans.FindChild("row" + i).gameObject;
             if (i <= stand)
             {
-                int temp = (start == 0 && i < stand) ? 7 : start;
-                days -= temp - 1;
-                for (int j = 0 ; j < temp ; j++)
+                for (int j = 0 ; j < 7 ; j++)
                 {
-                    GameObject day = row_trans.FindChild("" + j).gameObject;
-                    UILabel label = day.GetComponent<UILabel>();
-                    label.text = MyUtilTools.numToString(days);
-                    label.color = Color.gray;
+                    GameObject day = row_obj.transform.FindChild("col" + j).gameObject;
                     UIButton button = day.GetComponent<UIButton>();
-                    button.enabled = false;
                     if (button.onClick.Count == 0)
                     {
-                        button.tweenTarget = null;
                         EventDelegate event_select = new EventDelegate(this,"doSelect");
-                        EventDelegate.Parameter param = new EventDelegate.Parameter();
-                        param.obj = day;
-                        event_select.parameters[0] = param;
+                        event_select.parameters[0] = new EventDelegate.Parameter();
+                        event_select.parameters[0].obj = day;
                         button.onClick.Add(event_select);
                     }
-                    if (days == DateTime.Now.Day && preMonth == DateTime.Now.Month && preYear == DateTime.Now.Year)
+                    if (dayIndex < preLastDay - 1 && !thisMonthStart)
                     {
-                        label.fontSize = 24;
-                        label.text = "今天";
+                        day.SetActive(false);
                     }
                     else
                     {
-                        label.fontSize = 40;
+                        if (!thisMonthStart && dayIndex > preLastDay)
+                        {
+                            thisMonthStart = true;
+                            dayIndex = 1;
+                            preMonth++;
+                            if (preMonth > 12)
+                            {
+                                preMonth = 1;
+                                preYear++;
+                            }
+                        }
+                        day.SetActive(true);
+                        UILabel label = day.transform.FindChild("gl").GetComponent<UILabel>();
+                        label.text = dayIndex + "";
+                        label = day.transform.FindChild("nl").GetComponent<UILabel>();
+                        if (dayIndex == DateTime.Now.Day && preMonth == DateTime.Now.Month && preYear == DateTime.Now.Year)
+                        {
+                            label.text = "今天";
+                        }
+                        else
+                        {
+                            DateTime dateTime = DateTime.Parse(preYear + "-" + MyUtilTools.numToString(preMonth) + "-" + MyUtilTools.numToString(dayIndex) + " 00:00:00");
+                            CNDate cnDate = ChinaDate.getChinaDate(dateTime);
+                            if (!cnDate.cnFtvl.Equals(""))
+                            {
+                                label.text = cnDate.cnFtvl;
+                            }
+                            else if (!cnDate.cnFtvs.Equals(""))
+                            {
+                                label.text = cnDate.cnFtvs;
+                            }
+                            else if (!cnDate.cnSolarTerm.Equals(""))
+                            {
+                                label.text = cnDate.cnSolarTerm;
+                            }
+                            else
+                            {
+                                label.text = cnDate.cnStrDay;
+                            }
+                        }
+                        if (selectIndex == -1 && _day == dayIndex && nextMonth == _month && nextYear == _year)
+                        {
+                            selectIndex = dayCount;
+                        }
                     }
+                    _update_flags(day,preYear,preMonth,dayIndex);
                     CalendarData cd = day.GetComponent<CalendarData>();
-                    cd.Value = MyUtilTools.numToString(preYear) + "-" + MyUtilTools.numToString(preMonth) + "-" + MyUtilTools.numToString(days);
+                    cd.Value = MyUtilTools.numToString(preYear) + "-" + MyUtilTools.numToString(preMonth) + "-" + MyUtilTools.numToString(dayIndex);
                     cd.Index = dayCount;
-                    _update_flags(day,preYear,preMonth,days);
-                    days++;
+                    dayIndex++;
                     dayCount++;
                 }
-                if (temp == 7)
-                {
-                    continue;
-                }
             }
-            int _start = i <= stand ? start : 0;
-            for (int j = _start ; j < 7 ; j++)
+            else
             {
-                GameObject day = row_trans.FindChild("" + j).gameObject;
-                UILabel label = day.GetComponent<UILabel>();
-                label.text = MyUtilTools.numToString(dayIndex);
-                label.color     = isNext ? Color.gray : Color.black;
-                UIButton button = day.GetComponent<UIButton>();
-                button.enabled  = !isNext;
-                if (button.onClick.Count == 0)
+                for (int j = 0 ; j < 7; j++)
                 {
-                    button.tweenTarget = null;
-                    EventDelegate event_select = new EventDelegate(this,"doSelect");
-                    EventDelegate.Parameter param = new EventDelegate.Parameter();
-                    param.obj = day;
-                    event_select.parameters[0] = param;
-                    button.onClick.Add(event_select);
-                }
-                CalendarData cd = day.GetComponent<CalendarData>();
-                cd.Value = MyUtilTools.numToString(nextYear) + "-" + MyUtilTools.numToString(nextMonth) + "-" + MyUtilTools.numToString(dayIndex);
-                cd.Index = dayCount;
-                if (_day == dayIndex && nextMonth == _month && nextYear == _year)
-                {
-                    select = day;
-                    selectIndex = dayCount;
-                }
-                if (dayIndex == DateTime.Now.Day && nextMonth == DateTime.Now.Month && nextYear == DateTime.Now.Year)
-                {
-                    label.fontSize = 24;
-                    label.text = "今天";
-                }
-                else
-                {
-                    label.fontSize = 40;
-                }
-                _update_flags(day,nextYear,nextMonth,dayIndex);
-                dayIndex++;
-                if (dayIndex > maxDays)
-                {
-                    isNext = true;
-                    dayIndex = 1;
-                    nextMonth++;
-                    if (nextMonth > 12)
+                    GameObject day = row_obj.transform.FindChild("col" + j).gameObject;
+                    UIButton button = day.GetComponent<UIButton>();
+                    if (button.onClick.Count == 0)
                     {
-                        nextMonth = 1;
-                        nextYear++;
+                        EventDelegate event_select = new EventDelegate(this,"doSelect");
+                        event_select.parameters[0] = new EventDelegate.Parameter();
+                        event_select.parameters[0].obj = day;
+                        button.onClick.Add(event_select);
                     }
-                    maxDays = DateTime.DaysInMonth(nextYear,nextMonth);
+                    if (nextMonthStart)
+                    {
+                        day.SetActive(false);
+                    }
+                    else
+                    {
+                        day.SetActive(true);
+                        UILabel label = day.transform.FindChild("gl").GetComponent<UILabel>();
+                        label.text = dayIndex + "";
+                        label = day.transform.FindChild("nl").GetComponent<UILabel>();
+                        if (dayIndex == DateTime.Now.Day && nextMonth == DateTime.Now.Month && nextYear == DateTime.Now.Year)
+                        {
+                            label.text = "今天";
+                        }
+                        else
+                        {
+                            DateTime dateTime = DateTime.Parse(nextYear + "-" + MyUtilTools.numToString(nextMonth) + "-" + MyUtilTools.numToString(dayIndex) + " 00:00:00");
+                            CNDate cnDate = ChinaDate.getChinaDate(dateTime);
+                            if (!cnDate.cnFtvl.Equals(""))
+                            {
+                                label.text = cnDate.cnFtvl;
+                            }
+                            else if (!cnDate.cnFtvs.Equals(""))
+                            {
+                                label.text = cnDate.cnFtvs;
+                            }
+                            else if (!cnDate.cnSolarTerm.Equals(""))
+                            {
+                                label.text = cnDate.cnSolarTerm;
+                            }
+                            else
+                            {
+                                label.text = cnDate.cnStrDay;
+                            }
+                        }
+                        if (selectIndex == -1 && _day == dayIndex && nextMonth == _month && nextYear == _year)
+                        {
+                            selectIndex = dayCount;
+                        }
+                        _update_flags(day,nextYear,nextMonth,dayIndex);
+                        CalendarData cd = day.GetComponent<CalendarData>();
+                        cd.Value = MyUtilTools.numToString(nextYear) + "-" + MyUtilTools.numToString(nextMonth) + "-" + MyUtilTools.numToString(dayIndex);
+                        cd.Index = dayCount;
+                        dayIndex++;
+                        if (dayIndex > maxDays)
+                        {//下一个月的天数
+                            nextMonthStart = true;
+                            dayIndex = 1;
+                            nextMonth++;
+                            if (nextMonth > 12)
+                            {
+                                nextMonth = 1;
+                                nextYear++;
+                            }
+                        }
+                    }
+                    dayCount++;
                 }
-                dayCount++;
             }
         }
-        showSelect(preSelect,select);
+        int row = selectIndex / 7;
+        int col = selectIndex % 7;
+        GameObject select = days_trans.FindChild("row" + row).FindChild("col" + col).gameObject;
+        doSelect(select);
     }
 
     void backFromDetail()
@@ -531,21 +598,30 @@ public class TimeLineEvent : CenterEvent
         {
             return;
         }
-        int row = selectIndex / 7;
-        int col = selectIndex % 7;
-        GameObject select = list_container.FindChild("days").FindChild("detail").FindChild("row" + row).FindChild("" + col).gameObject;
-        showSelect(select,obj);
+        if (selectIndex != -1)
+        {
+            int row = selectIndex / 7;
+            int col = selectIndex % 7;
+            GameObject select = list_container.FindChild("days").FindChild("row" + row).FindChild("col" + col).gameObject;
+            select.transform.FindChild("gl").GetComponent<UILabel>().color = Color.black;
+            select.transform.FindChild("nl").GetComponent<UILabel>().color = Color.gray;
+            Transform sTrans = select.transform.FindChild("select");
+            if (sTrans != null)
+            {
+                GameObject.Destroy(sTrans.gameObject);
+            }
+        }
+        obj.transform.FindChild("gl").GetComponent<UILabel>().color = Color.white;
+        obj.transform.FindChild("nl").GetComponent<UILabel>().color = Color.white;
+        UITexture texture = NGUITools.AddChild<UITexture>(obj);
+        texture.gameObject.name = "select";
+        texture.transform.localPosition = new Vector3(0,-15,0);
+        texture.width = 100;
+        texture.width = 100;
+        texture.depth = 0;
+        texture.mainTexture = Calendar.selectTexture;
         selectIndex = cd.Index;
         _updateEvent_CalendarData(cd);
-    }
-
-    void showSelect(GameObject pre , GameObject now)
-    {
-        if (pre != null)
-        {
-            pre.transform.FindChild("s-bg").gameObject.SetActive(false);
-        }
-        now.transform.FindChild("s-bg").gameObject.SetActive(true);
     }
 
     public void next()

@@ -30,8 +30,9 @@ public class DealBody : Object, System.IComparable<DealBody>
             return revert;
         }
 
-        public void update(GameObject obj_item)
+        public float update(GameObject obj_item)
         {
+            float sun_desc = 0;
             GameObject obj = obj_item.transform.FindChild("icon").gameObject;
             UISprite sprite = obj.GetComponent<UISprite>();
             sprite.spriteName = icon;
@@ -47,9 +48,19 @@ public class DealBody : Object, System.IComparable<DealBody>
             label = obj.GetComponent<UILabel>();
             label.text = time;
             obj.transform.localPosition = new Vector3(name_len + 20,-2,0);
-            obj = obj_item.transform.FindChild("context").gameObject;
-            label = obj.GetComponent<UILabel>();
-            label.text = context;
+            sun_desc += 50;
+            if (context != null)
+            {
+                Transform contentTrans = obj_item.transform.FindChild("context");
+                label = contentTrans.GetComponent<UILabel>();
+                label.text = context;
+                int len = MyUtilTools.computeRow(label);
+                label.height = len * label.fontSize + 10;
+                float a = len * label.fontSize / 2 + 40;
+                contentTrans.localPosition = new Vector3(100,-a,0);
+                sun_desc += len * label.fontSize + 40;
+            }
+            return sun_desc;
         }
 
         public void copy(Revert revert)
