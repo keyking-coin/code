@@ -104,7 +104,7 @@ public class DealBody : Object, System.IComparable<DealBody>
         {
             UILabel label = obj.transform.FindChild("value").GetComponent<UILabel>();
             bool isBuyer = obj.name.Equals("buyer-appraise");
-            UIButton button = label.transform.GetComponent<UIButton>();
+            UIButton button = obj.transform.FindChild("icon-no").FindChild("line").GetComponent<UIButton>();
             if (isCompleted)
             {
                 label.text = (isBuyer ? "买家" : "卖家") + "已评价";
@@ -139,7 +139,7 @@ public class DealBody : Object, System.IComparable<DealBody>
             }
             else
             {
-                obj.transform.FindChild("value").FindChild("line").gameObject.SetActive(false);
+                obj.transform.FindChild("icon-no").FindChild("line").gameObject.SetActive(false);
             }
         }
 
@@ -204,7 +204,7 @@ public class DealBody : Object, System.IComparable<DealBody>
             string[] ss = item.bourse.Split(","[0]);
             label.text = "(编号：[00ff00]" + id + ")[-][0000ff]" + ss[1] + "[-]的[ff0000]" + item.stampName + "[-]";
             label = obj.transform.FindChild("num").FindChild("value").GetComponent<UILabel>();
-            label.text = num + "(" + item.price + "/" + item.monad + ")";
+            label.text = num + " ( " + item.price + " 元/ " + item.monad + " )";
             label = obj.transform.FindChild("time").FindChild("value").GetComponent<UILabel>();
             label.text = times[0];
             bool ruku = item.typeStr.Equals("入库");
@@ -216,7 +216,6 @@ public class DealBody : Object, System.IComparable<DealBody>
                 {
                     label.transform.parent.FindChild("icon-ok").gameObject.SetActive(true);
                     label.transform.parent.FindChild("icon-no").gameObject.SetActive(false);
-                    label.transform.GetComponent<UIButton>().enabled = false;
                     label = label.transform.parent.FindChild("time").GetComponent<UILabel>();
                     label.text = times[1];
                 }
@@ -228,12 +227,11 @@ public class DealBody : Object, System.IComparable<DealBody>
                     if ((item.seller && MainData.instance.user.id == buyId) ||
                         (!item.seller && MainData.instance.user.id == item.uid))
                     {//我是买家
-                        label.transform.GetComponent<UIButton>().enabled = true;
+                        label.transform.parent.FindChild("icon-no").FindChild("line").gameObject.SetActive(true);
                     }
                     else
                     {
                         label.transform.parent.FindChild("value").localPosition = Vector3.zero;
-                        label.transform.GetComponent<UIButton>().enabled = false;
                         label.transform.parent.FindChild("icon-no").FindChild("line").gameObject.SetActive(false);
                     }
                 }
@@ -243,7 +241,6 @@ public class DealBody : Object, System.IComparable<DealBody>
                 {
                     label.transform.parent.FindChild("icon-ok").gameObject.SetActive(true);
                     label.transform.parent.FindChild("icon-no").gameObject.SetActive(false);
-                    label.transform.GetComponent<UIButton>().enabled = false;
                     label = label.transform.parent.FindChild("time").GetComponent<UILabel>();
                     label.text = times[2];
                 }
@@ -255,12 +252,11 @@ public class DealBody : Object, System.IComparable<DealBody>
                     if (((!item.seller && MainData.instance.user.id == buyId) ||
                         (item.seller && MainData.instance.user.id == item.uid)) && state >= 1)
                     {//我是卖家
-                        label.transform.GetComponent<UIButton>().enabled = true;
+                        label.transform.parent.FindChild("icon-no").FindChild("line").gameObject.SetActive(true);
                     }
                     else
                     {
                         label.transform.parent.FindChild("value").localPosition = Vector3.zero;
-                        label.transform.GetComponent<UIButton>().enabled = false;
                         label.transform.parent.FindChild("icon-no").FindChild("line").gameObject.SetActive(false);
                     }
                 }
@@ -270,7 +266,6 @@ public class DealBody : Object, System.IComparable<DealBody>
                 {
                     label.transform.parent.FindChild("icon-ok").gameObject.SetActive(true);
                     label.transform.parent.FindChild("icon-no").gameObject.SetActive(false);
-                    label.transform.GetComponent<UIButton>().enabled = false;
                     label = label.transform.parent.FindChild("time").GetComponent<UILabel>();
                     label.text = times[3];
                 }
@@ -282,24 +277,11 @@ public class DealBody : Object, System.IComparable<DealBody>
                     if (((item.seller && MainData.instance.user.id == buyId) ||
                         (!item.seller && MainData.instance.user.id == item.uid)) && state >= 2)
                     {//我是买家
-                        label.transform.GetComponent<UIButton>().enabled = true;
-                        if (ruku)
-                        {
-                            Transform line = label.transform.parent.FindChild("icon-no").FindChild("line");
-                            line.localPosition = new Vector3(185,0,0);
-                            line.GetComponent<UITexture>().width = 270;
-                        }
-                        else
-                        {
-                            Transform line = label.transform.parent.FindChild("icon-no").FindChild("line");
-                            line.localPosition = new Vector3(150,0,0);
-                            line.GetComponent<UITexture>().width = 200;
-                        }
+                        label.transform.parent.FindChild("icon-no").FindChild("line").gameObject.SetActive(true);
                     }
                     else
                     {
                         label.transform.parent.FindChild("value").localPosition = Vector3.zero;
-                        label.transform.GetComponent<UIButton>().enabled = false;
                         label.transform.parent.FindChild("icon-no").FindChild("line").gameObject.SetActive(false);
                     }
                 }
@@ -413,6 +395,7 @@ public class DealBody : Object, System.IComparable<DealBody>
 
         public int CompareTo(Order other)
         {
+            Debug.Log(id + " : " + times[0] + ";" + other.id + " : " + other.times[0]);
             System.DateTime mt = System.DateTime.Parse(times[0]);
             System.DateTime tt = System.DateTime.Parse(other.times[0]);
             return System.DateTime.Compare(mt,tt);
@@ -460,7 +443,7 @@ public class DealBody : Object, System.IComparable<DealBody>
     public List<Revert> reverts = new List<Revert>();
     public List<Order> orders = new List<Order>();
 
-    static string[] keyNames = {"方式: ","文交所: ","藏品名称：","单位: ","剩余数量: ","有效时间: ","单价: "};
+    static string[] keyNames = { "方式 : ", "文交所 : ", "藏品名称 ：", "单位 : ", "剩余数量 : ", "有效时间 : ", "单价(元) : " };
 
     public static DealBody read(ByteBuffer data)
     {

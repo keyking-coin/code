@@ -448,8 +448,7 @@ public class Deal extends EntitySaver implements Comparable<Deal>{
 	public Map<Long,RankEntity> compute(){
 		Map<Long,RankEntity> result = new HashMap<Long, RankEntity>();
 		for (DealOrder order : orders){
-			if ((order.getHelpFlag() == 0 && order.getState() == 3) ||
-			    (order.getHelpFlag() == 1 && order.getState() == 5)){//已完成交易
+			if (order.over()){//已完成交易
 				float worth = order.getPrice() * order.getNum();
 				RankEntity entity = result.get(uid);
 				if (entity == null){

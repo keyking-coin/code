@@ -17,9 +17,9 @@ import com.keyking.coin.util.TimeUtils;
 
 public class DealOrder extends EntitySaver implements Comparable<DealOrder>{
 	
-	public static final byte ORDER_FINISH_RUKU    = 3;
+	public static final byte ORDER_FINISH_NORMAL    = 3;
 	
-	public static final byte ORDER_FINISH_XIANHUO = 5;
+	public static final byte ORDER_FINISH_HELP      = 5;
 	
 	public static final int ORDER_REVOKE_BUYER     = 1;
 	
@@ -204,7 +204,7 @@ public class DealOrder extends EntitySaver implements Comparable<DealOrder>{
 		String str = TimeUtils.formatYear(TimeUtils.now());
 		times.add(state,str);
 		this.state = state;
-		if ((state == ORDER_FINISH_RUKU && helpFlag == 0) || (state == ORDER_FINISH_XIANHUO && helpFlag == 1)){
+		if (over()){
 			//释放买家信用,提升双方信用积分
 			float total_value = num * price;
 			UserCharacter buyer = CTRL.search(buyId);
@@ -269,12 +269,20 @@ public class DealOrder extends EntitySaver implements Comparable<DealOrder>{
 		return "";
 	}
 	
+	public boolean over(){
+		if (helpFlag == 0){
+			return state == ORDER_FINISH_NORMAL;
+		}else {
+			return state == ORDER_FINISH_HELP;
+		}
+	}
+	
 	public void getSimpleDes(Module module){
 		Deal deal = CTRL.tryToSearch(dealId);
 		if (deal != null){
 			String str = null;
 			String[] ss = deal.getBourse().split(",");
-			if ((helpFlag == 0 && state == ORDER_FINISH_RUKU) || (helpFlag == 1 && state == ORDER_FINISH_XIANHUO)){
+			if (over()){
 				str = ss[1] + "[0000ff](" + (deal.getType() == 0 ? "入库" : "现货") + ")[-][ff0000]" + deal.getName() + "[-]已经成交[ff0000]" + num + "[-]" + deal.getMonad();
 			}else{
 				str = ss[1] + "[0000ff](" + (deal.getType() == 0 ? "入库" : "现货") + ")[-][ff0000]" + deal.getName() + "[-]正在交易[ff0000]" + num + "[-]" + deal.getMonad();
