@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using LitJson;
 
-public class DealBody : Object, System.IComparable<DealBody>
+public class DealBody : Object
 {
     public class Revert : Object
     {
@@ -168,8 +168,10 @@ public class DealBody : Object, System.IComparable<DealBody>
         public DealBody item;
         public bool refresh = true;
         public int revoke;//撤销
-        public const int ORDER_REVOKE_BUYER     = 1;
-        public const int ORDER_REVOKE_SELLER    = 1 << 1;
+        public static int ORDER_REVOKE_BUYER     = 1;
+        public static int ORDER_REVOKE_SELLER    = 1 << 1;
+        public static int ORDER_REVOKE_ALL       = (ORDER_REVOKE_BUYER | ORDER_REVOKE_SELLER);
+
         public static Order read(ByteBuffer data)
         {
             Order order = new Order();
@@ -395,10 +397,10 @@ public class DealBody : Object, System.IComparable<DealBody>
 
         public int CompareTo(Order other)
         {
-            Debug.Log(id + " : " + times[0] + ";" + other.id + " : " + other.times[0]);
+            //Debug.Log(id + " : " + times[0] + ";" + other.id + " : " + other.times[0]);
             System.DateTime mt = System.DateTime.Parse(times[0]);
             System.DateTime tt = System.DateTime.Parse(other.times[0]);
-            return System.DateTime.Compare(mt,tt);
+            return System.DateTime.Compare(tt,mt);
         }
 
         public void copy(Order order)
@@ -615,12 +617,13 @@ public class DealBody : Object, System.IComparable<DealBody>
         }
     }
 
+    /*
     public int CompareTo(DealBody other)
     {
         System.DateTime mt = System.DateTime.Parse(validTime);
         System.DateTime tt = System.DateTime.Parse(other.validTime);
         return System.DateTime.Compare(tt,mt);
-    }
+    }*/
 
     public void showMustUseHelpTip()
     {

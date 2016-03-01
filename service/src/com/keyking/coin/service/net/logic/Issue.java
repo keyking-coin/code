@@ -67,6 +67,7 @@ public class Issue extends AbstractLogic{
 							resp.setError("您的邮游币不足请先去充值");
 							return resp;
 						}
+						deal.setLastIssue(TimeUtils.nowChStr());
 						NET.sendMessageToAllClent(deal.pushMessage(),user.getSessionAddress());
 					}
 					resp.setSucces();

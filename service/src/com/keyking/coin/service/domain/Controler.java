@@ -209,11 +209,11 @@ public class Controler implements Instances{
 		}
 		String start = preYear + "-" + preMonth + "-" + preDay + " 00:00:00";
 		long startTime = TimeUtils.getTime(start).getMillis();
-		String end = year + "-" + month + "-" + day + " 23:59:59";
-		long endTime = TimeUtils.getTime(end).getMillis();
-		for (Deal deal : deals){
-			long dealTime = TimeUtils.getTime(deal.getCreateTime()).getMillis();
-			if (dealTime >= startTime && dealTime <= endTime){
+		//String end = year + "-" + month + "-" + day + " 23:59:59";
+		//long endTime = TimeUtils.getTime(end).getMillis();
+		for (Deal deal : deals){//先看有效期
+			long dealTime = TimeUtils.getTime(deal.getValidTime()).getMillis();
+			if (dealTime >= startTime){
 				result.add(deal);
 			}
 		}

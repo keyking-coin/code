@@ -55,6 +55,8 @@ public class Deal extends EntitySaver implements Comparable<Deal>{
 	
 	float needDeposit = 0;
 	
+	String lastIssue = "null";//离最近的推送时间
+	
 	public long getId() {
 		return id;
 	}
@@ -181,6 +183,14 @@ public class Deal extends EntitySaver implements Comparable<Deal>{
 
 	public void setNeedDeposit(float needDeposit) {
 		this.needDeposit = needDeposit;
+	}
+
+	public String getLastIssue() {
+		return lastIssue;
+	}
+
+	public void setLastIssue(String lastIssue) {
+		this.lastIssue = lastIssue;
 	}
 
 	public void delRevert(Revert revert){
@@ -342,9 +352,9 @@ public class Deal extends EntitySaver implements Comparable<Deal>{
 	public float completeDeposit(){
 		float result = 0;
 		for (DealOrder order : orders){
-			if (order.getHelpFlag() == 0 && order.getState() == 3){//非中介模式
+			if (order.getHelpFlag() == 0 && order.getState() == DealOrder.ORDER_FINISH_NORMAL){//非中介模式
 				result += order.getPrice() * order.getNum();
-			}else if (order.getHelpFlag() == 1 && order.getState() == 5){//中介模式
+			}else if (order.getHelpFlag() == 1 && order.getState() == DealOrder.ORDER_FINISH_HELP){//中介模式
 				result += order.getPrice() * order.getNum();
 			}
 		}
@@ -354,9 +364,9 @@ public class Deal extends EntitySaver implements Comparable<Deal>{
 	public float notCompleteDeposit(){
 		float result = 0;
 		for (DealOrder order : orders){
-			if (order.getHelpFlag() == 0 && order.getState() < 3){//非中介模式
+			if (order.getHelpFlag() == 0 && order.getState() < DealOrder.ORDER_FINISH_NORMAL){//非中介模式
 				result += order.getPrice() * order.getNum();
-			}else if (order.getHelpFlag() == 1 && order.getState() < 5){//中介模式
+			}else if (order.getHelpFlag() == 1 && order.getState() < DealOrder.ORDER_FINISH_HELP){//中介模式
 				result += order.getPrice() * order.getNum();
 			}
 		}
@@ -369,9 +379,9 @@ public class Deal extends EntitySaver implements Comparable<Deal>{
 			if (order.getBuyId() != uid){
 				continue;
 			}
-			if (order.getHelpFlag() == 0 && order.getState() == 3){//非中介模式
+			if (order.getHelpFlag() == 0 && order.getState() == DealOrder.ORDER_FINISH_NORMAL){//非中介模式
 				result += order.getPrice() * order.getNum();
-			}else if (order.getHelpFlag() == 1 && order.getState() == 5){//中介模式
+			}else if (order.getHelpFlag() == 1 && order.getState() == DealOrder.ORDER_FINISH_HELP){//中介模式
 				result += order.getPrice() * order.getNum();
 			}
 		}
@@ -384,9 +394,9 @@ public class Deal extends EntitySaver implements Comparable<Deal>{
 			if (order.getBuyId() != uid){
 				continue;
 			}
-			if (order.getHelpFlag() == 0 && order.getState() < 3){//非中介模式
+			if (order.getHelpFlag() == 0 && order.getState() < DealOrder.ORDER_FINISH_NORMAL){//非中介模式
 				result += order.getPrice() * order.getNum();
-			}else if (order.getHelpFlag() == 1 && order.getState() < 5){//中介模式
+			}else if (order.getHelpFlag() == 1 && order.getState() < DealOrder.ORDER_FINISH_HELP){//中介模式
 				result += order.getPrice() * order.getNum();
 			}
 		}
@@ -471,7 +481,7 @@ public class Deal extends EntitySaver implements Comparable<Deal>{
 
 	public boolean isDealing() {
 		for (DealOrder order : orders){
-			if ((order.getHelpFlag()==0 && order.getState() < 3) || (order.getHelpFlag()==1 && order.getState() < 5)){
+			if ((order.getHelpFlag()==0 && order.getState() < DealOrder.ORDER_FINISH_NORMAL) || (order.getHelpFlag()==1 && order.getState() < DealOrder.ORDER_FINISH_HELP)){
 				return true;
 			}
 		}
@@ -480,10 +490,10 @@ public class Deal extends EntitySaver implements Comparable<Deal>{
 
 	public boolean isConfirming() {
 		for (DealOrder order : orders){
-			if (order.getHelpFlag()==0 && order.getState() == 3 && !order.Appraise()){
+			if (order.getHelpFlag()== 0 && order.getState() == DealOrder.ORDER_FINISH_NORMAL && !order.Appraise()){
 				return true;
 			}
-			if (order.getHelpFlag()==1 && order.getState() == 5 && !order.Appraise()){
+			if (order.getHelpFlag()== 1 && order.getState() == DealOrder.ORDER_FINISH_HELP && !order.Appraise()){
 				return true;
 			}
 		}
@@ -492,10 +502,10 @@ public class Deal extends EntitySaver implements Comparable<Deal>{
 	
 	public boolean isOver() {
 		for (DealOrder order : orders){
-			if (order.getHelpFlag()==0 && order.getState() == 3 && order.Appraise()){
+			if (order.getHelpFlag()== 0 && order.getState() == DealOrder.ORDER_FINISH_NORMAL && order.Appraise()){
 				return true;
 			}
-			if (order.getHelpFlag()==1 && order.getState() == 5 && order.Appraise()){
+			if (order.getHelpFlag()== 1 && order.getState() == DealOrder.ORDER_FINISH_HELP && order.Appraise()){
 				return true;
 			}
 		}
@@ -505,6 +515,9 @@ public class Deal extends EntitySaver implements Comparable<Deal>{
 	private int orderNum(){
 		int num = 0;
 		for (DealOrder order : orders){
+			if (order.checkRevoke(DealOrder.ORDER_REVOKE_ALL)){
+				continue;
+			}
 			num += order.getNum();
 		}
 		return num;
@@ -539,5 +552,10 @@ public class Deal extends EntitySaver implements Comparable<Deal>{
 		ModuleResp modules = new ModuleResp();
 		modules.addModule(module);
 		return modules;
+	}
+
+	public boolean isIssueRecently() {
+		
+		return false;
 	}
 }

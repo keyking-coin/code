@@ -1003,7 +1003,6 @@ public class DealEvent : CenterEvent{
                     temp.Add(item);
                 }
             }
-            temp.Sort();
             refreshListDeal(temp);
         }
         else
@@ -1015,7 +1014,7 @@ public class DealEvent : CenterEvent{
                 {
                     foreach (DealBody.Order order in item.orders)
                     {
-                        if (order.checkRevoke(DealBody.Order.ORDER_REVOKE_BUYER) && order.checkRevoke(DealBody.Order.ORDER_REVOKE_SELLER))
+                        if (order.checkRevoke(DealBody.Order.ORDER_REVOKE_ALL))
                         {//双方都撤销了
                             continue;
                         }

@@ -16,9 +16,9 @@ import com.keyking.coin.util.ServerLog;
 
 public class DealDAO extends JdbcDaoSupport {
 	
-	private static String INSERT_SQL_STR = "insert into deal (id,uid,sellFlag,type,bourse,name,price,monad,num,validTime,createTime,other,_revoke,needDeposit,helpFlag)values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+	private static String INSERT_SQL_STR = "insert into deal (id,uid,sellFlag,type,bourse,name,price,monad,num,validTime,createTime,other,_revoke,needDeposit,helpFlag,lastIssue)values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 	
-	private static String UPDATE_SQL_STR = "update deal set type=?,bourse=?,name=?,price=?,monad=?,num=?,validTime=?,other=?,_revoke=?,needDeposit=?,helpFlag=? where id=?";
+	private static String UPDATE_SQL_STR = "update deal set type=?,bourse=?,name=?,price=?,monad=?,num=?,validTime=?,other=?,_revoke=?,needDeposit=?,helpFlag=?,lastIssue=? where id=?";
 	
 	private static String SELECT_SQL_STR_ONE = "select * from deal where id=?";
 	
@@ -48,6 +48,7 @@ public class DealDAO extends JdbcDaoSupport {
 					ps.setByte(cursor++,(byte)(deal.isRevoke() ? 1 : 0));
 					ps.setFloat(cursor++,deal.getNeedDeposit());
 					ps.setByte(cursor++,deal.getHelpFlag());
+					ps.setString(cursor++,deal.getLastIssue());
 					return ps;
 				}
 			});
@@ -66,7 +67,7 @@ public class DealDAO extends JdbcDaoSupport {
 					deal.getMonad(),deal.getNum(),
 					deal.getValidTime(),deal.getOther(),
 					deal.isRevoke() ? 1 : 0,deal.getNeedDeposit(),
-					deal.getHelpFlag(),deal.getId());
+					deal.getHelpFlag(),deal.getLastIssue(),deal.getId());
 		} catch (DataAccessException e) {
 			ServerLog.error("save deal error",e);
 			return false;

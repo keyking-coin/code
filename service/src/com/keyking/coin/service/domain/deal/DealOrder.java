@@ -25,6 +25,8 @@ public class DealOrder extends EntitySaver implements Comparable<DealOrder>{
 	
 	public static final int ORDER_REVOKE_SELLER    = 1 << 1;
 	
+	public static final int ORDER_REVOKE_ALL       = (ORDER_REVOKE_BUYER|ORDER_REVOKE_SELLER);
+	
 	long id;
 	
 	long dealId;

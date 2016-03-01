@@ -57,6 +57,7 @@ public class BuyDeploy extends AbstractLogic {
 					resp.setError("您的邮游币不足请先去充值");
 					return resp;
 				}
+				deal.setLastIssue(TimeUtils.nowChStr());
 				NET.sendMessageToAllClent(deal.pushMessage(),user.getSessionAddress());
 			}
 			NET.sendMessageToAllClent(deal.clientMessage(Module.ADD_FLAG),null);
