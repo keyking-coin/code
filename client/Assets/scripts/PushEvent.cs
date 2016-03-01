@@ -181,6 +181,7 @@ public class PushEvent : MonoBehaviour
 
     void initLook(DealBody item)
     {
+        /*
         transform.FindChild("base").gameObject.SetActive(false);
         GameObject look = transform.FindChild("look").gameObject;
         look.SetActive(true);
@@ -194,6 +195,10 @@ public class PushEvent : MonoBehaviour
         if (DealEvent.pref_detail == null)
         {
             DealEvent.pref_detail = Resources.Load<GameObject>("prefabs/deal-detail");
+        }
+        if (DealEvent.pref_revert_detail == null)
+        {
+            DealEvent.pref_revert_detail = Resources.Load<GameObject>("prefabs/revert-detail");
         }
         float start = 310;
         GameObject obj_item = NGUITools.AddChild(lookContainer,DealEvent.pref_detail);
@@ -213,7 +218,7 @@ public class PushEvent : MonoBehaviour
             sun_desc += revert.update(obj_sun_item);
             obj_sun_item.transform.FindChild("events").gameObject.SetActive(false);
         }
-        obj_item.transform.FindChild("events").gameObject.SetActive(false);
+        obj_item.transform.FindChild("events").gameObject.SetActive(false);*/
     }
 
     public void look()

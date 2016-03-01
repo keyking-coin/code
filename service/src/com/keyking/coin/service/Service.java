@@ -29,6 +29,8 @@ public class Service implements Instances{
 	
 	private static MainLoop looper = null;
 	
+	public static int IUSSUE_TIME = 6;
+	
 	public static void main(String[] args) {
         try {
         	ServerLog.init();
@@ -62,6 +64,7 @@ public class Service implements Instances{
 		Document document = XmlUtils.load(file);
 		Element element   = document.getDocumentElement();
 		URL = XmlUtils.getAttribute(element,"url");
+		IUSSUE_TIME = Integer.parseInt(XmlUtils.getAttribute(element,"issue"));
 		Element service = XmlUtils.getChildByName(element,"service");
 		if (service != null){
 			PORT    = Integer.parseInt(XmlUtils.getAttribute(service,"port"));

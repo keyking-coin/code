@@ -8,6 +8,7 @@ import java.util.Map;
 
 import org.joda.time.DateTime;
 
+import com.keyking.coin.service.Service;
 import com.keyking.coin.service.domain.data.EntitySaver;
 import com.keyking.coin.service.domain.user.RankEntity;
 import com.keyking.coin.service.domain.user.UserCharacter;
@@ -555,7 +556,13 @@ public class Deal extends EntitySaver implements Comparable<Deal>{
 	}
 
 	public boolean isIssueRecently() {
-		
+		if (!StringUtil.isNull(lastIssue)){
+			long time = TimeUtils.getTime(lastIssue).getMillis() / 1000 + Service.IUSSUE_TIME * 3600;
+			long now = TimeUtils.now().getMillis() / 1000;
+			if (now < time){
+				return true;
+			}
+		}
 		return false;
 	}
 }

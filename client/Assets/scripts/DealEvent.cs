@@ -7,6 +7,8 @@ public class DealEvent : CenterEvent{
 
     public static GameObject pref_detail;
 
+    public static GameObject pref_revert_detail;
+
     GameObject pref_item_summary;
 
     GameObject pref_button;
@@ -202,151 +204,111 @@ public class DealEvent : CenterEvent{
             }
             if (dealBody.refresh)
             {
-                float desc = 50;
-                desc += dealBody.insterItem(gameObject);
-                GameObject events = transform.FindChild("events").gameObject;
-                MyUtilTools.clearChild(events.transform);
+                dealBody.insterItem(gameObject);
+                GameObject events = transform.FindChild("event").gameObject;
+                for (int i = 0 ; i < events.transform.childCount ; i ++){
+                    GameObject child = events.transform.GetChild(i).gameObject;
+                    child.SetActive(false);
+                }
                 if (MainData.instance.user.id == dealBody.uid)
                 {//楼主
-                    GameObject button = NGUITools.AddChild(events, _dealEvent.pref_button);
-                    button.name = "send";
-                    UILabel button_label = button.GetComponentInChildren<UILabel>();
-                    button_label.text = "推  送";
-                    button.transform.localPosition = new Vector3(-290, -30, 0);
-                    UIButton button_event = button.GetComponent<UIButton>();
-                    EventDelegate event_issue = new EventDelegate(_dealEvent, "checkIssue");
-                    event_issue.parameters[0] = new EventDelegate.Parameter();
-                    event_issue.parameters[0].obj = dealBody;
-                    button_event.onClick.Add(event_issue);
+                    Transform trans = events.transform.FindChild("grab");
+                    trans.localPosition = new Vector3(-320,0,0);
+                    UIButton button = trans.GetComponent<UIButton>();
+                    EventDelegate event_delegat = new EventDelegate(_dealEvent, "checkIssue");
+                    event_delegat.parameters[0] = new EventDelegate.Parameter();
+                    event_delegat.parameters[0].obj = dealBody;
+                    button.onClick.Add(event_delegat);
 
-                    button = NGUITools.AddChild(events, _dealEvent.pref_button);
-                    button.name = "cancle";
-                    button_label = button.GetComponentInChildren<UILabel>();
-                    button_label.text = "撤  销";
-                    button_label.color = Color.red;
-                    button.transform.localPosition = new Vector3(290, -30, 0);
-                    button_event = button.GetComponent<UIButton>();
-                    EventDelegate event_del = new EventDelegate(_dealEvent, "confirmDelDeal");
-                    event_del.parameters[0] = new EventDelegate.Parameter();
-                    event_del.parameters[0].obj = dealBody;
-                    button_event.onClick.Add(event_del);
+                    trans = events.transform.FindChild("favorite-cancle");
+                    trans.localPosition = new Vector3(240,0,0);
+                    button = trans.GetComponent<UIButton>();
+                    event_delegat = new EventDelegate(_dealEvent, "confirmDelDeal");
+                    event_delegat.parameters[0] = new EventDelegate.Parameter();
+                    event_delegat.parameters[0].obj = dealBody;
+                    button.onClick.Add(event_delegat);
                 }
                 else
                 {
                     System.DateTime time = System.DateTime.Parse(dealBody.validTime);
                     if (time.CompareTo(System.DateTime.Now) < 0)
                     {//已失效
-                        GameObject button = NGUITools.AddChild(events, _dealEvent.pref_button);
-                        button.name = "look";
-                        UILabel button_label = button.GetComponentInChildren<UILabel>();
-                        button_label.text = "查  看";
-                        button.transform.localPosition = new Vector3(-250, -30, 0);
-                        UIButton button_event = button.GetComponent<UIButton>();
-                        EventDelegate event_Look = new EventDelegate(_dealEvent, "openLook");
-                        event_Look.parameters[0] = new EventDelegate.Parameter();
-                        event_Look.parameters[0].obj = new LongParamter(dealBody.id);
-                        event_Look.parameters[1] = new EventDelegate.Parameter();
-                        event_Look.parameters[1].obj = new LongParamter(dealBody.uid);
-                        button_event.onClick.Add(event_Look);
+                        Transform trans = events.transform.FindChild("look");
+                        trans.localPosition = new Vector3(-320, 0, 0);
+                        UIButton button = trans.GetComponent<UIButton>();
+                        EventDelegate event_delegat = new EventDelegate(_dealEvent, "openLook");
+                        event_delegat.parameters[0] = new EventDelegate.Parameter();
+                        event_delegat.parameters[0].obj = dealBody;
+                        button.onClick.Add(event_delegat);
 
-                        button = NGUITools.AddChild(events, _dealEvent.pref_button);
-                        button.name = "revert";
-                        button_label = button.GetComponentInChildren<UILabel>();
-                        button_label.text = "回  复";
-                        button.transform.localPosition = new Vector3(20, -30, 0);
-                        button_event = button.GetComponent<UIButton>();
-                        EventDelegate event_revert = new EventDelegate(_dealEvent, "openRevert");
-                        event_revert.parameters[0] = new EventDelegate.Parameter();
-                        event_revert.parameters[0].obj = dealBody;
-                        button_event.onClick.Add(event_revert);
+                        trans = events.transform.FindChild("revert");
+                        trans.localPosition = new Vector3(-50, 0, 0);
+                        button = trans.GetComponent<UIButton>();
+                        event_delegat = new EventDelegate(_dealEvent, "openRevert");
+                        event_delegat.parameters[0] = new EventDelegate.Parameter();
+                        event_delegat.parameters[0].obj = dealBody;
+                        button.onClick.Add(event_delegat);
 
-                        button = NGUITools.AddChild(events,_dealEvent.pref_button);
-                        button.name = "favorite";
-                        button_label = button.GetComponentInChildren<UILabel>();
-                        button.transform.localPosition = new Vector3(290, -30, 0);
-                        button_event = button.GetComponent<UIButton>();
-                        EventDelegate event_favorite = null;
                         if (MainData.instance.user.isFavorite(dealBody.id))
                         {
-                            button_label.text = "取消收藏";
-                            UISprite sprite = button.GetComponent<UISprite>();
-                            sprite.width = 140;
-                            event_favorite = new EventDelegate(_dealEvent,"cancleFavorite");
+                            trans = events.transform.FindChild("favorite-cancle");
+                            event_delegat = new EventDelegate(_dealEvent, "cancleFavorite");
                         }
                         else
                         {
-                            button_label.text = "收  藏";
-                            event_favorite = new EventDelegate(_dealEvent,"favorite");
+                            trans = events.transform.FindChild("favorite-sure");
+                            event_delegat = new EventDelegate(_dealEvent, "favorite");
                         }
-                        event_favorite.parameters[0] = new EventDelegate.Parameter();
-                        event_favorite.parameters[0].obj = dealBody;
-                        button_event.onClick.Add(event_favorite);
+                        trans.localPosition = new Vector3(240, 0, 0);
+                        button = trans.GetComponent<UIButton>();
+                        event_delegat.parameters[0] = new EventDelegate.Parameter();
+                        event_delegat.parameters[0].obj = dealBody;
+                        button.onClick.Add(event_delegat);
                     }
                     else
                     {
-                        GameObject button = NGUITools.AddChild(events, _dealEvent.pref_button);
-                        button.name = "grab";
-                        UILabel button_label = button.GetComponentInChildren<UILabel>();
-                        button_label.text = "抢  单";
-                        button_label.color = Color.red;
-                        button.transform.localPosition = new Vector3(-250, -30, 0);
-                        UIButton button_event = button.GetComponent<UIButton>();
-                        EventDelegate event_grab = new EventDelegate(_dealEvent, "openGrab");
-                        event_grab.parameters[0] = new EventDelegate.Parameter();
-                        event_grab.parameters[0].obj = dealBody;
-                        button_event.onClick.Add(event_grab);
+                        Transform trans = events.transform.FindChild("grab");
+                        trans.localPosition = new Vector3(-320, 0, 0);
+                        UIButton button = trans.GetComponent<UIButton>();
+                        EventDelegate event_delegat = new EventDelegate(_dealEvent, "checkIssue");
+                        event_delegat.parameters[0] = new EventDelegate.Parameter();
+                        event_delegat.parameters[0].obj = dealBody;
+                        button.onClick.Add(event_delegat);
 
-                        button = NGUITools.AddChild(events, _dealEvent.pref_button);
-                        button.name = "look";
-                        button_label = button.GetComponentInChildren<UILabel>();
-                        button_label.text = "查  看";
-                        button.transform.localPosition = new Vector3(-70, -30, 0);
-                        button_event = button.GetComponent<UIButton>();
-                        EventDelegate event_Look = new EventDelegate(_dealEvent, "openLook");
-                        event_Look.parameters[0] = new EventDelegate.Parameter();
-                        event_Look.parameters[0].obj = new LongParamter(dealBody.id);
-                        event_Look.parameters[1] = new EventDelegate.Parameter();
-                        event_Look.parameters[1].obj = new LongParamter(dealBody.uid);
-                        button_event.onClick.Add(event_Look);
+                        trans = events.transform.FindChild("look");
+                        trans.localPosition = new Vector3(-140, 0, 0);
+                        button = trans.GetComponent<UIButton>();
+                        event_delegat = new EventDelegate(_dealEvent, "openLook");
+                        event_delegat.parameters[0] = new EventDelegate.Parameter();
+                        event_delegat.parameters[0].obj = dealBody;
+                        button.onClick.Add(event_delegat);
 
-                        button = NGUITools.AddChild(events, _dealEvent.pref_button);
-                        button.name = "revert";
-                        button_label = button.GetComponentInChildren<UILabel>();
-                        button_label.text = "回  复";
-                        button.transform.localPosition = new Vector3(110, -30, 0);
-                        button_event = button.GetComponent<UIButton>();
-                        EventDelegate event_revert = new EventDelegate(_dealEvent, "openRevert");
-                        event_revert.parameters[0] = new EventDelegate.Parameter();
-                        event_revert.parameters[0].obj = dealBody;
-                        button_event.onClick.Add(event_revert);
+                        trans = events.transform.FindChild("revert");
+                        trans.localPosition = new Vector3(60,0,0);
+                        button = trans.GetComponent<UIButton>();
+                        event_delegat = new EventDelegate(_dealEvent, "openRevert");
+                        event_delegat.parameters[0] = new EventDelegate.Parameter();
+                        event_delegat.parameters[0].obj = dealBody;
+                        button.onClick.Add(event_delegat);
 
-                        button = NGUITools.AddChild(events, _dealEvent.pref_button);
-                        button.name = "favorite";
-                        button_label = button.GetComponentInChildren<UILabel>();
-                        button.transform.localPosition = new Vector3(290,-30,0);
-                        button_event = button.GetComponent<UIButton>();
-                        EventDelegate event_favorite = null;
                         if (MainData.instance.user.isFavorite(dealBody.id))
                         {
-                            button_label.text = "取消收藏";
-                            UISprite sprite = button.GetComponent<UISprite>();
-                            sprite.width = 140;
-                            event_favorite = new EventDelegate(_dealEvent, "cancleFavorite");
+                            trans = events.transform.FindChild("favorite-cancle");
+                            event_delegat = new EventDelegate(_dealEvent,"cancleFavorite");
                         }
                         else
                         {
-                            button_label.text = "收  藏";
-                            event_favorite = new EventDelegate(_dealEvent, "favorite");
+                            trans = events.transform.FindChild("favorite-sure");
+                            event_delegat = new EventDelegate(_dealEvent,"favorite");
                         }
-                        event_favorite.parameters[0] = new EventDelegate.Parameter();
-                        event_favorite.parameters[0].obj = dealBody;
-                        button_event.onClick.Add(event_favorite);
+                        trans.localPosition = new Vector3(240, 0, 0);
+                        button = trans.GetComponent<UIButton>();
+                        event_delegat.parameters[0] = new EventDelegate.Parameter();
+                        event_delegat.parameters[0].obj = dealBody;
+                        button.onClick.Add(event_delegat);
                     }
                 }
-                events.transform.localPosition = new Vector3(50.0f,-desc,0);
-                GameObject obj_suns = transform.FindChild("suns").gameObject;
-                obj_suns.transform.localPosition = new Vector3(0.0f,-desc - 60,0.0f);
-                _dealEvent._refresh(dealBody,obj_suns);
+                _dealEvent._refresh(dealBody,events);
                 dealBody.refresh = false;
             }
             ByteBuffer buffer = MyUtilTools.tryToLogic("DealFavorite");
@@ -578,6 +540,7 @@ public class DealEvent : CenterEvent{
             pref_item_summary = Resources.Load<GameObject>("prefabs/deal-summary");
             pref_order_summary = Resources.Load<GameObject>("prefabs/order-summary");
             pref_detail = Resources.Load<GameObject>("prefabs/deal-detail");
+            pref_revert_detail = Resources.Load<GameObject>("prefabs/revert-detail");
             pref_order_detail = Resources.Load<GameObject>("prefabs/order-detail-normal");
             pref_order_detail_help = Resources.Load<GameObject>("prefabs/order-detail-help");
             list_container = needshow[0].transform.FindChild("list").FindChild("body").FindChild("container").gameObject;
@@ -630,13 +593,13 @@ public class DealEvent : CenterEvent{
         dealLookEvent.show(buffer);
     }
 
-    void openLook(LongParamter parma1,LongParamter parma2)
+    void openLook(DealBody dealBody)
     {
         ByteBuffer buffer = ByteBuffer.Allocate(1024);
         buffer.skip(4);
         buffer.WriteString("UserLook");
-        buffer.WriteLong(parma1.Value);
-        buffer.WriteLong(parma2.Value);
+        buffer.WriteLong(dealBody.id);
+        buffer.WriteLong(dealBody.uid);
         buffer.WriteLong(MainData.instance.user.id);
         NetUtil.getInstance.SendMessage(buffer);
     }
@@ -966,7 +929,7 @@ public class DealEvent : CenterEvent{
         detail_container.transform.parent.localPosition = new Vector3(0,-70.0f,0);
         GameObject obj_item = NGUITools.AddChild(detail_container,pref_detail);
         obj_item.name = "item";
-        obj_item.transform.localPosition = new Vector3(-75.0f,550, 0);
+        obj_item.transform.localPosition = new Vector3(0,420,0);
         DealDetailUpdate detailUpdate = obj_item.AddComponent<DealDetailUpdate>();
         detailUpdate.Body      = item;
         detailUpdate.dealEvent = this;

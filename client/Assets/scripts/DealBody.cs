@@ -482,52 +482,53 @@ public class DealBody : Object
         return item;
     }
 
-    public float insterItem(GameObject obj_item)
+    public void insterItem(GameObject obj_item)
     {
         GameObject obj = obj_item.transform.FindChild("icon").gameObject;
-        UISprite sprite = obj.GetComponent<UISprite>();
+        UISprite sprite = obj_item.transform.FindChild("icon").GetComponent<UISprite>();
         sprite.spriteName = icon;
-        obj = obj_item.transform.FindChild("name").gameObject;
-        UILabel label = obj.GetComponent<UILabel>();
+        UILabel label = obj_item.transform.FindChild("user").GetComponent<UILabel>();
         label.text = userName + " ";
-        float name_len = MyUtilTools.computeLen(label);
-        obj = obj_item.transform.FindChild("time").gameObject;
-        label = obj.GetComponent<UILabel>();
+        label = obj_item.transform.FindChild("time").GetComponent<UILabel>();
         label.text = time;
-        obj.transform.localPosition = new Vector3(name_len + 20,-2,0);
-        obj = obj_item.transform.FindChild("context").gameObject;
-        label = obj.GetComponent<UILabel>();
-        string[] ss = bourse.Split(","[0]);
-        string str ;
-        if (seller){
-            str = "编号：" + id + "\n" +
-                  keyNames[0] + typeStr + "\n" +
-                  (typeStr.Equals("入库") ? keyNames[1] : "交易城市：") + ss[1] + "\n" +
-                  keyNames[2] + stampName + "\n" +
-                  keyNames[3] + monad + "\n" +
-                  keyNames[4] + curNum + "\n" +
-                  keyNames[6] + price + "\n" +
-                  keyNames[5] + validTime +
-                  (MyUtilTools.stringIsNull(context) ? "" : "\n" + context);
+        Transform content_trans = obj_item.transform.FindChild("content");
+        label = content_trans.FindChild("id").FindChild("value").GetComponent<UILabel>();
+        label.text = id + "";
+        label = content_trans.FindChild("type").FindChild("value").GetComponent<UILabel>();
+        label.text = typeStr + "";
+        if (typeStr.Equals("入库"))
+        {
+            label = content_trans.FindChild("bourse").GetComponent<UILabel>();
+            label.text = "文 交 所";
+            label.spacingX = 4;
+            
         }
         else
         {
-            str = "编号：" + id + "\n" +
-                "求购：" + typeStr + "\n" +
-                (typeStr.Equals("入库") ? keyNames[1] : "交易城市：") + ss[1] + "\n" +
-                keyNames[2] + stampName + "\n" +
-                keyNames[3] + monad + "\n" +
-                keyNames[4] + curNum + "\n" +
-                keyNames[6] + price + "\n" +
-                keyNames[5] + validTime  +
-                (MyUtilTools.stringIsNull(context) ? "" : "\n" + context);
+            label = content_trans.FindChild("bourse").GetComponent<UILabel>();
+            label.text = "交易城市";
+            label.spacingX = 1;
         }
-        label.text = str;
+        label = content_trans.FindChild("bourse").FindChild("value").GetComponent<UILabel>();
+        string[] ss = bourse.Split(","[0]);
+        label.text = ss[1];
+        label = content_trans.FindChild("title").FindChild("value").GetComponent<UILabel>();
+        label.text = stampName + "(" + (seller ? "出售" : "求购") + ")";
+        label = content_trans.FindChild("monad").FindChild("value").GetComponent<UILabel>();
+        label.text = monad;
+        label = content_trans.FindChild("valid").FindChild("value").GetComponent<UILabel>();
+        label.text = validTime;
+        label = content_trans.FindChild("other").GetComponent<UILabel>();
+        label.text = context;
         int len = MyUtilTools.computeRow(label);
         label.height = len * (label.fontSize + label.spacingY);
-        float a = len * label.fontSize / 2 + 50;
-        obj.transform.localPosition = new Vector3(95,-a,0);
-        return len * label.fontSize + 50;
+        float a = (len * label.fontSize + (len - 1) * label.spacingY) / 2;
+        label.transform.localPosition = new Vector3(0,-210-a,0);
+        UITexture bg = content_trans.FindChild("rect-bg").GetComponent<UITexture>();
+        bg.height = (int)(400 + a + label.fontSize + 20);
+        bg.transform.localPosition = new Vector3(0, -(a + label.fontSize + 20) / 2, 0);
+        obj_item.transform.FindChild("event").localPosition = new Vector3(0,-520-a-60,0);
+        obj_item.transform.FindChild("reverts").localPosition = new Vector3(0,-630-a-60,0);
     }
 
     public Order searchOrder(long orderId)

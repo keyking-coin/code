@@ -169,7 +169,7 @@ public class MyUtilTools  {
     {
         int th = label.height;
         string temp = label.text;
-        label.height = 800;
+        label.height = 10000;
         string[] ss = temp.Split(new char[]{'\n'});
         float result = 0;
         if (ss.Length == 1)
