@@ -18,7 +18,6 @@ public class DealGrab extends AbstractLogic {
 		long id = buffer.getLong();
 		long uid = buffer.getLong();
 		int num = buffer.getInt();
-		byte flag = buffer.get();
 		Deal deal = CTRL.tryToSearch(id);
 		if (deal == null){
 			resp.setError("卖家已撤销");
@@ -51,8 +50,7 @@ public class DealGrab extends AbstractLogic {
 			order.addTimes((byte)0);
 			order.setPrice(deal.getPrice());
 			order.setNum(num);
-			flag = deal.getHelpFlag() == 1 ? flag : 0;
-			order.setHelpFlag(flag);
+			order.setHelpFlag(deal.getHelpFlag());
 			long orderId = PK.key("deal_order");
 			order.setId(orderId);
 			CTRL.addRecents(order);

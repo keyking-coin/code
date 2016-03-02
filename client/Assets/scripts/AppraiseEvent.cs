@@ -210,7 +210,8 @@ public class AppraiseEvent : MonoBehaviour {
         buffer.WriteLong(order.dealId);
         buffer.WriteLong(order.id);
         buffer.WriteLong(MainData.instance.user.id);
-        buffer.WriteByte(2);
+        byte index = (byte)(order.helpflag ? 3 : 2);
+        buffer.WriteByte(index);
         NetUtil.getInstance.SendMessage(buffer);
     }
 
@@ -223,7 +224,8 @@ public class AppraiseEvent : MonoBehaviour {
         buffer.WriteLong(order.dealId);
         buffer.WriteLong(order.id);
         buffer.WriteLong(MainData.instance.user.id);
-        buffer.WriteByte(3);
+        byte index = (byte)(order.helpflag ? 4 : 3);
+        buffer.WriteByte(index);
         NetUtil.getInstance.SendMessage(buffer);
     }
 
@@ -231,15 +233,15 @@ public class AppraiseEvent : MonoBehaviour {
     {
         if (owner.name.Equals("fk"))
         {
-            ConfirmUtil.confirm("提交已付款提交后无法取消?",_fk);
+            ConfirmUtil.confirm("提交已付款提交后无法取消?", _fk);
         }
         else if (owner.name.Equals("fh"))
         {
-            ConfirmUtil.confirm("提交已发货提交后无法取消?",_fh);
+            ConfirmUtil.confirm("提交已发货提交后无法取消?", _fh);
         }
         else if (owner.name.Equals("qr"))
         {
-            ConfirmUtil.confirm("提交确认收货提交后无法取消?",_qr);
+            ConfirmUtil.confirm("提交确认收货提交后无法取消?", _qr);
         }
     }
 

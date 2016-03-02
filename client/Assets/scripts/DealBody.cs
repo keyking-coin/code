@@ -30,37 +30,31 @@ public class DealBody : Object
             return revert;
         }
 
-        public float update(GameObject obj_item)
+        public float update(GameObject obj_item,bool fix = true)
         {
-            float sun_desc = 0;
-            GameObject obj = obj_item.transform.FindChild("icon").gameObject;
-            UISprite sprite = obj.GetComponent<UISprite>();
-            sprite.spriteName = icon;
-            obj = obj_item.transform.FindChild("name").gameObject;
-            UILabel label = obj.GetComponent<UILabel>();
-            label.text = userName + " ";
+            obj_item.transform.FindChild("icon").GetComponent<UISprite>().spriteName = icon;
+            UILabel user_name = obj_item.transform.FindChild("user").GetComponent<UILabel>();
             if (!tar.Equals("null"))
             {
-                label.text = userName + " 回复 " + tar + " ";
+                user_name.text = userName + " [0000ef]回复[-] " + tar;
             }
-            float name_len = MyUtilTools.computeLen(label);
-            obj = obj_item.transform.FindChild("time").gameObject;
-            label = obj.GetComponent<UILabel>();
-            label.text = time;
-            obj.transform.localPosition = new Vector3(name_len + 20,-2,0);
-            sun_desc += 50;
-            if (context != null)
+            else
             {
-                Transform contentTrans = obj_item.transform.FindChild("context");
-                label = contentTrans.GetComponent<UILabel>();
-                label.text = context;
-                int len = MyUtilTools.computeRow(label);
-                label.height = len * label.fontSize + 10;
-                float a = len * label.fontSize / 2 + 40;
-                contentTrans.localPosition = new Vector3(100,-a,0);
-                sun_desc += len * label.fontSize + 40;
+                user_name.text = userName;
             }
-            return sun_desc;
+            obj_item.transform.FindChild("time").GetComponent<UILabel>().text = time;
+            UILabel content_label = obj_item.transform.FindChild("content").GetComponent<UILabel>();
+            content_label.text = context;
+            int len = MyUtilTools.computeRow(content_label);
+            content_label.height = len * (content_label.fontSize + content_label.spacingY);
+            float a = (len * content_label.fontSize + (len - 1) * content_label.spacingY) / 2;
+            content_label.transform.localPosition = new Vector3(60,-70-a,0);
+            if (len % 2 != 0)
+            {
+                a += content_label.fontSize / 2;
+            }
+            obj_item.transform.FindChild("event").localPosition = new Vector3(0,-180-a,0);
+            return fix ? (290 + a) : 200;
         }
 
         public void copy(Revert revert)
@@ -227,7 +221,7 @@ public class DealBody : Object
                     label.transform.parent.FindChild("icon-ok").gameObject.SetActive(false);
                     label.transform.parent.FindChild("icon-no").gameObject.SetActive(true);
                     if ((item.seller && MainData.instance.user.id == buyId) ||
-                        (!item.seller && MainData.instance.user.id == item.uid))
+                        (!item.seller && MainData.instance.user.id == item.uid) && state >= 0)
                     {//我是买家
                         label.transform.parent.FindChild("icon-no").FindChild("line").gameObject.SetActive(true);
                     }
@@ -288,9 +282,9 @@ public class DealBody : Object
                     }
                 }
             }
-            else
+            else//中介类型
             {
-                label = obj.transform.FindChild("fk1").FindChild("value").GetComponent<UILabel>();
+                label = obj.transform.FindChild("fk").FindChild("value").GetComponent<UILabel>();
                 label.text = "买家已付款给中介";
                 if (state >= 1)
                 {
@@ -304,9 +298,18 @@ public class DealBody : Object
                     label.transform.parent.FindChild("time").gameObject.SetActive(false);
                     label.transform.parent.FindChild("icon-ok").gameObject.SetActive(false);
                     label.transform.parent.FindChild("icon-no").gameObject.SetActive(true);
-                    label.transform.parent.FindChild("value").localPosition = Vector3.zero;
+                    if ((item.seller && MainData.instance.user.id == buyId) ||
+                        (!item.seller && MainData.instance.user.id == item.uid) && state >= 0)
+                    {//我是买家
+                        label.transform.parent.FindChild("icon-no").FindChild("line").gameObject.SetActive(true);
+                    }
+                    else
+                    {
+                        label.transform.parent.FindChild("value").localPosition = Vector3.zero;
+                        label.transform.parent.FindChild("icon-no").FindChild("line").gameObject.SetActive(false);
+                    }
                 }
-                label = obj.transform.FindChild("fh").FindChild("value").GetComponent<UILabel>();
+                label = obj.transform.FindChild("sk").FindChild("value").GetComponent<UILabel>();
                 label.text = "中介已收款";
                 if (state >= 2)
                 {
@@ -322,7 +325,7 @@ public class DealBody : Object
                     label.transform.parent.FindChild("icon-no").gameObject.SetActive(true);
                     label.transform.parent.FindChild("value").localPosition = Vector3.zero;
                 }
-                label = obj.transform.FindChild("qr1").FindChild("value").GetComponent<UILabel>();
+                label = obj.transform.FindChild("fh").FindChild("value").GetComponent<UILabel>();
                 label.text = "卖家已" + (ruku ? "入库" : "发货");
                 if (state >= 3)
                 {
@@ -337,9 +340,18 @@ public class DealBody : Object
                     label.transform.parent.FindChild("time").gameObject.SetActive(false);
                     label.transform.parent.FindChild("icon-ok").gameObject.SetActive(false);
                     label.transform.parent.FindChild("icon-no").gameObject.SetActive(true);
-                    label.transform.parent.FindChild("value").localPosition = Vector3.zero;
+                    if (((!item.seller && MainData.instance.user.id == buyId) ||
+                        (item.seller && MainData.instance.user.id == item.uid)) && state >= 2)
+                    {//我是卖家
+                        label.transform.parent.FindChild("icon-no").FindChild("line").gameObject.SetActive(true);
+                    }
+                    else
+                    {
+                        label.transform.parent.FindChild("value").localPosition = Vector3.zero;
+                        label.transform.parent.FindChild("icon-no").FindChild("line").gameObject.SetActive(false);
+                    }
                 }
-                label = obj.transform.FindChild("fk2").FindChild("value").GetComponent<UILabel>();
+                label = obj.transform.FindChild("qr").FindChild("value").GetComponent<UILabel>();
                 label.text = "买家确认" + (ruku ? "货已入库" : "收货");
                 if (state >= 4)
                 {
@@ -353,9 +365,18 @@ public class DealBody : Object
                     label.transform.parent.FindChild("time").gameObject.SetActive(false);
                     label.transform.parent.FindChild("icon-ok").gameObject.SetActive(false);
                     label.transform.parent.FindChild("icon-no").gameObject.SetActive(true);
-                    label.transform.parent.FindChild("value").localPosition = Vector3.zero;
+                    if (((item.seller && MainData.instance.user.id == buyId) ||
+                        (!item.seller && MainData.instance.user.id == item.uid)) && state >= 3)
+                    {//我是买家
+                        label.transform.parent.FindChild("icon-no").FindChild("line").gameObject.SetActive(true);
+                    }
+                    else
+                    {
+                        label.transform.parent.FindChild("value").localPosition = Vector3.zero;
+                        label.transform.parent.FindChild("icon-no").FindChild("line").gameObject.SetActive(false);
+                    }
                 }
-                label = obj.transform.FindChild("qr2").FindChild("value").GetComponent<UILabel>();
+                label = obj.transform.FindChild("zfk").FindChild("value").GetComponent<UILabel>();
                 label.text = "中介付款给卖家";
                 if (state >= 5)
                 {
@@ -482,7 +503,7 @@ public class DealBody : Object
         return item;
     }
 
-    public void insterItem(GameObject obj_item)
+    public void insterItem(GameObject obj_item,bool fix = true)
     {
         GameObject obj = obj_item.transform.FindChild("icon").gameObject;
         UISprite sprite = obj_item.transform.FindChild("icon").GetComponent<UISprite>();
@@ -516,6 +537,8 @@ public class DealBody : Object
         label.text = stampName + "(" + (seller ? "出售" : "求购") + ")";
         label = content_trans.FindChild("monad").FindChild("value").GetComponent<UILabel>();
         label.text = monad;
+        label = content_trans.FindChild("num").FindChild("value").GetComponent<UILabel>();
+        label.text = curNum + "";
         label = content_trans.FindChild("valid").FindChild("value").GetComponent<UILabel>();
         label.text = validTime;
         label = content_trans.FindChild("other").GetComponent<UILabel>();
@@ -523,12 +546,14 @@ public class DealBody : Object
         int len = MyUtilTools.computeRow(label);
         label.height = len * (label.fontSize + label.spacingY);
         float a = (len * label.fontSize + (len - 1) * label.spacingY) / 2;
-        label.transform.localPosition = new Vector3(0,-210-a,0);
+        label.transform.localPosition = new Vector3(0,-260-a,0);
         UITexture bg = content_trans.FindChild("rect-bg").GetComponent<UITexture>();
-        bg.height = (int)(400 + a + label.fontSize + 20);
-        bg.transform.localPosition = new Vector3(0, -(a + label.fontSize + 20) / 2, 0);
-        obj_item.transform.FindChild("event").localPosition = new Vector3(0,-520-a-60,0);
-        obj_item.transform.FindChild("reverts").localPosition = new Vector3(0,-630-a-60,0);
+        bg.height = (int)(480 + a + label.fontSize);
+        bg.transform.localPosition = new Vector3(0,-(a + label.fontSize + 20)/2-20, 0);
+        float y = fix ? (640+a):660;
+        obj_item.transform.FindChild("event").localPosition = new Vector3(0,-y,0);
+        y = fix ? (750+a):690;
+        obj_item.transform.FindChild("reverts").localPosition = new Vector3(0,-y,0);
     }
 
     public Order searchOrder(long orderId)

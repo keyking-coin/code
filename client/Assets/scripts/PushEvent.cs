@@ -124,6 +124,7 @@ public class PushEvent : MonoBehaviour
         grab.SetActive(true);
         GameObject num_input = grab.transform.FindChild("inputer").gameObject;
         num_input.GetComponent<GrabInputEvent>().init(max);
+        /*
         GameObject flag_obj = grab.transform.FindChild("flag").gameObject;
         flag_obj.SetActive(item.helpFlag);
         num_input.transform.localPosition = new Vector3(0,item.helpFlag?40:0,0);
@@ -142,7 +143,7 @@ public class PushEvent : MonoBehaviour
             {
                 toggle.enabled = true;
             }
-        }
+        }*/
     }
 
     public void favorite()
@@ -181,7 +182,6 @@ public class PushEvent : MonoBehaviour
 
     void initLook(DealBody item)
     {
-        /*
         transform.FindChild("base").gameObject.SetActive(false);
         GameObject look = transform.FindChild("look").gameObject;
         look.SetActive(true);
@@ -200,25 +200,22 @@ public class PushEvent : MonoBehaviour
         {
             DealEvent.pref_revert_detail = Resources.Load<GameObject>("prefabs/revert-detail");
         }
-        float start = 310;
-        GameObject obj_item = NGUITools.AddChild(lookContainer,DealEvent.pref_detail);
-        obj_item.name = "item";
-        obj_item.transform.localPosition = new Vector3(-50,start,0);
-        float desc = 50;
-        desc += item.insterItem(obj_item);
-        GameObject obj_suns = obj_item.transform.FindChild("suns").gameObject;
-        obj_suns.transform.localPosition = new Vector3(0.0f,-desc,0.0f);
-        float sun_desc = 0;
+        GameObject deal_obj = NGUITools.AddChild(lookContainer, DealEvent.pref_detail);
+        deal_obj.name = "deal";
+        deal_obj.transform.localPosition = new Vector3(0,280,0);
+        item.insterItem(deal_obj,false);
+        deal_obj.transform.FindChild("event").gameObject.SetActive(false);
+        GameObject reverts = deal_obj.transform.FindChild("reverts").gameObject;
+        float y = 0;
         for (int i = 0; i < item.reverts.Count; i++)
         {
             DealBody.Revert revert = item.reverts[i];
-            GameObject obj_sun_item = NGUITools.AddChild(obj_suns,DealEvent.pref_detail);
-            obj_sun_item.name = "sun" + i;
-            obj_sun_item.transform.localPosition = new Vector3(0,-sun_desc,0);
-            sun_desc += revert.update(obj_sun_item);
-            obj_sun_item.transform.FindChild("events").gameObject.SetActive(false);
+            GameObject revert_obj = NGUITools.AddChild(reverts,DealEvent.pref_revert_detail);
+            revert_obj.transform.localPosition = new Vector3(0,y,0);
+            y -= revert.update(revert_obj,false);
+            revert_obj.name = "revert_" + i;
+            revert_obj.transform.FindChild("event").gameObject.SetActive(false);
         }
-        obj_item.transform.FindChild("events").gameObject.SetActive(false);*/
     }
 
     public void look()
@@ -295,8 +292,8 @@ public class PushEvent : MonoBehaviour
         UIInput input = gab_tran.FindChild("inputer").GetComponent<UIInput>();
         int num = int.Parse(input.value);
         buffer.WriteInt(num);
-        UIToggle toggle = gab_tran.FindChild("flag").GetComponent<UIToggle>();
-        buffer.WriteByte((byte)(pushs[index].helpFlag && toggle.value ? 1 : 0));
+        //UIToggle toggle = gab_tran.FindChild("flag").GetComponent<UIToggle>();
+        //buffer.WriteByte((byte)(pushs[index].helpFlag && toggle.value ? 1 : 0));
         NetUtil.getInstance.SendMessage(buffer);
     }
 

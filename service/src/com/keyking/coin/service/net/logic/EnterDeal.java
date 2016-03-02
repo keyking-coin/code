@@ -35,7 +35,7 @@ public class EnterDeal extends AbstractLogic{
 			for (Deal deal : deals){
 				if (deal.isIssueRecently()){
 					issues.add(deal);
-				}if (deal.checkValidTime()){
+				}else if (deal.checkValidTime()){
 					valides.add(deal);
 				}else{
 					normal.add(deal);
@@ -67,9 +67,21 @@ public class EnterDeal extends AbstractLogic{
 			});
 			Collections.sort(normal);
 			deals.clear();
-			deals.addAll(issues);
-			deals.addAll(valides);
-			deals.addAll(normal);
+			for (Deal deal : issues){
+				if (!deals.contains(deal)){
+					deals.add(deal);
+				}
+			}
+			for (Deal deal : valides){
+				if (!deals.contains(deal)){
+					deals.add(deal);
+				}
+			}
+			for (Deal deal : normal){
+				if (!deals.contains(deal)){
+					deals.add(deal);
+				}
+			}
 		}
 		resp.add(deals);
 		return resp;
