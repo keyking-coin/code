@@ -342,41 +342,40 @@ public class FriendEvent : CenterEvent {
         }
         if (message.type == 0)
         {//文字类型
-            float ix = icon_tran.localPosition.x;
-            float sx = ix + (ix > 0 ? (-52) : (52));
-            Transform rect_tran = message_obj.transform.FindChild("rect");
+            Transform content_trans = message_obj.transform.FindChild("content");
+            float cx = content_trans.localPosition.x;
+            Transform rect_tran = content_trans.FindChild("rect");
             UISprite rect_sprite = rect_tran.GetComponent<UISprite>();
-            UILabel content = rect_tran.FindChild("content").GetComponent<UILabel>();
-            rect_sprite.width = 650;
-            content.width = 600;
+            UILabel content = rect_tran.FindChild("value").GetComponent<UILabel>();
+            content.width = 570;
             content.text = message.content;
             int row = MyUtilTools.computeRow(content);
-            int height = row * 70;
+            int height = row * 64;
             if (row == 1)
             {
                 int width = (int)MyUtilTools.computeLen(content) + content.fontSize;
-                rect_sprite.width = Mathf.Min(650, width);
+                rect_sprite.width = Mathf.Min(600,width);
+                content.width = rect_sprite.width - content.fontSize;
             }
             rect_sprite.height = height;
-            float offx = rect_sprite.width / 2;
-            float x = sx > 0 ? sx - offx : sx + offx;
-            rect_tran.localPosition = new Vector3(x, 35 - height / 2, 0);
+            content.height = row * (content.fontSize + content.spacingX);
+            float offx = rect_sprite.width / 2 + 14;
+            int opration = cx > 0 ? -1 : 1;
+            rect_tran.localPosition = new Vector3(opration * offx,content.fontSize - height / 2-5,0);
             message_obj.transform.localPosition = new Vector3(0,messageStarty,0);
             messageStarty -= height + 10;
         }
         else //图片
         {
-            UITexture pic_texture = message_obj.transform.FindChild("rect").FindChild("pic").GetComponent<UITexture>();
+            UITexture pic_texture = message_obj.transform.FindChild("content").FindChild("rect").FindChild("value").GetComponent<UITexture>();
             JustRun.Instance.loadPic(message.content,pic_texture);
             message_obj.transform.localPosition = new Vector3(0,messageStarty,0);
-            messageStarty -= 450;
+            messageStarty -= 590;
         }
     }
 
     void refreshMessage(MainData.FriendBody friend)
     {
-        messageDetailContainer.parent.GetComponent<UIPanel>().clipOffset = Vector2.zero;
-        messageDetailContainer.parent.localPosition = new Vector3(0,50,0);
         MyUtilTools.clearChild(messageDetailContainer);
         List<MainData.MessageBody> messages = getRecentlyMessage(friend);
         messageStarty = 450;
@@ -384,6 +383,18 @@ public class FriendEvent : CenterEvent {
         {
             MainData.MessageBody message = messages[i];
             initMessage(message);
+        }
+        UIPanel panel = messageDetailContainer.parent.GetComponent<UIPanel>();
+        if (messages.Count > 0)
+        {
+            float y = 450 - messageStarty - panel.baseClipRegion.w+50;
+            panel.clipOffset = new Vector2(0,-y);
+            messageDetailContainer.parent.localPosition = new Vector3(0,y + 50, 0);
+        }
+        else
+        {
+            panel.clipOffset = Vector2.zero;
+            messageDetailContainer.parent.localPosition = new Vector3(0,50, 0);
         }
     }
 
