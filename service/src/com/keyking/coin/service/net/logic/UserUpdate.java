@@ -14,7 +14,6 @@ public class UserUpdate extends AbstractLogic {
 		long uid = buffer.getLong();
 		String face = buffer.getUTF();
 		String signature = buffer.getUTF();
-		String address = buffer.getUTF();
 		byte flag = buffer.get();
 		String name     = buffer.getUTF();
 		String identity = buffer.getUTF();
@@ -23,7 +22,6 @@ public class UserUpdate extends AbstractLogic {
 			user.setFace(face);
 			user.setSignature(signature);
 			user.setPush(flag);
-			//user.setAddress(address);
 			if (!StringUtil.isNull(name)){
 				user.setName(name);
 			}

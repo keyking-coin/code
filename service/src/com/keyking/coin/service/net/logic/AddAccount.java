@@ -24,7 +24,10 @@ public class AddAccount extends AbstractLogic {
 				return resp;
 			}
 			BankAccount bankAccount = user.getBankAccount();
-			bankAccount.add(name,value,openName,peopleName);
+			if (!bankAccount.add(name,value,openName,peopleName)){
+				resp.setError("此卡已添加过了");
+				return resp;
+			}
 			resp.add(bankAccount);
 			resp.setSucces();
 			user.setNeedSave(true);

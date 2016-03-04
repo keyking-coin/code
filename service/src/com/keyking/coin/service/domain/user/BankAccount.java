@@ -32,7 +32,12 @@ public class BankAccount implements SerializeEntity{
 		}
 	}
 	
-	public void add(String name,String num,String address,String peopleName){
+	public boolean add(String name,String num,String address,String peopleName){
+		for (Account account : accounts){
+			if (account.getAccount().equals(num)){
+				return false;
+			}
+		}
 		Account account = new Account();
 		account.setAddTime(TimeUtils.nowChStr());
 		account.setName(name);
@@ -40,6 +45,7 @@ public class BankAccount implements SerializeEntity{
 		account.setOpenAddress(address);
 		account.setOpenName(peopleName);
 		accounts.add(account);
+		return true;
 	}
 
 	public boolean remove(String key) {

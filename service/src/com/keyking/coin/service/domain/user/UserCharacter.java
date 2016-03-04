@@ -540,5 +540,22 @@ public class UserCharacter extends EntitySaver{
 		}
 		return "null";
 	}
+
+	public boolean addAddress(String address) {
+		if (addresses.contains(address)){
+			return false;
+		}
+		addresses.add(address);
+		return true;
+	}
+	
+	public boolean removeAddress(String address) {
+		if (!addresses.contains(address)){
+			return false;
+		}
+		addresses.remove(address);
+		return true;
+	}
+	
 }
  

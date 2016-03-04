@@ -259,12 +259,12 @@ public class MainData{
         public string face = "face10";
         public string nikeName = "萝莉控";
         public string realyName = "王五";
-        public string address ="银河系太阳系地球";
         public string title = "普通会员";
         public string registTime = "2015-06-25";
         public string indentity = "325647844455412545";
         public string signature = "热爱自由";
         public bool pushFlag = true;
+        public List<string> addresses = new List<string>();
         public Recharge recharge = new Recharge();
         public BankAccount bacnkAccount = new BankAccount();
 		public Seller seller = new Seller ();
@@ -284,17 +284,25 @@ public class MainData{
             realyName  = buffer.ReadString();
             title      = buffer.ReadString();
             registTime = buffer.ReadString();
-            address = buffer.ReadString();
             indentity = buffer.ReadString();
             signature = buffer.ReadString();
             pushFlag = buffer.ReadByte() == 1;
+            int len = buffer.ReadInt();
+            addresses.Clear();
+            if (len > 0)
+            {
+                for (int i = 0; i < len; i++)
+                {
+                    addresses.Add(buffer.ReadString());
+                }
+            }
             recharge.deserialize(buffer);
             bacnkAccount.deserialize(buffer);
 			seller.deserialize (buffer);
-            int len = buffer.ReadInt();
+            len = buffer.ReadInt();
+            emails.Clear();
             if (len  > 0)
             {
-                emails.Clear();
                 for (int i = 0; i < len; i++ )
                 {
                     EmailBody email = new EmailBody(this);
@@ -303,9 +311,9 @@ public class MainData{
                 }
             }
             len = buffer.ReadInt();
+            friends.Clear();
             if (len > 0)
             {
-                friends.Clear();
                 for (int i = 0; i < len; i++)
                 {
                     FriendBody friend = new FriendBody();
@@ -314,9 +322,9 @@ public class MainData{
                 }
             }
             len = buffer.ReadInt();
+            messages.Clear();
             if (len > 0)
             {
-                messages.Clear();
                 for (int i = 0; i < len; i++)
                 {
                     MessageBody message = new MessageBody();
@@ -325,9 +333,9 @@ public class MainData{
                 }
             }
             len = buffer.ReadInt();
+            favorites.Clear();
             if (len > 0)
             {
-                favorites.Clear();
                 for (int i = 0; i < len; i++)
                 {
                     long value = buffer.ReadLong();

@@ -8,6 +8,8 @@ public class UserInfoEvent : CenterEvent {
 
     GameObject pref_bank_account;
 
+    GameObject pref_address_list;
+
     EventDelegate callback = null;
 
     List<GameObject> curShow = new List<GameObject>();
@@ -17,6 +19,15 @@ public class UserInfoEvent : CenterEvent {
 	public DealEvent dealEvent = null;
 
     List<string> save_strs = new List<string>();
+
+    string[] BANK_NAMES_DATAS = new string[] {
+        "招商银行:zhaoshang",         "福建信业银行:fjxingye",    "广东发展银行:gzfazhan",
+        "广州商业银行:gzshangye",     "华泰银行:huatai",          "jiaotong银行:jiaotong",
+        "农村信用社:ncxinyongshe",    "上海浦东发展银行:shpufa",  "上海银行:shyinhang",
+        "深圳市商业银行:szshangye",   "中国工商银行:zggongshang", "中国光大银行:zgguangda",
+        "中国建设银行:zgjianshe",     "中国民生银行:zgmingsheng", "中国农业银行:zgnongye",
+        "中国邮政储蓄银行:zgyouzhen", "中国银行:zhongguo",        "中信实业银行:zxshiye"
+    };
 
 	public class UserInfoReceive : MonoBehaviour
 	{ 
@@ -45,8 +56,14 @@ public class UserInfoEvent : CenterEvent {
 			if (buffer != null)
 			{
                 MainData.instance.user.deserialize(buffer);
-                //DialogUtil.tip("修改成功", true);
                 uEvent.backToCenter();
+            }
+            buffer = MyUtilTools.tryToLogic("AddressChange");
+            if (buffer != null)
+            {
+                byte type = buffer.ReadByte();
+                MainData.instance.user.deserialize(buffer);
+                DialogUtil.tip(type == 1 ? "删除成功" : "添加成功",true,uEvent.callback);
             }
 		}
 	}
@@ -120,7 +137,100 @@ public class UserInfoEvent : CenterEvent {
         void doDelete()
         {
             delete_obj.SetActive(false);
-            ConfirmUtil.confirm("确定删除次条银行卡记录?",comfirmDelete);
+            ConfirmUtil.confirm("确定删除此条银行卡记录?",comfirmDelete);
+        }
+
+        void openPop()
+        {
+            if (delete_obj.activeSelf)
+            {
+                return;
+            }
+            delete_obj.SetActive(true);
+            popCount = 500;
+        }
+
+        void OnPress(bool pressed)
+        {
+            isPressed = pressed;
+        }
+    }
+
+    public class UserAddressDel : MonoBehaviour
+    {
+        int index;
+
+        UserInfoEvent infoEvent = null;
+
+        int count = 0;
+
+        bool isPressed = false;
+
+        GameObject delete_obj;
+
+        int popCount = 0;
+
+        public void init(int index, UserInfoEvent infoEvent)
+        {
+            this.index = index;
+            this.infoEvent = infoEvent;
+        }
+
+        void Start()
+        {
+            delete_obj = transform.FindChild("delete").gameObject;
+            UIButton button = delete_obj.GetComponent<UIButton>();
+            button.onClick.Clear();
+            button.onClick.Add(new EventDelegate(doDelete));
+        }
+
+        void Update()
+        {
+            ByteBuffer buffer = MyUtilTools.tryToLogic("AddressChange");
+            if (buffer != null)
+            {
+                byte type = buffer.ReadByte();
+                MainData.instance.user.deserialize(buffer);
+                DialogUtil.tip(type == 1 ? "删除成功" : "添加成功",true,new EventDelegate(infoEvent.refreshAddressList));
+            }
+            if (isPressed)
+            {
+                count++;
+                if (count > 50)
+                {
+                    openPop();
+                    count = 0;
+                }
+            }
+            else
+            {
+                if (delete_obj.activeSelf)
+                {
+                    popCount--;
+                    if (popCount <= 0)
+                    {
+                        delete_obj.SetActive(false);
+                    }
+                }
+            }
+        }
+
+        void comfirmDelete()
+        {
+            ConfirmUtil.TryToDispear();
+            ByteBuffer buffer = ByteBuffer.Allocate(1024);
+            buffer.skip(4);
+            buffer.WriteString("AddressChange");
+            buffer.WriteByte(1);
+            buffer.WriteLong(MainData.instance.user.id);
+            buffer.WriteString(MainData.instance.user.addresses[index]);
+            NetUtil.getInstance.SendMessage(buffer);
+        }
+
+        void doDelete()
+        {
+            delete_obj.SetActive(false);
+            ConfirmUtil.confirm("确定删除此条收货地址?", comfirmDelete);
         }
 
         void openPop()
@@ -216,10 +326,15 @@ public class UserInfoEvent : CenterEvent {
         button.onClick.Add(new EventDelegate(showBankAccount));
 
         UILabel address_label = container.FindChild("address").FindChild("value").GetComponent<UILabel>();
-        MyUtilTools.insertStr(address_label,MainData.instance.user.address,address_label.width);
-        UILabel address_save = container.FindChild("address").FindChild("save").GetComponent<UILabel>();
-        address_save.text = MainData.instance.user.address;
-        save_strs.Add(MainData.instance.user.address);
+        if (MainData.instance.user.addresses.Count > 0)
+        {
+            MyUtilTools.insertStr(address_label,MainData.instance.user.addresses[0],300);
+        }
+        else
+        {
+            address_label.text = "未设置收货地址";
+            save_strs.Add("未设置收货地址");
+        }
         UIInput name = container.FindChild("name").FindChild("inputer").GetComponent<UIInput>();
         name.value = MainData.instance.user.realyName;
         save_strs.Add(MainData.instance.user.realyName);
@@ -329,7 +444,7 @@ public class UserInfoEvent : CenterEvent {
         Transform container = needshow[0].transform.FindChild("account-body").FindChild("list").FindChild("body").FindChild("container");
         container.parent.GetComponent<UIPanel>().clipOffset = Vector2.zero;
         container.parent.localPosition = new Vector3(0,0,0);
-        float startY = 430, len = 150;
+        float startY = 430, len = 160;
         if (pref_bank_account == null)
         {
             pref_bank_account = Resources.Load<GameObject>("prefabs/Bank-Account");
@@ -341,13 +456,38 @@ public class UserInfoEvent : CenterEvent {
             bank.AddComponent<UserAccountDel>().init(i,this);
             bank.transform.localPosition = new Vector3(0,startY,0);
             bank.name = "bank" + i;
-            UILabel label = bank.transform.FindChild("one").GetComponent<UILabel>();
-            label.text = MainData.instance.user.bacnkAccount.names[i] + " : " + MainData.instance.user.bacnkAccount.accounts[i];
-            label = bank.transform.FindChild("two").GetComponent<UILabel>();
-            label.text = MainData.instance.user.bacnkAccount.openAddresses[i] + " : " + MainData.instance.user.bacnkAccount.openNames[i];
+            Transform icon_trans = bank.transform.FindChild("icon");
+            UISprite icon = icon_trans.GetComponent<UISprite>();
+            string iconName = null;
+            GameObject iconName_obj = icon_trans.FindChild("name").gameObject;
+            for (int j = 0; i < BANK_NAMES_DATAS.Length; j++ )
+            {
+                if (BANK_NAMES_DATAS[j].Contains(MainData.instance.user.bacnkAccount.names[i]))
+                {
+                    iconName = BANK_NAMES_DATAS[j].Split(":"[0])[1];
+                    break;
+                }
+            }
+            if (iconName != null)
+            {
+                icon.spriteName = iconName;
+                iconName_obj.SetActive(false);
+            }
+            else
+            {
+                icon.spriteName = null;
+                iconName_obj.SetActive(true);
+                iconName_obj.GetComponent<UILabel>().text = MainData.instance.user.bacnkAccount.names[i];
+            }
+            UILabel label = icon_trans.FindChild("value").GetComponent<UILabel>();
+            label.text = MainData.instance.user.bacnkAccount.accounts[i];
+            label = bank.transform.FindChild("openAddress").FindChild("value").GetComponent<UILabel>();
+            label.text = MainData.instance.user.bacnkAccount.openAddresses[i];
+            label = bank.transform.FindChild("openPeople").FindChild("value").GetComponent<UILabel>();
+            label.text = MainData.instance.user.bacnkAccount.openNames[i];
             startY -= len;
         }
-        container.FindChild("addMore").transform.localPosition = new Vector3(0,startY == 430?0:startY,0);
+        container.FindChild("addMore").transform.localPosition = new Vector3(0,startY == 430 ? 0 : startY,0);
     }
 
     void backFromShowAccounts()
@@ -513,35 +653,93 @@ public class UserInfoEvent : CenterEvent {
         callback = new EventDelegate(backFromSignature);
     }
 
-    void backFromAddress()
+    void refreshAddressList()
     {
-        show(curShow,false);
-        show(preShow,true);
-        clears();
-        title.GetComponentInChildren<UILabel>().text = "个人中心";
-        callback = null;
-        UIInput input = needshow[0].transform.FindChild("address-body").FindChild("inputer").GetComponent<UIInput>();
-        if (!MyUtilTools.stringIsNull(input.value))
+        Transform container = needshow[0].transform.FindChild("address-body").FindChild("list").FindChild("body").FindChild("container");
+        container.parent.GetComponent<UIPanel>().clipOffset = Vector2.zero;
+        container.parent.localPosition = new Vector3(0, 0, 0);
+        float startY = 430, len = 110;
+        if (pref_address_list == null)
         {
-            Transform address_tran = needshow[0].transform.FindChild("scroll").FindChild("body").FindChild("container").FindChild("address");
-            UILabel address        = address_tran.FindChild("value").GetComponent<UILabel>();
-            UILabel address_save   = address_tran.FindChild("save").GetComponent<UILabel>();
-            MyUtilTools.insertStr(address,input.value,300);
-            address_save.text = input.value;
+            pref_address_list = Resources.Load<GameObject>("prefabs/address-list");
+        }
+        MyUtilTools.clearChild(container,"addMore");
+        for (int i = 0; i < MainData.instance.user.addresses.Count; i++)
+        {
+            GameObject address = NGUITools.AddChild(container.gameObject,pref_address_list);
+            address.AddComponent<UserAddressDel>().init(i,this);
+            address.transform.localPosition = new Vector3(0, startY, 0);
+            address.name = "address_" + i;
+            UILabel label = address.transform.FindChild("value").GetComponent<UILabel>();
+            label.text = MainData.instance.user.addresses[i];
+            startY -= len;
+        }
+        container.FindChild("addMore").transform.localPosition = new Vector3(0,startY == 430 ? 0 : startY,0);
+    }
+
+    void backFromShowAddresses()
+    {
+        Transform address_trans = needshow[0].transform.FindChild("address-body");
+        Transform list_trans = address_trans.FindChild("list");
+        if (list_trans.gameObject.activeSelf)
+        {
+            show(curShow,false);
+            show(preShow,true);
+            clears();
+            title.GetComponentInChildren<UILabel>().text = "个人中心";
+            callback = null;
+            UILabel address_label = needshow[0].transform.FindChild("scroll").FindChild("body").FindChild("container").FindChild("address").FindChild("value").GetComponent<UILabel>();
+            if (MainData.instance.user.addresses.Count > 0)
+            {
+                MyUtilTools.insertStr(address_label,MainData.instance.user.addresses[0],300);
+            }
+            else
+            {
+                address_label.text = "未绑定收货地址";
+            }
+        }
+        else
+        {
+            address_trans.FindChild("add").gameObject.SetActive(false);
+            list_trans.gameObject.SetActive(true);
+            UILabel label = title.GetComponentInChildren<UILabel>();
+            label.text = "我的收货地址";
+            refreshAddressList();
         }
     }
 
-    public void openAddress(GameObject obj1, GameObject obj2)
+    public void openShowAddresses(GameObject obj1, GameObject obj2)
     {
         clears();
         obj1.SetActive(false);
         preShow.Add(obj1);
         obj2.SetActive(true);
         curShow.Add(obj2);
-        obj2.transform.FindChild("inputer").GetComponent<UIInput>().value = save_strs[2];
         UILabel label = title.GetComponentInChildren<UILabel>();
-        label.text = "修改收货地址";
-        callback = new EventDelegate(backFromAddress);
+        label.text = "我的收货地址";
+        callback = new EventDelegate(backFromShowAddresses);
+        refreshAddressList();
+    }
+
+    public void doAddAddress()
+    {
+        Transform container = needshow[0].transform.FindChild("address-body").FindChild("add");
+        UIInput input = container.FindChild("inputer").GetComponent<UIInput>();
+        ByteBuffer buffer = ByteBuffer.Allocate(1024);
+        buffer.skip(4);
+        buffer.WriteString("AddressChange");
+        buffer.WriteByte(0);
+        buffer.WriteLong(MainData.instance.user.id);//编号
+        buffer.WriteString(input.value);
+        NetUtil.getInstance.SendMessage(buffer);
+    }
+
+    public void openAddAddresses(GameObject obj1, GameObject obj2)
+    {
+        obj1.SetActive(false);
+        obj2.SetActive(true);
+        UILabel label = title.GetComponentInChildren<UILabel>();
+        label.text = "添加收货地址";
     }
 
     void sendRZ(SendMessageEntity entity)
@@ -609,12 +807,10 @@ public class UserInfoEvent : CenterEvent {
         needSave = save_strs[0].Equals(icon.spriteName);
         UILabel signature_save = container.FindChild("signature").FindChild("save").GetComponent<UILabel>();
         needSave = needSave ? needSave : save_strs[1].Equals(signature_save.text);
-        UILabel address_save = container.FindChild("address").FindChild("save").GetComponent<UILabel>();
-        needSave = needSave ? needSave : save_strs[2].Equals(address_save.text);
         UIInput name = container.FindChild("name").FindChild("inputer").GetComponent<UIInput>();
-        needSave = needSave ? needSave : save_strs[3].Equals(name.value);
+        needSave = needSave ? needSave : save_strs[2].Equals(name.value);
         UIInput indent = container.FindChild("indent").FindChild("inputer").GetComponent<UIInput>();
-        needSave = needSave ? needSave : save_strs[4].Equals(indent.value);
+        needSave = needSave ? needSave : save_strs[3].Equals(indent.value);
         UIToggle toggle = container.FindChild("push-flag").FindChild("toggle").GetComponent<UIToggle>();
         needSave = needSave ? needSave : toggle.value != MainData.instance.user.pushFlag;
         if (needSave)
@@ -657,7 +853,6 @@ public class UserInfoEvent : CenterEvent {
         Transform container = needshow[0].transform.FindChild("scroll").FindChild("body").FindChild("container");
         UISprite icon = container.FindChild("icon").GetComponent<UISprite>();
         UILabel signature_save = container.FindChild("signature").FindChild("save").GetComponent<UILabel>();
-        UILabel address_save = container.FindChild("address").FindChild("save").GetComponent<UILabel>();
         UIInput name = container.FindChild("name").FindChild("inputer").GetComponent<UIInput>();
         UIInput indent = container.FindChild("indent").FindChild("inputer").GetComponent<UIInput>();
         UIToggle toggle = container.FindChild("push-flag").FindChild("toggle").GetComponent<UIToggle>();
@@ -667,7 +862,6 @@ public class UserInfoEvent : CenterEvent {
         buffer.WriteLong(MainData.instance.user.id);//编号
         buffer.WriteString(icon.spriteName);
         buffer.WriteString(signature_save.text);
-        buffer.WriteString(address_save.text);
         buffer.WriteByte((byte)(toggle.value ? 1 : 0));
         if (!MyUtilTools.stringIsNull(name.value))
         {
