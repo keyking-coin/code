@@ -86,7 +86,7 @@ public class UserDAO extends JdbcDaoSupport {
 					ps.setString(cursor++,user.getTitle());
 					ps.setString(cursor++,user.getRegistTime());
 					ps.setString(cursor++,user.getName());
-					ps.setString(cursor++,user.getAddress());
+					ps.setString(cursor++,user.serializeAddresses());
 					ps.setString(cursor++,user.getSignature());
 					ps.setString(cursor++,user.getRecharge().serialize());
 					ps.setString(cursor++,user.getBankAccount().serialize());
@@ -109,7 +109,7 @@ public class UserDAO extends JdbcDaoSupport {
 			getJdbcTemplate().update(UPDATE_SQL_STR,user.getPwd(),
 					          user.getFace(),user.getNikeName(),
 					          user.getTitle(),user.getRegistTime(),
-					          user.getName(),user.getAddress(),
+					          user.getName(),user.serializeAddresses(),
 					          user.getAge(),user.getIdentity(),
 					          user.getSignature(),user.getRecharge().serialize(),
 					          user.getBankAccount().serialize(),user.serializeUser(),

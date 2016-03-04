@@ -34,7 +34,7 @@ public class UserCharacter extends EntitySaver{
 	
 	String registTime = "";//注册时间
 	
-	String address ="";//地址
+	List<String> addresses = new ArrayList<String>();//地址
 	
 	String name ="";//姓名
 	
@@ -123,12 +123,12 @@ public class UserCharacter extends EntitySaver{
 		this.nikeName = nikeName;
 	}
 
-	public String getAddress() {
-		return address;
+	public List<String> getAddresses() {
+		return addresses;
 	}
-	
-	public void setAddress(String address) {
-		this.address = address;
+
+	public void setAddresses(List<String> addresses) {
+		this.addresses = addresses;
 	}
 
 	public int getAge() {
@@ -293,10 +293,13 @@ public class UserCharacter extends EntitySaver{
 		buffer.putUTF(name);
 		buffer.putUTF(title);
 		buffer.putUTF(registTime);
-		buffer.putUTF(address);
 		buffer.putUTF(identity);
 		buffer.putUTF(signature);
 		buffer.put(push);
+		buffer.putInt(addresses.size());
+		for (String address : addresses){
+			buffer.putUTF(address);
+		}
 		recharge._serialize(buffer);
 		bankAccount.serialize(buffer);
 		if (seller == null){
@@ -522,6 +525,20 @@ public class UserCharacter extends EntitySaver{
 	public void addMessage(Message message,long fid){
 		messages.add(message);
 		NET.sendMessageToClent(message.clientMessage(Module.ADD_FLAG),sessionAddress);
+	}
+
+	public void deserializeAddresses(String str) {
+		if (StringUtil.isNull(str)){
+			return;
+		}
+		addresses = JsonUtil.JsonToObjectList(str,String.class);
+	}
+	
+	public String serializeAddresses(){
+		if (addresses != null){
+			return JsonUtil.ObjectToJsonString(addresses);
+		}
+		return "null";
 	}
 }
  

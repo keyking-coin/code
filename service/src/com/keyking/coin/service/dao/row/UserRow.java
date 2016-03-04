@@ -21,7 +21,7 @@ public class UserRow implements RowMapper<UserCharacter>{
 		user.setTitle(rs.getString("title"));
 		user.setRegistTime(rs.getString("registTime"));
 		user.setName(rs.getString("name"));
-		user.setAddress(rs.getString("address"));
+		user.deserializeAddresses(rs.getString("address"));
 		user.setAge(rs.getInt("age"));
 		user.setIdentity(rs.getString("identity"));
 		user.deserializeUser(rs.getString("seller"));

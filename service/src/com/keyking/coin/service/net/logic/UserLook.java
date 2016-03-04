@@ -22,7 +22,7 @@ public class UserLook extends AbstractLogic{
 			resp.add(user.getNikeName());
 			resp.add(user.getTitle());
 			resp.add(user.getRegistTime());
-			resp.add(look?user.getAddress():"保密");
+			//resp.add(look?user.getAddress():"保密");
 			resp.add(look?user.getName():"保密");
 			resp.add(look?user.getAccount():"保密");
 			resp.add(user.getBankAccount());

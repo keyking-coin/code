@@ -23,7 +23,7 @@ public class UserUpdate extends AbstractLogic {
 			user.setFace(face);
 			user.setSignature(signature);
 			user.setPush(flag);
-			user.setAddress(address);
+			//user.setAddress(address);
 			if (!StringUtil.isNull(name)){
 				user.setName(name);
 			}
