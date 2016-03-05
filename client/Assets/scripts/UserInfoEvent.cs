@@ -22,7 +22,7 @@ public class UserInfoEvent : CenterEvent {
 
     string[] BANK_NAMES_DATAS = new string[] {
         "招商银行:zhaoshang",         "福建信业银行:fjxingye",    "广东发展银行:gzfazhan",
-        "广州商业银行:gzshangye",     "华泰银行:huatai",          "jiaotong银行:jiaotong",
+        "广州商业银行:gzshangye",     "华夏银行:huaxia",          "交通银行:jiaotong",
         "农村信用社:ncxinyongshe",    "上海浦东发展银行:shpufa",  "上海银行:shyinhang",
         "深圳市商业银行:szshangye",   "中国工商银行:zggongshang", "中国光大银行:zgguangda",
         "中国建设银行:zgjianshe",     "中国民生银行:zgmingsheng", "中国农业银行:zgnongye",

@@ -5,33 +5,15 @@ using System.Collections.Generic;
 public class SelectLinkInput : MonoBehaviour {
 
     static string[][] names = new string[][]{
-      new string[]{"工商银行","平安银行","农业银行"},
-      new string[]{"平安银行","中国银行","建设银行","农业银行"},
-      new string[]{"农业银行"},
-      new string[]{"交通银行","浦发银行","建设银行","兴业银行"},
-      new string[]{"工商银行","招商银行","建设银行"},
-      /*new string[]{"建设银行"},
-      new string[]{"农业银行"},
-      new string[]{"招商银行","建设银行","工商银行","交通银行"},
-      new string[]{"工商银行","建设银行"},
-      new string[]{"工商银行","华夏银行","交通银行"},
-      new string[]{"农业银行"},
-      new string[]{"农业银行"},
-      new string[]{"农业银行"},
-      new string[]{"建设银行"},
-      new string[]{"建设银行"},
-      new string[]{"平安银行"},
-      new string[]{"农业银行","中国银行","招商银行"},
-      new string[]{"平安银行"},
-      new string[]{"平安银行"},
-      new string[]{"农业银行","建设银行"},*/
-      new string[]{"农业银行"},
-      /*new string[]{"建设银行"},
-      new string[]{"建设银行","浦发银行"},
-      new string[]{"交通银行","建设银行"},
-      new string[]{"工商银行","建设银行"},*/
-      new string[]{"建设银行","农业银行"},
-      new string[]{"工商银行","华夏银行"}
+      new string[]{"工商银行","农业银行","民生银行","平安银行"},
+      new string[]{"工商银行","建设银行","农业银行","招商银行","交通银行","华夏银行","平安银行"},
+      new string[]{"工商银行","建设银行","农业银行","中国银行","招商银行","交通银行","平安银行","浦发银行"},
+      new string[]{"工商银行","平安银行"},
+      new string[]{"建设银行","农业银行","平安银行"},
+      new string[]{"光大银行","农业银行","平安银行"},
+      new string[]{"建设银行","平安银行"},
+      new string[]{"工商银行","华夏银行"},
+      new string[]{"建设银行","交通银行","浦发银行","稠州银行","中信银行","兴业银行"}
     };
 
 	// Use this for initialization

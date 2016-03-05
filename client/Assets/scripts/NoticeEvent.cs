@@ -51,24 +51,26 @@ public class NoticeEvent : CenterEvent
     {
         WebViewBehavior webBody = GetComponent<WebViewBehavior>();
         webBody.setCallback(new WebViewCallback());
-        UIAtlas baseAtlass = Resources.Load<UIAtlas>("Atlass/bourseIcons");
+        UIAtlas baseAtlass = Resources.Load<UIAtlas>("Atlass/WebIcons");
         GameObject newObj = new GameObject();
         TextAsset binAsset = Resources.Load<TextAsset>("excel/bourse");
         string[] lineArray = binAsset.text.Split(new char[]{'\r','\n'});
         float start = 300;
         float x = -start;
         float y = 450;
+        GameObject container = transform.FindChild("scroll").FindChild("body").FindChild("container").gameObject;
         for (int i = 1 ; i < lineArray.Length ; i ++)
         {
-            if (MyUtilTools.stringIsNull(lineArray[i]))
+            string str = lineArray[i].Trim();
+            if (MyUtilTools.stringIsNull(str))
             {
                 continue;
             }
-            string[] ss = lineArray[i].Split(","[0]);
-            string spriteName = ss[0];
-            string name = ss[1];
+            string[] ss = str.Split(","[0]);
+            string spriteName = ss[0] + ss[1];
             string url  = ss[2];
-            GameObject sun = NGUITools.AddChild(gameObject,newObj);
+            string name = ss[3];
+            GameObject sun = NGUITools.AddChild(container,newObj);
             sun.name = name;
             sun.transform.localPosition = new Vector3(x, y, 0);
             UISprite sprite = sun.AddComponent<UISprite>();
@@ -79,7 +81,7 @@ public class NoticeEvent : CenterEvent
             sprite.depth = 1;
             sprite.autoResizeBoxCollider = true;
             BoxCollider collider = sun.AddComponent<BoxCollider>();
-            collider.size = new Vector3(100, 100, 0);
+            collider.size = new Vector3(100,100,0);
             UIButton button = sun.AddComponent<UIButton>();
             BourseEntity bourse = sun.AddComponent<BourseEntity>();
             bourse.init(name, url);
@@ -94,9 +96,9 @@ public class NoticeEvent : CenterEvent
             font_obj.name = "label_" + name;
             UILabel label = font_obj.AddComponent<UILabel>();
             label.trueTypeFont = labelFont;
-            label.fontSize = 40;
+            label.fontSize = 30;
             label.text = name;
-            label.width = 100;
+            label.width = 120;
             label.height = 50;
             label.color = Color.black;
             label.depth = 2;
