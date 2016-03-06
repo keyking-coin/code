@@ -25,6 +25,8 @@ public class Service implements Instances{
 	
 	private static int PORT;
 	
+	private static int HTTP_PORT;
+	
 	private static int CONSOLE;
 	
 	private static MainLoop looper = null;
@@ -49,6 +51,7 @@ public class Service implements Instances{
             acceptor.setHandler(NET);
             InetAddress address = InetAddress.getByName(URL);
 			acceptor.bind(new InetSocketAddress(address,PORT));
+			HTTP.run(HTTP_PORT);
 			ConsoleService.addConsole(CONSOLE);
         	looper = new MainLoop();
         	looper.start();
@@ -67,8 +70,9 @@ public class Service implements Instances{
 		IUSSUE_TIME = Integer.parseInt(XmlUtils.getAttribute(element,"issue"));
 		Element service = XmlUtils.getChildByName(element,"service");
 		if (service != null){
-			PORT    = Integer.parseInt(XmlUtils.getAttribute(service,"port"));
-			CONSOLE = Integer.parseInt(XmlUtils.getAttribute(service,"console"));
+			HTTP_PORT = Integer.parseInt(XmlUtils.getAttribute(service,"http"));
+			PORT      = Integer.parseInt(XmlUtils.getAttribute(service,"port"));
+			CONSOLE   = Integer.parseInt(XmlUtils.getAttribute(service,"console"));
 		}
 	}
 	

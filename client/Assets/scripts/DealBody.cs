@@ -535,6 +535,8 @@ public class DealBody : Object
         label.text = ss[1];
         label = content_trans.FindChild("title").FindChild("value").GetComponent<UILabel>();
         label.text = stampName + "(" + (seller ? "出售" : "求购") + ")";
+        label = content_trans.FindChild("price").FindChild("value").GetComponent<UILabel>();
+        label.text = price + "";
         label = content_trans.FindChild("monad").FindChild("value").GetComponent<UILabel>();
         label.text = monad;
         label = content_trans.FindChild("num").FindChild("value").GetComponent<UILabel>();
@@ -546,13 +548,13 @@ public class DealBody : Object
         int len = MyUtilTools.computeRow(label);
         label.height = len * (label.fontSize + label.spacingY);
         float a = (len * label.fontSize + (len - 1) * label.spacingY) / 2;
-        label.transform.localPosition = new Vector3(0,-260-a,0);
+        label.transform.localPosition = new Vector3(0,-320-a,0);
         UITexture bg = content_trans.FindChild("rect-bg").GetComponent<UITexture>();
-        bg.height = (int)(480 + a + label.fontSize);
-        bg.transform.localPosition = new Vector3(0,-(a + label.fontSize + 20)/2-20, 0);
-        float y = fix ? (640+a):660;
+        bg.height = (int)(540 + a + label.fontSize);
+        bg.transform.localPosition = new Vector3(0,-(a + label.fontSize + 20)/2-60, 0);
+        float y = fix ? (700+a):720;
         obj_item.transform.FindChild("event").localPosition = new Vector3(0,-y,0);
-        y = fix ? (750+a):690;
+        y = fix ? (810+a):750;
         obj_item.transform.FindChild("reverts").localPosition = new Vector3(0,-y,0);
     }
 

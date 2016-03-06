@@ -202,9 +202,11 @@ public class Controler implements Instances{
 				preYear --;
 			}
 			Calendar cal = Calendar.getInstance();   
-			cal.set(Calendar.YEAR,preYear);   
-			cal.set(Calendar.MONTH,preMonth);
-			int maxDate = cal.getActualMaximum(Calendar.DATE);
+			cal.set(Calendar.YEAR,year);   
+			cal.set(Calendar.MONTH,month);
+			cal.set(Calendar.DATE,1);//把日期设置为当月第一天  
+			cal.roll(Calendar.DATE,-1);//日期回滚一天，也就是最后一天  
+		    int maxDate = cal.get(Calendar.DATE);  
 			preDay += maxDate;
 		}
 		String start = preYear + "-" + preMonth + "-" + preDay + " 00:00:00";

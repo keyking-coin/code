@@ -22,7 +22,7 @@ public class EmailEvent : CenterEvent {
         ByteBuffer buffer = MyUtilTools.tryToLogic("SendEmail");
         if (buffer != null)
         {
-            DialogUtil.tip("发生成功",true,new EventDelegate(backToCenter));
+            DialogUtil.tip("发送成功",true,new EventDelegate(backToCenter));
         }
         buffer = MyUtilTools.tryToLogic("DeleteEmail");
         if (buffer != null)

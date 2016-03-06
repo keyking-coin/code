@@ -3,6 +3,7 @@ package com.keyking.coin.util;
 import com.keyking.coin.service.dao.DBManager;
 import com.keyking.coin.service.dao.PrimaryKey;
 import com.keyking.coin.service.domain.Controler;
+import com.keyking.coin.service.http.HttpServer;
 import com.keyking.coin.service.net.handler.ServiceHandler;
 
 public interface Instances {
@@ -18,5 +19,7 @@ public interface Instances {
 	public static final DBManager DB = DBManager.getInstance();
 	
 	public static final PrimaryKey PK = PrimaryKey.getInstance();
+	
+	public static final HttpServer HTTP = HttpServer.getInstance();
 }
  

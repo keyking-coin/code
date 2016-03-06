@@ -37,7 +37,7 @@ public class RankEvent : CenterEvent {
         if (buffer != null)
         {
             entitys.Clear();
-            byte len = buffer.ReadByte();
+            int len = buffer.ReadInt();
             for (int i = 0 ; i < len ; i++)
             {
                 RankEntity entity = new RankEntity();

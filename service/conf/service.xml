@@ -1,4 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <services url="0.0.0.0" issue="6">
-	<service port="32105" console="32106"/>
+	<service http="32104" port="32105" console="32106"/>
 </services>

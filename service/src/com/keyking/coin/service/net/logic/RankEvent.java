@@ -18,5 +18,4 @@ public class RankEvent extends AbstractLogic {
 		ServerLog.info("ranks size " + ranks.size());
 		return resp;
 	}
-
 }

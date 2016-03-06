@@ -1,5 +1,7 @@
 package com.keyking.coin.service.net.logic;
 
+import java.util.List;
+
 import com.keyking.coin.service.domain.deal.Deal;
 import com.keyking.coin.service.domain.user.UserCharacter;
 import com.keyking.coin.service.net.buffer.DataBuffer;
@@ -22,7 +24,9 @@ public class UserLook extends AbstractLogic{
 			resp.add(user.getNikeName());
 			resp.add(user.getTitle());
 			resp.add(user.getRegistTime());
-			//resp.add(look?user.getAddress():"保密");
+			List<String> las = user.getAddresses();
+			String address = (las.size() > 0 ? las.get(0) : "");
+			resp.add(look?address:"保密");
 			resp.add(look?user.getName():"保密");
 			resp.add(look?user.getAccount():"保密");
 			resp.add(user.getBankAccount());
