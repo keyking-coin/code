@@ -27,7 +27,7 @@ public class HttpResponseMessage {
 		// headers.put("Server", "HttpServer (" + Server.VERSION_STRING + ')');
 		headers.put("Server", "HttpServer (" + "Mina 2.0" + ')');
 		headers.put("Cache-Control", "private");
-		headers.put("Content-Type", "text/html; charset=iso-8859-1");
+		headers.put("Content-Type", "text/html; charset=UTF-8");
 		headers.put("Connection", "keep-alive");
 		headers.put("Keep-Alive", "200");
 		headers.put("Date", new SimpleDateFormat(
@@ -51,11 +51,19 @@ public class HttpResponseMessage {
 	public int getResponseCode() {
 		return this.responseCode;
 	}
-
+	
+	public void appendBody(byte[] buffer, int start, int len) {
+		try {
+			body.write(buffer,start,len);
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+	}
+	
 	public void appendBody(byte[] b) {
 		try {
 			body.write(b);
-		} catch (IOException ex) {
+		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
 	}

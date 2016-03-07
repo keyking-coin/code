@@ -33,7 +33,7 @@ public class HttpServerHandler extends IoHandlerAdapter implements Instances {
 	            session.write(response).addListener(IoFutureListener.CLOSE);  
 	        }
 		}catch(Exception e){
-			e.printStackTrace();
+			//e.printStackTrace();
 		}
     }  
   

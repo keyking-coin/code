@@ -201,12 +201,21 @@ public class Controler implements Instances{
 				preMonth = 12;
 				preYear --;
 			}
-			Calendar cal = Calendar.getInstance();   
-			cal.set(Calendar.YEAR,year);   
-			cal.set(Calendar.MONTH,month);
-			cal.set(Calendar.DATE,1);//把日期设置为当月第一天  
-			cal.roll(Calendar.DATE,-1);//日期回滚一天，也就是最后一天  
-		    int maxDate = cal.get(Calendar.DATE);  
+			int maxDate = 0;
+			if (month == 3){
+				if ((year % 4 == 0 && year % 100 != 0) || year % 400 == 0){
+					maxDate = 29;
+				}else{
+					maxDate = 28;
+				}
+			}else{
+				Calendar cal = Calendar.getInstance();   
+				cal.set(Calendar.YEAR,year);   
+				cal.set(Calendar.MONTH,month);
+				cal.set(Calendar.DAY_OF_MONTH,1);//把日期设置为当月第一天  
+				cal.roll(Calendar.DAY_OF_MONTH,-1);//日期回滚一天，也就是最后一天  
+			    maxDate = cal.get(Calendar.DAY_OF_MONTH);  
+			}
 			preDay += maxDate;
 		}
 		String start = preYear + "-" + preMonth + "-" + preDay + " 00:00:00";
@@ -353,6 +362,10 @@ public class Controler implements Instances{
 			}
 			recents.add(0,order);
 		}
+	}
+	
+	public static void main(String[] args) {
+		
 	}
 }
  
