@@ -1,32 +1,36 @@
 package com.keyking.coin.service.http.handler.impl;
 
-import java.io.FileInputStream;
+import java.util.HashMap;
+import java.util.Map;
 
+import com.keyking.coin.service.domain.user.UserCharacter;
+import com.keyking.coin.service.http.data.HttpUserCharacter;
 import com.keyking.coin.service.http.handler.HttpHandler;
 import com.keyking.coin.service.http.request.HttpRequestMessage;
 import com.keyking.coin.service.http.response.HttpResponseMessage;
+import com.keyking.coin.util.JsonUtil;
 
 public class HttpLogin implements HttpHandler {
 
 	@Override
-	public HttpResponseMessage handle(HttpRequestMessage request) {
-		HttpResponseMessage response = new HttpResponseMessage(); 
-		//String level = request.getParameter("level");  
-        //response.setContentType("text/plain");  
-        response.setResponseCode(HttpResponseMessage.HTTP_STATUS_SUCCESS);  
-        //response.appendBody("Hello Http\n");
-        //response.appendBody("level = " + level); 
-        try {
-			FileInputStream fis = new FileInputStream("regist.html");
-			byte[] buffer = new byte[1024];
-	        int i = -1;
-	        while ((i = fis.read(buffer)) != -1) {
-	        	response.appendBody(buffer,0,i);
-	        }
-	        fis.close();
-		} catch (Exception e) {
-			e.printStackTrace();
+	public void handle(HttpRequestMessage request,HttpResponseMessage response) {
+		String account = request.getParameter("account");  
+		String pwd     = request.getParameter("pwd");
+        response.setContentType("text/plain");
+        UserCharacter user = CTRL.search(account);
+        Map<String,Object> datas = new HashMap<String,Object>();
+		if (user != null){
+			if (pwd.equals(pwd)){
+				HttpUserCharacter http_user= new HttpUserCharacter(user);
+				datas.put("result","OK");
+				datas.put("datas",http_user);
+			}else{
+				datas.put("result","密码错误");
+			}
+		}else{
+			datas.put("result","账号不存在");
 		}
-        return response;  
+		String str = JsonUtil.ObjectToJsonString(datas);
+		response.appendBody(str);
 	}
 }

@@ -130,4 +130,14 @@ public class Credit implements SerializeEntity{
 		buffer.putInt(zp);
 		buffer.putInt(cp);
 	}
+
+	public void copy(Credit credit) {
+		curValue       = credit.curValue;
+		maxValue       = credit.maxValue;
+		tempMaxValue   = credit.tempMaxValue;
+		totalDealValue = credit.totalDealValue;
+		hp             = credit.hp;
+		zp             = credit.zp;
+		cp             = credit.cp;
+	}
 }

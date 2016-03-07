@@ -25,16 +25,15 @@ public class HttpServerHandler extends IoHandlerAdapter implements Instances {
         HttpRequestMessage request = (HttpRequestMessage) message;
         String logicName = request.getContext();
         Class<? extends HttpHandler> clazz = null;
+        HttpResponseMessage response = new HttpResponseMessage();
 		try {
 			clazz = (Class<? extends HttpHandler>)Class.forName(HTTP_BASE_LOGIC_PACKAGE + "." + logicName);
 			HttpHandler handler = clazz.newInstance();
-			HttpResponseMessage response = handler.handle(request); 
-			if (response != null) {  
-	            session.write(response).addListener(IoFutureListener.CLOSE);  
-	        }
+			handler.handle(request,response); 
 		}catch(Exception e){
 			//e.printStackTrace();
 		}
+		session.write(response).addListener(IoFutureListener.CLOSE);
     }  
   
     @Override  

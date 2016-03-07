@@ -21,8 +21,10 @@ public class HttpResponseMessage {
 	/** Storage for body of HTTP response. */
 	private final ByteArrayOutputStream body = new ByteArrayOutputStream(1024);
 
-	private int responseCode = HTTP_STATUS_SUCCESS;
-
+	private int responseCode = HTTP_STATUS_NOT_FOUND;
+	
+    Map<String, Object> datas = new HashMap<String,Object>();
+	
 	public HttpResponseMessage() {
 		// headers.put("Server", "HttpServer (" + Server.VERSION_STRING + ')');
 		headers.put("Server", "HttpServer (" + "Mina 2.0" + ')');
