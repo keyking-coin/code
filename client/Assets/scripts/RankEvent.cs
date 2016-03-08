@@ -69,7 +69,7 @@ public class RankEvent : CenterEvent {
             UILabel context = summary.transform.FindChild("content").GetComponent<UILabel>();
             float stand = 1000000f;
             string worthStr = (entity.worth > stand ? (entity.worth / stand + "万") : (entity.worth + ""));
-            context.text = "总共完成 " + entity.count + " 笔交易,成交总金额 " + worthStr;
+            context.text = "总共完成 " + entity.count + " 笔交易,成交总金额 " + worthStr + "元";
             starty -= 130;
         }
     }

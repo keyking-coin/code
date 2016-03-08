@@ -67,7 +67,7 @@ public class JustRun : MonoBehaviour {
                 int index = name.LastIndexOf("/");
                 if (index > 0)
                 {
-                    string directory_path = path + "/" + name.Substring(0, index);
+                    string directory_path = path + "/" + name.Substring(0,index);
                     if (!Directory.Exists(directory_path))
                     {
                         Directory.CreateDirectory(directory_path);

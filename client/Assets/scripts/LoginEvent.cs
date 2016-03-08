@@ -8,11 +8,14 @@ public class LoginEvent : MonoBehaviour {
     static GameObject login_obj ,  main_obj;
 
     public static EventDelegate callback = null;
-    
+
+    DataSaveUtil dataSaver; 
+
 	// Use this for initialization
 	void Start () {
         account = transform.FindChild("account").GetComponent<UIInput>();
         pwd     = transform.FindChild("pwd").GetComponent<UIInput>();
+        dataSaver = transform.parent.parent.GetComponent<DataSaveUtil>();
         checkInit();
 	}
 	
@@ -23,6 +26,7 @@ public class LoginEvent : MonoBehaviour {
         {//登录成功
             MainData.instance.user.deserialize(buffer);
             MainData.instance.deserializeSimpleOrderModule(buffer);
+            dataSaver.save(account.value, pwd.value);
             enterIn();
             if (callback != null)
             {

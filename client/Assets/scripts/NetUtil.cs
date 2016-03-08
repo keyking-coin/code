@@ -28,6 +28,8 @@ public class NetUtil{
 
 	public bool mustLogin = false;
 
+    Thread receiveThread = null;
+
 #if UNITY_EDITOR
     string URL = "127.0.0.1";
    //string URL = "139.196.30.53";
@@ -65,20 +67,29 @@ public class NetUtil{
 	}
 
 	public NetUtil(){
-		socket =  new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+
 	}
 
 	public bool connect(){
-		if (socket.Connected){
+        if (socket != null && socket.Connected)
+        {
 			return true;
 		}
+        if (receiveThread != null)
+        {
+            receiveThread.Abort();
+            receiveThread = null;
+            socket.Close();
+            socket = null;
+        }
+        socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 		IPAddress ipAddress = IPAddress.Parse(URL);	
 		IPEndPoint ipEndpoint = new IPEndPoint(ipAddress,port);
 		IAsyncResult result = socket.BeginConnect(ipEndpoint,null,socket);
 		if (result != null){
 			bool success = result.AsyncWaitHandle.WaitOne(5000,true);
 			if (success){
-				Thread receiveThread = new Thread(new ThreadStart(ReceiveSorket));  
+				receiveThread = new Thread(new ThreadStart(ReceiveSorket));  
 				receiveThread.IsBackground = true;  
 				receiveThread.Start();
                 //Loom.RunAsync(ReceiveSorket);
@@ -97,6 +108,7 @@ public class NetUtil{
         {
             if (!socket.Connected)
             {
+                socket.Close();
                 break;
             }
             try

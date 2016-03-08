@@ -53,7 +53,7 @@ public class HttpServer {
 			acceptor = new NioSocketAcceptor();;
 			acceptor.getFilterChain().addLast("protocolFilter",new ProtocolCodecFilter(new HttpServerProtocolCodecFactory()));
 			acceptor.setHandler(new HttpServerHandler());
-			acceptor.bind(new InetSocketAddress("127.0.0.1",port));
+			acceptor.bind(new InetSocketAddress("0.0.0.0",port));
 			isRunning = true;
 			ServerLog.info("HttpServer now listening on port " + port);
 		}
