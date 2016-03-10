@@ -16,6 +16,7 @@ import com.keyking.coin.service.domain.deal.Revert;
 import com.keyking.coin.service.domain.deal.SimpleOrderModule;
 import com.keyking.coin.service.domain.user.RankEntity;
 import com.keyking.coin.service.domain.user.UserCharacter;
+import com.keyking.coin.service.http.data.HttpTouristDealOrder;
 import com.keyking.coin.service.net.data.SearchCondition;
 import com.keyking.coin.service.net.resp.impl.GeneralResp;
 import com.keyking.coin.util.Instances;
@@ -100,23 +101,49 @@ public class Controler implements Instances{
 		return null;
 	}
 	
+	public String checkHttpAccout(String account,String nickName){
+		for (UserCharacter user : characters.values()){
+			if (user.getAccount().equals(account)){
+				return account + "已被注册";
+			}
+			if (user.getNikeName().equals(nickName)){
+				return nickName + "已被使用";
+			}
+		}
+		if (DB.getUserDao().search(account) != null){
+			return account + "已被注册";
+		}
+		if (DB.getUserDao().checkNikeName(nickName) != null){
+			return nickName + "已被使用";
+		}
+		return null;
+	}
+	
 	public boolean checkAccout(String account,String nickName,GeneralResp resp){
 		for (UserCharacter user : characters.values()){
 			if (user.getAccount().equals(account)){
-				resp.setError(account + "已被注册");
+				if (resp != null){
+					resp.setError(account + "已被注册");
+				}
 				return false;
 			}
 			if (user.getNikeName().equals(nickName)){
-				resp.setError(nickName + "已被使用");
+				if (resp != null){
+					resp.setError(nickName + "已被使用");
+				}
 				return false;
 			}
 		}
 		if (DB.getUserDao().search(account) != null){
-			resp.setError(account + "已被注册");
+			if (resp != null){
+				resp.setError(account + "已被注册");
+			}
 			return false;
 		}
 		if (DB.getUserDao().checkNikeName(nickName) != null){
-			resp.setError(nickName + "已被使用");
+			if (resp != null){
+				resp.setError(nickName + "已被使用");
+			}
 			return false;
 		}
 		return true;
@@ -136,7 +163,7 @@ public class Controler implements Instances{
 		return user;
 	}
 	
-	public boolean register(UserCharacter user){
+	public synchronized boolean register(UserCharacter user){
 		long id = PK.key("users");
 		user.setId(id);
 		characters.put(user.getAccount(),user);
@@ -353,6 +380,32 @@ public class Controler implements Instances{
 			}
 		}
 		return modules;
+	}
+	
+	public List<HttpTouristDealOrder> trySearchHttpRecentOrder(){
+		List<HttpTouristDealOrder> orders = new ArrayList<HttpTouristDealOrder>();
+		for (DealOrder order : recents){
+			if (order.getRevoke() == 0){
+				Deal deal = CTRL.tryToSearch(order.getDealId());
+				if (deal != null){
+					HttpTouristDealOrder ho = new HttpTouristDealOrder();
+					ho.setDealId(order.getDealId());
+					ho.setOrderId(order.getId());
+					String str = null;
+					String[] ss = deal.getBourse().split(",");
+					if (order.over()){
+						str = ss[1] + "(" + (deal.getType() == 0 ? "入库" : "现货") + ")" + deal.getName() + "已经成交" + order.getNum() + deal.getMonad();
+					}else{
+						str = ss[1] + "(" + (deal.getType() == 0 ? "入库" : "现货") + ")" + deal.getName() + "正在交易" + order.getNum() + deal.getMonad();
+					}
+					ho.setDes(str);
+					String time = order.getTimes().get(0);
+					ho.setTime(time);
+					orders.add(ho);
+				}
+			}
+		}
+		return orders;
 	}
 	
 	public void addRecents(DealOrder order){

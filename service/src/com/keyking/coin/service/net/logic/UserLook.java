@@ -1,7 +1,5 @@
 package com.keyking.coin.service.net.logic;
 
-import java.util.List;
-
 import com.keyking.coin.service.domain.deal.Deal;
 import com.keyking.coin.service.domain.user.UserCharacter;
 import com.keyking.coin.service.net.buffer.DataBuffer;

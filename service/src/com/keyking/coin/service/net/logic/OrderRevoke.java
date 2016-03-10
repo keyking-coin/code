@@ -23,12 +23,12 @@ public class OrderRevoke extends AbstractLogic {
 				if (!order.checkRevoke(flag)){//撤销成功
 					order.addRevoke(flag);
 					ModuleResp modules = new ModuleResp();
-					deal.clientMessage(Module.UPDATE_FLAG,modules);
+					order.clientMessage(Module.UPDATE_FLAG,modules);
 					NET.sendMessageToAllClent(modules,null);
 					resp.setSucces();
 					return resp;
 				}else{
-					resp.setError("操作失败");
+					resp.setError("已申请等待对方回应");
 				}
 			}else{
 				resp.setError("操作失败");

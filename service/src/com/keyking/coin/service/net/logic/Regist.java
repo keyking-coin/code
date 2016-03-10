@@ -26,8 +26,7 @@ public class Regist extends AbstractLogic {
 				user.setPwd(pwd);
 				user.setNikeName(nickname);
 				user.setName(name);
-				user.addAddress(address); 
-				//user.setAddress(address);
+				user.addAddress(address);
 				user.setRegistTime(registTime);
 				if (CTRL.register(user)){
 					TOKEN.remove(account);

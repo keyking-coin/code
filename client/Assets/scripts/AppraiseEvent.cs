@@ -28,14 +28,7 @@ public class AppraiseEvent : MonoBehaviour {
         buffer = MyUtilTools.tryToLogic("DealOrderUpdate");
         if (buffer != null)
         {
-            order.times.Clear();
-            order.state = buffer.ReadByte();
-            for (byte i = 0 ; i <= order.state ; i++)
-            {
-                string time = buffer.ReadString();
-                order.times.Add(time);
-            }
-            order.insterToObj(gameObject);
+            DialogUtil.tip("提交成功");
         }
 	}
 
@@ -69,6 +62,7 @@ public class AppraiseEvent : MonoBehaviour {
         button.onClick.Clear();
         button.onClick.Add(backEvent);
         Transform do_trans = container.transform.FindChild("do");
+        do_trans.gameObject.SetActive(true);
         do_trans.FindChild("title").GetComponent<UILabel>().text = src.name.Equals("buyer-appraise") ? "买家评价" : "卖家评价";
         tips.gameObject.SetActive(false);
         Transform edit = do_trans.FindChild("edit");

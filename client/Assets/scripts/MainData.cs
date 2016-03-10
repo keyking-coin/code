@@ -431,7 +431,8 @@ public class MainData{
     {
         byte flag = data.ReadByte();
         DealBody.Order order = DealBody.Order.read(data);
-        foreach (DealBody deal in deal_all){
+        foreach (DealBody deal in deal_all)
+        {
             if (deal.id == order.dealId)
             {
                 order.item = deal;
@@ -449,7 +450,8 @@ public class MainData{
                     if (insert)
                     {
                         deal.orders.Add(order);
-                    }                }
+                    }               
+                }
                 else if (flag == JustRun.DEL_FLAG)
                 {
                     foreach (DealBody.Order dor in deal.orders)

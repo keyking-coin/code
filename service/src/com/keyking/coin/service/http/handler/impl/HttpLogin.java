@@ -11,7 +11,7 @@ import com.keyking.coin.service.http.response.HttpResponseMessage;
 import com.keyking.coin.util.JsonUtil;
 
 public class HttpLogin implements HttpHandler {
-
+	//http://139.196.30.53:32104/HttpLogin?account=13856094894&pwd123456789
 	@Override
 	public void handle(HttpRequestMessage request,HttpResponseMessage response) {
 		String account = request.getParameter("account");  

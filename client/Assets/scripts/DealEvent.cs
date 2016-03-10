@@ -956,10 +956,22 @@ public class DealEvent : CenterEvent{
         updateList();
     }
 
+    public void mustShowDealOreder()
+    {
+        Transform event_trans = needshow[0].transform.FindChild("list").FindChild("up-title").FindChild("events");
+        ButtonSelectEvent rbs = event_trans.FindChild("rk").GetComponent<ButtonSelectEvent>();
+        ButtonSelectEvent xbs = event_trans.FindChild("xh").GetComponent<ButtonSelectEvent>();
+        ButtonSelectEvent target = rbs.flag ? rbs : xbs;
+        Transform sun_trans = rbs.transform.FindChild("suns");
+        sun_trans.FindChild("cj").GetComponent<ButtonSelectEvent>().click2(sun_trans.FindChild("mm").GetComponent<ButtonSelectEvent>(),this);
+        updateList();
+    }
+
 	public void updateList()
     {
-        ButtonSelectEvent rbs = needshow[0].transform.FindChild("list").FindChild("up-title").FindChild("events").FindChild("rk").GetComponent<ButtonSelectEvent>();
-        ButtonSelectEvent xbs = needshow[0].transform.FindChild("list").FindChild("up-title").FindChild("events").FindChild("xh").GetComponent<ButtonSelectEvent>();
+        Transform event_trans = needshow[0].transform.FindChild("list").FindChild("up-title").FindChild("events");
+        ButtonSelectEvent rbs = event_trans.FindChild("rk").GetComponent<ButtonSelectEvent>();
+        ButtonSelectEvent xbs = event_trans.FindChild("xh").GetComponent<ButtonSelectEvent>();
         ButtonSelectEvent mbs = rbs.flag ? rbs.transform.FindChild("suns").FindChild("mm").GetComponent<ButtonSelectEvent>() : xbs.transform.FindChild("suns").FindChild("mm").GetComponent<ButtonSelectEvent>();
         string key = rbs.flag ? "入库" : "现货";
         list_container.transform.parent.GetComponent<UIPanel>().clipOffset = Vector2.zero;

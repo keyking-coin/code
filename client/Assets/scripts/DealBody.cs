@@ -198,7 +198,8 @@ public class DealBody : Object
         {
             UILabel label = obj.transform.FindChild("title").GetComponent<UILabel>();
             string[] ss = item.bourse.Split(","[0]);
-            label.text = "(编号：[00ff00]" + id + ")[-][0000ff]" + ss[1] + "[-]的[ff0000]" + item.stampName + "[-]";
+            string tail = helpflag ? "(中介)" : "" ;
+            label.text = "(编号：[00ff00]" + id + ")[-][0000ff]" + ss[1] + "[-]的[ff0000]" + item.stampName + "[-]" + tail;
             label = obj.transform.FindChild("num").FindChild("value").GetComponent<UILabel>();
             label.text = num + " ( " + item.price + " 元/ " + item.monad + " )";
             label = obj.transform.FindChild("time").FindChild("value").GetComponent<UILabel>();

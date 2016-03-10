@@ -542,7 +542,7 @@ public class UserCharacter extends EntitySaver{
 	}
 
 	public boolean addAddress(String address) {
-		if (addresses.contains(address)){
+		if (StringUtil.isNull(address) || addresses.contains(address)){
 			return false;
 		}
 		addresses.add(address);

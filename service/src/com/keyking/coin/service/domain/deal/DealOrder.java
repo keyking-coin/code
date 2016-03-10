@@ -148,6 +148,16 @@ public class DealOrder extends EntitySaver implements Comparable<DealOrder>{
 		return sellerAppraise.serialize() + "|" + buyerAppraise.serialize();
 	}
 	
+	public List<String> getTimes() {
+		return times;
+	}
+
+
+	public void setTimes(List<String> times) {
+		this.times = times;
+	}
+
+
 	public void appraiseDeserialize(String str) {
 		if (StringUtil.isNull(str)){
 			return;
