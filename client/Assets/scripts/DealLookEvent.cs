@@ -66,8 +66,10 @@ public class DealLookEvent : MonoBehaviour
         int hp = buffer.ReadInt();
         int zp = buffer.ReadInt();
         int cp = buffer.ReadInt();
-
-        Transform container = transform.FindChild("scroll").FindChild("body").FindChild("container");
+        Transform body = transform.FindChild("scroll").FindChild("body");
+        body.localPosition = Vector3.zero;
+        body.GetComponent<UIPanel>().clipOffset = Vector2.zero;
+        Transform container = body.FindChild("container");
         UISprite icon = container.FindChild("icon").GetComponent<UISprite>();
         icon.spriteName = icon_str;
         UILabel label = container.FindChild("nikeName").GetComponent<UILabel>();
@@ -83,7 +85,6 @@ public class DealLookEvent : MonoBehaviour
         Transform address_trans = container.FindChild("address");
         label = address_trans.FindChild("value").GetComponent<UILabel>();
         DownOpenLink adress_open_link = address_trans.GetComponent<DownOpenLink>();
-        adress_open_link.resetY();
         GameObject address_suns = address_trans.FindChild("suns").gameObject;
         address_suns.SetActive(false);
         if (addresses.Count == 0)
@@ -97,6 +98,7 @@ public class DealLookEvent : MonoBehaviour
             label.text = "已设置" + addresses.Count + "个地址";
             address_trans.FindChild("down").gameObject.SetActive(true);
             address_trans.FindChild("up").gameObject.SetActive(false);
+            MyUtilTools.clearChild(address_suns.transform);
             float y = 0;
             for (int i = 0; i < addresses.Count; i++)
             {
@@ -129,9 +131,7 @@ public class DealLookEvent : MonoBehaviour
         UILabel account_label = bank_trans.FindChild("value").GetComponent<UILabel>();
         GameObject bank_suns = bank_trans.FindChild("suns").gameObject;
         bank_suns.SetActive(false);
-        Transform deal_trans = container.FindChild("deal-info");
         DownOpenLink bank_open_link = bank_trans.GetComponent<DownOpenLink>();
-        bank_open_link.resetY();
         if (bacnkAccount.names.Count == 0){
             account_label.text = "未绑定银行卡";
             bank_trans.FindChild("down").gameObject.SetActive(false);
@@ -161,6 +161,7 @@ public class DealLookEvent : MonoBehaviour
             }
             bank_open_link.offset = -y - 30;
         }
+        Transform deal_trans = container.FindChild("deal-info");
         UILabel deal_value = deal_trans.FindChild("deal-value").FindChild("Label").GetComponent<UILabel>();
         deal_value.text = totalDealVale;
         UILabel hp_value = deal_trans.FindChild("hp").FindChild("Label").GetComponent<UILabel>();
@@ -196,6 +197,23 @@ public class DealLookEvent : MonoBehaviour
     public void cancle()
     {
         gameObject.SetActive(false);
+        Transform container = transform.FindChild("scroll").FindChild("body").FindChild("container");
+        Transform address_trans = container.FindChild("address");
+        DownOpenLink adress_open_link = address_trans.GetComponent<DownOpenLink>();
+        GameObject up_obj   = address_trans.FindChild("up").gameObject;
+        GameObject down_obj = address_trans.FindChild("down").gameObject;
+        if (up_obj.activeSelf)
+        {
+            adress_open_link.open(up_obj,down_obj);
+        }
+        Transform bank_trans = container.FindChild("bank");
+        DownOpenLink bank_open_link = bank_trans.GetComponent<DownOpenLink>();
+        up_obj   = bank_trans.FindChild("up").gameObject;
+        down_obj = bank_trans.FindChild("down").gameObject;
+        if (up_obj.activeSelf)
+        {
+            bank_open_link.open(up_obj, down_obj);
+        }
         if (callback != null)
         {
             callback.Execute();

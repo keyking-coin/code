@@ -12,10 +12,6 @@ public class DownOpenLink : MonoBehaviour
 
     GameObject suns = null;
 
-    float saveY;
-
-    bool initFlag = false;
-
 	// Use this for initialization
 	void Start () {
         Transform suns_tran = transform.FindChild("suns");
@@ -23,8 +19,6 @@ public class DownOpenLink : MonoBehaviour
         {
             suns = transform.FindChild("suns").gameObject;
         }
-        saveY = transform.localPosition.y;
-        initFlag = true;
 	}
 	
 	// Update is called once per frame
@@ -38,23 +32,6 @@ public class DownOpenLink : MonoBehaviour
             open(obj1,obj2);
         }
 	}
-
-    public void resetY()
-    {
-        if (!initFlag)
-        {
-            return;
-        }
-        GameObject obj = gameObject;
-        while (obj != null)
-        {
-            float x = obj.transform.localPosition.x;
-            float z = obj.transform.localPosition.z;
-            DownOpenLink link = obj.GetComponent<DownOpenLink>();
-            obj.transform.localPosition = new Vector3(x,link.saveY,z);
-            obj = link == null ? null : link.next;
-        }
-    }
 
     void init_credit(ByteBuffer buffer)
     {

@@ -23,7 +23,9 @@ public class Login extends AbstractLogic{
 			String svaeKey = user.getSessionAddress();
 			if (svaeKey != null && !svaeKey.equals(session.getRemoteAddress().toString())){
 				IoSession save = NET.search(svaeKey);
-				save.write(new MustLoginAgain());
+				if (save != null){
+					save.write(new MustLoginAgain());
+				}
 			}
 			user.setSessionAddress(session.getRemoteAddress().toString());
 			//下发最近成交的20数据

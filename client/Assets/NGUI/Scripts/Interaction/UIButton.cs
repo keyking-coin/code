@@ -240,7 +240,7 @@ public class UIButton : UIButtonColor
 	/// Call the listener function.
 	/// </summary>
 
-	protected virtual void OnClick ()
+	public virtual void OnClick ()
 	{
 		if (current == null && isEnabled)
 		{
