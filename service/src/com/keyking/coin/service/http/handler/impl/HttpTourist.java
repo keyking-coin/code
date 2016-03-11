@@ -13,6 +13,7 @@ public class HttpTourist implements HttpHandler {
 	@Override
 	public void handle(HttpRequestMessage request, HttpResponseMessage response) {
 		response.setContentType("text/plain");
+		response.setResponseCode(HttpResponseMessage.HTTP_STATUS_SUCCESS);
 		List<HttpTouristDealOrder> orders = CTRL.trySearchHttpRecentOrder();
 		String str = JsonUtil.ObjectToJsonString(orders);
 		response.appendBody(str);

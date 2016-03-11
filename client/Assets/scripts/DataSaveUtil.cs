@@ -37,7 +37,6 @@ public class DataSaveUtil : MonoBehaviour {
     public void save(string account , string pwd)
     {
         string str = "{\"account\":\"" + account + "\",\"pwd\":\"" + pwd + "\"}";
-        //byte[] datas = System.Convert.FromBase64String(str);
         byte[] datas = System.Text.Encoding.UTF8.GetBytes(str);
         JustRun.Instance.tryToSavePicToLocal(JustRun.SaveBodyEntity.create("login_save.data",datas));
     }

@@ -64,7 +64,6 @@ public class SearchEvent : MonoBehaviour {
         list = transform.FindChild("validTime").GetComponent<UIPopupList>();
         string valid = list.value.Equals("不限有效期") ? "null" : list.value;
         string searchStr = "{\"type\":\"" + typeStr + "\"," +
-                             "\"flag\":\"null\"," +
                              "\"bourse\":\"" + bourse + "\"," +
                              "\"title\":\"" + title + "\"," +
                              "\"seller\":\"" + seller + "\"," +

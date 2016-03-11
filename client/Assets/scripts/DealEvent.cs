@@ -512,8 +512,6 @@ public class DealEvent : CenterEvent{
                 UIInput input = do_obj.transform.FindChild("inputer").GetComponent<UIInput>();
                 int num = int.Parse(input.value);
                 buffer.WriteInt(num);
-                //UIToggle toggle = do_obj.transform.FindChild("flag").GetComponent<UIToggle>();
-                //buffer.WriteByte((byte)(item.helpFlag && toggle.value ? 1 : 0));
                 NetUtil.getInstance.SendMessage(buffer);
             }
         }

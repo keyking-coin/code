@@ -57,7 +57,7 @@ public class DealGrab extends AbstractLogic {
 			deal.addOrder(order);
 			resp.setSucces();
 			SimpleOrderModule module = new SimpleOrderModule();
-			order.getSimpleDes(module);
+			order.simpleDes(module);
 			ModuleResp modules = new ModuleResp();
 			modules.addModule(module);
 			order.clientMessage(Module.ADD_FLAG,modules);

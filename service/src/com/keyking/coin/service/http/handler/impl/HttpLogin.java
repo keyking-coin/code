@@ -17,6 +17,7 @@ public class HttpLogin implements HttpHandler {
 		String account = request.getParameter("account");  
 		String pwd     = request.getParameter("pwd");
         response.setContentType("text/plain");
+        response.setResponseCode(HttpResponseMessage.HTTP_STATUS_SUCCESS);
         UserCharacter user = CTRL.search(account);
         Map<String,Object> datas = new HashMap<String,Object>();
 		if (user != null){

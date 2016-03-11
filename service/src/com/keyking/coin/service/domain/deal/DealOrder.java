@@ -43,12 +43,10 @@ public class DealOrder extends EntitySaver implements Comparable<DealOrder>{
 	
 	DealAppraise buyerAppraise = new DealAppraise();//买家评价
 	
-	byte state;
 	//非中介模式:0买家下单,1买家已付款,2卖家已发货(入库),3买家确认收货() (互评-> 交易完成);
 	//中介模式：0买家下单,1买家付款给中介,2中介已收款,3卖家发货,4买家确认收货 ,5中介给卖家付款(互评-> 交易完成);
-	
+	byte state;
 	int revoke = 0 ;//0正常，1买家撤销,2卖家撤销,3撤销完成
-	
 	List<String> times = new ArrayList<String>();
 	
 	@Override
@@ -139,7 +137,7 @@ public class DealOrder extends EntitySaver implements Comparable<DealOrder>{
 		revoke |= flag;
 	}
 	
-	public boolean  checkRevoke(int flag) {
+	public boolean checkRevoke(int flag) {
 		int result = revoke & flag;
 		return result != 0;
 	}
@@ -237,50 +235,6 @@ public class DealOrder extends EntitySaver implements Comparable<DealOrder>{
 		}
 	}
 	
-	public String getDealTime(){
-		return times.get(0);
-	}
-	
-	public String getSellerName(){
-		Deal deal = CTRL.tryToSearch(dealId);
-		if (deal != null){
-			UserCharacter user = CTRL.search(deal.getUid());
-			if (deal.sellFlag == 1){
-				user = CTRL.search(deal.getUid());
-			}else{
-				user = CTRL.search(buyId);
-			}
-			if (user != null){
-				return user.getNikeName();
-			}
-		}
-		return "";
-	}
-	
-	public String getBuyerName(){
-		Deal deal = CTRL.tryToSearch(dealId);
-		if (deal != null){
-			UserCharacter user = CTRL.search(deal.getUid());
-			if (deal.sellFlag == 0){
-				user = CTRL.search(deal.getUid());
-			}else{
-				user = CTRL.search(buyId);
-			}
-			if (user != null){
-				return user.getNikeName();
-			}
-		}
-		return "";
-	}
-	
-	public String getDealName(){
-		Deal deal = CTRL.tryToSearch(dealId);
-		if (deal != null){
-			return deal.getName();
-		}
-		return "";
-	}
-	
 	public boolean over(){
 		if (helpFlag == 0){
 			return state == ORDER_FINISH_NORMAL;
@@ -289,15 +243,19 @@ public class DealOrder extends EntitySaver implements Comparable<DealOrder>{
 		}
 	}
 	
-	public void getSimpleDes(Module module){
+	public void simpleDes(Module module) {
 		Deal deal = CTRL.tryToSearch(dealId);
-		if (deal != null){
+		if (deal != null) {
 			String str = null;
 			String[] ss = deal.getBourse().split(",");
-			if (over()){
-				str = ss[1] + "[0000ff](" + (deal.getType() == 0 ? "入库" : "现货") + ")[-][ff0000]" + deal.getName() + "[-]已经成交[ff0000]" + num + "[-]" + deal.getMonad();
-			}else{
-				str = ss[1] + "[0000ff](" + (deal.getType() == 0 ? "入库" : "现货") + ")[-][ff0000]" + deal.getName() + "[-]正在交易[ff0000]" + num + "[-]" + deal.getMonad();
+			if (over()) {
+				str = ss[1] + "[0000ff](" + (deal.getType() == 0 ? "入库" : "现货")
+						+ ")[-][ff0000]" + deal.getName() + "[-]已经成交[ff0000]"
+						+ num + "[-]" + deal.getMonad();
+			} else {
+				str = ss[1] + "[0000ff](" + (deal.getType() == 0 ? "入库" : "现货")
+						+ ")[-][ff0000]" + deal.getName() + "[-]正在交易[ff0000]"
+						+ num + "[-]" + deal.getMonad();
 			}
 			module.add(dealId);
 			module.add(id);

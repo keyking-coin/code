@@ -375,7 +375,7 @@ public class Controler implements Instances{
 		for (DealOrder order : recents){
 			if (order.getRevoke() == 0){
 				SimpleOrderModule module = new SimpleOrderModule();
-				order.getSimpleDes(module);
+				order.simpleDes(module);
 				modules.add(module);
 			}
 		}

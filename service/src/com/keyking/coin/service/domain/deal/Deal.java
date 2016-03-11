@@ -48,15 +48,15 @@ public class Deal extends EntitySaver implements Comparable<Deal>{
 
 	boolean revoke;//是否撤销了
 	
-	List<Revert> reverts = new ArrayList<Revert>();//回复内容列表
+	List<Revert> reverts    = new ArrayList<Revert>();//回复内容列表
 	
 	List<Revert> delReverts = new ArrayList<Revert>();
 	
-	List<DealOrder> orders = new ArrayList<DealOrder>();//订单
+	List<DealOrder> orders  = new ArrayList<DealOrder>();//订单
 	
 	float needDeposit = 0;
 	
-	String lastIssue = "null";//离最近的推送时间
+	String lastIssue  = "null";//离最近的推送时间
 	
 	public long getId() {
 		return id;
@@ -192,6 +192,14 @@ public class Deal extends EntitySaver implements Comparable<Deal>{
 
 	public void setLastIssue(String lastIssue) {
 		this.lastIssue = lastIssue;
+	}
+
+	public List<Revert> getReverts() {
+		return reverts;
+	}
+
+	public List<DealOrder> getOrders() {
+		return orders;
 	}
 
 	public void delRevert(Revert revert){
@@ -433,7 +441,7 @@ public class Deal extends EntitySaver implements Comparable<Deal>{
 		List<DealOrder> temps = DB.getDealOrderDao().search(id);
 		if (temps != null){
 			for (DealOrder order : temps){
-				String orderTime = order.getDealTime();
+				String orderTime = order.getTimes().get(0);
 				long time = TimeUtils.getTime(orderTime).getMillis();
 				if (!TimeUtils.isSameDay(time)){
 					if (recents.size() >= 20){//如果列表大于20了

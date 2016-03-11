@@ -15,6 +15,8 @@ public class HttpRegist implements HttpHandler {
 		String nickname  = request.getParameter("nick");
 		String name      = request.getParameter("name");
 		String address   = request.getParameter("address");
+		response.setContentType("text/plain");
+		response.setResponseCode(HttpResponseMessage.HTTP_STATUS_SUCCESS);
 		String registTime = TimeUtils.nowChStr();
 		String result = CTRL.checkHttpAccout(account,nickname);
 		if ( result == null){

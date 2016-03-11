@@ -53,7 +53,7 @@ public class HttpResponseEncoder implements MessageEncoder<HttpResponseMessage> 
 				buf.putString("OK", encoder);
 				break;
 			case HttpResponseMessage.HTTP_STATUS_NOT_FOUND:
-				buf.putString(" Not Found", encoder);
+				buf.putString("Not Found", encoder);
 				break;
 			}
 			buf.put(CRLF);
