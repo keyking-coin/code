@@ -6,8 +6,10 @@ import java.util.List;
 import com.keyking.coin.service.domain.deal.Deal;
 import com.keyking.coin.service.domain.deal.DealOrder;
 import com.keyking.coin.service.domain.deal.Revert;
+import com.keyking.coin.service.domain.user.UserCharacter;
+import com.keyking.coin.util.Instances;
 
-public class HttpDeal {
+public class HttpDeal implements Instances{
 	long id;//编号
 	long uid;//用户编号
 	byte sellFlag;//出售帖还是求购帖
@@ -21,8 +23,10 @@ public class HttpDeal {
 	String validTime = "永久";//有效时间
 	String createTime;//创建时间
 	String other;//其他描述
-	List<Revert> reverts    = new ArrayList<Revert>();//回复内容列表
-	List<DealOrder> orders  = new ArrayList<DealOrder>();//订单
+	List<HttpRevert> reverts    = new ArrayList<HttpRevert>();//回复内容列表
+	List<HttpOrder> orders  = new ArrayList<HttpOrder>();//订单
+	String issueName;
+	String issueIcon;
 	
 	public long getId() {
 		return id;
@@ -128,20 +132,36 @@ public class HttpDeal {
 		this.other = other;
 	}
 	
-	public List<Revert> getReverts() {
+	public List<HttpRevert> getReverts() {
 		return reverts;
 	}
-	
-	public void setReverts(List<Revert> reverts) {
+
+	public void setReverts(List<HttpRevert> reverts) {
 		this.reverts = reverts;
 	}
-	
-	public List<DealOrder> getOrders() {
+
+	public List<HttpOrder> getOrders() {
 		return orders;
 	}
-	
-	public void setOrders(List<DealOrder> orders) {
+
+	public void setOrders(List<HttpOrder> orders) {
 		this.orders = orders;
+	}
+
+	public String getIssueName() {
+		return issueName;
+	}
+
+	public void setIssueName(String issueName) {
+		this.issueName = issueName;
+	}
+
+	public String getIssueIcon() {
+		return issueIcon;
+	}
+
+	public void setIssueIcon(String issueIcon) {
+		this.issueIcon = issueIcon;
 	}
 
 	public void copy(Deal deal) {
@@ -158,8 +178,19 @@ public class HttpDeal {
 		validTime  = deal.getValidTime();
 		createTime = deal.getCreateTime();
 		other      = deal.getOther();
-		reverts.addAll(deal.getReverts());
-		orders.addAll(deal.getOrders());
+		UserCharacter user = CTRL.search(uid);
+		issueName  = user.getNikeName();
+		issueIcon  = user.getFace();
+		for (Revert revert : deal.getReverts()){
+			HttpRevert hr = new HttpRevert();
+			hr.copy(revert);
+			reverts.add(hr);
+		}
+		for (DealOrder order : deal.getOrders()){
+			HttpOrder ho = new HttpOrder();
+			ho.copy(order);
+			orders.add(ho);
+		}
 	}
 	
 }

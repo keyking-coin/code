@@ -6,7 +6,7 @@ import com.keyking.coin.service.http.request.HttpRequestMessage;
 import com.keyking.coin.service.http.response.HttpResponseMessage;
 import com.keyking.coin.util.TimeUtils;
 
-public class HttpRegist implements HttpHandler {
+public class HttpRegist extends HttpHandler {
 
 	@Override
 	public void handle(HttpRequestMessage request, HttpResponseMessage response) {
@@ -19,6 +19,7 @@ public class HttpRegist implements HttpHandler {
 		response.setResponseCode(HttpResponseMessage.HTTP_STATUS_SUCCESS);
 		String registTime = TimeUtils.nowChStr();
 		String result = CTRL.checkHttpAccout(account,nickname);
+		String back = null;
 		if ( result == null){
 			UserCharacter user = new UserCharacter();
 			user.setAccount(account);
@@ -28,9 +29,10 @@ public class HttpRegist implements HttpHandler {
 			user.addAddress(address);
 			user.setRegistTime(registTime);
 			CTRL.register(user);
-			response.appendBody("{\"result\":\"ok\"}");
+			back = "{\"result\":\"ok\"}";
 		}else{
-			response.appendBody("{\"result\":\"" + result + "\"}");
+			back = "{\"result\":\"" + result + "\"}";
 		}
+		response.appendBody(formatJosn(request,back));
 	}
 }

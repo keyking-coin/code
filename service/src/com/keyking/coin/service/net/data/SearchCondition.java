@@ -5,13 +5,13 @@ import com.keyking.coin.util.Instances;
 import com.keyking.coin.util.TimeUtils;
 
 public class SearchCondition implements Instances{
-	String type = "null";
-	String flag = "null";
+	String type  = "null";
+	String flag  = "null";
 	String bourse = "null";
-	String title = "null";
+	String title  = "null";
 	String seller = "null";
-	String buyer = "null";
-	String valid = "null";//是否有效
+	String buyer  = "null";
+	String valid  = "null";//是否有效
 	boolean agency = false;//是否是中介服务
 	boolean dealing = false;//正在交易，未到评分这一步的。
 	boolean confirming = false;//已经完成收货确认，但没有互评的（这一步未完成也应该释放信用额度）

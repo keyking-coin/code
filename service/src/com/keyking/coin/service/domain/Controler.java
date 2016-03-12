@@ -393,10 +393,14 @@ public class Controler implements Instances{
 					ho.setOrderId(order.getId());
 					String str = null;
 					String[] ss = deal.getBourse().split(",");
-					if (order.over()){
-						str = ss[1] + "(" + (deal.getType() == 0 ? "入库" : "现货") + ")" + deal.getName() + "已经成交" + order.getNum() + deal.getMonad();
-					}else{
-						str = ss[1] + "(" + (deal.getType() == 0 ? "入库" : "现货") + ")" + deal.getName() + "正在交易" + order.getNum() + deal.getMonad();
+					if (order.over()) {
+						str = ss[1] + "[0000ff](" + (deal.getType() == 0 ? "入库" : "现货")
+								+ ")[-][ff0000]" + deal.getName() + "[-]已经成交[ff0000]"
+								+ order.getNum() + "[-]" + deal.getMonad();
+					} else {
+						str = ss[1] + "[0000ff](" + (deal.getType() == 0 ? "入库" : "现货")
+								+ ")[-][ff0000]" + deal.getName() + "[-]正在交易[ff0000]"
+								+ order.getNum() + "[-]" + deal.getMonad();
 					}
 					ho.setDes(str);
 					String time = order.getTimes().get(0);

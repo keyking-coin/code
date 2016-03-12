@@ -16,16 +16,48 @@ import com.keyking.coin.service.net.data.SearchCondition;
 import com.keyking.coin.util.JsonUtil;
 import com.keyking.coin.util.TimeUtils;
 
-public class HttpDealSearch implements HttpHandler {
+public class HttpDealSearch extends HttpHandler {
 	//http://139.196.30.53:32104/HttpDealSearch?condition=null
 	@Override
 	public void handle(HttpRequestMessage request, HttpResponseMessage response) {
-		String conditionStr = request.getParameter("condition");
+		//null就是查询最近7天交易记录，默认点击交易区就传null，其他值都标示是条件查询
+		String search  = request.getParameter("search");
+		//null、入库、现货 ---> 全部类型的 、入库类型、现货类型
+		String type    = request.getParameter("type");
+		//null、xxx ---> 全部文交所 、其他选择的文交所
+		String bourse  = request.getParameter("bourse");
+		//null、xxx ---> 藏品名称不限 、输入的的藏品名称
+		String title   = request.getParameter("title");
+		//null、xxx ---> 成交盘中出售人名字是：不限、输入名称
+		String seller  = request.getParameter("title");
+		//null、xxx ---> 成交盘中购买人名字是：不限、输入名称
+		String buyer   = request.getParameter("buyer");
+		//null、xxx ---> 不限有效期、其他选择的字符串(到目前无效，到目前有效)
+		String valid   = request.getParameter("valid");
+		
 		List<Deal> deals = null;
-		if (conditionStr.equals("null")){//普通查询7天内的所有的帖子
+		if (search.equals("null")){//普通查询7天内的所有的帖子
 			deals = CTRL.getWeekDeals();
 		}else{
-			SearchCondition condition = JsonUtil.JsonToObject(conditionStr,SearchCondition.class);
+			SearchCondition condition = new SearchCondition();
+			if (type != null){
+				condition.setType(type);
+			}
+			if (title != null){
+				condition.setTitle(title);
+			}
+			if (bourse != null){
+				condition.setBourse(bourse);
+			}
+			if (seller != null){
+				condition.setSeller(seller);
+			}
+			if (buyer != null){
+				condition.setBuyer(buyer);
+			}
+			if (valid != null){
+				condition.setValid(valid);
+			}
 			deals = CTRL.getSearchDeals(condition);
 		}
 		if (deals.size() > 0){
@@ -83,7 +115,8 @@ public class HttpDealSearch implements HttpHandler {
 				hdeal.copy(deal);
 				hDeals.add(hdeal);
 			}
-			String str = JsonUtil.ObjectToJsonString(hDeals);
+			response.setResponseCode(HttpResponseMessage.HTTP_STATUS_SUCCESS);
+			String str = formatJosn(request,JsonUtil.ObjectToJsonString(hDeals));
 			response.appendBody(str);
 		}
 	}
