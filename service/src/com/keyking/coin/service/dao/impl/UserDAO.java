@@ -15,9 +15,9 @@ import com.keyking.coin.util.ServerLog;
 
 public class UserDAO extends JdbcDaoSupport {
 	
-	private static String INSERT_SQL_STR = "insert into users (id,account,pwd,face,nikeName,title,registTime,name,address,signature,recharge,bankAccount,credit,forbid,breach,favorites)values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+	private static String INSERT_SQL_STR = "insert into users (id,account,pwd,face,nikeName,title,registTime,name,address,signature,recharge,bankAccount,credit,forbid,breach,favorites,use_permission)values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 	
-	private static String UPDATE_SQL_STR = "update users set pwd=?,face=?,nikeName=?,title=?,registTime=?,name=?,address=?,age=?,identity=?,signature=?,recharge=?,bankAccount=?,seller=?,push=?,credit=?,forbid=?,breach=?,favorites=? where id=?";
+	private static String UPDATE_SQL_STR = "update users set pwd=?,face=?,nikeName=?,title=?,registTime=?,name=?,address=?,age=?,identity=?,signature=?,recharge=?,bankAccount=?,seller=?,push=?,credit=?,forbid=?,breach=?,favorites=?,use_permission=? where id=?";
 
 	private static String LOGIN_SQL_STR  = "select * from users where account=? and pwd=?";
 
@@ -94,6 +94,7 @@ public class UserDAO extends JdbcDaoSupport {
 					ps.setString(cursor++,user.getForbid().serialize());
 					ps.setByte(cursor++,user.getBreach());
 					ps.setString(cursor++,user.serializeFavorites());
+					ps.setString(cursor++,user.getPermission().serialize());
 					return ps;
 				}
 			});
@@ -115,7 +116,8 @@ public class UserDAO extends JdbcDaoSupport {
 					          user.getBankAccount().serialize(),user.serializeUser(),
 					          user.getPush(),user.getCredit().serialize(),
 					          user.getForbid().serialize(),user.getBreach(),
-					          user.serializeFavorites(),user.getId());
+					          user.serializeFavorites(),user.getPermission().serialize(),
+					          user.getId());
 		} catch (DataAccessException e) {
 			ServerLog.error("save user error",e);
 			return false;

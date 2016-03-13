@@ -18,7 +18,7 @@ public class DealIssue extends AbstractLogic {
 		UserCharacter user = CTRL.search(uid);
 		String forbidStr = user.getForbid().getReason();
 		if (forbidStr != null){
-			resp.setError(forbidStr);
+			resp.setError("您已经被封号原因是:" + forbidStr);
 			return resp;
 		}
 		if (user != null && deal != null){

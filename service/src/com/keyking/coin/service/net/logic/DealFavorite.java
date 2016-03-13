@@ -17,20 +17,27 @@ public class DealFavorite extends AbstractLogic {
 		Deal deal = CTRL.tryToSearch(dealId);
 		if (deal != null){
 			UserCharacter user = CTRL.search(uid);
-			if (user != null && !user.getFavorites().contains(dealId)){
+			if (user != null){
+				String forbidStr = user.getForbid().getReason();
+				if (forbidStr != null){
+					resp.setError("您已经被封号原因是:" + forbidStr);
+					return resp;
+				}
 				if (type == 0){
-					user.getFavorites().add(dealId);
+					if (!user.getFavorites().contains(dealId)){
+						user.getFavorites().add(dealId);
+					}
 				}else{
-					user.getFavorites().remove(dealId);
+					if (user.getFavorites().contains(dealId)){
+						user.getFavorites().remove(dealId);
+					}
 				}
 				resp.setSucces();
 				resp.add(type);
 				resp.add(user.getFavorites());
 				ServerLog.info(user.getAccount() + " favorite deal ok ----> id is " + dealId);
-			}else if(user == null){
+			}else{
 				resp.setError("系统错误");
-			}else {
-				resp.setError("您已经收藏过了");
 			}
 		}else{
 			resp.setError("交易帖子不存在");

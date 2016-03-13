@@ -391,18 +391,21 @@ public class Controler implements Instances{
 					HttpTouristDealOrder ho = new HttpTouristDealOrder();
 					ho.setDealId(order.getDealId());
 					ho.setOrderId(order.getId());
-					String str = null;
 					String[] ss = deal.getBourse().split(",");
-					if (order.over()) {
-						str = ss[1] + "[0000ff](" + (deal.getType() == 0 ? "入库" : "现货")
-								+ ")[-][ff0000]" + deal.getName() + "[-]已经成交[ff0000]"
-								+ order.getNum() + "[-]" + deal.getMonad();
-					} else {
-						str = ss[1] + "[0000ff](" + (deal.getType() == 0 ? "入库" : "现货")
-								+ ")[-][ff0000]" + deal.getName() + "[-]正在交易[ff0000]"
-								+ order.getNum() + "[-]" + deal.getMonad();
-					}
-					ho.setDes(str);
+					StringBuffer sb = new StringBuffer();
+					sb.append(ss[1]);
+					sb.append("<span style='color: #CC3366'>");
+					sb.append(deal.getType() == 0 ? "(入库)" : "(现货)");
+					sb.append("</span>");
+					sb.append("<span style='color: #6699CC'>");
+					sb.append(deal.getName());
+					sb.append("</span>");
+					sb.append(order.over() ? "已经成交" : "正在交易");
+					sb.append("<span style='color: #009933'>");
+					sb.append(order.getNum());
+					sb.append("</span>");
+					sb.append(deal.getMonad());
+					ho.setDes(sb.toString());
 					String time = order.getTimes().get(0);
 					ho.setTime(time);
 					orders.add(ho);

@@ -16,22 +16,23 @@ public class RevertAdd extends AbstractLogic {
 		GeneralResp resp = new GeneralResp(logicName);
 		long id = buffer.getLong();
 		long uid = buffer.getLong();
+		long tar = buffer.getLong();
 		String context = buffer.getUTF();
 		Deal deal = CTRL.tryToSearch(id);
 		if (deal == null){
-			resp.setError("卖家已撤销");
+			resp.setError("此帖已撤销");
 			return resp;
 		}
 		UserCharacter user = CTRL.search(uid);
 		String forbidStr = user.getForbid().getReason();
 		if (forbidStr != null){
-			resp.setError(forbidStr);
+			resp.setError("您已经被封号原因是:" + forbidStr);
 			return resp;
 		}
 		synchronized (deal) {
 			Revert revrt = new Revert();
 			revrt.setUid(uid);
-			revrt.setTar(deal.getUid());
+			revrt.setTar(tar);
 			revrt.setDependentId(id);
 			revrt.setContext(context);
 			revrt.setCreateTime(TimeUtils.formatYear(TimeUtils.now()));

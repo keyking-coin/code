@@ -21,7 +21,7 @@ public class HttpUserCharacter {
 	String signature = "大家好";//签名
 	List<Account> banks = new ArrayList<Account>();//绑定银行账户
 	Credit credit = new Credit();//信用度
-	
+	List<Long> favorites = new ArrayList<Long>();//收藏夹
 	byte breach;//违约次数
 	
 	public HttpUserCharacter(UserCharacter user){
@@ -39,6 +39,7 @@ public class HttpUserCharacter {
 		banks.addAll(user.getBankAccount().getAccounts());
 		credit.copy(user.getCredit());
 		breach = user.getBreach();
+		favorites.addAll(user.getFavorites());
 	}
 	
 	public long getId() {

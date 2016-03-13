@@ -15,4 +15,8 @@ public abstract class HttpHandler implements Instances{
 		String str = call + "(" + src + ")";
 		return str;
 	}
+	
+	public void error(HttpRequestMessage request,HttpResponseMessage response,String tips){
+		response.appendBody(formatJosn(request,"{\"result\":\"" + tips + "\"}"));
+	}
 }

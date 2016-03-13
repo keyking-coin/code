@@ -38,6 +38,8 @@ public class UserRow implements RowMapper<UserCharacter>{
 		user.setBreach(rs.getByte("breach"));
 		str = rs.getString("favorites");
 		user.deserializeFavorites(str);
+		str = rs.getString("use_permission");
+		user.getPermission().deserialize(str);
 		return user;
 	}
 }

@@ -92,6 +92,9 @@ public class ServiceHandler extends IoHandlerAdapter implements Instances {
 			return;
 		}
 		for (String key : sessions.keySet()){
+			if (key.contains("UU_ADMIN")){//管理员的不下发
+				continue;
+			}
 			if (excepte == null || !key.equals(excepte)){
 				sendMessageToClent(resp,key);
 			}

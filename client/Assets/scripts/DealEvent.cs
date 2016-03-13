@@ -288,6 +288,8 @@ public class DealEvent : CenterEvent{
                         event_delegat = new EventDelegate(_dealEvent, "openRevert");
                         event_delegat.parameters[0] = new EventDelegate.Parameter();
                         event_delegat.parameters[0].obj = dealBody;
+                        event_delegat.parameters[1] = new EventDelegate.Parameter();
+                        event_delegat.parameters[1].obj = new LongParamter(dealBody.uid);
                         button.onClick.Add(event_delegat);
                         trans.gameObject.SetActive(true);
 
@@ -336,6 +338,8 @@ public class DealEvent : CenterEvent{
                         event_delegat = new EventDelegate(_dealEvent, "openRevert");
                         event_delegat.parameters[0] = new EventDelegate.Parameter();
                         event_delegat.parameters[0].obj = dealBody;
+                        event_delegat.parameters[1] = new EventDelegate.Parameter();
+                        event_delegat.parameters[1].obj = new LongParamter(dealBody.uid);
                         button.onClick.Add(event_delegat);
                         trans.gameObject.SetActive(true);
 
@@ -673,7 +677,7 @@ public class DealEvent : CenterEvent{
         ConfirmUtil.confirm("确定" + revert.tips + "此条回复内容？",sure);
     }
 
-    void openRevert(DealBody item)
+    void openRevert(DealBody item,LongParamter target)
     {
         if (!MainData.instance.user.login())
         {
@@ -686,7 +690,7 @@ public class DealEvent : CenterEvent{
         showSub("revert");
         //CameraUtil.push(3,2);
         dealRevertEvent.okback = new EventDelegate(backAndShow);
-        dealRevertEvent.show(item);
+        dealRevertEvent.show(item, target.Value);
     }
 
     void openGrab(DealBody item)
@@ -838,6 +842,8 @@ public class DealEvent : CenterEvent{
                 event_delegat = new EventDelegate(this,"openRevert");
                 event_delegat.parameters[0] = new EventDelegate.Parameter();
                 event_delegat.parameters[0].obj = item;
+                event_delegat.parameters[1] = new EventDelegate.Parameter();
+                event_delegat.parameters[1].obj = new LongParamter(revert.uid);
                 button.onClick.Add(event_delegat);
                 trans.gameObject.SetActive(true);
             }
@@ -914,7 +920,7 @@ public class DealEvent : CenterEvent{
         if (!MainData.instance.user.login())
         {
             LoginEvent.tryToLogin();
-            LoginEvent.callback = new EventDelegate(this, "back_deal_detail");
+            LoginEvent.callback = new EventDelegate(this,"back_deal_detail");
             LoginEvent.callback.parameters[0] = new EventDelegate.Parameter();
             LoginEvent.callback.parameters[0].obj = item;
             return;

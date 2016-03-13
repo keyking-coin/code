@@ -1,5 +1,8 @@
 package com.keyking.coin.service.http.data;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.keyking.coin.service.domain.deal.DealAppraise;
 import com.keyking.coin.service.domain.deal.DealOrder;
 import com.keyking.coin.service.domain.user.UserCharacter;
@@ -14,6 +17,8 @@ public class HttpOrder implements Instances{
 	byte helpFlag;
 	String buyerName;
 	String buyerIcon;
+	byte state;
+	List<String> times = new ArrayList<String>();
 	DealAppraise sellerAppraise = new DealAppraise();
 	DealAppraise buyerAppraise = new DealAppraise();
 	
@@ -97,6 +102,22 @@ public class HttpOrder implements Instances{
 		this.buyerAppraise = buyerAppraise;
 	}
 	
+	public byte getState() {
+		return state;
+	}
+
+	public void setState(byte state) {
+		this.state = state;
+	}
+
+	public List<String> getTimes() {
+		return times;
+	}
+
+	public void setTimes(List<String> times) {
+		this.times = times;
+	}
+
 	public void copy(DealOrder order) {
 		id                 = order.getId();
 		dealId             = order.getDealId();
@@ -109,5 +130,7 @@ public class HttpOrder implements Instances{
 		price              = order.getPrice();
 		sellerAppraise     = order.getSellerAppraise();
 		buyerAppraise      = order.getBuyerAppraise();
+		state              = order.getState();
+		times.addAll(order.getTimes());
 	}
 }

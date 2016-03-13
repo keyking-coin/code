@@ -9,6 +9,8 @@ public class DealRevertEvent : MonoBehaviour
 
     public EventDelegate okback = null;
 
+    long target;
+
 	void Start () {
 
 	}
@@ -41,6 +43,7 @@ public class DealRevertEvent : MonoBehaviour
         buffer.WriteString("RevertAdd");
         buffer.WriteLong(curItem.id);
         buffer.WriteLong(MainData.instance.user.id);
+        buffer.WriteLong(target);
         buffer.WriteString(input.value);
         NetUtil.getInstance.SendMessage(buffer);
     }
@@ -54,9 +57,10 @@ public class DealRevertEvent : MonoBehaviour
         }
     }
 
-    public void show(DealBody item)
+    public void show(DealBody item,long target)
     {
         gameObject.SetActive(true);
         curItem = item;
+        this.target = target;
     }
 }

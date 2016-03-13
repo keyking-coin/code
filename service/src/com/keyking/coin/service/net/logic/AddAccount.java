@@ -20,7 +20,7 @@ public class AddAccount extends AbstractLogic {
 		if (user != null){
 			String forbidStr = user.getForbid().getReason();
 			if (forbidStr != null){
-				resp.setError(forbidStr);
+				resp.setError("您已经被封号原因是:" + forbidStr);
 				return resp;
 			}
 			BankAccount bankAccount = user.getBankAccount();

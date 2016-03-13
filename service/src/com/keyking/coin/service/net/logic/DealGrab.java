@@ -30,7 +30,7 @@ public class DealGrab extends AbstractLogic {
 		UserCharacter user = CTRL.search(uid);
 		String forbidStr = user.getForbid().getReason();
 		if (forbidStr != null){
-			resp.setError(forbidStr);
+			resp.setError("您已经被封号原因是:" + forbidStr);
 			return resp;
 		}
 		synchronized (deal) {
@@ -61,7 +61,7 @@ public class DealGrab extends AbstractLogic {
 			ModuleResp modules = new ModuleResp();
 			modules.addModule(module);
 			order.clientMessage(Module.ADD_FLAG,modules);
-			deal.clientMessage(Module.ADD_FLAG,modules);
+			deal.clientMessage(Module.UPDATE_FLAG,modules);
 			NET.sendMessageToAllClent(modules,null);
 			ServerLog.info(user.getAccount() + " grab deal ok ----> id is " + id);
 		}

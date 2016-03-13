@@ -116,7 +116,7 @@ public class SearchCondition implements Instances{
 				return false;
 			}
 		}
-		if (!bourse.equals("null")){
+		if (!bourse.equals("null") && !bourse.equals("全部文交所")){
 			String[] ss = deal.getBourse().split(",");
 			if (!bourse.equals(ss[1])){
 				return false;

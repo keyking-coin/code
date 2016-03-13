@@ -20,9 +20,9 @@ public class Login extends AbstractLogic{
 		String pwd      = buffer.getUTF();
 		UserCharacter user = CTRL.login(account,pwd,resp);
 		if (user != null){
-			String svaeKey = user.getSessionAddress();
-			if (svaeKey != null && !svaeKey.equals(session.getRemoteAddress().toString())){
-				IoSession save = NET.search(svaeKey);
+			String saveKey = user.getSessionAddress();
+			if (saveKey != null && !saveKey.equals(session.getRemoteAddress().toString())){
+				IoSession save = NET.search(saveKey);
 				if (save != null){
 					save.write(new MustLoginAgain());
 				}

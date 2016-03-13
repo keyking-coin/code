@@ -60,6 +60,8 @@ public class UserCharacter extends EntitySaver{
 	
 	byte breach;//违约次数
 	
+	UserPermission permission = new UserPermission();
+	
 	List<Email> emails = new ArrayList<Email>();//邮件列表
 	
 	List<Email> delEmails = new ArrayList<Email>();//邮件列表
@@ -73,8 +75,7 @@ public class UserCharacter extends EntitySaver{
 	List<Message> messages = new ArrayList<Message>();//好友发我的消息
 	
 	List<Message> delMessages = new ArrayList<Message>();//需要删除聊天记录
-	
-	
+
 	public long getId() {
 		return id;
 	}
@@ -240,6 +241,15 @@ public class UserCharacter extends EntitySaver{
 		return favorites;
 	}
 
+	
+	public UserPermission getPermission() {
+		return permission;
+	}
+
+	public void setPermission(UserPermission permission) {
+		this.permission = permission;
+	}
+
 	public void deserializeFavorites(String str){
 		if (StringUtil.isNull(str)){
 			return;
@@ -290,39 +300,46 @@ public class UserCharacter extends EntitySaver{
 		buffer.putUTF(account);
 		buffer.putUTF(face);
 		buffer.putUTF(nikeName);
-		buffer.putUTF(name);
-		buffer.putUTF(title);
-		buffer.putUTF(registTime);
-		buffer.putUTF(identity);
-		buffer.putUTF(signature);
-		buffer.put(push);
-		buffer.putInt(addresses.size());
-		for (String address : addresses){
-			buffer.putUTF(address);
-		}
-		recharge._serialize(buffer);
-		bankAccount.serialize(buffer);
-		if (seller == null){
-			buffer.put((byte)0);
+		if (permission.isAdmin()){
+			buffer.putInt(emails.size());
+			for (Email email : emails){
+				email.serialize(buffer);
+			}
 		}else{
-			buffer.put((byte)1);
-			seller.serialize(buffer);
-		}
-		buffer.putInt(emails.size());
-		for (Email email : emails){
-			email.serialize(buffer);
-		}
-		buffer.putInt(friends.size());
-		for (Friend friend : friends){
-			friend.serialize(buffer);
-		}
-		buffer.putInt(messages.size());
-		for (Message message : messages){
-			message.serialize(buffer);
-		}
-		buffer.putInt(favorites.size());
-		for (Long favorite : favorites){
-			buffer.putLong(favorite.longValue());
+			buffer.putUTF(name);
+			buffer.putUTF(title);
+			buffer.putUTF(registTime);
+			buffer.putUTF(identity);
+			buffer.putUTF(signature);
+			buffer.put(push);
+			buffer.putInt(addresses.size());
+			for (String address : addresses){
+				buffer.putUTF(address);
+			}
+			recharge._serialize(buffer);
+			bankAccount.serialize(buffer);
+			if (seller == null){
+				buffer.put((byte)0);
+			}else{
+				buffer.put((byte)1);
+				seller.serialize(buffer);
+			}
+			buffer.putInt(emails.size());
+			for (Email email : emails){
+				email.serialize(buffer);
+			}
+			buffer.putInt(friends.size());
+			for (Friend friend : friends){
+				friend.serialize(buffer);
+			}
+			buffer.putInt(messages.size());
+			for (Message message : messages){
+				message.serialize(buffer);
+			}
+			buffer.putInt(favorites.size());
+			for (Long favorite : favorites){
+				buffer.putLong(favorite.longValue());
+			}
 		}
 	}
 

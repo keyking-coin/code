@@ -17,7 +17,7 @@ import com.keyking.coin.util.JsonUtil;
 import com.keyking.coin.util.TimeUtils;
 
 public class HttpDealSearch extends HttpHandler {
-	//http://139.196.30.53:32104/HttpDealSearch?condition=null
+	//http://127.0.0.1:32104/HttpDealSearch?search=1&type=入库
 	@Override
 	public void handle(HttpRequestMessage request, HttpResponseMessage response) {
 		//null就是查询最近7天交易记录，默认点击交易区就传null，其他值都标示是条件查询
@@ -34,9 +34,9 @@ public class HttpDealSearch extends HttpHandler {
 		String buyer   = request.getParameter("buyer");
 		//null、xxx ---> 不限有效期、其他选择的字符串(到目前无效，到目前有效)
 		String valid   = request.getParameter("valid");
-		
+		response.setResponseCode(HttpResponseMessage.HTTP_STATUS_SUCCESS);
 		List<Deal> deals = null;
-		if (search.equals("null")){//普通查询7天内的所有的帖子
+		if (search != null && search.equals("null")){//普通查询7天内的所有的帖子
 			deals = CTRL.getWeekDeals();
 		}else{
 			SearchCondition condition = new SearchCondition();
@@ -115,8 +115,10 @@ public class HttpDealSearch extends HttpHandler {
 				hdeal.copy(deal);
 				hDeals.add(hdeal);
 			}
-			response.setResponseCode(HttpResponseMessage.HTTP_STATUS_SUCCESS);
 			String str = formatJosn(request,JsonUtil.ObjectToJsonString(hDeals));
+			response.appendBody(str);
+		}else{
+			String str = formatJosn(request,"[]");
 			response.appendBody(str);
 		}
 	}

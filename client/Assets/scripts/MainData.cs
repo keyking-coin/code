@@ -133,7 +133,7 @@ public class MainData{
         public long id;
         public byte status;
         public long senderId;
-        public UserData user;
+        public AdminData user;
         public string time;// 发送时间
         public string theme = "";// 主题
         public string content = "";// 内容
@@ -141,7 +141,7 @@ public class MainData{
         public string senderIcon = "";//发生者头像
         public byte isNew;
 
-        public EmailBody(UserData user)
+        public EmailBody(AdminData user)
         {
             this.user = user;
         }
@@ -252,12 +252,8 @@ public class MainData{
 
     }
 
-    public class UserData
+    public class UserData : AdminData
     {
-        public long id = 0;
-        public string account = "13856094894";
-        public string face = "face10";
-        public string nikeName = "萝莉控";
         public string realyName = "王五";
         public string title = "普通会员";
         public string registTime = "2015-06-25";
@@ -268,7 +264,6 @@ public class MainData{
         public Recharge recharge = new Recharge();
         public BankAccount bacnkAccount = new BankAccount();
 		public Seller seller = new Seller ();
-        public List<EmailBody> emails = new List<EmailBody>();
         public List<FriendBody> friends = new List<FriendBody>();
         public List<MessageBody> messages = new List<MessageBody>();
         public List<SimpleOrderModule> recentOrders = new List<SimpleOrderModule>();
