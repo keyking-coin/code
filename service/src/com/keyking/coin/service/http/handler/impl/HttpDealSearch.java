@@ -45,7 +45,7 @@ public class HttpDealSearch extends HttpHandler {
 			}
 			if (title != null){
 				condition.setTitle(title);
-			}
+			}//
 			if (bourse != null){
 				condition.setBourse(bourse);
 			}

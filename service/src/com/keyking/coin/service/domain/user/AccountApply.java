@@ -9,7 +9,8 @@ public class AccountApply {
 	String indentFront;
 	String indentBack;
 	String bankFront;
-	boolean completed;
+	byte state;//0未处理;1完成;2未通过
+	String reason;
 	
 	public long getId() {
 		return id;
@@ -76,11 +77,21 @@ public class AccountApply {
 		this.bankFront = bankFront;
 	}
 
-	public boolean isCompleted() {
-		return completed;
+	public byte getState() {
+		return state;
 	}
 
-	public void setCompleted(boolean completed) {
-		this.completed = completed;
+	public void setState(byte state) {
+		this.state = state;
 	}
+
+	public String getReason() {
+		return reason;
+	}
+
+	public void setReason(String reason) {
+		this.reason = reason;
+	}
+	
+	
 }

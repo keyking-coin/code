@@ -19,7 +19,7 @@ public class AccountApplyDAO extends JdbcDaoSupport {
 	
 	AccountApplyRow row = new AccountApplyRow();
 	
-	private static String INSERT_SQL_STR = "insert into accountApply (bourse,bankName,tel,email,indentFront,indentBack,bankFront,completed)values(?,?,?,?,?,?,?,?)";
+	private static String INSERT_SQL_STR = "insert into accountApply (bourse,bankName,tel,email,indentFront,indentBack,bankFront,state,reason)values(?,?,?,?,?,?,?,?,?)";
 	
 	private static String DELETE_SQL_STR = "delete from accountApply where 1=1 and id=?";
 	
@@ -40,7 +40,8 @@ public class AccountApplyDAO extends JdbcDaoSupport {
 					ps.setString(cursor++,apply.getIndentFront());
 					ps.setString(cursor++,apply.getIndentBack());
 					ps.setString(cursor++,apply.getBankFront());
-					ps.setByte(cursor++,(byte)(apply.isCompleted() ? 1 : 0));
+					ps.setByte(cursor++,apply.getState());
+					ps.setString(cursor++,apply.getReason());
 					return ps;
 				}
 			},key);

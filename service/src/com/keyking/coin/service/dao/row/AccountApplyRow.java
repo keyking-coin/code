@@ -20,7 +20,8 @@ public class AccountApplyRow implements RowMapper<AccountApply> {
 		apply.setIndentFront(rs.getString("indentFront"));
 		apply.setIndentBack(rs.getString("indentBack"));
 		apply.setBankFront(rs.getString("bankFront"));
-		apply.setCompleted(rs.getByte("completed") == 1);
+		apply.setState(rs.getByte("state"));
+		apply.setReason(rs.getString("reason"));
 		return apply;
 	}
 }
