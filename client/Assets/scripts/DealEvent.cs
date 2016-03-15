@@ -85,6 +85,11 @@ public class DealEvent : CenterEvent{
             transform.FindChild("revoke").GetComponent<UIButton>().onClick.Add(new EventDelegate(_revoke));
         }
 
+        void nolook()
+        {
+            DialogUtil.tip("你不是交易双方无法查看", false);
+        }
+
         void Update(){
             ByteBuffer buffer = MyUtilTools.tryToLogic("OrderRevoke");
             if (buffer != null)
@@ -99,6 +104,28 @@ public class DealEvent : CenterEvent{
             if (order.refresh)
             {
                 order.insterToObj(gameObject);
+                UIButton button = transform.FindChild("look").GetComponent<UIButton>();
+                if (order.item.uid == MainData.instance.user.id || MainData.instance.user.id == order.buyId)
+                {
+                    EventDelegate event_delegat = new EventDelegate(_dealEvent,"openLook");
+                    event_delegat.parameters[0] = new EventDelegate.Parameter();
+                    event_delegat.parameters[0].obj = new LongParamter(order.item.id);
+                    event_delegat.parameters[1] = new EventDelegate.Parameter();
+                    if (order.item.uid == MainData.instance.user.id)
+                    {
+                        event_delegat.parameters[1].obj = new LongParamter(order.buyId);
+                    }
+                    else if (order.buyId == MainData.instance.user.id)
+                    {
+                        event_delegat.parameters[1].obj = new LongParamter(order.item.uid);
+                    }
+                    button.onClick.Add(event_delegat);
+                }
+                else
+                {
+                    EventDelegate event_delegat = new EventDelegate(nolook);
+                    button.onClick.Add(event_delegat);
+                }
                 GameObject buy_obj = transform.FindChild("buyer-appraise").gameObject;
                 GameObject sell_obj = transform.FindChild("seller-appraise").gameObject;
                 order.buyerAppraise.insterToObj(buy_obj);
@@ -278,7 +305,9 @@ public class DealEvent : CenterEvent{
                         UIButton button = trans.GetComponent<UIButton>();
                         EventDelegate event_delegat = new EventDelegate(_dealEvent, "openLook");
                         event_delegat.parameters[0] = new EventDelegate.Parameter();
-                        event_delegat.parameters[0].obj = dealBody;
+                        event_delegat.parameters[0].obj = new LongParamter(dealBody.id);
+                        event_delegat.parameters[1] = new EventDelegate.Parameter();
+                        event_delegat.parameters[1].obj = new LongParamter(dealBody.uid);
                         button.onClick.Add(event_delegat);
                         trans.gameObject.SetActive(true);
 
@@ -328,7 +357,9 @@ public class DealEvent : CenterEvent{
                         button = trans.GetComponent<UIButton>();
                         event_delegat = new EventDelegate(_dealEvent, "openLook");
                         event_delegat.parameters[0] = new EventDelegate.Parameter();
-                        event_delegat.parameters[0].obj = dealBody;
+                        event_delegat.parameters[0].obj = new LongParamter(dealBody.id);
+                        event_delegat.parameters[1] = new EventDelegate.Parameter();
+                        event_delegat.parameters[1].obj = new LongParamter(dealBody.uid);
                         button.onClick.Add(event_delegat);
                         trans.gameObject.SetActive(true);
 
@@ -646,13 +677,13 @@ public class DealEvent : CenterEvent{
         dealLookEvent.show(buffer);
     }
 
-    void openLook(DealBody dealBody)
+    void openLook(LongParamter dealId ,LongParamter uid)
     {
         ByteBuffer buffer = ByteBuffer.Allocate(1024);
         buffer.skip(4);
         buffer.WriteString("UserLook");
-        buffer.WriteLong(dealBody.id);
-        buffer.WriteLong(dealBody.uid);
+        buffer.WriteLong(dealId.Value);
+        buffer.WriteLong(uid.Value);
         buffer.WriteLong(MainData.instance.user.id);
         NetUtil.getInstance.SendMessage(buffer);
     }
@@ -832,7 +863,9 @@ public class DealEvent : CenterEvent{
                 UIButton button = trans.GetComponent<UIButton>();
                 EventDelegate event_delegat = new EventDelegate(this,"openLook");
                 event_delegat.parameters[0] = new EventDelegate.Parameter();
-                event_delegat.parameters[0].obj = item;
+                event_delegat.parameters[0].obj = new LongParamter(item.id);
+                event_delegat.parameters[1] = new EventDelegate.Parameter();
+                event_delegat.parameters[1].obj = new LongParamter(revert.uid);
                 button.onClick.Add(event_delegat);
                 trans.gameObject.SetActive(true);
 

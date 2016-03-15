@@ -97,7 +97,8 @@ public class PushEvent : MonoBehaviour
         UILabel label = content.FindChild("seller").FindChild("value").GetComponent<UILabel>();
         label.text = item.userName;
         label = content.FindChild("type").FindChild("value").GetComponent<UILabel>();
-        label.text = item.typeStr;
+        string helpStr = item.helpFlag ? "([ff0000]中介[-])" : "";
+        label.text = item.typeStr + helpStr;
         label = content.FindChild("bourse").FindChild("value").GetComponent<UILabel>();
         string[] ss = item.bourse.Split(new char[] { ',' });
         label = content.FindChild("bourse").GetComponent<UILabel>();

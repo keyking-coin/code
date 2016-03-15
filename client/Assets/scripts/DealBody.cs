@@ -98,7 +98,7 @@ public class DealBody : Object
         {
             UILabel label = obj.transform.FindChild("value").GetComponent<UILabel>();
             bool isBuyer = obj.name.Equals("buyer-appraise");
-            UIButton button = obj.transform.FindChild("icon-no").FindChild("line").GetComponent<UIButton>();
+            UIButton button = obj.transform.FindChild("action").GetComponent<UIButton>();
             if (isCompleted)
             {
                 label.text = (isBuyer ? "买家" : "卖家") + "已评价";
@@ -133,7 +133,7 @@ public class DealBody : Object
             }
             else
             {
-                obj.transform.FindChild("icon-no").FindChild("line").gameObject.SetActive(false);
+                button.gameObject.SetActive(false);
             }
         }
 
@@ -516,14 +516,17 @@ public class DealBody : Object
         Transform content_trans = obj_item.transform.FindChild("content");
         label = content_trans.FindChild("id").FindChild("value").GetComponent<UILabel>();
         label.text = id + "";
+        label = content_trans.FindChild("tip").FindChild("value").GetComponent<UILabel>();
+        label.text = seller ? "出售" : "求购";
         label = content_trans.FindChild("type").FindChild("value").GetComponent<UILabel>();
-        label.text = typeStr + "";
+        label.text = typeStr;
+        label = content_trans.FindChild("help").FindChild("value").GetComponent<UILabel>();
+        label.text = helpFlag ? "中介模式" : "普通模式";
         if (typeStr.Equals("入库"))
         {
             label = content_trans.FindChild("bourse").GetComponent<UILabel>();
             label.text = "文 交 所";
             label.spacingX = 4;
-            
         }
         else
         {
@@ -535,7 +538,7 @@ public class DealBody : Object
         string[] ss = bourse.Split(","[0]);
         label.text = ss[1];
         label = content_trans.FindChild("title").FindChild("value").GetComponent<UILabel>();
-        label.text = stampName + "(" + (seller ? "出售" : "求购") + ")";
+        label.text = stampName;
         label = content_trans.FindChild("price").FindChild("value").GetComponent<UILabel>();
         label.text = price + "";
         label = content_trans.FindChild("monad").FindChild("value").GetComponent<UILabel>();
@@ -544,19 +547,22 @@ public class DealBody : Object
         label.text = curNum + "";
         label = content_trans.FindChild("valid").FindChild("value").GetComponent<UILabel>();
         label.text = validTime;
-        label = content_trans.FindChild("other").GetComponent<UILabel>();
-        label.text = context;
-        int len = MyUtilTools.computeRow(label);
-        label.height = len * (label.fontSize + label.spacingY);
-        float a = (len * label.fontSize + (len - 1) * label.spacingY) / 2;
-        label.transform.localPosition = new Vector3(0,-320-a,0);
-        UITexture bg = content_trans.FindChild("rect-bg").GetComponent<UITexture>();
-        bg.height = (int)(540 + a + label.fontSize);
-        bg.transform.localPosition = new Vector3(0,-(a + label.fontSize + 20)/2-60, 0);
-        float y = fix ? (700+a):720;
-        obj_item.transform.FindChild("event").localPosition = new Vector3(0,-y,0);
-        y = fix ? (810+a):750;
-        obj_item.transform.FindChild("reverts").localPosition = new Vector3(0,-y,0);
+        Transform event_tran = obj_item.transform.FindChild("event");
+        if (!context.Equals(""))
+        {
+            label = content_trans.FindChild("other").GetComponent<UILabel>();
+            label.text = context;
+            int len = MyUtilTools.computeRow(label);
+            UITexture bg = content_trans.FindChild("rect-bg").GetComponent<UITexture>();
+            bg.height = (int)(640 + len + label.fontSize);
+            bg.transform.localPosition = new Vector3(0, -100 - len * label.fontSize / 2, 0);
+            event_tran.localPosition = new Vector3(0, -750 - len * label.fontSize, 0);
+        }
+        else
+        {
+            content_trans.FindChild("other").gameObject.SetActive(false);
+        }
+        obj_item.transform.FindChild("reverts").localPosition = new Vector3(0, event_tran.localPosition.y - 120, 0);
     }
 
     public Order searchOrder(long orderId)

@@ -31,8 +31,8 @@ public class NetUtil{
     Thread receiveThread = null;
 
 #if UNITY_EDITOR
-    string URL = "127.0.0.1";
-    //string URL = "139.196.30.53";
+    //string URL = "127.0.0.1";
+    string URL = "139.196.30.53";
 #else
     string URL = "139.196.30.53";
 #endif

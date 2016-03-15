@@ -20,13 +20,13 @@ public class UserLook extends AbstractLogic{
 			boolean look = (deal.getUid() == uid && deal.checkBuyerId(mid)) || (deal.getUid() == mid && deal.checkBuyerId(uid));
 			resp.add(user.getFace());
 			resp.add(user.getNikeName());
-			resp.add(user.getSignature());
+			resp.add(look?user.getSignature():"保密");
 			resp.add(user.getTitle());
 			resp.add(user.getRegistTime());
 			resp.add(look?user.getAddresses():0);
 			resp.add(look?user.getName():"保密");
 			resp.add(look?user.getAccount():"保密");
-			resp.add(user.getBankAccount());
+			resp.add(look?user.getBankAccount():0);
 			resp.add(user.getCredit());
 			resp.setSucces();
 			ServerLog.info("look for user's info ---> account is " + user.getAccount());
