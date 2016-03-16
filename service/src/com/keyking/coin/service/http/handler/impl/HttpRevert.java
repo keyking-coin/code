@@ -18,6 +18,7 @@ public class HttpRevert extends HttpHandler {
 	public void handle(HttpRequestMessage request, HttpResponseMessage response) {
 		response.setContentType("text/plain");
 		String uid_str  = request.getParameter("uid");//我的编号
+		String pwd      = request.getParameter("pwd");//我的编号
 		String tid_str  = request.getParameter("tid");//回复目标
 		String deal_str = request.getParameter("did");//在那个帖子回复
 		String content  = request.getParameter("content");//回复的内容
@@ -33,6 +34,10 @@ public class HttpRevert extends HttpHandler {
 		String forbidStr = user.getForbid().getReason();
 		if (forbidStr != null){
 			error(request,response,"您已经被封号原因是:" + forbidStr);
+			return;
+		}
+		if (user.getPwd().equals(pwd)){
+			error(request,response,"非法请求格式");
 			return;
 		}
 		if (StringUtil.isNull(content)){

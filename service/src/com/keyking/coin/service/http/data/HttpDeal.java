@@ -15,6 +15,7 @@ public class HttpDeal implements Instances{
 	byte sellFlag;//出售帖还是求购帖
 	byte type;//类型0入库，1现货
 	byte helpFlag;//可以使用中介服务;0未开启，1开启。
+	byte favorite;
 	String bourse;//文交所名称
 	String name;//藏品名称
 	float price;//藏品单价
@@ -164,12 +165,25 @@ public class HttpDeal implements Instances{
 		this.issueIcon = issueIcon;
 	}
 
-	public void copy(Deal deal) {
+	public byte getFavorite() {
+		return favorite;
+	}
+
+	public void setFavorite(byte favorite) {
+		this.favorite = favorite;
+	}
+
+	public void copy(Deal deal,UserCharacter look) {
 		id         = deal.getId();
 		uid        = deal.getUid();
 		sellFlag   = deal.getSellFlag();
 		type       = deal.getType();
 		helpFlag   = deal.getHelpFlag();
+		if (look != null && look.getFavorites().contains(id)){
+			favorite = 1;
+		}else{
+			favorite = 0;
+		}
 		bourse     = deal.getBourse();
 		name       = deal.getName();
 		price      = deal.getPrice();

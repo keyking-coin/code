@@ -553,10 +553,11 @@ public class DealBody : Object
             label = content_trans.FindChild("other").GetComponent<UILabel>();
             label.text = context;
             int len = MyUtilTools.computeRow(label);
+            label.transform.localPosition = new Vector3(0,-420-len*label.fontSize/2 + 20,0);
             UITexture bg = content_trans.FindChild("rect-bg").GetComponent<UITexture>();
-            bg.height = (int)(640 + len + label.fontSize);
+            bg.height = (int)(640 + len * label.fontSize);
             bg.transform.localPosition = new Vector3(0, -100 - len * label.fontSize / 2, 0);
-            event_tran.localPosition = new Vector3(0, -750 - len * label.fontSize, 0);
+            event_tran.localPosition = new Vector3(0, -750 - len * label.fontSize + 20 , 0);
         }
         else
         {

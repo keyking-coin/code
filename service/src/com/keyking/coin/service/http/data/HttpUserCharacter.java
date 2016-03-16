@@ -153,4 +153,13 @@ public class HttpUserCharacter {
 	public void setBreach(byte breach) {
 		this.breach = breach;
 	}
+
+	public List<Long> getFavorites() {
+		return favorites;
+	}
+
+	public void setFavorites(List<Long> favorites) {
+		this.favorites = favorites;
+	}
+	
 }

@@ -8,6 +8,7 @@ import java.util.List;
 import org.joda.time.DateTime;
 
 import com.keyking.coin.service.domain.deal.Deal;
+import com.keyking.coin.service.domain.user.UserCharacter;
 import com.keyking.coin.service.http.data.HttpDeal;
 import com.keyking.coin.service.http.handler.HttpHandler;
 import com.keyking.coin.service.http.request.HttpRequestMessage;
@@ -21,6 +22,8 @@ public class HttpDealSearch extends HttpHandler {
 	@Override
 	public void handle(HttpRequestMessage request, HttpResponseMessage response) {
 		//null就是查询最近7天交易记录，默认点击交易区就传null，其他值都标示是条件查询
+		String uid_str  = request.getParameter("uid");
+		long uid = Long.parseLong(uid_str);
 		String search  = request.getParameter("search");
 		//null、入库、现货 ---> 全部类型的 、入库类型、现货类型
 		String type    = request.getParameter("type");
@@ -36,6 +39,7 @@ public class HttpDealSearch extends HttpHandler {
 		String valid   = request.getParameter("valid");
 		response.setResponseCode(HttpResponseMessage.HTTP_STATUS_SUCCESS);
 		List<Deal> deals = null;
+		UserCharacter user = CTRL.search(uid);
 		if (search != null && search.equals("null")){//普通查询7天内的所有的帖子
 			deals = CTRL.getWeekDeals();
 		}else{
@@ -102,17 +106,17 @@ public class HttpDealSearch extends HttpHandler {
 			List<HttpDeal> hDeals = new ArrayList<HttpDeal>();
 			for (Deal deal : issues){
 				HttpDeal hdeal = new HttpDeal();
-				hdeal.copy(deal);
+				hdeal.copy(deal,user);
 				hDeals.add(hdeal);
 			}
 			for (Deal deal : valides){
 				HttpDeal hdeal = new HttpDeal();
-				hdeal.copy(deal);
+				hdeal.copy(deal,user);
 				hDeals.add(hdeal);
 			}
 			for (Deal deal : normal){
 				HttpDeal hdeal = new HttpDeal();
-				hdeal.copy(deal);
+				hdeal.copy(deal,user);
 				hDeals.add(hdeal);
 			}
 			String str = formatJosn(request,JsonUtil.ObjectToJsonString(hDeals));
