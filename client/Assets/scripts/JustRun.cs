@@ -92,10 +92,13 @@ public class JustRun : MonoBehaviour {
         put(MODULE_CODE_SIMPLE_ORDER,MainData.instance.deserializeSimpleOrderModuleOne);
         put(MODULE_CODE_FRIEND,MainData.instance.deserializeFriendModuleOne);
         put(MODULE_CODE_MESSAGE,MainData.instance.deserializeMessageModuleOne);
-        put(MODULE_CODE_ORDER, MainData.instance.deserializeOrderModuleOne); 
-		pushEvent = GameObject.Find ("push").GetComponent<PushEvent>();
+        put(MODULE_CODE_ORDER, MainData.instance.deserializeOrderModuleOne);
+        GameObject push_obj = GameObject.Find("push") ;
+        if (push_obj != null)
+        {
+            pushEvent = push_obj.GetComponent<PushEvent>();
+        }
 	}
-
     public static JustRun Instance
     {
         get

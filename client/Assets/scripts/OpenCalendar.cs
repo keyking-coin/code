@@ -10,6 +10,7 @@ public class OpenCalendar : MonoBehaviour {
     UIInput minute;
     GameObject base_obj;
     public bool flag;
+    public bool justDate;
 
 	void Start () {
         panel = GameObject.Find("main").GetComponent<UIPanel>();
@@ -50,6 +51,7 @@ public class OpenCalendar : MonoBehaviour {
             str = time_label.text;
         }
         Calendar calender = Calendar.create(base_obj,str);
+        calender.transform.localScale = new Vector3(1.5f,1.5f,1.5f);
         CameraUtil.push(5,3);
         calender.CallBack = back;
     }
@@ -72,7 +74,15 @@ public class OpenCalendar : MonoBehaviour {
             else
             {
                 UILabel time_label = transform.parent.FindChild("value").GetComponent<UILabel>();
-                time_label.text = str;
+                if (justDate)
+                {
+                    string[] ss = str.Split(" "[0]);
+                    time_label.text = ss[0];
+                }
+                else
+                {
+                    time_label.text = str;
+                }
             }
         }
         panel.alpha = 1f;

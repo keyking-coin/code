@@ -77,10 +77,19 @@ public class Calendar : JustChangeLayer
             _year = int.Parse(ssy[0]);
             _month = int.Parse(ssy[1]);
             _day = int.Parse(ssy[2]);
-            string[] sst = ss[1].Split(":"[0]);
-            _hour   = int.Parse(sst[0]);
-            _minute = int.Parse(sst[1]);
-            _second = int.Parse(sst[2]);
+            if (ss.Length > 1)
+            {
+                string[] sst = ss[1].Split(":"[0]);
+                _hour = int.Parse(sst[0]);
+                _minute = int.Parse(sst[1]);
+                _second = int.Parse(sst[2]);
+            }
+            else
+            {
+                _hour   = 0;
+                _minute = 0;
+                _second = 0;
+            }
         }
     }
 

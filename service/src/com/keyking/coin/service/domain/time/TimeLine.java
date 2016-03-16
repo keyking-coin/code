@@ -10,7 +10,7 @@ import com.keyking.coin.util.StringUtil;
 
 public class TimeLine implements SerializeEntity{
 	long id;
-	byte type;
+	byte type;//1 申购;2托管预约;3托管入库;4重要提示
 	String title;//标题
 	String time;//发生时间
 	List<TimeContent> contents = new ArrayList<TimeContent>();
