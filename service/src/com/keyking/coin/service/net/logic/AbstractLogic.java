@@ -6,7 +6,7 @@ import com.keyking.coin.service.net.Logic;
 
 public abstract class AbstractLogic implements Logic {
 	
-	IoSession session;
+	protected IoSession session;
 	
 	@Override
 	public void setSession(IoSession session) {

@@ -188,7 +188,7 @@ public class HttpDeal implements Instances{
 		name       = deal.getName();
 		price      = deal.getPrice();
 		monad      = deal.getMonad();
-		num        = deal.getNum();
+		num        = deal.getNum() - deal.orderNum();
 		validTime  = deal.getValidTime();
 		createTime = deal.getCreateTime();
 		other      = deal.getOther();

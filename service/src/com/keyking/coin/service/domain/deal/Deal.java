@@ -521,7 +521,7 @@ public class Deal extends EntitySaver implements Comparable<Deal>{
 		return false;
 	}
 	
-	private int orderNum(){
+	public int orderNum(){
 		int num = 0;
 		for (DealOrder order : orders){
 			if (order.checkRevoke(DealOrder.ORDER_REVOKE_ALL)){

@@ -27,21 +27,21 @@ public class HttpRevert extends HttpHandler {
 		long dealId     = Long.parseLong(deal_str);
 		Deal deal = CTRL.tryToSearch(dealId);
 		if (deal == null){
-			error(request,response,"此帖已撤销");
+			message(request,response,"此帖已撤销");
 			return;
 		}
 		UserCharacter user = CTRL.search(uid);
 		String forbidStr = user.getForbid().getReason();
 		if (forbidStr != null){
-			error(request,response,"您已经被封号原因是:" + forbidStr);
+			message(request,response,"您已经被封号原因是:" + forbidStr);
 			return;
 		}
-		if (user.getPwd().equals(pwd)){
-			error(request,response,"非法请求格式");
+		if (!user.getPwd().equals(pwd)){
+			message(request,response,"非法的请求");
 			return;
 		}
 		if (StringUtil.isNull(content)){
-			error(request,response,"不能回复空的内容");
+			message(request,response,"不能回复空的内容");
 			return;
 		}
 		synchronized (deal) {
@@ -58,7 +58,7 @@ public class HttpRevert extends HttpHandler {
 		}
 		NET.sendMessageToAllClent(deal.clientMessage(Module.UPDATE_FLAG),null);
 		response.setResponseCode(HttpResponseMessage.HTTP_STATUS_SUCCESS);
-		String str = formatJosn(request,JsonUtil.ObjectToJsonString(deal));
+		String str = formatJosn(request,"{\"reverts\":" + JsonUtil.ObjectToJsonString(deal.getReverts()) + "}");
 		response.appendBody(str);
 	}
 }

@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.List;
 
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.PreparedStatementCreator;
@@ -142,6 +143,43 @@ public class UserDAO extends JdbcDaoSupport {
 			
 		}
 		return count > 0;
+	}
+
+	public void searchFuzzy(String key, List<UserCharacter> users) {
+		StringBuffer sb = new StringBuffer();
+		sb.append("select * from users where ");
+		if (users.size() > 0){
+			sb.append("id not in(");
+			for (UserCharacter user : users){
+				sb.append(user.getId() + ",");
+			}
+			sb.deleteCharAt(sb.length()-1);
+			sb.append(") and ");
+		}
+		sb.append("(account like \'%" + key + "\'");
+		sb.append(" or account like \'%" + key + "%\'");
+		sb.append(" or account like \'" + key + "%\'");
+		sb.append(" or name like \'%" + key + "\'");
+		sb.append(" or name like \'%" + key + "%\'");
+		sb.append(" or name like \'" + key + "%\'");
+		sb.append(" or nikeName like \'%" + key + "\'");
+		sb.append(" or nikeName like \'%" + key + "%\'");
+		sb.append(" or nikeName like \'" + key + "%\')");
+		List<UserCharacter> temps = getJdbcTemplate().query(sb.toString(),userRow);
+		if (temps != null){
+			for (UserCharacter t : temps){
+				boolean flag = true;
+				for (UserCharacter user : users){
+					if (user.getId() == t.getId()){
+						flag = false;
+						break;
+					}
+				}
+				if (flag){
+					users.add(t);
+				}
+			}
+		}
 	}
 }
  

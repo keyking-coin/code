@@ -424,8 +424,17 @@ public class Controler implements Instances{
 		}
 	}
 	
-	public static void main(String[] args) {
-		
+	public List<UserCharacter> searchFuzzyUser(String key) {
+		List<UserCharacter> result = new ArrayList<UserCharacter>();
+		for (UserCharacter user : characters.values()){
+			if (user.getAccount().contains(key) ||
+			    user.getNikeName().contains(key) ||
+			    user.getName().contains(key)){
+				result.add(user);
+			}
+		}
+		DB.getUserDao().searchFuzzy(key,result);
+		return result;
 	}
 }
  

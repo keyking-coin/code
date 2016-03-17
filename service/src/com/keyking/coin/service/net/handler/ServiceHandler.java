@@ -16,7 +16,9 @@ import com.keyking.coin.util.ServerLog;
 
 public class ServiceHandler extends IoHandlerAdapter implements Instances {
 	
-	private static final String LOGIC_PACKAGE_NAME = "com.keyking.coin.service.net.logic.";
+	private static final String LOGIC_PACKAGE_NAME_USER = "com.keyking.coin.service.net.logic.user.";
+	
+	private static final String LOGIC_PACKAGE_NAME_ADMIN = "com.keyking.coin.service.net.logic.admin.";
 	
 	private static ServiceHandler instance = new ServiceHandler();
 	
@@ -33,7 +35,11 @@ public class ServiceHandler extends IoHandlerAdapter implements Instances {
 			String logicName = data.getUTF();
 			Class<?> clazz = null;
 			try {
-				clazz = Class.forName(LOGIC_PACKAGE_NAME + logicName);
+				if (logicName.contains("Admin")){
+					clazz = Class.forName(LOGIC_PACKAGE_NAME_ADMIN + logicName);
+				}else{
+					clazz = Class.forName(LOGIC_PACKAGE_NAME_USER + logicName);
+				}
 				Object obj = clazz.newInstance();
 				if (obj instanceof Logic){
 					Logic logic = (Logic)obj;
