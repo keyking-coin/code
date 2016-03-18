@@ -61,20 +61,24 @@ public class Issue extends AbstractLogic{
 			}
 			Seller seller = user.getSeller();
 			if (seller != null && seller.isPass()){
+				if (sendType == 1 && user.getRecharge().getCurMoney() < 10){//强制推送
+					resp.setError("您的邮游币不足请先去充值");
+					return resp;
+				}
 				deal.setNeedDeposit(total_value);
 				if (CTRL.tryToInsert(deal)){
+					long dealId = PK.key("deal");
+					deal.setId(dealId);
 					if (sendType == 1){//强制推送
-						if (user.getRecharge().getCurMoney() < 10){
-							resp.setError("您的邮游币不足请先去充值");
-							return resp;
-						}
+						user.getRecharge().changeMoney(-10);
 						deal.setLastIssue(TimeUtils.nowChStr());
 						NET.sendMessageToAllClent(deal.pushMessage(),user.getSessionAddress());
 					}
 					resp.setSucces();
+					NET.sendMessageToAllClent(deal.clientMessage(Module.ADD_FLAG),null);
 					ServerLog.info(user.getAccount() + " deployed deal-sell ok ----> id is " + deal.getId());
 				}
-				NET.sendMessageToAllClent(deal.clientMessage(Module.ADD_FLAG),null);
+				
 			}else if (seller != null && !seller.isPass()){
 				resp.setError("请等待卖家认证通过");
 			}else{

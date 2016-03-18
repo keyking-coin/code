@@ -4,7 +4,7 @@ import com.keyking.coin.service.domain.deal.Revert;
 import com.keyking.coin.service.domain.user.UserCharacter;
 import com.keyking.coin.util.Instances;
 
-public class HttpRevert implements Instances{
+public class HttpRevertData implements Instances{
 	long id;
 	long dealId;
 	long uid;

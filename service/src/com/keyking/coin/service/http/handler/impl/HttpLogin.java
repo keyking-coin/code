@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.keyking.coin.service.domain.user.UserCharacter;
-import com.keyking.coin.service.http.data.HttpUserCharacter;
+import com.keyking.coin.service.http.data.HttpUserCharacterData;
 import com.keyking.coin.service.http.handler.HttpHandler;
 import com.keyking.coin.service.http.request.HttpRequestMessage;
 import com.keyking.coin.service.http.response.HttpResponseMessage;
@@ -22,7 +22,7 @@ public class HttpLogin extends HttpHandler {
         Map<String,Object> datas = new HashMap<String,Object>();
 		if (user != null){
 			if (pwd.equals(pwd)){
-				HttpUserCharacter http_user= new HttpUserCharacter(user);
+				HttpUserCharacterData http_user= new HttpUserCharacterData(user);
 				datas.put("result","OK");
 				datas.put("datas",http_user);
 			}else{

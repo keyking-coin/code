@@ -8,7 +8,7 @@ import com.keyking.coin.service.domain.deal.DealOrder;
 import com.keyking.coin.service.domain.user.UserCharacter;
 import com.keyking.coin.util.Instances;
 
-public class HttpOrder implements Instances{
+public class HttpOrderData implements Instances{
 	long id;
 	long dealId;
 	long buyId;

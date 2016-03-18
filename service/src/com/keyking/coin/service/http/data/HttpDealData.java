@@ -9,7 +9,7 @@ import com.keyking.coin.service.domain.deal.Revert;
 import com.keyking.coin.service.domain.user.UserCharacter;
 import com.keyking.coin.util.Instances;
 
-public class HttpDeal implements Instances{
+public class HttpDealData implements Instances{
 	long id;//编号
 	long uid;//用户编号
 	byte sellFlag;//出售帖还是求购帖
@@ -24,8 +24,8 @@ public class HttpDeal implements Instances{
 	String validTime = "永久";//有效时间
 	String createTime;//创建时间
 	String other;//其他描述
-	List<HttpRevert> reverts    = new ArrayList<HttpRevert>();//回复内容列表
-	List<HttpOrder> orders  = new ArrayList<HttpOrder>();//订单
+	List<HttpRevertData> reverts    = new ArrayList<HttpRevertData>();//回复内容列表
+	List<HttpOrderData> orders  = new ArrayList<HttpOrderData>();//订单
 	String issueName;
 	String issueIcon;
 	
@@ -133,19 +133,19 @@ public class HttpDeal implements Instances{
 		this.other = other;
 	}
 	
-	public List<HttpRevert> getReverts() {
+	public List<HttpRevertData> getReverts() {
 		return reverts;
 	}
 
-	public void setReverts(List<HttpRevert> reverts) {
+	public void setReverts(List<HttpRevertData> reverts) {
 		this.reverts = reverts;
 	}
 
-	public List<HttpOrder> getOrders() {
+	public List<HttpOrderData> getOrders() {
 		return orders;
 	}
 
-	public void setOrders(List<HttpOrder> orders) {
+	public void setOrders(List<HttpOrderData> orders) {
 		this.orders = orders;
 	}
 
@@ -196,12 +196,12 @@ public class HttpDeal implements Instances{
 		issueName  = user.getNikeName();
 		issueIcon  = user.getFace();
 		for (Revert revert : deal.getReverts()){
-			HttpRevert hr = new HttpRevert();
+			HttpRevertData hr = new HttpRevertData();
 			hr.copy(revert);
 			reverts.add(hr);
 		}
 		for (DealOrder order : deal.getOrders()){
-			HttpOrder ho = new HttpOrder();
+			HttpOrderData ho = new HttpOrderData();
 			ho.copy(order);
 			orders.add(ho);
 		}

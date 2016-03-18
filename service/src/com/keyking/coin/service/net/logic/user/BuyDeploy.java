@@ -50,17 +50,19 @@ public class BuyDeploy extends AbstractLogic {
 		deal.setCreateTime(createTime);
 		deal.setOther(other);
 		deal.setHelpFlag(helpFlag);
-		long dealId = PK.key("deal");
-		deal.setId(dealId);
+		if (flag == 1 && user.getRecharge().getCurMoney() < 10){//强制推送
+			resp.setError("您的邮游币不足请先去充值");
+			return resp;
+		}
 		if (CTRL.tryToInsert(deal)){
+			long dealId = PK.key("deal");
+			deal.setId(dealId);
 			if (flag == 1){//强制推送
-				if (user.getRecharge().getCurMoney() < 10){
-					resp.setError("您的邮游币不足请先去充值");
-					return resp;
-				}
+				user.getRecharge().changeMoney(-10);
 				deal.setLastIssue(TimeUtils.nowChStr());
 				NET.sendMessageToAllClent(deal.pushMessage(),user.getSessionAddress());
 			}
+			resp.setSucces();
 			NET.sendMessageToAllClent(deal.clientMessage(Module.ADD_FLAG),null);
 			ServerLog.info(user.getAccount() + " deployed deal-buy ok ----> id is " + deal.getId());
 			resp.setSucces();

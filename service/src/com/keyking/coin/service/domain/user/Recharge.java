@@ -22,7 +22,14 @@ public class Recharge {
 	public void setCurMoney(float curMoney) {
 		this.curMoney = curMoney;
 	}
-
+	
+	public void changeMoney(float curMoney) {
+		this.curMoney += curMoney;
+		if (this.curMoney < 0){
+			this.curMoney = 0;
+		}
+	}
+	
 	public float getHistoryMoney() {
 		return historyMoney;
 	}

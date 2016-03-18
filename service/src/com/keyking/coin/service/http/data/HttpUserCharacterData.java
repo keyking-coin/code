@@ -7,7 +7,7 @@ import com.keyking.coin.service.domain.user.Account;
 import com.keyking.coin.service.domain.user.Credit;
 import com.keyking.coin.service.domain.user.UserCharacter;
 
-public class HttpUserCharacter {
+public class HttpUserCharacterData {
 	long id;
 	String account;
 	String face = "face1";
@@ -24,7 +24,7 @@ public class HttpUserCharacter {
 	List<Long> favorites = new ArrayList<Long>();//收藏夹
 	byte breach;//违约次数
 	
-	public HttpUserCharacter(UserCharacter user){
+	public HttpUserCharacterData(UserCharacter user){
 		id = user.getId();
 		account = user.getAccount();
 		face = user.getFace();

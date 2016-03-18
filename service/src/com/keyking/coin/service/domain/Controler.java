@@ -16,7 +16,7 @@ import com.keyking.coin.service.domain.deal.Revert;
 import com.keyking.coin.service.domain.deal.SimpleOrderModule;
 import com.keyking.coin.service.domain.user.RankEntity;
 import com.keyking.coin.service.domain.user.UserCharacter;
-import com.keyking.coin.service.http.data.HttpTouristDealOrder;
+import com.keyking.coin.service.http.data.HttpTouristDealOrderData;
 import com.keyking.coin.service.net.data.SearchCondition;
 import com.keyking.coin.service.net.resp.impl.GeneralResp;
 import com.keyking.coin.util.Instances;
@@ -294,11 +294,9 @@ public class Controler implements Instances{
 		return DB.getDealDao().search(id);
 	}
 
-	public boolean tryToInsert(Deal deal) {
-		synchronized (deal) {
-			deals.add(0,deal);
-			return true;
-		}
+	public synchronized boolean tryToInsert(Deal deal) {
+		deals.add(0,deal);
+		return true;
 	}
 
 	public boolean tryToDeleteDeal(Deal deal) {
@@ -382,13 +380,13 @@ public class Controler implements Instances{
 		return modules;
 	}
 	
-	public List<HttpTouristDealOrder> trySearchHttpRecentOrder(){
-		List<HttpTouristDealOrder> orders = new ArrayList<HttpTouristDealOrder>();
+	public List<HttpTouristDealOrderData> trySearchHttpRecentOrder(){
+		List<HttpTouristDealOrderData> orders = new ArrayList<HttpTouristDealOrderData>();
 		for (DealOrder order : recents){
 			if (order.getRevoke() == 0){
 				Deal deal = CTRL.tryToSearch(order.getDealId());
 				if (deal != null){
-					HttpTouristDealOrder ho = new HttpTouristDealOrder();
+					HttpTouristDealOrderData ho = new HttpTouristDealOrderData();
 					ho.setDealId(order.getDealId());
 					ho.setOrderId(order.getId());
 					String[] ss = deal.getBourse().split(",");

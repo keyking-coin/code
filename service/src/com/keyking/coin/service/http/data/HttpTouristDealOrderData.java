@@ -1,6 +1,6 @@
 package com.keyking.coin.service.http.data;
 
-public class HttpTouristDealOrder {
+public class HttpTouristDealOrderData {
 	long dealId;
 	long orderId;
 	String des;

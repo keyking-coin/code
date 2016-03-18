@@ -9,7 +9,7 @@ import org.joda.time.DateTime;
 
 import com.keyking.coin.service.domain.deal.Deal;
 import com.keyking.coin.service.domain.user.UserCharacter;
-import com.keyking.coin.service.http.data.HttpDeal;
+import com.keyking.coin.service.http.data.HttpDealData;
 import com.keyking.coin.service.http.handler.HttpHandler;
 import com.keyking.coin.service.http.request.HttpRequestMessage;
 import com.keyking.coin.service.http.response.HttpResponseMessage;
@@ -103,19 +103,19 @@ public class HttpDealSearch extends HttpHandler {
 			});
 			Collections.sort(normal);
 			deals.clear();
-			List<HttpDeal> hDeals = new ArrayList<HttpDeal>();
+			List<HttpDealData> hDeals = new ArrayList<HttpDealData>();
 			for (Deal deal : issues){
-				HttpDeal hdeal = new HttpDeal();
+				HttpDealData hdeal = new HttpDealData();
 				hdeal.copy(deal,user);
 				hDeals.add(hdeal);
 			}
 			for (Deal deal : valides){
-				HttpDeal hdeal = new HttpDeal();
+				HttpDealData hdeal = new HttpDealData();
 				hdeal.copy(deal,user);
 				hDeals.add(hdeal);
 			}
 			for (Deal deal : normal){
-				HttpDeal hdeal = new HttpDeal();
+				HttpDealData hdeal = new HttpDealData();
 				hdeal.copy(deal,user);
 				hDeals.add(hdeal);
 			}
