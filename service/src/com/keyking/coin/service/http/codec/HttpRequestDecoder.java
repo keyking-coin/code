@@ -3,6 +3,7 @@ package com.keyking.coin.service.http.codec;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.StringReader;
+import java.net.URLDecoder;
 import java.nio.charset.CharacterCodingException;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
@@ -191,7 +192,8 @@ public class HttpRequestDecoder extends MessageDecoderAdapter {
 							params = null;
 							params = tmp;
 						}
-						params[params.length - 1] = tokens[1].trim();
+						String str = URLDecoder.decode(tokens[1].trim(),"UTF-8");
+						params[params.length - 1] = str;
 						map.put(name, params);
 					}
 				}

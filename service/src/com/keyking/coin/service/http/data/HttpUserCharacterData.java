@@ -13,6 +13,7 @@ public class HttpUserCharacterData {
 	String face = "face1";
 	String nikeName="";//昵称
 	String title = "普通营销员";//称号
+	String registTime;
 	List<String> addresses = new ArrayList<String>();//地址
 	String name ="";//姓名
 	int age = 18;//年龄
@@ -30,6 +31,7 @@ public class HttpUserCharacterData {
 		face = user.getFace();
 		nikeName = user.getNikeName();
 		title = user.getTitle();
+		registTime = user.getRegistTime();
 		addresses.addAll(user.getAddresses());
 		name = user.getName();
 		age = user.getAge();
@@ -161,5 +163,12 @@ public class HttpUserCharacterData {
 	public void setFavorites(List<Long> favorites) {
 		this.favorites = favorites;
 	}
-	
+
+	public String getRegistTime() {
+		return registTime;
+	}
+
+	public void setRegistTime(String registTime) {
+		this.registTime = registTime;
+	}
 }

@@ -11,7 +11,7 @@ public class DealAppraise implements SerializeEntity{
 	
 	boolean isCompleted = false;//是否完成评价
 	
-	byte start;//星级评价 3好评;2中评;1差评
+	byte star;//星级评价 3好评;2中评;1差评
 	
 	String detail = "null";//详细描述
 	
@@ -25,12 +25,12 @@ public class DealAppraise implements SerializeEntity{
 		this.isCompleted = isCompleted;
 	}
 
-	public byte getStart() {
-		return start;
+	public byte getStar() {
+		return star;
 	}
 
-	public void setStart(byte start) {
-		this.start = start;
+	public void setStar(byte star) {
+		this.star = star;
 	}
 
 	public String getDetail() {
@@ -41,15 +41,23 @@ public class DealAppraise implements SerializeEntity{
 		this.detail = detail;
 	}
 	
+	public String getTime() {
+		return time;
+	}
+
+	public void setTime(String time) {
+		this.time = time;
+	}
+
 	public String serialize(){
-		return (isCompleted ? "1" : "0") + "," + start + "," + detail + "," + time;
+		return (isCompleted ? "1" : "0") + "," + star + "," + detail + "," + time;
 	}
 	
 	public void deserialize(String str) {
 		if (!StringUtil.isNull(str)){
 			String[] ss = str.split(",");
 			isCompleted = ss[0].equals("1");
-			start       = Byte.parseByte(ss[1]);
+			star       = Byte.parseByte(ss[1]);
 			detail      = ss[2];
 			time        = ss[3];
 		}
@@ -57,14 +65,14 @@ public class DealAppraise implements SerializeEntity{
 	
 	public void serialize(DataBuffer buffer) {
 		buffer.put(isCompleted ? (byte)1 : 0);
-		buffer.put(start);
+		buffer.put(star);
 		buffer.putUTF(detail);
 		buffer.putUTF(time);
 	}
 	
 	public void appraise(byte star , String detail){
 		isCompleted = true;
-		this.start = star ;
+		this.star = star ;
 		this.detail = detail;
 		time = TimeUtils.nowChStr();
 	}

@@ -128,8 +128,8 @@ public class DealEvent : CenterEvent{
                 }
                 GameObject buy_obj = transform.FindChild("buyer-appraise").gameObject;
                 GameObject sell_obj = transform.FindChild("seller-appraise").gameObject;
-                order.buyerAppraise.insterToObj(buy_obj);
-                order.sellerAppraise.insterToObj(sell_obj);
+                order.buyerAppraise.insterToObj(buy_obj,gameObject,transform.parent.parent.parent.gameObject);
+                order.sellerAppraise.insterToObj(sell_obj,gameObject,transform.parent.parent.parent.gameObject);
                 order.refresh = false;
             }
         }

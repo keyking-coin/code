@@ -3,7 +3,35 @@ using System.Collections.Generic;
 using LitJson;
 
 public class MainData{
-
+    public class Forbid
+    {
+        public string reason;
+        public string endTime;//forever永久封号，null正常状态,"2016-05-03 00:00:00"表示封号截止时间。
+        public void deserialize(ByteBuffer buffer)
+        {
+            reason = buffer.ReadString();
+            endTime = buffer.ReadString();
+        }
+    }
+    public class Credit{
+        public float curValue;//已使用额度
+        public float maxValue = 100000;//最大信用额度,每个人一开始就10万额度
+        public float tempMaxValue = 100000;//临时信用额度
+        public float totalDealValue;//总的成交金额
+        public int hp;//好评次数
+        public int zp;//中评次数
+        public int cp;//差评次数
+        public void deserialize(ByteBuffer buffer)
+        {
+            curValue = float.Parse(buffer.ReadString());
+            maxValue = float.Parse(buffer.ReadString());
+            tempMaxValue = float.Parse(buffer.ReadString());
+            totalDealValue = float.Parse(buffer.ReadString());
+            hp = buffer.ReadInt();
+            zp = buffer.ReadInt();
+            cp = buffer.ReadInt();
+        }
+    }
     public class SimpleOrderModule : Object
     {
         public long dealId;
@@ -133,7 +161,7 @@ public class MainData{
         public long id;
         public byte status;
         public long senderId;
-        public AdminData user;
+        public UserData user;
         public string time;// 发送时间
         public string theme = "";// 主题
         public string content = "";// 内容
@@ -141,7 +169,7 @@ public class MainData{
         public string senderIcon = "";//发生者头像
         public byte isNew;
 
-        public EmailBody(AdminData user)
+        public EmailBody(UserData user)
         {
             this.user = user;
         }
@@ -252,8 +280,14 @@ public class MainData{
 
     }
 
-    public class UserData : AdminData
+    public class UserData
     {
+        public long id = 0;
+        public string account = "uu_admin_001";
+        public string face = "face1";
+        public string nikeName = "小游";
+        public string endTime;
+        public int permission;
         public string realyName = "王五";
         public string title = "普通会员";
         public string registTime = "2015-06-25";
@@ -269,6 +303,11 @@ public class MainData{
         public List<SimpleOrderModule> recentOrders = new List<SimpleOrderModule>();
         public bool simpleOrderModuleNeedRefresh = false;
         public List<long> favorites = new List<long>();//收藏的帖子
+        public Credit credit = new Credit();
+        public byte breach;//违规次数
+        public Forbid forbid = new Forbid();
+        public string other;
+        public List<EmailBody> emails = new List<EmailBody>();
 
         public void deserialize(ByteBuffer buffer)
         {
@@ -337,6 +376,12 @@ public class MainData{
                     favorites.Add(value);
                 }
             }
+            endTime    = buffer.ReadString();
+            permission = buffer.ReadInt();
+            credit.deserialize(buffer);
+            breach = buffer.ReadByte();
+            forbid.deserialize(buffer);
+            other = buffer.ReadString();
         }
 
         public bool login()

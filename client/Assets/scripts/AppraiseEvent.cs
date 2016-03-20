@@ -40,6 +40,50 @@ public class AppraiseEvent : MonoBehaviour {
         }
     }
 
+    void backFromAppraise1(GameObject obj1, GameObject obj2)
+    {
+        obj1.SetActive(false);
+        obj2.SetActive(true);
+        CameraUtil.pop(3);
+    }
+
+    void openAppraise1(GameObject container, DealBody.Appraise appraise, GameObject src)
+    {
+        container.SetActive(true);
+        CameraUtil.push(3,2);
+        src.SetActive(false);
+        container.GetComponent<JustChangeLayer>().change(10);
+        container.transform.FindChild("title").GetComponent<UILabel>().text = src.name.Equals("buyer-appraise") ? "买家评价" : "卖家评价";
+        Transform show = container.transform.FindChild("show");
+        Transform level = show.FindChild("level");
+        UILabel star_value = level.FindChild("value").GetComponent<UILabel>();
+        if (appraise.star == 3)
+        {
+            star_value.text = "好评";
+            star_value.color = Color.red;
+        }
+        else if (appraise.star == 2)
+        {
+            star_value.text = "中评";
+            star_value.color = Color.green;
+        }
+        else
+        {
+            star_value.text = "差评";
+            star_value.color = Color.black;
+        }
+        UILabel content = show.FindChild("content").GetComponent<UILabel>();
+        content.text = appraise.detail;
+        UIButton button = show.FindChild("cancle").GetComponent<UIButton>();
+        EventDelegate backEvent = new EventDelegate(this, "backFromAppraise1");
+        backEvent.parameters[0] = new EventDelegate.Parameter();
+        backEvent.parameters[0].obj = container;
+        backEvent.parameters[1] = new EventDelegate.Parameter();
+        backEvent.parameters[1].obj = src;
+        button.onClick.Clear();
+        button.onClick.Add(backEvent);
+    }
+
     void backFromAppraise(GameObject container)
     {
         container.SetActive(false);

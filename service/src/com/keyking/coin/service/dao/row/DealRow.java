@@ -30,6 +30,7 @@ public class DealRow implements RowMapper<Deal> {
 		deal.setNeedDeposit(rs.getFloat("needDeposit"));
 		deal.setHelpFlag(rs.getByte("helpFlag"));
 		deal.setLastIssue(rs.getString("lastIssue"));
+		deal.setLock(rs.getByte("_lock") == 1);
 		return deal;
 	}
 

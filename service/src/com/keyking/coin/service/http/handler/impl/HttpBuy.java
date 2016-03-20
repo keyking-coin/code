@@ -7,6 +7,7 @@ import com.keyking.coin.service.http.request.HttpRequestMessage;
 import com.keyking.coin.service.http.response.HttpResponseMessage;
 import com.keyking.coin.service.net.resp.module.Module;
 import com.keyking.coin.util.ServerLog;
+import com.keyking.coin.util.StringUtil;
 import com.keyking.coin.util.TimeUtils;
 
 public class HttpBuy extends HttpHandler {
@@ -18,7 +19,8 @@ public class HttpBuy extends HttpHandler {
 		long uid   = Long.parseLong(request.getParameter("uid"));//我的编号
 		String pwd = request.getParameter("pwd");//验证码
 		String sendType = request.getParameter("st");//发布方式 1 推送发送;2普通发送
-		byte type = Byte.parseByte(request.getParameter("type"));//交割类型
+		String typeSTr = request.getParameter("type");
+		byte type = (byte)(typeSTr.equals("入库") ? 0 : 1);//交割类型
 		String bourse = request.getParameter("bourse");//文交所
 		String title = request.getParameter("title");//名称
 		float price = Float.parseFloat(request.getParameter("price"));
@@ -40,7 +42,7 @@ public class HttpBuy extends HttpHandler {
 		}
 		Deal deal = new Deal();
 		deal.setUid(uid);
-		deal.setSellFlag((byte)1);
+		deal.setSellFlag((byte)0);
 		deal.setType(type);
 		deal.setBourse(bourse);
 		deal.setName(title);
@@ -49,7 +51,9 @@ public class HttpBuy extends HttpHandler {
 		deal.setMonad(monad);
 		deal.setValidTime(validTime);
 		deal.setCreateTime(createTime);
-		deal.setOther(other);
+		if (!StringUtil.isNull(other)){
+			deal.setOther(other);
+		}
 		deal.setHelpFlag(helpFlag);
 		float total_value = num * price;
 		float maxCredit = Math.max(user.computeMaxCredit(),user.computeTempCredit());

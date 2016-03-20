@@ -23,7 +23,7 @@ public class JustRun : MonoBehaviour {
     public static byte MODULE_CODE_MESSAGE      = 9;//聊天
 	public static byte MODULE_CODE_ORDER        = 10;//成交订单
 
-    public static string PIC_PHP_URL = "http://www.sh-yxwlkj.com:321";
+    public static string PIC_PHP_URL = "http://www.521uu.cc:321";
 
 	// Use this for initialization
     public delegate void ModuleCallBack(ByteBuffer buffer);

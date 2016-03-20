@@ -1,6 +1,8 @@
 package com.keyking.coin.service.domain.user;
 
+import com.keyking.coin.service.net.buffer.DataBuffer;
 import com.keyking.coin.util.StringUtil;
+import com.keyking.coin.util.TimeUtils;
 
 public class Forbid {
 	
@@ -26,7 +28,7 @@ public class Forbid {
 
 	public void tick(){
 		if (endTime > 0){
-			long now = System.currentTimeMillis() / 1000;
+			long now = TimeUtils.nowLong() / 1000;
 			if (now > endTime){//解除封禁
 				endTime = 0;
 				reason  = null;
@@ -48,6 +50,18 @@ public class Forbid {
 			reason = null;
 		}else{
 			reason  = ss[1];
+		}
+	}
+	
+	public void serialize(DataBuffer buffer) {
+		buffer.putUTF(reason==null?"":reason);
+		if (endTime == -1){
+			buffer.putUTF("forever");
+		}else if (endTime == 0){
+			buffer.putUTF("null");
+		}else{
+			String str = TimeUtils.chDate(endTime);
+			buffer.putUTF(str);
 		}
 	}
 }

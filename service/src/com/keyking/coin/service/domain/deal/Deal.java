@@ -44,9 +44,11 @@ public class Deal extends EntitySaver implements Comparable<Deal>{
 	
 	String createTime;//创建时间
 	
-	String other;//其他描述
+	String other = "";//其他描述
 
 	boolean revoke;//是否撤销了
+	
+	boolean lock;//被管理员锁定
 	
 	List<Revert> reverts    = new ArrayList<Revert>();//回复内容列表
 	
@@ -202,6 +204,14 @@ public class Deal extends EntitySaver implements Comparable<Deal>{
 		return orders;
 	}
 
+	public boolean isLock() {
+		return lock;
+	}
+
+	public void setLock(boolean lock) {
+		this.lock = lock;
+	}
+
 	public void delRevert(Revert revert){
 		if (reverts.contains(revert)){
 			reverts.remove(revert);
@@ -253,6 +263,8 @@ public class Deal extends EntitySaver implements Comparable<Deal>{
 		buffer.putUTF(String.valueOf(price));
 		buffer.putUTF(other == null ? "" : other);
 		buffer.put(helpFlag);
+		buffer.put((byte)(revoke?1:0));
+		buffer.put((byte)(lock?1:0));
 		buffer.putInt(reverts.size());
 		for (Revert revert : reverts){
 			revert.serialize(buffer);

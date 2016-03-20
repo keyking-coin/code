@@ -16,6 +16,7 @@ public class HttpDealData implements Instances{
 	byte type;//类型0入库，1现货
 	byte helpFlag;//可以使用中介服务;0未开启，1开启。
 	byte favorite;
+	boolean revoke;
 	String bourse;//文交所名称
 	String name;//藏品名称
 	float price;//藏品单价
@@ -173,6 +174,14 @@ public class HttpDealData implements Instances{
 		this.favorite = favorite;
 	}
 
+	public boolean isRevoke() {
+		return revoke;
+	}
+
+	public void setRevoke(boolean revoke) {
+		this.revoke = revoke;
+	}
+
 	public void copy(Deal deal,UserCharacter look) {
 		id         = deal.getId();
 		uid        = deal.getUid();
@@ -192,6 +201,7 @@ public class HttpDealData implements Instances{
 		validTime  = deal.getValidTime();
 		createTime = deal.getCreateTime();
 		other      = deal.getOther();
+		revoke     = deal.isRevoke();
 		UserCharacter user = CTRL.search(uid);
 		issueName  = user.getNikeName();
 		issueIcon  = user.getFace();

@@ -1,29 +1,28 @@
 package com.keyking.coin.service.domain.user;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import com.keyking.coin.service.net.buffer.DataBuffer;
 import com.keyking.coin.util.JsonUtil;
 import com.keyking.coin.util.StringUtil;
 
 public class UserPermission {
-	List<PermissionType> permissions = new ArrayList<PermissionType>();
+	PermissionType permission = PermissionType.buyer;
 	String lastPayTime = "null";//上次支付时间
 	String endTime  = "2017-01-01 00:00:00";//会员到期日期
 	String safeCode = "uu_admin";//管理员的密码保护
 	
 	public UserPermission(){
-		permissions.add(PermissionType.look);
-		permissions.add(PermissionType.buyer);
+		
 	}
 	
-	public List<PermissionType> getPermissions() {
-		return permissions;
+	public PermissionType getPermission() {
+		return permission;
 	}
 
-	public void setPermissions(List<PermissionType> permissions) {
-		this.permissions = permissions;
+	public void setPermission(PermissionType permission) {
+		this.permission = permission;
 	}
+
+
 
 	public String getLastPayTime() {
 		return lastPayTime;
@@ -50,16 +49,11 @@ public class UserPermission {
 	}
 
 	public boolean isAdmin(){
-		for (PermissionType type : permissions){
-			if (type.ordinal() == PermissionType.admin.ordinal()){
-				return true;
-			}
-		}
-		return false;
+		return permission.ordinal() == PermissionType.admin.ordinal();
 	}
 	
 	public String serialize(){
-		String str = JsonUtil.ObjectToJsonString(permissions);
+		String str = JsonUtil.ObjectToJsonString(permission);
 		return lastPayTime + "|" + endTime + "|" + str;
 	}
 	
@@ -70,6 +64,11 @@ public class UserPermission {
 		String[] ss = str.split("\\|");
 		lastPayTime = ss[0];
 		endTime     = ss[1];
-		permissions = JsonUtil.JsonToObjectList(ss[2],PermissionType.class);
+		permission = JsonUtil.JsonToObject(ss[2],PermissionType.class);
+	}
+
+	public void serialize(DataBuffer buffer) {
+		buffer.putUTF(endTime==null?"":endTime);
+		buffer.putInt(permission.ordinal());
 	}
 }

@@ -33,7 +33,7 @@ public class LoadUtil : MonoBehaviour {
             tips = transform.FindChild("tips").GetComponent<UILabel>();
         }
         tips.text = showStr;
-        CameraUtil.push(0,0);
+        CameraUtil.push(0,3);
         Transform trans_base = transform.parent.parent;
         for (int i = 0; i < trans_base.childCount; i++)
         {

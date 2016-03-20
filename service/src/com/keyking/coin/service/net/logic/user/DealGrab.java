@@ -28,6 +28,10 @@ public class DealGrab extends AbstractLogic {
 			resp.setError("此贴已过期");
 			return resp;
 		}
+		if (deal.isLock()){
+			resp.setError("此贴已被管理员锁定");
+			return resp;
+		}
 		UserCharacter user = CTRL.search(uid);
 		String forbidStr = user.getForbid().getReason();
 		if (forbidStr != null){

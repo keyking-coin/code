@@ -398,7 +398,8 @@ public class Controler implements Instances{
 					sb.append("<span style='color: #6699CC'>");
 					sb.append(deal.getName());
 					sb.append("</span>");
-					sb.append(order.over() ? "已经成交" : "正在交易");
+					sb.append(order.getPrice() + "元");
+					sb.append("成交");
 					sb.append("<span style='color: #009933'>");
 					sb.append(order.getNum());
 					sb.append("</span>");

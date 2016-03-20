@@ -12,12 +12,12 @@ public class UserUpdate extends AbstractLogic {
 	@Override
 	public Object doLogic(DataBuffer buffer, String logicName) throws Exception {
 		GeneralResp resp = new GeneralResp(logicName);
-		long uid = buffer.getLong();
-		String face = buffer.getUTF();
+		long uid         = buffer.getLong();
+		String face      = buffer.getUTF();
 		String signature = buffer.getUTF();
-		byte flag = buffer.get();
-		String name     = buffer.getUTF();
-		String identity = buffer.getUTF();
+		byte flag        = buffer.get();
+		String name      = buffer.getUTF();
+		String identity  = buffer.getUTF();
 		UserCharacter user = CTRL.search(uid);
 		if (user != null){
 			user.setFace(face);

@@ -15,6 +15,7 @@ public class AdminLogin : MonoBehaviour {
         {
             transform.parent.gameObject.SetActive(false);
             transform.parent.parent.FindChild("admin-main").gameObject.SetActive(true);
+            MainData.instance.user.deserialize(buffer);
         }
 	}
 

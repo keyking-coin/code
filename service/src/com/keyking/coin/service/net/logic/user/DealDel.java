@@ -28,6 +28,7 @@ public class DealDel extends AbstractLogic {
 				resp.setError(tips);
 			}else if (deal.getUid() == uid && CTRL.tryToDeleteDeal(deal)){
 				resp.setSucces();
+				resp.add(deal.getId());
 				NET.sendMessageToAllClent(deal.clientMessage(Module.DEL_FLAG),null);
 				ServerLog.info(user.getAccount() + " revoke deal ----> id is " + id);
 			}else{

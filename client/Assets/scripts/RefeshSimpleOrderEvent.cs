@@ -47,7 +47,7 @@ public class RefeshSimpleOrderEvent : MonoBehaviour {
             UILabel time = summary.transform.FindChild("timeLable").GetComponent<UILabel>();
             time.text = module.time;
             UIButton button = summary.transform.FindChild("open").GetComponent<UIButton>();
-            EventDelegate eventDelegate = new EventDelegate(this, "tryToLoadDeal");
+            EventDelegate eventDelegate = new EventDelegate(this,"tryToLoadDeal");
             eventDelegate.parameters[0] = new EventDelegate.Parameter();
             eventDelegate.parameters[0].obj = module;
             button.onClick.Add(eventDelegate);

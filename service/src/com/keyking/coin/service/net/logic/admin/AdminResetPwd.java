@@ -25,6 +25,7 @@ public class AdminResetPwd extends AbstractLogic {
 				resp.setError("输入的密码保护码错误");
 				return resp;
 			}
+			resp.setSucces();
 			admin.setPwd(pwd);
 		}else{
 			resp.setError("未找到管理员账号是<" + account + ">");

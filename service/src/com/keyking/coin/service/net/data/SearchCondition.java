@@ -5,8 +5,8 @@ import com.keyking.coin.util.Instances;
 import com.keyking.coin.util.TimeUtils;
 
 public class SearchCondition implements Instances{
-	String type  = "null";
-	String flag  = "null";
+	String type   = "null";
+	String flag   = "null";
 	String bourse = "null";
 	String title  = "null";
 	String seller = "null";

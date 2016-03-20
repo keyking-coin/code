@@ -1,10 +1,9 @@
 ﻿using UnityEngine;
-using System.Collections;
 using System.Collections.Generic;
 
 public class SelectLinkInput : MonoBehaviour {
 
-    static string[][] names = new string[][]{
+    string[][] names = new string[][]{
       new string[]{"工商银行","农业银行","民生银行","平安银行"},
       new string[]{"工商银行","建设银行","农业银行","招商银行","交通银行","华夏银行","平安银行"},
       new string[]{"工商银行","建设银行","农业银行","中国银行","招商银行","交通银行","平安银行","浦发银行"},

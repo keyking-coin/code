@@ -40,6 +40,7 @@ public class UserRow implements RowMapper<UserCharacter>{
 		user.deserializeFavorites(str);
 		str = rs.getString("use_permission");
 		user.getPermission().deserialize(str);
+		user.setOther(rs.getString("other"));
 		return user;
 	}
 }

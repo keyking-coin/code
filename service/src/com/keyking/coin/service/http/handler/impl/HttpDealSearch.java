@@ -15,6 +15,7 @@ import com.keyking.coin.service.http.request.HttpRequestMessage;
 import com.keyking.coin.service.http.response.HttpResponseMessage;
 import com.keyking.coin.service.net.data.SearchCondition;
 import com.keyking.coin.util.JsonUtil;
+import com.keyking.coin.util.StringUtil;
 import com.keyking.coin.util.TimeUtils;
 
 public class HttpDealSearch extends HttpHandler {
@@ -44,22 +45,22 @@ public class HttpDealSearch extends HttpHandler {
 			deals = CTRL.getWeekDeals();
 		}else{
 			SearchCondition condition = new SearchCondition();
-			if (type != null){
+			if (!StringUtil.isNull(type)){
 				condition.setType(type);
 			}
-			if (title != null){
+			if (!StringUtil.isNull(title)){
 				condition.setTitle(title);
-			}//
-			if (bourse != null){
+			}
+			if (!StringUtil.isNull(bourse)){
 				condition.setBourse(bourse);
 			}
-			if (seller != null){
+			if (!StringUtil.isNull(seller)){
 				condition.setSeller(seller);
 			}
-			if (buyer != null){
+			if (!StringUtil.isNull(buyer)){
 				condition.setBuyer(buyer);
 			}
-			if (valid != null){
+			if (!StringUtil.isNull(valid)){
 				condition.setValid(valid);
 			}
 			deals = CTRL.getSearchDeals(condition);

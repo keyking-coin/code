@@ -94,7 +94,7 @@ public class DealBody : Object
             return ((!order.helpflag && order.state >= 3) || (order.helpflag && order.state >= 5));
         }
 
-        public void insterToObj(GameObject obj )
+        public void insterToObj(GameObject obj, GameObject obj1,GameObject obj2,bool admin = false)
         {
             UILabel label = obj.transform.FindChild("value").GetComponent<UILabel>();
             bool isBuyer = obj.name.Equals("buyer-appraise");
@@ -104,8 +104,10 @@ public class DealBody : Object
                 label.text = (isBuyer ? "买家" : "卖家") + "已评价";
                 obj.transform.FindChild("icon-ok").gameObject.SetActive(true);
                 obj.transform.FindChild("icon-no").gameObject.SetActive(false);
+                obj.transform.FindChild("time").gameObject.SetActive(true);
                 label = obj.transform.FindChild("time").GetComponent<UILabel>();
                 label.text = time;
+                button.enabled = true;
             }
             else
             {
@@ -120,14 +122,23 @@ public class DealBody : Object
             }
             if (button.enabled)
             {
-                AppraiseEvent aEvent = obj.transform.parent.GetComponent<AppraiseEvent>();
-                EventDelegate ed = new EventDelegate(aEvent, "openAppraise");
+                button.gameObject.SetActive(true);
+                AppraiseEvent aEvent = obj1.GetComponent<AppraiseEvent>();
+                EventDelegate ed = null;
+                if (admin)
+                {
+                    ed = new EventDelegate(aEvent, "openAppraise1");
+                }
+                else
+                {
+                    ed = new EventDelegate(aEvent, "openAppraise");
+                }
                 ed.parameters[0] = new EventDelegate.Parameter();
-                ed.parameters[0].obj = label.transform.parent.parent.parent.parent.parent.FindChild("appraise").gameObject;
+                ed.parameters[0].obj = obj2.transform.FindChild("appraise").gameObject;
                 ed.parameters[1] = new EventDelegate.Parameter();
                 ed.parameters[1].obj = this;
                 ed.parameters[2] = new EventDelegate.Parameter();
-                ed.parameters[2].obj = obj;
+                ed.parameters[2].obj = admin ? obj.transform.parent.parent.gameObject : obj;
                 button.onClick.Clear();
                 button.onClick.Add(ed);
             }
@@ -194,7 +205,7 @@ public class DealBody : Object
             return result != 0;
         }
 
-        public void insterToObj(GameObject obj)
+        public void insterToObj(GameObject obj,bool admin = false)
         {
             UILabel label = obj.transform.FindChild("title").GetComponent<UILabel>();
             string[] ss = item.bourse.Split(","[0]);
@@ -213,6 +224,7 @@ public class DealBody : Object
                 {
                     label.transform.parent.FindChild("icon-ok").gameObject.SetActive(true);
                     label.transform.parent.FindChild("icon-no").gameObject.SetActive(false);
+                    label.transform.parent.FindChild("time").gameObject.SetActive(true);
                     label = label.transform.parent.FindChild("time").GetComponent<UILabel>();
                     label.text = times[1];
                 }
@@ -221,15 +233,18 @@ public class DealBody : Object
                     label.transform.parent.FindChild("time").gameObject.SetActive(false);
                     label.transform.parent.FindChild("icon-ok").gameObject.SetActive(false);
                     label.transform.parent.FindChild("icon-no").gameObject.SetActive(true);
-                    if ((item.seller && MainData.instance.user.id == buyId) ||
-                        (!item.seller && MainData.instance.user.id == item.uid) && state >= 0)
-                    {//我是买家
-                        label.transform.parent.FindChild("icon-no").FindChild("line").gameObject.SetActive(true);
-                    }
-                    else
+                    if (!admin)
                     {
-                        label.transform.parent.FindChild("value").localPosition = Vector3.zero;
-                        label.transform.parent.FindChild("icon-no").FindChild("line").gameObject.SetActive(false);
+                        if ((item.seller && MainData.instance.user.id == buyId) ||
+                                                (!item.seller && MainData.instance.user.id == item.uid) && state >= 0)
+                        {//我是买家
+                            label.transform.parent.FindChild("icon-no").FindChild("line").gameObject.SetActive(true);
+                        }
+                        else
+                        {
+                            label.transform.parent.FindChild("value").localPosition = Vector3.zero;
+                            label.transform.parent.FindChild("icon-no").FindChild("line").gameObject.SetActive(false);
+                        }
                     }
                 }
                 label = obj.transform.FindChild("fh").FindChild("value").GetComponent<UILabel>();
@@ -238,6 +253,7 @@ public class DealBody : Object
                 {
                     label.transform.parent.FindChild("icon-ok").gameObject.SetActive(true);
                     label.transform.parent.FindChild("icon-no").gameObject.SetActive(false);
+                    label.transform.parent.FindChild("time").gameObject.SetActive(true);
                     label = label.transform.parent.FindChild("time").GetComponent<UILabel>();
                     label.text = times[2];
                 }
@@ -246,15 +262,18 @@ public class DealBody : Object
                     label.transform.parent.FindChild("time").gameObject.SetActive(false);
                     label.transform.parent.FindChild("icon-ok").gameObject.SetActive(false);
                     label.transform.parent.FindChild("icon-no").gameObject.SetActive(true);
-                    if (((!item.seller && MainData.instance.user.id == buyId) ||
-                        (item.seller && MainData.instance.user.id == item.uid)) && state >= 1)
-                    {//我是卖家
-                        label.transform.parent.FindChild("icon-no").FindChild("line").gameObject.SetActive(true);
-                    }
-                    else
+                    if (!admin)
                     {
-                        label.transform.parent.FindChild("value").localPosition = Vector3.zero;
-                        label.transform.parent.FindChild("icon-no").FindChild("line").gameObject.SetActive(false);
+                        if (((!item.seller && MainData.instance.user.id == buyId) ||
+                        (item.seller && MainData.instance.user.id == item.uid)) && state >= 1)
+                        {//我是卖家
+                            label.transform.parent.FindChild("icon-no").FindChild("line").gameObject.SetActive(true);
+                        }
+                        else
+                        {
+                            label.transform.parent.FindChild("value").localPosition = Vector3.zero;
+                            label.transform.parent.FindChild("icon-no").FindChild("line").gameObject.SetActive(false);
+                        }
                     }
                 }
                 label = obj.transform.FindChild("qr").FindChild("value").GetComponent<UILabel>();
@@ -263,6 +282,7 @@ public class DealBody : Object
                 {
                     label.transform.parent.FindChild("icon-ok").gameObject.SetActive(true);
                     label.transform.parent.FindChild("icon-no").gameObject.SetActive(false);
+                    label.transform.parent.FindChild("time").gameObject.SetActive(true);
                     label = label.transform.parent.FindChild("time").GetComponent<UILabel>();
                     label.text = times[3];
                 }
@@ -271,15 +291,18 @@ public class DealBody : Object
                     label.transform.parent.FindChild("time").gameObject.SetActive(false);
                     label.transform.parent.FindChild("icon-ok").gameObject.SetActive(false);
                     label.transform.parent.FindChild("icon-no").gameObject.SetActive(true);
-                    if (((item.seller && MainData.instance.user.id == buyId) ||
-                        (!item.seller && MainData.instance.user.id == item.uid)) && state >= 2)
-                    {//我是买家
-                        label.transform.parent.FindChild("icon-no").FindChild("line").gameObject.SetActive(true);
-                    }
-                    else
+                    if (!admin)
                     {
-                        label.transform.parent.FindChild("value").localPosition = Vector3.zero;
-                        label.transform.parent.FindChild("icon-no").FindChild("line").gameObject.SetActive(false);
+                        if (((item.seller && MainData.instance.user.id == buyId) ||
+                        (!item.seller && MainData.instance.user.id == item.uid)) && state >= 2)
+                        {//我是买家
+                            label.transform.parent.FindChild("icon-no").FindChild("line").gameObject.SetActive(true);
+                        }
+                        else
+                        {
+                            label.transform.parent.FindChild("value").localPosition = Vector3.zero;
+                            label.transform.parent.FindChild("icon-no").FindChild("line").gameObject.SetActive(false);
+                        }
                     }
                 }
             }
@@ -291,6 +314,7 @@ public class DealBody : Object
                 {
                     label.transform.parent.FindChild("icon-ok").gameObject.SetActive(true);
                     label.transform.parent.FindChild("icon-no").gameObject.SetActive(false);
+                    label.transform.parent.FindChild("time").gameObject.SetActive(true);
                     label = label.transform.parent.FindChild("time").GetComponent<UILabel>();
                     label.text = times[1];
                 }
@@ -299,15 +323,18 @@ public class DealBody : Object
                     label.transform.parent.FindChild("time").gameObject.SetActive(false);
                     label.transform.parent.FindChild("icon-ok").gameObject.SetActive(false);
                     label.transform.parent.FindChild("icon-no").gameObject.SetActive(true);
-                    if ((item.seller && MainData.instance.user.id == buyId) ||
-                        (!item.seller && MainData.instance.user.id == item.uid) && state >= 0)
-                    {//我是买家
-                        label.transform.parent.FindChild("icon-no").FindChild("line").gameObject.SetActive(true);
-                    }
-                    else
+                    if (!admin)
                     {
-                        label.transform.parent.FindChild("value").localPosition = Vector3.zero;
-                        label.transform.parent.FindChild("icon-no").FindChild("line").gameObject.SetActive(false);
+                        if ((item.seller && MainData.instance.user.id == buyId) ||
+                        (!item.seller && MainData.instance.user.id == item.uid) && state >= 0)
+                        {//我是买家
+                            label.transform.parent.FindChild("icon-no").FindChild("line").gameObject.SetActive(true);
+                        }
+                        else
+                        {
+                            label.transform.parent.FindChild("value").localPosition = Vector3.zero;
+                            label.transform.parent.FindChild("icon-no").FindChild("line").gameObject.SetActive(false);
+                        }
                     }
                 }
                 label = obj.transform.FindChild("sk").FindChild("value").GetComponent<UILabel>();
@@ -316,6 +343,7 @@ public class DealBody : Object
                 {
                     label.transform.parent.FindChild("icon-ok").gameObject.SetActive(true);
                     label.transform.parent.FindChild("icon-no").gameObject.SetActive(false);
+                    label.transform.parent.FindChild("time").gameObject.SetActive(true);
                     label = label.transform.parent.FindChild("time").GetComponent<UILabel>();
                     label.text = times[2];
                 }
@@ -333,6 +361,7 @@ public class DealBody : Object
                     label.transform.parent.FindChild("icon-ok").gameObject.SetActive(true);
                     label.transform.parent.FindChild("icon-no").gameObject.SetActive(false);
                     label.transform.GetComponent<UIButton>().enabled = false;
+                    label.transform.parent.FindChild("time").gameObject.SetActive(true);
                     label = label.transform.parent.FindChild("time").GetComponent<UILabel>();
                     label.text = times[3];
                 }
@@ -341,15 +370,18 @@ public class DealBody : Object
                     label.transform.parent.FindChild("time").gameObject.SetActive(false);
                     label.transform.parent.FindChild("icon-ok").gameObject.SetActive(false);
                     label.transform.parent.FindChild("icon-no").gameObject.SetActive(true);
-                    if (((!item.seller && MainData.instance.user.id == buyId) ||
-                        (item.seller && MainData.instance.user.id == item.uid)) && state >= 2)
-                    {//我是卖家
-                        label.transform.parent.FindChild("icon-no").FindChild("line").gameObject.SetActive(true);
-                    }
-                    else
+                    if (!admin)
                     {
-                        label.transform.parent.FindChild("value").localPosition = Vector3.zero;
-                        label.transform.parent.FindChild("icon-no").FindChild("line").gameObject.SetActive(false);
+                        if (((!item.seller && MainData.instance.user.id == buyId) ||
+                        (item.seller && MainData.instance.user.id == item.uid)) && state >= 2)
+                        {//我是卖家
+                            label.transform.parent.FindChild("icon-no").FindChild("line").gameObject.SetActive(true);
+                        }
+                        else
+                        {
+                            label.transform.parent.FindChild("value").localPosition = Vector3.zero;
+                            label.transform.parent.FindChild("icon-no").FindChild("line").gameObject.SetActive(false);
+                        }
                     }
                 }
                 label = obj.transform.FindChild("qr").FindChild("value").GetComponent<UILabel>();
@@ -358,6 +390,7 @@ public class DealBody : Object
                 {
                     label.transform.parent.FindChild("icon-ok").gameObject.SetActive(true);
                     label.transform.parent.FindChild("icon-no").gameObject.SetActive(false);
+                    label.transform.parent.FindChild("time").gameObject.SetActive(true);
                     label = label.transform.parent.FindChild("time").GetComponent<UILabel>();
                     label.text = times[4];
                 }
@@ -366,15 +399,18 @@ public class DealBody : Object
                     label.transform.parent.FindChild("time").gameObject.SetActive(false);
                     label.transform.parent.FindChild("icon-ok").gameObject.SetActive(false);
                     label.transform.parent.FindChild("icon-no").gameObject.SetActive(true);
-                    if (((item.seller && MainData.instance.user.id == buyId) ||
-                        (!item.seller && MainData.instance.user.id == item.uid)) && state >= 3)
-                    {//我是买家
-                        label.transform.parent.FindChild("icon-no").FindChild("line").gameObject.SetActive(true);
-                    }
-                    else
+                    if (!admin)
                     {
-                        label.transform.parent.FindChild("value").localPosition = Vector3.zero;
-                        label.transform.parent.FindChild("icon-no").FindChild("line").gameObject.SetActive(false);
+                        if (((item.seller && MainData.instance.user.id == buyId) ||
+                        (!item.seller && MainData.instance.user.id == item.uid)) && state >= 3)
+                        {//我是买家
+                            label.transform.parent.FindChild("icon-no").FindChild("line").gameObject.SetActive(true);
+                        }
+                        else
+                        {
+                            label.transform.parent.FindChild("value").localPosition = Vector3.zero;
+                            label.transform.parent.FindChild("icon-no").FindChild("line").gameObject.SetActive(false);
+                        }
                     }
                 }
                 label = obj.transform.FindChild("zfk").FindChild("value").GetComponent<UILabel>();
@@ -383,6 +419,7 @@ public class DealBody : Object
                 {
                     label.transform.parent.FindChild("icon-ok").gameObject.SetActive(true);
                     label.transform.parent.FindChild("icon-no").gameObject.SetActive(false);
+                    label.transform.parent.FindChild("time").gameObject.SetActive(true);
                     label = label.transform.parent.FindChild("time").GetComponent<UILabel>();
                     label.text = times[5];
                 }
@@ -394,27 +431,29 @@ public class DealBody : Object
                     label.transform.parent.FindChild("value").localPosition = Vector3.zero;
                 }
             }
-            Transform revoke_trans = obj.transform.FindChild("revoke");
-            if (state < 1)
-            {//已进行的流程没法取消
-                if (((item.seller && MainData.instance.user.id == buyId) || (!item.seller && MainData.instance.user.id == item.uid)) && !checkRevoke(ORDER_REVOKE_BUYER))
-                {//我是买家
-                    revoke_trans.gameObject.SetActive(true);
-                }
-                else if (((!item.seller && MainData.instance.user.id == buyId) || (item.seller && MainData.instance.user.id == item.uid)) && !checkRevoke(ORDER_REVOKE_SELLER))
-                {//我是卖家
-                    revoke_trans.gameObject.SetActive(true);
+            if (!admin)
+            {
+                Transform revoke_trans = obj.transform.FindChild("revoke");
+                if (state < 1)
+                {//已进行的流程没法取消
+                    if (((item.seller && MainData.instance.user.id == buyId) || (!item.seller && MainData.instance.user.id == item.uid)) && !checkRevoke(ORDER_REVOKE_BUYER))
+                    {//我是买家
+                        revoke_trans.gameObject.SetActive(true);
+                    }
+                    else if (((!item.seller && MainData.instance.user.id == buyId) || (item.seller && MainData.instance.user.id == item.uid)) && !checkRevoke(ORDER_REVOKE_SELLER))
+                    {//我是卖家
+                        revoke_trans.gameObject.SetActive(true);
+                    }
+                    else
+                    {
+                        revoke_trans.gameObject.SetActive(false);
+                    }
                 }
                 else
                 {
                     revoke_trans.gameObject.SetActive(false);
                 }
             }
-            else 
-            {
-                revoke_trans.gameObject.SetActive(false);
-            }
-           
         }
 
         public int CompareTo(Order other)
@@ -461,13 +500,12 @@ public class DealBody : Object
     public string context;
     public bool seller;
     public bool helpFlag;
+    public bool revoke;
+    public bool isLock;
     public bool refresh = true;//刷新标志
     public byte flag = JustRun.NULL_FLAG;
-
     public List<Revert> reverts = new List<Revert>();
     public List<Order> orders = new List<Order>();
-
-    static string[] keyNames = { "方式 : ", "文交所 : ", "藏品名称 ：", "单位 : ", "剩余数量 : ", "有效时间 : ", "单价(元) : " };
 
     public static DealBody read(ByteBuffer data)
     {
@@ -488,6 +526,8 @@ public class DealBody : Object
         item.price = float.Parse(data.ReadString());
         item.context = data.ReadString();
         item.helpFlag = data.ReadByte() == 1;
+        item.revoke = data.ReadByte() == 1;
+        item.isLock = data.ReadByte() == 1;
         int revertLen = data.ReadInt();
         for (int j = 0; j < revertLen; j++)
         {
@@ -521,7 +561,7 @@ public class DealBody : Object
         label = content_trans.FindChild("type").FindChild("value").GetComponent<UILabel>();
         label.text = typeStr;
         label = content_trans.FindChild("help").FindChild("value").GetComponent<UILabel>();
-        label.text = helpFlag ? "中介模式" : "普通模式";
+        label.text = helpFlag ? "平台中介" : "买方先款";
         if (typeStr.Equals("入库"))
         {
             label = content_trans.FindChild("bourse").GetComponent<UILabel>();
@@ -561,9 +601,17 @@ public class DealBody : Object
         }
         else
         {
+            event_tran.localPosition = new Vector3(0,-750,0);
             content_trans.FindChild("other").gameObject.SetActive(false);
         }
-        obj_item.transform.FindChild("reverts").localPosition = new Vector3(0, event_tran.localPosition.y - 120, 0);
+        System.DateTime vTime = System.DateTime.Parse(validTime);
+        bool flag = revoke || vTime.CompareTo(System.DateTime.Now) < 0;
+        content_trans.FindChild("revoke").gameObject.SetActive(revoke);
+        Transform reverts = obj_item.transform.FindChild("reverts");
+        if (reverts != null)
+        {
+            reverts.localPosition = new Vector3(0, event_tran.localPosition.y-120,0);
+        }
     }
 
     public Order searchOrder(long orderId)

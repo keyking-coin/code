@@ -76,6 +76,8 @@ public class UserCharacter extends EntitySaver{
 	
 	List<Message> delMessages = new ArrayList<Message>();//需要删除聊天记录
 
+	String other = "";//备注信息
+	
 	public long getId() {
 		return id;
 	}
@@ -250,6 +252,14 @@ public class UserCharacter extends EntitySaver{
 		this.permission = permission;
 	}
 
+	public String getOther() {
+		return other;
+	}
+
+	public void setOther(String other) {
+		this.other = other;
+	}
+
 	public void deserializeFavorites(String str){
 		if (StringUtil.isNull(str)){
 			return;
@@ -300,47 +310,45 @@ public class UserCharacter extends EntitySaver{
 		buffer.putUTF(account);
 		buffer.putUTF(face);
 		buffer.putUTF(nikeName);
-		if (permission.isAdmin()){
-			buffer.putInt(emails.size());
-			for (Email email : emails){
-				email.serialize(buffer);
-			}
-		}else{
-			buffer.putUTF(name);
-			buffer.putUTF(title);
-			buffer.putUTF(registTime);
-			buffer.putUTF(identity);
-			buffer.putUTF(signature);
-			buffer.put(push);
-			buffer.putInt(addresses.size());
-			for (String address : addresses){
-				buffer.putUTF(address);
-			}
-			recharge._serialize(buffer);
-			bankAccount.serialize(buffer);
-			if (seller == null){
-				buffer.put((byte)0);
-			}else{
-				buffer.put((byte)1);
-				seller.serialize(buffer);
-			}
-			buffer.putInt(emails.size());
-			for (Email email : emails){
-				email.serialize(buffer);
-			}
-			buffer.putInt(friends.size());
-			for (Friend friend : friends){
-				friend.serialize(buffer);
-			}
-			buffer.putInt(messages.size());
-			for (Message message : messages){
-				message.serialize(buffer);
-			}
-			buffer.putInt(favorites.size());
-			for (Long favorite : favorites){
-				buffer.putLong(favorite.longValue());
-			}
+		buffer.putUTF(name);
+		buffer.putUTF(title);
+		buffer.putUTF(registTime);
+		buffer.putUTF(identity);
+		buffer.putUTF(signature);
+		buffer.put(push);
+		buffer.putInt(addresses.size());
+		for (String address : addresses){
+			buffer.putUTF(address);
 		}
+		recharge._serialize(buffer);
+		bankAccount.serialize(buffer);
+		if (seller == null){
+			buffer.put((byte)0);
+		}else{
+			buffer.put((byte)1);
+			seller.serialize(buffer);
+		}
+		buffer.putInt(emails.size());
+		for (Email email : emails){
+			email.serialize(buffer);
+		}
+		buffer.putInt(friends.size());
+		for (Friend friend : friends){
+			friend.serialize(buffer);
+		}
+		buffer.putInt(messages.size());
+		for (Message message : messages){
+			message.serialize(buffer);
+		}
+		buffer.putInt(favorites.size());
+		for (Long favorite : favorites){
+			buffer.putLong(favorite.longValue());
+		}
+		permission.serialize(buffer);
+		credit.serialize(buffer);
+		buffer.put(breach);
+		forbid.serialize(buffer);
+		buffer.putUTF(other==null?"":other);
 	}
 
 	public void save() {

@@ -15,12 +15,20 @@ public class HttpRegist extends HttpHandler {
 		String nickname  = request.getParameter("nick");
 		String name      = request.getParameter("name");
 		String address   = request.getParameter("address");
+		String code      = request.getParameter("code");
 		response.setContentType("text/plain");
 		response.setResponseCode(HttpResponseMessage.HTTP_STATUS_SUCCESS);
+		int codeResult = TOKEN.check(account,code);
+		if (codeResult == 1){
+			message(request,response,"验证码错误");
+			return;
+		}else if (codeResult == 2){
+			message(request,response,"验证码已失效");
+			return;
+		}
 		String registTime = TimeUtils.nowChStr();
 		String result = CTRL.checkHttpAccout(account,nickname);
-		String back = null;
-		if ( result == null){
+		if (result == null){
 			UserCharacter user = new UserCharacter();
 			user.setAccount(account);
 			user.setPwd(pwd);
@@ -29,10 +37,9 @@ public class HttpRegist extends HttpHandler {
 			user.addAddress(address);
 			user.setRegistTime(registTime);
 			CTRL.register(user);
-			back = "{\"result\":\"ok\"}";
+			message(request,response,"ok");
 		}else{
-			back = "{\"result\":\"" + result + "\"}";
+			message(request,response,result);
 		}
-		response.appendBody(formatJosn(request,back));
 	}
 }

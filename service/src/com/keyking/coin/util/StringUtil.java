@@ -180,7 +180,7 @@ public final class StringUtil {
 	 * @return
 	 */
 	public static boolean isNull(String str) {
-		if (str == null || str.trim().equals("") || str.equals("null")) {
+		if (str == null || str.equals("") || str.equals("null")) {
 			return true;
 		}
 		return false;

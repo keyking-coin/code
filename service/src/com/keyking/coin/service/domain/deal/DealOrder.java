@@ -246,20 +246,17 @@ public class DealOrder extends EntitySaver implements Comparable<DealOrder>{
 	public void simpleDes(Module module) {
 		Deal deal = CTRL.tryToSearch(dealId);
 		if (deal != null) {
-			String str = null;
 			String[] ss = deal.getBourse().split(",");
-			if (over()) {
-				str = ss[1] + "[0000ff](" + (deal.getType() == 0 ? "入库" : "现货")
-						+ ")[-][ff0000]" + deal.getName() + "[-]已经成交[ff0000]"
-						+ num + "[-]" + deal.getMonad();
-			} else {
-				str = ss[1] + "[0000ff](" + (deal.getType() == 0 ? "入库" : "现货")
-						+ ")[-][ff0000]" + deal.getName() + "[-]正在交易[ff0000]"
-						+ num + "[-]" + deal.getMonad();
-			}
+			StringBuffer sb = new StringBuffer();
+			sb.append(ss[1] + "[0000ff](");
+			sb.append(deal.getType() == 0 ? "入库" : "现货");
+			sb.append(")[-]");
+			sb.append("[ff0000]" + deal.getName() + "[-]");
+			sb.append(price + "元成交");
+			sb.append("[ff0000]" + num + "[-]" + deal.getMonad());
 			module.add(dealId);
 			module.add(id);
-			module.add(str);
+			module.add(sb.toString());
 			String time = times.get(0);
 			module.add(time);
 		}

@@ -7,11 +7,14 @@ public class MemberManager : MonoBehaviour {
 
     int selectIndex = 0;
 
-    GameObject pref_user_info;
+    GameObject pref_user_info = null;
 
 	// Use this for initialization
 	void Start () {
-        pref_user_info = Resources.Load<GameObject>("prefabs/user-info");
+        if (pref_user_info == null)
+        {
+            pref_user_info = Resources.Load<GameObject>("prefabs/user-info");
+        }
 	}
 
     void refresh()
@@ -75,8 +78,55 @@ public class MemberManager : MonoBehaviour {
         container.FindChild("account").FindChild("value").GetComponent<UILabel>().text = user.account;
         container.FindChild("nickName").FindChild("inputer").GetComponent<UIInput>().value = user.nikeName;
         container.FindChild("name").FindChild("inputer").GetComponent<UIInput>().value = user.realyName;
-        container.FindChild("ident").FindChild("value").GetComponent<UILabel>().text = user.indentity;
-
+        container.FindChild("ident").FindChild("inputer").GetComponent<UIInput>().value = user.indentity;
+        UIPopupList type = container.FindChild("type").FindChild("value").GetComponent<UIPopupList>();
+        UIPopupList title = container.FindChild("title").FindChild("value").GetComponent<UIPopupList>();
+        if (user.permission == 1)
+        {
+            type.value = "买家";
+            title.items.Clear();
+            title.items.Add("普通买家");
+            title.items.Add("高级买家");
+        }
+        else if (user.permission == 2)
+        {
+            type.value = "卖家";
+            title.items.Clear();
+            title.items.Add("普通营销员");
+            title.items.Add("高级营销员");
+            title.items.Add("金牌营销员");
+        }
+        title.value = user.title;
+        container.FindChild("deposit").FindChild("inputer").GetComponent<UIInput>().value = user.seller.deposit + "";
+        container.FindChild("deal").FindChild("inputer").GetComponent<UIInput>().value = user.credit.totalDealValue + "";
+        container.FindChild("credit-c").FindChild("inputer").GetComponent<UIInput>().value = user.credit.maxValue + "";
+        container.FindChild("credit-t").FindChild("inputer").GetComponent<UIInput>().value = user.credit.tempMaxValue + "";
+        container.FindChild("hp").FindChild("inputer").GetComponent<UIInput>().value = user.credit.hp + "";
+        container.FindChild("zp").FindChild("inputer").GetComponent<UIInput>().value = user.credit.zp + "";
+        container.FindChild("cp").FindChild("inputer").GetComponent<UIInput>().value = user.credit.cp + "";
+        container.FindChild("regist").FindChild("value").GetComponent<UILabel>().text = user.registTime;
+        container.FindChild("time").FindChild("value").GetComponent<UILabel>().text = user.endTime;
+        container.FindChild("wg").FindChild("inputer").GetComponent<UIInput>().value = user.breach + "";
+        Transform fh_body = container.FindChild("fh").FindChild("body");
+        UIInput reason_input = fh_body.FindChild("inputer").GetComponent<UIInput>();
+        reason_input.value = user.forbid.reason + "";
+        if (user.forbid.endTime.Equals("forever"))
+        {
+            reason_input.value = "永久封号";
+            fh_body.FindChild("time").FindChild("open").gameObject.SetActive(false);
+        }
+        else if (user.forbid.endTime.Equals("null"))
+        {
+            fh_body.FindChild("time").FindChild("open").gameObject.SetActive(false);
+            reason_input.value = "未被封号";
+        }
+        else
+        {
+            fh_body.FindChild("time").FindChild("open").gameObject.SetActive(true);
+            reason_input.value = user.forbid.reason + "";
+        }
+        fh_body.FindChild("time").FindChild("value").GetComponent<UILabel>().text = user.forbid.endTime + "";
+        container.FindChild("other").FindChild("inputer").GetComponent<UIInput>().value = user.other;
     }
 
 	// Update is called once per frame
@@ -102,6 +152,11 @@ public class MemberManager : MonoBehaviour {
                 DialogUtil.tip("查找不到相关数据");
             }
         }
+        buffer = MyUtilTools.tryToLogic("AdminUserResetPwd");
+        if (buffer != null)
+        {
+            DialogUtil.tip(buffer.ReadString(),true);
+        }
 	}
 
     public void search()
@@ -121,6 +176,61 @@ public class MemberManager : MonoBehaviour {
 
     public void commit()
     {
+        Transform container = transform.FindChild("right");
+        UILabel account = container.FindChild("account").FindChild("value").GetComponent<UILabel>();
+        UIInput nickName = container.FindChild("nickName").FindChild("inputer").GetComponent<UIInput>();
+        UIInput name = container.FindChild("name").FindChild("inputer").GetComponent<UIInput>();
+        UIInput ident = container.FindChild("ident").FindChild("inputer").GetComponent<UIInput>();
+        UIPopupList type = container.FindChild("type").FindChild("value").GetComponent<UIPopupList>();
+        UIPopupList title = container.FindChild("title").FindChild("value").GetComponent<UIPopupList>();
+        UIInput deposit = container.FindChild("deposit").FindChild("inputer").GetComponent<UIInput>();
+        UIInput deal = container.FindChild("deal").FindChild("inputer").GetComponent<UIInput>();
+        UIInput credit_c =  container.FindChild("credit-c").FindChild("inputer").GetComponent<UIInput>();
+        UIInput credit_t =  container.FindChild("credit-t").FindChild("inputer").GetComponent<UIInput>();
+        UIInput hp = container.FindChild("hp").FindChild("inputer").GetComponent<UIInput>();
+        UIInput zp = container.FindChild("zp").FindChild("inputer").GetComponent<UIInput>();
+        UIInput cp = container.FindChild("cp").FindChild("inputer").GetComponent<UIInput>();
+        UILabel regist = container.FindChild("regist").FindChild("value").GetComponent<UILabel>();
+        UILabel time = container.FindChild("time").FindChild("value").GetComponent<UILabel>();
+        UIInput wg = container.FindChild("wg").FindChild("inputer").GetComponent<UIInput>();
+        Transform fh_body = container.FindChild("fh").FindChild("body");
+        UIInput fh_reason = fh_body.FindChild("inputer").GetComponent<UIInput>();
+        UILabel fh_time = fh_body.FindChild("time").FindChild("value").GetComponent<UILabel>();
+        UIInput other = container.FindChild("other").FindChild("inputer").GetComponent<UIInput>();
+        ByteBuffer buffer = ByteBuffer.Allocate(1024);
+        buffer.skip(4);
+        buffer.WriteString("AdminUserResetPwd");
+        buffer.WriteLong(MainData.instance.user.id);
+        buffer.WriteString(account.text);
+        buffer.WriteString(nickName.value);
+        buffer.WriteString(name.value);
+        buffer.WriteString(ident.value);
+        buffer.WriteString(type.value);
+        buffer.WriteString(title.value);
+        buffer.WriteString(deposit.value);
+        buffer.WriteString(deal.value);
+        buffer.WriteString(credit_c.value);
+        buffer.WriteString(credit_t.value);
+        buffer.WriteString(hp.value);
+        buffer.WriteString(zp.value);
+        buffer.WriteString(cp.value);
+        buffer.WriteString(regist.text);
+        buffer.WriteString(time.text);
+        buffer.WriteString(wg.value);
+        buffer.WriteString(fh_reason.value);
+        buffer.WriteString(fh_time.text);
+        buffer.WriteString(other.value);
+        NetUtil.getInstance.SendMessage(buffer);
+    }
 
+    public void resetPwd()
+    {
+        UIInput account = transform.FindChild("right").FindChild("account").FindChild("value").GetComponent<UIInput>();
+        ByteBuffer buffer = ByteBuffer.Allocate(1024);
+        buffer.skip(4);
+        buffer.WriteString("AdminUserResetPwd");
+        buffer.WriteLong(MainData.instance.user.id);
+        buffer.WriteString(account.value);
+        NetUtil.getInstance.SendMessage(buffer);
     }
 }
