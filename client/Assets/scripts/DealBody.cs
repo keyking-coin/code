@@ -606,7 +606,8 @@ public class DealBody : Object
         }
         System.DateTime vTime = System.DateTime.Parse(validTime);
         bool flag = revoke || vTime.CompareTo(System.DateTime.Now) < 0;
-        content_trans.FindChild("revoke").gameObject.SetActive(revoke);
+        GameObject revoke_obj = content_trans.FindChild("revoke").gameObject;
+        revoke_obj.SetActive(flag);
         Transform reverts = obj_item.transform.FindChild("reverts");
         if (reverts != null)
         {
