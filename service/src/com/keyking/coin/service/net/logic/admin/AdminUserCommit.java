@@ -65,6 +65,8 @@ public class AdminUserCommit extends AbstractLogic {
 					target.getForbid().setReason(fh_reason);
 				}
 				target.setOther(other);
+				target.setNeedSave(true);
+				resp.setSucces();
 			}else{
 				resp.setError("找不到用户" + account);
 			}

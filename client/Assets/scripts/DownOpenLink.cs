@@ -58,6 +58,15 @@ public class DownOpenLink : MonoBehaviour
         cp_value.text = cp + "";
     }
 
+    public void closeLink()
+    {
+        isOpen = false;
+        transform.FindChild("down").gameObject.SetActive(true);
+        transform.FindChild("up").gameObject.SetActive(false);
+        suns.SetActive(isOpen);
+        offset = 0;
+    }
+
     public void open(GameObject obj1 , GameObject obj2)
     {
         obj1.SetActive(false);

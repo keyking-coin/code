@@ -17,6 +17,7 @@ public class AdminUserResetPwd extends AbstractLogic {
 			UserCharacter target = CTRL.search(account);
 			if (target != null){
 				target.setPwd("888888");
+				target.setNeedSave(true);
 				resp.setSucces("密码重置成888888成功");
 			}else{
 				resp.setError("找不到用户" + account);

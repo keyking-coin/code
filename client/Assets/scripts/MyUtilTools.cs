@@ -271,14 +271,25 @@ public class MyUtilTools  {
         }
     }
 
-    public static void clearChild(Transform container,string name = null)
+    public static void clearChild(Transform container,string[] names = null)
     {
         for (int i = 0; i < container.childCount; i++)
         {
             GameObject child = container.GetChild(i).gameObject;
-            if (name != null && child.name.Equals(name))
+            if (names != null)
             {
-                continue;
+                bool needContinue = false;
+                foreach (string name in names)
+                {
+                    if (child.name.Equals(name))
+                    {
+                        needContinue = true;
+                    }
+                }
+                if (needContinue)
+                {
+                    continue;
+                }
             }
             GameObject.Destroy(child);
         }

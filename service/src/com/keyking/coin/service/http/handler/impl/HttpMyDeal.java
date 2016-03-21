@@ -1,26 +1,33 @@
-package com.keyking.coin.service.net.logic.user;
+package com.keyking.coin.service.http.handler.impl;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import com.keyking.coin.service.domain.deal.Deal;
 import com.keyking.coin.service.domain.user.UserCharacter;
-import com.keyking.coin.service.net.buffer.DataBuffer;
+import com.keyking.coin.service.http.data.HttpDealData;
+import com.keyking.coin.service.http.handler.HttpHandler;
+import com.keyking.coin.service.http.request.HttpRequestMessage;
+import com.keyking.coin.service.http.response.HttpResponseMessage;
 import com.keyking.coin.service.net.data.SearchCondition;
-import com.keyking.coin.service.net.logic.AbstractLogic;
-import com.keyking.coin.service.net.resp.impl.GeneralResp;
+import com.keyking.coin.util.JsonUtil;
 
-public class DealSearch extends AbstractLogic {
-
+public class HttpMyDeal extends HttpHandler {
+	//http://139.196.30.53:32104/HttpMyDeal?index=x&uid=1
 	@Override
-	public Object doLogic(DataBuffer buffer, String logicName) throws Exception {
-		GeneralResp resp = new GeneralResp(logicName);
-		int type  = buffer.getInt();
-		long uid  = buffer.getLong();
+	public void handle(HttpRequestMessage request, HttpResponseMessage response) {
+		response.setContentType("text/plain");
+		response.setResponseCode(HttpResponseMessage.HTTP_STATUS_SUCCESS);
+		int index = Integer.parseInt(request.getParameter("index"));
+		long uid  = Long.parseLong(request.getParameter("uid"));
 		UserCharacter user = CTRL.search(uid);
+		if (user == null){
+			String str = formatJosn(request,"[]");
+			response.appendBody(str);
+			return;
+		}
 		List<Deal> deals = null;
-		resp.add(type);
-		switch(type){
+		switch(index){
 		case 1:
 			deals = searchSells(user);//ddjy 我所发的所有在有效期的帖子
 			break;
@@ -40,11 +47,18 @@ public class DealSearch extends AbstractLogic {
 			deals = searchFavorite(user);//我的收藏夹
 			break;
 		}
-		if (deals != null){
-			resp.setSucces();
-			resp.add(deals);
+		if (deals.size() > 0){
+			List<HttpDealData> hDeals = new ArrayList<HttpDealData>();
+			for (Deal deal : deals){
+				HttpDealData hdeal = new HttpDealData();
+				hdeal.copy(deal,user);
+				hDeals.add(hdeal);
+			}
+			String str = formatJosn(request,JsonUtil.ObjectToJsonString(hDeals));
+			response.appendBody(str);
+		}else{
+			message(request,response,"[]");
 		}
-		return resp;
 	}
 	
 	private List<Deal> searchSells(UserCharacter user){
@@ -121,4 +135,5 @@ public class DealSearch extends AbstractLogic {
 		}
 		return result;
 	}
+
 }

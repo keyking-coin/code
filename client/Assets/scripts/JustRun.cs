@@ -22,6 +22,7 @@ public class JustRun : MonoBehaviour {
     public static byte MODULE_CODE_FRIEND       = 8;//好友
     public static byte MODULE_CODE_MESSAGE      = 9;//聊天
 	public static byte MODULE_CODE_ORDER        = 10;//成交订单
+    public static byte MODULE_CODE_ADMIN_AGENCY = 11;//管理员的中介管理
 
     public static string PIC_PHP_URL = "http://www.521uu.cc:321";
 
@@ -35,6 +36,8 @@ public class JustRun : MonoBehaviour {
 	Dictionary<string,Texture> pic_caches = new Dictionary<string, Texture>();
 
 	PushEvent pushEvent;
+
+    public bool isAdmin = false;
 
 	public class SaveBodyEntity
 	{
@@ -85,17 +88,21 @@ public class JustRun : MonoBehaviour {
 
 	void Start () {
 		instance = this;
-        put(MODULE_CODE_DEAL,MainData.instance.deserializeDealModuleOne);
-        put(MODULE_CODE_BANK_ACCOUNT, MainData.instance.user.bacnkAccount.deserializeModule);
-		put(MODULE_CODE_SIMPLE_DEAL,readPushData);
-        put(MODULE_CODE_EAMIL,MainData.instance.deserializeEmailModule);
-        put(MODULE_CODE_SIMPLE_ORDER,MainData.instance.deserializeSimpleOrderModuleOne);
-        put(MODULE_CODE_FRIEND,MainData.instance.deserializeFriendModuleOne);
-        put(MODULE_CODE_MESSAGE,MainData.instance.deserializeMessageModuleOne);
-        put(MODULE_CODE_ORDER, MainData.instance.deserializeOrderModuleOne);
-        GameObject push_obj = GameObject.Find("push") ;
-        if (push_obj != null)
+        if (isAdmin)
         {
+            put(MODULE_CODE_ADMIN_AGENCY,AdminAgencyManager.deserializeModuleOne);
+        }
+        else
+        {
+            put(MODULE_CODE_DEAL, MainData.instance.deserializeDealModuleOne);
+            put(MODULE_CODE_BANK_ACCOUNT, MainData.instance.user.bacnkAccount.deserializeModule);
+            put(MODULE_CODE_SIMPLE_DEAL, readPushData);
+            put(MODULE_CODE_EAMIL, MainData.instance.deserializeEmailModule);
+            put(MODULE_CODE_SIMPLE_ORDER, MainData.instance.deserializeSimpleOrderModuleOne);
+            put(MODULE_CODE_FRIEND, MainData.instance.deserializeFriendModuleOne);
+            put(MODULE_CODE_MESSAGE, MainData.instance.deserializeMessageModuleOne);
+            put(MODULE_CODE_ORDER, MainData.instance.deserializeOrderModuleOne);
+            GameObject push_obj = GameObject.Find("push");
             pushEvent = push_obj.GetComponent<PushEvent>();
         }
 	}

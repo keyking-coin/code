@@ -279,4 +279,17 @@ public class DealOrder extends EntitySaver implements Comparable<DealOrder>{
 		module.add(this);
 		modules.addModule(module);
 	}
+	
+	
+	public ModuleResp clientAdminMessage(byte type){
+		ModuleResp modules = new ModuleResp();
+		Module module = new Module();
+		module.setCode(Module.MODULE_CODE_ADMIN_AGENCY);
+		module.setFlag(type);
+		module.add(id);
+		Deal deal = CTRL.tryToSearch(dealId);
+		module.add(deal);
+		modules.addModule(module);
+		return modules;
+	}
 }

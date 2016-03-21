@@ -52,17 +52,13 @@ public class MemberManager : MonoBehaviour {
         {
             return;
         }
-        Transform container = transform.FindChild("left").FindChild("list").FindChild("body").FindChild("container");
-        Transform preTrans = container.FindChild(selectIndex+"");
+        Transform container = obj.transform.parent;
+        Transform preTrans = container.FindChild(selectIndex + "");
         if (preTrans != null)
         {
             preTrans.FindChild("select").FindChild("show").gameObject.SetActive(false);
         }
-        Transform curTrans = container.FindChild(index + "");
-        if (curTrans != null)
-        {
-            curTrans.FindChild("select").FindChild("show").gameObject.SetActive(true);
-        }
+        obj.transform.FindChild("select").FindChild("show").gameObject.SetActive(true);
         selectIndex = index;
         refreshRight();
     }
@@ -110,22 +106,38 @@ public class MemberManager : MonoBehaviour {
         Transform fh_body = container.FindChild("fh").FindChild("body");
         UIInput reason_input = fh_body.FindChild("inputer").GetComponent<UIInput>();
         reason_input.value = user.forbid.reason + "";
+        string nowDateStr = System.DateTime.Now.Year + "-" + System.DateTime.Now.Month + "-" + System.DateTime.Now.Day + " 23:59:59";
         if (user.forbid.endTime.Equals("forever"))
         {
             reason_input.value = "永久封号";
-            fh_body.FindChild("time").FindChild("open").gameObject.SetActive(false);
+            fh_body.FindChild("time").FindChild("value").GetComponent<UILabel>().text = nowDateStr;
         }
         else if (user.forbid.endTime.Equals("null"))
         {
-            fh_body.FindChild("time").FindChild("open").gameObject.SetActive(false);
             reason_input.value = "未被封号";
+            fh_body.FindChild("time").FindChild("value").GetComponent<UILabel>().text = nowDateStr;
         }
         else
         {
-            fh_body.FindChild("time").FindChild("open").gameObject.SetActive(true);
             reason_input.value = user.forbid.reason + "";
+            fh_body.FindChild("time").FindChild("value").GetComponent<UILabel>().text = user.forbid.endTime;
         }
-        fh_body.FindChild("time").FindChild("value").GetComponent<UILabel>().text = user.forbid.endTime + "";
+        if (user.addresses.Count > 0)
+        {
+            container.FindChild("address").FindChild("value").GetComponent<UILabel>().text = user.addresses[0];
+        }
+        else
+        {
+            container.FindChild("address").FindChild("value").GetComponent<UILabel>().text = "未绑定地址";
+        }
+        if (user.bacnkAccount.names.Count > 0)
+        {
+            container.FindChild("bank").FindChild("value").GetComponent<UILabel>().text = user.bacnkAccount.names[0] + " " + user.bacnkAccount.accounts[0];
+        }
+        else
+        {
+            container.FindChild("bank").FindChild("value").GetComponent<UILabel>().text = "未绑定银行卡";
+        }
         container.FindChild("other").FindChild("inputer").GetComponent<UIInput>().value = user.other;
     }
 

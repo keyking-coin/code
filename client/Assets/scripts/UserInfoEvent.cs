@@ -449,7 +449,7 @@ public class UserInfoEvent : CenterEvent {
         {
             pref_bank_account = Resources.Load<GameObject>("prefabs/Bank-Account");
         }
-        MyUtilTools.clearChild(container,"addMore");
+        MyUtilTools.clearChild(container, new string[]{"addMore"});
         for (int i = 0; i < MainData.instance.user.bacnkAccount.names.Count ; i++ )
         {
             GameObject bank = NGUITools.AddChild(container.gameObject,pref_bank_account);
@@ -663,7 +663,7 @@ public class UserInfoEvent : CenterEvent {
         {
             pref_address_list = Resources.Load<GameObject>("prefabs/address-list");
         }
-        MyUtilTools.clearChild(container,"addMore");
+        MyUtilTools.clearChild(container,new string[]{"addMore"});
         for (int i = 0; i < MainData.instance.user.addresses.Count; i++)
         {
             GameObject address = NGUITools.AddChild(container.gameObject,pref_address_list);

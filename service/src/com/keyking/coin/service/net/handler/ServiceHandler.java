@@ -24,6 +24,8 @@ public class ServiceHandler extends IoHandlerAdapter implements Instances {
 	
 	Map<String,IoSession> sessions = new ConcurrentHashMap<String,IoSession>();
 	
+	IoSession adminSession = null;
+	
 	public static ServiceHandler getInstance(){
 		return instance;
 	}
@@ -69,15 +71,34 @@ public class ServiceHandler extends IoHandlerAdapter implements Instances {
 		String key = session.getRemoteAddress().toString();
 		sessions.remove(key);
 		CTRL.haveUserOutNet(session);
+		if (adminSession != null && session.equals(adminSession)){
+			adminSession = null;
+		}
 		super.sessionClosed(session);
 	}
 	
+	public IoSession getAdminSession() {
+		return adminSession;
+	}
+
+	public void setAdminSession(IoSession adminSession) {
+		this.adminSession = adminSession;
+	}
+
 	public IoSession search(String key){
 		if (key == null){
 			return null;
 		}
 		return sessions.get(key);
 	}
+	
+	public void sendMessageToAdmin(ModuleResp resp){
+		if (adminSession == null){
+			return ;
+		}
+		adminSession.write(resp);
+	}
+	
 	
 	public void sendMessageToClent(ModuleResp resp,UserCharacter user){
 		sendMessageToClent(resp,user.getSessionAddress());
@@ -98,9 +119,6 @@ public class ServiceHandler extends IoHandlerAdapter implements Instances {
 			return;
 		}
 		for (String key : sessions.keySet()){
-			if (key.contains("UU_ADMIN")){//管理员的不下发
-				continue;
-			}
 			if (excepte == null || !key.equals(excepte)){
 				sendMessageToClent(resp,key);
 			}

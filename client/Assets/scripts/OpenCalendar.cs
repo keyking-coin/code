@@ -51,7 +51,14 @@ public class OpenCalendar : MonoBehaviour {
             str = time_label.text;
         }
         Calendar calender = Calendar.create(base_obj,str);
-        calender.transform.localScale = new Vector3(1.5f,1.5f,1.5f);
+        if (JustRun.Instance.isAdmin)
+        {
+            calender.transform.localScale = new Vector3(1.5f,1.5f,1.5f);
+        }
+        else
+        {
+            calender.transform.localScale = new Vector3(1f,1f,1f);
+        }
         CameraUtil.push(5,3);
         calender.CallBack = back;
     }

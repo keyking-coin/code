@@ -3,11 +3,12 @@ using System.Collections.Generic;
 
 public class AdminDealManager : MonoBehaviour {
 
-    GameObject pref_deal_info = null;
+    public static GameObject pref_deal_info = null;
 
     int selectIndex = 0;
 
     List<DealBody.Order> orders = new List<DealBody.Order>();
+
     GameObject select_obj = null;
 
 	// Use this for initialization
@@ -53,6 +54,11 @@ public class AdminDealManager : MonoBehaviour {
             MainData.instance.deserializeDeals(buffer);
             backHighSearch(transform.FindChild("right").gameObject, transform.FindChild("search-pop").gameObject);
             refreshList();
+        }
+        buffer = MyUtilTools.tryToLogic("AdminOrderRevoke");
+        if (buffer != null)
+        {
+            DialogUtil.tip("撤销成功");
         }
 	}
 
@@ -205,6 +211,7 @@ public class AdminDealManager : MonoBehaviour {
         obj1.GetComponent<UITexture>().color = new Color(82f/255f, 227f/255f, 125f/255f);
         obj2.GetComponent<UITexture>().color = Color.gray;
         select_obj = obj1;
+        selectIndex = 0;
         refreshList();
     }
 
@@ -215,17 +222,13 @@ public class AdminDealManager : MonoBehaviour {
         {
             return;
         }
-        Transform container = transform.FindChild("left").FindChild("list").FindChild("body").FindChild("container");
+        Transform container = obj.transform.parent;
         Transform preTrans = container.FindChild(selectIndex + "");
         if (preTrans != null)
         {
             preTrans.FindChild("select").FindChild("show").gameObject.SetActive(false);
         }
-        Transform curTrans = container.FindChild(index + "");
-        if (curTrans != null)
-        {
-            curTrans.FindChild("select").FindChild("show").gameObject.SetActive(true);
-        }
+        obj.transform.FindChild("select").FindChild("show").gameObject.SetActive(true);
         selectIndex = index;
         refreshRight();
     }
@@ -260,7 +263,6 @@ public class AdminDealManager : MonoBehaviour {
             right.FindChild("order-help").gameObject.SetActive(false);
             right.FindChild("order-normal").gameObject.SetActive(false);
             right.FindChild("appraise").gameObject.SetActive(false);
-            
         }
         else
         {
@@ -304,17 +306,35 @@ public class AdminDealManager : MonoBehaviour {
 
     public void revokeOrder()
     {
-
+        DealBody.Order order = orders[selectIndex];
+        ByteBuffer buffer = ByteBuffer.Allocate(1024);
+        buffer.skip(4);
+        buffer.WriteString("AdminOrderRevoke");
+        buffer.WriteLong(order.item.id);
+        buffer.WriteLong(order.id);
+        NetUtil.getInstance.SendMessage(buffer);
     }
 
     public void lockDeal()
     {
-
+        DealBody deal = MainData.instance.deal_all[selectIndex];
+        ByteBuffer buffer = ByteBuffer.Allocate(1024);
+        buffer.skip(4);
+        buffer.WriteString("AdminLockDeal");
+        buffer.WriteInt(0);
+        buffer.WriteLong(deal.id);
+        NetUtil.getInstance.SendMessage(buffer);
     }
 
     public void ulockDeal()
     {
-
+        DealBody deal = MainData.instance.deal_all[selectIndex];
+        ByteBuffer buffer = ByteBuffer.Allocate(1024);
+        buffer.skip(4);
+        buffer.WriteString("AdminLockDeal");
+        buffer.WriteInt(1);
+        buffer.WriteLong(deal.id);
+        NetUtil.getInstance.SendMessage(buffer);
     }
 
     public void revokeDeal()

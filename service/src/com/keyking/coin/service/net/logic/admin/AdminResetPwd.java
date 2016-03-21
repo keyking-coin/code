@@ -27,6 +27,7 @@ public class AdminResetPwd extends AbstractLogic {
 			}
 			resp.setSucces();
 			admin.setPwd(pwd);
+			admin.setNeedSave(true);
 		}else{
 			resp.setError("未找到管理员账号是<" + account + ">");
 		}

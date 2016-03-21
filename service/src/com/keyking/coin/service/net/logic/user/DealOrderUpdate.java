@@ -37,6 +37,13 @@ public class DealOrderUpdate extends AbstractLogic {
 					order.addTimes(index);
 					NET.sendMessageToAllClent(order.clientMessage(Module.UPDATE_FLAG),null);
 					resp.setSucces();
+					if (order.getHelpFlag() == 1){
+						if (order.getState() == 1 || order.getState() == 4){
+							NET.sendMessageToAdmin(order.clientAdminMessage(Module.ADD_FLAG));
+						}else if (pre == 1 || pre == 4){
+							NET.sendMessageToAdmin(order.clientAdminMessage(Module.DEL_FLAG));
+						}
+					}
 					ServerLog.info(CTRL.search(uid).getAccount() + " update deal-order state from " + pre + " to " + order.getState() + " ----> id is " + orderId);
 				}else{
 					resp.setError("您没有权限那么做");

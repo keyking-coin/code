@@ -31,8 +31,6 @@ public class Controler implements Instances{
 	
 	List<Deal> deals = new ArrayList<Deal>();
 	
-	List<Deal> dels = new ArrayList<Deal>();//已撤销帖子
-	
 	List<DealOrder> recents = new ArrayList<DealOrder>();//最近成交的20条记录
 	
 	public static Controler getInstance() {
@@ -43,11 +41,7 @@ public class Controler implements Instances{
 		List<Deal> lis = DB.getDealDao().searchMore();
 		for (Deal deal : lis){
 			deal.read(recents);
-			if (deal.isRevoke()){
-				dels.add(deal);
-			}else{
-				deals.add(deal);
-			}
+			deals.add(deal);
 		}
 		Collections.sort(recents);
 		ServerLog.info("load all deals");
@@ -183,9 +177,6 @@ public class Controler implements Instances{
 		for (Deal deal : deals){
 			deal.save();
 		}
-		for (Deal deal : dels){
-			deal.save();
-		}
 	}
 	
 	public void haveUserOutNet(IoSession session){
@@ -199,10 +190,6 @@ public class Controler implements Instances{
 		}
 	}
 	
-	public List<Deal> getDels() {
-		return dels;
-	}
-
 	public List<Deal> getSearchDeals(SearchCondition condition) {
 		List<Deal> result = new ArrayList<Deal>();
 		for (Deal deal : deals){
@@ -286,11 +273,6 @@ public class Controler implements Instances{
 				return deal;
 			}
 		}
-		for (Deal deal : dels){
-			if (deal.getId() == id){
-				return deal;
-			}
-		}
 		return DB.getDealDao().search(id);
 	}
 
@@ -299,25 +281,10 @@ public class Controler implements Instances{
 		return true;
 	}
 
-	public boolean tryToDeleteDeal(Deal deal) {
-		if (deals.contains(deal)){
-			deals.remove(deal);
-			deal.delete();
-			dels.add(deal);
-			return true;
-		}
-		return false;
-	}
-	
 	public List<Deal> tryToSearchDeals(long uid){
 		List<Deal> result = new ArrayList<Deal>();
 		for (Deal deal : deals){//未撤销的
 			if (deal.getUid() == uid || deal.checkBuyerId(uid)){//是卖家或者有购买
-				result.add(deal);
-			}
-		}
-		for (Deal deal : dels){//已撤销的
-			if (deal.getUid() == uid || deal.checkBuyerId(uid)){
 				result.add(deal);
 			}
 		}
@@ -328,22 +295,6 @@ public class Controler implements Instances{
 		List<RankEntity> result = new ArrayList<RankEntity>();
 		List<RankEntity> temp = new ArrayList<RankEntity>();
 		for (Deal deal : deals){//未撤销的
-			Map<Long,RankEntity> map = deal.compute();
-			for (RankEntity re : map.values()){
-				RankEntity target = null;
-				for (RankEntity entity : temp){
-					if (entity.getUid() == re.getUid()){
-						target = entity;
-					}
-				}
-				if (target != null){
-					target.addCount(re.getCount());
-				}else{
-					temp.add(re);
-				}
-			}
-		}
-		for (Deal deal : dels){//已撤销的
 			Map<Long,RankEntity> map = deal.compute();
 			for (RankEntity re : map.values()){
 				RankEntity target = null;
