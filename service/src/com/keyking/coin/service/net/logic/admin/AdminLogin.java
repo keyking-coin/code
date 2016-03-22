@@ -36,6 +36,8 @@ public class AdminLogin extends AbstractLogic {
 			condition.setAgency(true);
 			List<Deal> deals = CTRL.getSearchDeals(condition);
 			resp.add(deals);
+			List<UserCharacter> sellers = CTRL.getSearchRZ();
+			resp.add(sellers);
 			ServerLog.info("admin<" + account + "> login at " + TimeUtils.nowChStr());
 		}
 		return resp;

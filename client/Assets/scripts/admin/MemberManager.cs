@@ -7,7 +7,7 @@ public class MemberManager : MonoBehaviour {
 
     int selectIndex = 0;
 
-    GameObject pref_user_info = null;
+    public static GameObject pref_user_info = null;
 
 	// Use this for initialization
 	void Start () {

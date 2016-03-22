@@ -40,6 +40,8 @@ public class Module implements SerializeEntity{
 	
 	public static final byte MODULE_CODE_ADMIN_AGENCY = 11;//管理员的中介管理
 	
+	public static final byte MODULE_CODE_ADMIN_SELLER = 12;//管理员的卖家认证
+	
 	protected ParametersEntity params = new ParametersEntity();
 
 	public ParametersEntity getParams() {

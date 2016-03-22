@@ -9,9 +9,9 @@ import com.keyking.coin.util.StringUtil;
 
 public class Recharge {
 	
-	float curMoney = 100000; //当前剩余
+	float curMoney=100;//当前剩余
 	
-	float historyMoney = 100000;//历史累计充值
+	float historyMoney;//历史累计充值
 	
 	List<RechargeOrder> orders = new ArrayList<RechargeOrder>();//充值订单列表
 	

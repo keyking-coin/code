@@ -2,9 +2,7 @@
 using System.Collections.Generic;
 
 public class AdminAgencyManager : MonoBehaviour {
-
-    public static List<DealBody.Order> orders = new List<DealBody.Order>();
-
+    static List<DealBody.Order> orders = new List<DealBody.Order>();
     Transform mjfk = null;
     Transform mjqr = null;
     DownOpenLink mjfk_link = null;
@@ -42,6 +40,18 @@ public class AdminAgencyManager : MonoBehaviour {
         if (flag)
         {
             refresh();
+        }
+        ByteBuffer buffer = MyUtilTools.tryToLogic("AdminLookUser");
+        if (buffer != null)
+        {
+            MainData.UserData user = new MainData.UserData();
+            user.deserialize(buffer);
+            refreshUser(user);
+        }
+        buffer = MyUtilTools.tryToLogic("AdminOrderRevoke");
+        if (buffer != null)
+        {
+            DialogUtil.tip("撤销成功",true);
         }
 	}
 
@@ -92,7 +102,7 @@ public class AdminAgencyManager : MonoBehaviour {
                 mjqr_link.offset += 80;
             }
         }
-
+        refreshRight();
     }
 
     void select(GameObject obj)
@@ -139,6 +149,7 @@ public class AdminAgencyManager : MonoBehaviour {
     }
     public static void deserializeAll(ByteBuffer data)
     {
+        orders.Clear();
         int size = data.ReadInt();
         for (int i = 0; i < size; i++ )
         {
@@ -186,26 +197,140 @@ public class AdminAgencyManager : MonoBehaviour {
 
     public void lookSeller()
     {
-
+        DealBody.Order order = orders[selectIndex];
+        long sellerId = order.item.seller ? order.item.uid : order.buyId;
+        ByteBuffer buffer = ByteBuffer.Allocate(1024);
+        buffer.skip(4);
+        buffer.WriteString("AdminLookUser");
+        buffer.WriteLong(sellerId);
+        NetUtil.getInstance.SendMessage(buffer);
     }
 
     public void lookBuyer()
     {
+        DealBody.Order order = orders[selectIndex];
+        long buyerId = order.item.seller ? order.buyId : order.item.uid;
+        ByteBuffer buffer = ByteBuffer.Allocate(1024);
+        buffer.skip(4);
+        buffer.WriteString("AdminLookUser");
+        buffer.WriteLong(buyerId);
+        NetUtil.getInstance.SendMessage(buffer);
+    }
 
+    void _revoke()
+    {
+        ConfirmUtil.TryToDispear();
+        DealBody.Order order = orders[selectIndex];
+        ByteBuffer buffer = ByteBuffer.Allocate(1024);
+        buffer.skip(4);
+        buffer.WriteString("AdminOrderRevoke");
+        buffer.WriteLong(order.item.id);
+        buffer.WriteLong(order.id);
+        NetUtil.getInstance.SendMessage(buffer);
     }
 
     public void revoke()
     {
+        ConfirmUtil.confirm("确定撤销?", _revoke);
+    }
 
+    void _zjsk()
+    {
+        ConfirmUtil.TryToDispear();
+        DealBody.Order order = orders[selectIndex];
+        ByteBuffer buffer = ByteBuffer.Allocate(1024);
+        buffer.skip(4);
+        buffer.WriteString("AdminDealOrderUpdate");
+        buffer.WriteLong(order.item.id);
+        buffer.WriteLong(order.id);
+        buffer.WriteByte((byte)2);
+        NetUtil.getInstance.SendMessage(buffer);
     }
 
     public void zjsk()
     {
-
+        ConfirmUtil.confirm("确定买家已打款?", _zjsk);
     }
 
+    void _zjfk()
+    {
+        ConfirmUtil.TryToDispear();
+        DealBody.Order order = orders[selectIndex];
+        ByteBuffer buffer = ByteBuffer.Allocate(1024);
+        buffer.skip(4);
+        buffer.WriteString("AdminDealOrderUpdate");
+        buffer.WriteLong(order.item.id);
+        buffer.WriteLong(order.id);
+        buffer.WriteByte((byte)5);
+        NetUtil.getInstance.SendMessage(buffer);
+    }
     public void zjfk()
     {
+        ConfirmUtil.confirm("确定已给卖家打款?", _zjfk);
+    }
 
+    void refreshUser(MainData.UserData user)
+    {
+        Transform right = transform.FindChild("right");
+        Transform container = right.FindChild("user-look");
+        right.FindChild("order-help").gameObject.SetActive(false);
+        container.gameObject.SetActive(true);
+        container.FindChild("account").FindChild("value").GetComponent<UILabel>().text = user.account;
+        container.FindChild("nickName").FindChild("value").GetComponent<UILabel>().text = user.nikeName;
+        container.FindChild("name").FindChild("value").GetComponent<UILabel>().text = user.realyName;
+        container.FindChild("ident").FindChild("value").GetComponent<UILabel>().text = user.indentity;
+        container.FindChild("type").FindChild("value").GetComponent<UILabel>().text = user.permission == 1 ? "买家" : "卖家";
+        container.FindChild("title").FindChild("value").GetComponent<UILabel>().text = user.title;
+        container.FindChild("deposit").FindChild("value").GetComponent<UILabel>().text = user.seller.deposit + "";
+        container.FindChild("deal").FindChild("value").GetComponent<UILabel>().text = user.credit.totalDealValue + "";
+        container.FindChild("credit-c").FindChild("value").GetComponent<UILabel>().text = user.credit.maxValue + "";
+        container.FindChild("credit-t").FindChild("value").GetComponent<UILabel>().text = user.credit.tempMaxValue + "";
+        container.FindChild("hp").FindChild("value").GetComponent<UILabel>().text = user.credit.hp + "";
+        container.FindChild("zp").FindChild("value").GetComponent<UILabel>().text = user.credit.zp + "";
+        container.FindChild("cp").FindChild("value").GetComponent<UILabel>().text = user.credit.cp + "";
+        container.FindChild("regist").FindChild("value").GetComponent<UILabel>().text = user.registTime;
+        container.FindChild("time").FindChild("value").GetComponent<UILabel>().text = user.endTime;
+        container.FindChild("wg").FindChild("value").GetComponent<UILabel>().text = user.breach + "";
+        Transform fh_body = container.FindChild("fh").FindChild("body");
+        UILabel reason = fh_body.FindChild("value").GetComponent<UILabel>();
+        if (user.forbid.endTime.Equals("forever"))
+        {
+            reason.text = "永久封号";
+            fh_body.FindChild("time").FindChild("value").GetComponent<UILabel>().text = "永久";
+        }
+        else if (user.forbid.endTime.Equals("null"))
+        {
+            reason.text = "未被封号";
+            fh_body.FindChild("time").FindChild("value").GetComponent<UILabel>().text = "无";
+        }
+        else
+        {
+            reason.text = user.forbid.reason + "";
+            fh_body.FindChild("time").FindChild("value").GetComponent<UILabel>().text = user.forbid.endTime;
+        }
+        if (user.addresses.Count > 0)
+        {
+            container.FindChild("address").FindChild("value").GetComponent<UILabel>().text = user.addresses[0];
+        }
+        else
+        {
+            container.FindChild("address").FindChild("value").GetComponent<UILabel>().text = "未绑定地址";
+        }
+        if (user.bacnkAccount.names.Count > 0)
+        {
+            container.FindChild("bank").FindChild("value").GetComponent<UILabel>().text = user.bacnkAccount.names[0] + " " + user.bacnkAccount.accounts[0];
+        }
+        else
+        {
+            container.FindChild("bank").FindChild("value").GetComponent<UILabel>().text = "未绑定银行卡";
+        }
+        container.FindChild("other").FindChild("value").GetComponent<UILabel>().text = MyUtilTools.stringIsNull(user.other) ? "没有备注" : user.other;
+    }
+
+    public void backFromUserLook()
+    {
+       Transform right  =  transform.FindChild("right");
+       right.FindChild("order-help").gameObject.SetActive(true);
+       right.FindChild("user-look").gameObject.SetActive(false);
     }
 }

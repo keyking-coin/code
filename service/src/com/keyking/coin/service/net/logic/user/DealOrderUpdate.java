@@ -21,38 +21,44 @@ public class DealOrderUpdate extends AbstractLogic {
 		if (deal != null){
 			DealOrder order = deal.searchOrder(orderId);
 			if (order != null){
-				resp.add(order);
-				boolean couldUpdate = false;
-				if (index == 1 || index == 3){//买家付款，确认收货
-					if ((deal.getSellFlag() == 0 && deal.getUid() == uid) || (deal.getSellFlag() == 1 && order.getBuyId() == uid)){
-						couldUpdate = true;
+				synchronized (order) {
+					if (order.checkRevoke(DealOrder.ORDER_REVOKE_ALL)){
+						resp.setError("订单已撤销");
+						return resp;
 					}
-				}else if (index == 2){//卖家发货
-					if ((deal.getSellFlag() == 1 && deal.getUid() == uid) || (deal.getSellFlag() == 0 && order.getBuyId() == uid)){
-						couldUpdate = true;
-					}
-				}
-				if (couldUpdate){
-					byte pre = order.getState();
-					order.addTimes(index);
-					NET.sendMessageToAllClent(order.clientMessage(Module.UPDATE_FLAG),null);
-					resp.setSucces();
-					if (order.getHelpFlag() == 1){
-						if (order.getState() == 1 || order.getState() == 4){
-							NET.sendMessageToAdmin(order.clientAdminMessage(Module.ADD_FLAG));
-						}else if (pre == 1 || pre == 4){
-							NET.sendMessageToAdmin(order.clientAdminMessage(Module.DEL_FLAG));
+					resp.add(order);
+					boolean couldUpdate = false;
+					if (index == 1 || index == 3){//买家付款，确认收货
+						if ((deal.getSellFlag() == 0 && deal.getUid() == uid) || (deal.getSellFlag() == 1 && order.getBuyId() == uid)){
+							couldUpdate = true;
+						}
+					}else if (index == 2){//卖家发货
+						if ((deal.getSellFlag() == 1 && deal.getUid() == uid) || (deal.getSellFlag() == 0 && order.getBuyId() == uid)){
+							couldUpdate = true;
 						}
 					}
-					ServerLog.info(CTRL.search(uid).getAccount() + " update deal-order state from " + pre + " to " + order.getState() + " ----> id is " + orderId);
-				}else{
-					resp.setError("您没有权限那么做");
+					if (couldUpdate){
+						byte pre = order.getState();
+						order.addTimes(index);
+						NET.sendMessageToAllClent(order.clientMessage(Module.UPDATE_FLAG),null);
+						resp.setSucces();
+						if (order.getHelpFlag() == 1){
+							if (order.getState() == 1 || order.getState() == 4){
+								NET.sendMessageToAdmin(order.clientAdminMessage(Module.ADD_FLAG));
+							}else if (pre == 1 || pre == 4){
+								NET.sendMessageToAdmin(order.clientAdminMessage(Module.DEL_FLAG));
+							}
+						}
+						ServerLog.info(CTRL.search(uid).getAccount() + " update deal-order state from " + pre + " to " + order.getState() + " ----> id is " + orderId);
+					}else{
+						resp.setError("您没有权限那么做");
+					}
 				}
 			}else{
 				resp.setError("订单编号错误");
 			}
 		}else{
-			resp.setError("交易已取消");
+			resp.setError("找不到交易");
 		}
 		return resp;
 	}

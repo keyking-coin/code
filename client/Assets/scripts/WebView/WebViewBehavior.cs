@@ -21,7 +21,7 @@ public class WebViewBehavior : MonoBehaviour
         webView = new WebViewNull();
 #elif UNITY_IPHONE
 		webView = new WebViewIOS();
-#else
+#elif UNITY_ANDROID
 		webView = new WebViewAndroid();
 #endif
         webView.Init(name);

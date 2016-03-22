@@ -384,6 +384,12 @@ public class MainData{
             other = buffer.ReadString();
         }
 
+        public void deserializeModuleOne(ByteBuffer buffer)
+        {
+            buffer.ReadByte();
+            deserialize(buffer);
+        }
+
         public bool login()
         {
             return id > 0;

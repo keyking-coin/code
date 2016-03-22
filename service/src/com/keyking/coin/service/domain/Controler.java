@@ -15,6 +15,7 @@ import com.keyking.coin.service.domain.deal.DealOrder;
 import com.keyking.coin.service.domain.deal.Revert;
 import com.keyking.coin.service.domain.deal.SimpleOrderModule;
 import com.keyking.coin.service.domain.user.RankEntity;
+import com.keyking.coin.service.domain.user.Seller;
 import com.keyking.coin.service.domain.user.UserCharacter;
 import com.keyking.coin.service.http.data.HttpTouristDealOrderData;
 import com.keyking.coin.service.net.data.SearchCondition;
@@ -38,13 +39,18 @@ public class Controler implements Instances{
 	}
 	
 	public void load(){
-		List<Deal> lis = DB.getDealDao().searchMore();
+		ServerLog.info("load all deals");
+		List<Deal> lis = DB.getDealDao().loadAll();
 		for (Deal deal : lis){
 			deal.read(recents);
 			deals.add(deal);
 		}
 		Collections.sort(recents);
-		ServerLog.info("load all deals");
+		ServerLog.info("load all users");
+		List<UserCharacter> users = DB.getUserDao().loadAll();
+		for (UserCharacter user : users){
+			characters.put(user.getAccount(),user);
+		}
 	}
 	
 	public UserCharacter login(String account,String pwd,GeneralResp resp){
@@ -384,6 +390,20 @@ public class Controler implements Instances{
 			}
 		}
 		DB.getUserDao().searchFuzzy(key,result);
+		return result;
+	}
+
+	public List<UserCharacter> getSearchRZ() {
+		List<UserCharacter> result = new ArrayList<UserCharacter>();
+		for (UserCharacter user : characters.values()){
+			if (!user.getPermission().isBuyer()){
+				continue;
+			}
+			Seller seller = user.getSeller();
+			if (seller!= null && !seller.isPass()){
+				result.add(user);
+			}
+		}
 		return result;
 	}
 }

@@ -52,6 +52,14 @@ public class UserPermission {
 		return permission.ordinal() == PermissionType.admin.ordinal();
 	}
 	
+	public boolean isSeller(){
+		return permission.ordinal() == PermissionType.seller.ordinal();
+	}
+	
+	public boolean isBuyer(){
+		return permission.ordinal() == PermissionType.buyer.ordinal();
+	}
+	
 	public String serialize(){
 		String str = JsonUtil.ObjectToJsonString(permission);
 		return lastPayTime + "|" + endTime + "|" + str;

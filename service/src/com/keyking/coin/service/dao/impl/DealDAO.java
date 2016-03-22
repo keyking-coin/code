@@ -95,7 +95,7 @@ public class DealDAO extends JdbcDaoSupport {
 		return deal;
 	}
 	
-	public List<Deal> searchMore() {
+	public List<Deal> loadAll() {
 		List<Deal> deals = null;
 		try {
 			deals = getJdbcTemplate().query(SELECT_SQL_STR_MORE,row);

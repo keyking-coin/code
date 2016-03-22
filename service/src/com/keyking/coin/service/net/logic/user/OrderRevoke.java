@@ -27,6 +27,10 @@ public class OrderRevoke extends AbstractLogic {
 					order.clientMessage(Module.UPDATE_FLAG,modules);
 					NET.sendMessageToAllClent(modules,null);
 					resp.setSucces();
+					if (order.checkRevoke(DealOrder.ORDER_REVOKE_ALL)){
+						//双方都同意了
+						NET.sendMessageToAdmin(order.clientAdminMessage(Module.DEL_FLAG));
+					}
 					return resp;
 				}else{
 					resp.setError("已申请等待对方回应");

@@ -21,28 +21,31 @@ public class AddressChange extends AbstractLogic {
 				resp.setError("您已经被封号原因是:" + forbidStr);
 				return resp;
 			}
-			if (type == 0){
-				if (StringUtil.isNull(address)){
-					resp.setError("地址不能为空");
-					return resp;
+			synchronized (user) {
+				if (type == 0){
+					if (StringUtil.isNull(address)){
+						resp.setError("地址不能为空");
+						return resp;
+					}
+					if (!user.addAddress(address)){
+						resp.setError("此地址已在列表");
+						return resp;
+					}
+				}else{
+					if (StringUtil.isNull(address)){
+						resp.setError("不能删除空的地址");
+						return resp;
+					}
+					if (!user.removeAddress(address)){
+						resp.setError("在列表中找不到要删除的地址");
+						return resp;
+					}
 				}
-				if (!user.addAddress(address)){
-					resp.setError("此地址已在列表");
-					return resp;
-				}
-			}else{
-				if (StringUtil.isNull(address)){
-					resp.setError("不能删除空的地址");
-					return resp;
-				}
-				if (!user.removeAddress(address)){
-					resp.setError("在列表中找不到要删除的地址");
-					return resp;
-				}
+				user.setNeedSave(true);
+				resp.add(type);
+				resp.add(user);
+				resp.setSucces();
 			}
-			resp.add(type);
-			resp.add(user);
-			resp.setSucces();
 		}
 		return resp;
 	}

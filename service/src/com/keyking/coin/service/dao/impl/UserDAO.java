@@ -182,6 +182,16 @@ public class UserDAO extends JdbcDaoSupport {
 			}
 		}
 	}
+	
+	public List<UserCharacter> loadAll() {
+		List<UserCharacter> users = null;
+		try {
+			users = getJdbcTemplate().query("select * from users where 1=1",userRow);
+		} catch (DataAccessException e) {
+			e.printStackTrace();
+		}
+		return users;
+	}
 }
  
  

@@ -5,6 +5,7 @@ import com.keyking.coin.service.domain.user.UserCharacter;
 import com.keyking.coin.service.net.buffer.DataBuffer;
 import com.keyking.coin.service.net.logic.AbstractLogic;
 import com.keyking.coin.service.net.resp.impl.GeneralResp;
+import com.keyking.coin.service.net.resp.module.Module;
 import com.keyking.coin.util.StringUtil;
 import com.keyking.coin.util.TimeUtils;
 
@@ -66,6 +67,7 @@ public class AdminUserCommit extends AbstractLogic {
 				}
 				target.setOther(other);
 				target.setNeedSave(true);
+				NET.sendMessageToClent(user.clientMessage(Module.UPDATE_FLAG),user.getSessionAddress());
 				resp.setSucces();
 			}else{
 				resp.setError("找不到用户" + account);

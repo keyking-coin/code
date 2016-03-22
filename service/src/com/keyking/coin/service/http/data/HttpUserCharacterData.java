@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.keyking.coin.service.domain.user.Account;
 import com.keyking.coin.service.domain.user.Credit;
+import com.keyking.coin.service.domain.user.Recharge;
 import com.keyking.coin.service.domain.user.Seller;
 import com.keyking.coin.service.domain.user.UserCharacter;
 
@@ -26,6 +27,7 @@ public class HttpUserCharacterData {
 	List<Long> favorites = new ArrayList<Long>();//收藏夹
 	byte breach;//违约次数
 	Seller seller;
+	Recharge recharge;
 	
 	public HttpUserCharacterData(UserCharacter user){
 		id = user.getId();
@@ -41,10 +43,11 @@ public class HttpUserCharacterData {
 		push = user.getPush();
 		signature = user.getSignature();
 		banks.addAll(user.getBankAccount().getAccounts());
-		credit.copy(user.getCredit());
+		credit = user.getCredit();
 		breach = user.getBreach();
 		favorites.addAll(user.getFavorites());
 		seller = user.getSeller();
+		recharge = user.getRecharge();
 	}
 	
 	public long getId() {
@@ -182,4 +185,13 @@ public class HttpUserCharacterData {
 	public void setSeller(Seller seller) {
 		this.seller = seller;
 	}
+
+	public Recharge getRecharge() {
+		return recharge;
+	}
+
+	public void setRecharge(Recharge recharge) {
+		this.recharge = recharge;
+	}
+	
 }

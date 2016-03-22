@@ -17,7 +17,7 @@ public class HttpSellerCommit extends HttpHandler {
 		long uid   = Long.parseLong(request.getParameter("uid"));//我的编号
 		String pwd = request.getParameter("pwd");//验证码
 		byte type = Byte.parseByte(request.getParameter("type"));//0个人,1公司
-		String keyCode = request.getParameter("key");//验证码
+		String keyCode = request.getParameter("key");//证件编号
 		String pic = request.getParameter("pic");//图片名称
 		UserCharacter user = CTRL.search(uid);
 		if (user != null){

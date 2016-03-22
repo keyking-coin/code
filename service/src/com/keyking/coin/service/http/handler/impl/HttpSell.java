@@ -64,7 +64,7 @@ public class HttpSell extends HttpHandler {
 		}
 		boolean sendFlag = sendType.equals("1");
 		Seller seller = user.getSeller();
-		if (seller != null && seller.isPass()){
+		if (user.getPermission().isSeller()){
 			deal.setNeedDeposit(total_value);
 			if (sendFlag && user.getRecharge().getCurMoney() < 10){//强制推送
 				message(request,response,"您的邮游币不足请先去充值");

@@ -17,6 +17,7 @@ public class AdminLogin : MonoBehaviour {
             transform.parent.parent.FindChild("admin-main").gameObject.SetActive(true);
             MainData.instance.user.deserialize(buffer);
             AdminAgencyManager.deserializeAll(buffer);
+            AdminUserRZ.deserializeAll(buffer);
         }
 	}
 

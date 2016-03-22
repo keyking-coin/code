@@ -58,7 +58,7 @@ public class AdminDealManager : MonoBehaviour {
         buffer = MyUtilTools.tryToLogic("AdminOrderRevoke");
         if (buffer != null)
         {
-            DialogUtil.tip("撤销成功");
+            DialogUtil.tip("撤销成功",true);
         }
 	}
 

@@ -236,7 +236,7 @@ public class DealBody : Object
                     if (!admin)
                     {
                         if ((item.seller && MainData.instance.user.id == buyId) ||
-                                                (!item.seller && MainData.instance.user.id == item.uid) && state >= 0)
+                            (!item.seller && MainData.instance.user.id == item.uid) && state >= 0)
                         {//我是买家
                             label.transform.parent.FindChild("icon-no").FindChild("line").gameObject.SetActive(true);
                         }

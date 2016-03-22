@@ -23,17 +23,20 @@ public class DealDel extends AbstractLogic {
 			return resp;
 		}
 		if (deal != null){
-			String tips = deal.couldDel();
-			if (tips != null){
-				resp.setError(tips);
-			}else if (deal.getUid() == uid){
-				deal.setRevoke(true);
-				resp.setSucces();
-				resp.add(deal.getId());
-				NET.sendMessageToAllClent(deal.clientMessage(Module.DEL_FLAG),null);
-				ServerLog.info(user.getAccount() + " revoke deal ----> id is " + id);
-			}else{
-				resp.setError("你没有权限这样做");
+			synchronized (deal) {
+				String tips = deal.couldDel();
+				if (tips != null){
+					resp.setError(tips);
+				}else if (deal.getUid() == uid){
+					deal.setRevoke(true);
+					resp.setSucces();
+					resp.add(deal.getId());
+					deal.setNeedSave(true);
+					NET.sendMessageToAllClent(deal.clientMessage(Module.DEL_FLAG),null);
+					ServerLog.info(user.getAccount() + " revoke deal ----> id is " + id);
+				}else{
+					resp.setError("你没有权限这样做");
+				}
 			}
 		}else{
 			resp.setError("交易帖子不存在");

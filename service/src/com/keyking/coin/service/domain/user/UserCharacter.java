@@ -310,11 +310,11 @@ public class UserCharacter extends EntitySaver{
 		buffer.putUTF(account);
 		buffer.putUTF(face);
 		buffer.putUTF(nikeName);
-		buffer.putUTF(name);
+		buffer.putUTF(name == null ? "" : name);
 		buffer.putUTF(title);
 		buffer.putUTF(registTime);
-		buffer.putUTF(identity);
-		buffer.putUTF(signature);
+		buffer.putUTF(identity == null ? "" : identity);
+		buffer.putUTF(signature == null ? "" : signature);
 		buffer.put(push);
 		buffer.putInt(addresses.size());
 		for (String address : addresses){
@@ -534,6 +534,26 @@ public class UserCharacter extends EntitySaver{
 		return null;
 	}
 	
+	public ModuleResp clientMessage(byte type){
+		ModuleResp modules = new ModuleResp();
+		Module module = new Module();
+		module.setCode(Module.MODULE_CODE_USER);
+		module.setFlag(type);
+		module.add(this);
+		modules.addModule(module);
+		return modules;
+	}
+	
+	public ModuleResp clientAdminMessage(byte type){
+		ModuleResp modules = new ModuleResp();
+		Module module = new Module();
+		module.setCode(Module.MODULE_CODE_ADMIN_SELLER);
+		module.setFlag(type);
+		module.add(this);
+		modules.addModule(module);
+		return modules;
+	}
+	
 	public List<Message> getFriendMessages(long fid){
 		String str1 = "[" + id + "," + fid + "]";
 		String str2 = "[" + fid + "," + id + "]";
@@ -567,7 +587,7 @@ public class UserCharacter extends EntitySaver{
 	}
 
 	public boolean addAddress(String address) {
-		if (StringUtil.isNull(address) || addresses.contains(address)){
+		if (addresses.contains(address)){
 			return false;
 		}
 		addresses.add(address);

@@ -18,7 +18,6 @@ public class HttpUserUpdate extends HttpHandler {
 		String face      = request.getParameter("face");
 		String signature = request.getParameter("signa");
 		String pushStr   = request.getParameter("push");
-		byte push        = Byte.parseByte(pushStr);
 		String name      = request.getParameter("name");
 		String identity  = request.getParameter("identity");
 		UserCharacter user = CTRL.search(uid);
@@ -39,6 +38,7 @@ public class HttpUserUpdate extends HttpHandler {
 				user.setSignature(signature);
 			}
 			if (!StringUtil.isNull(pushStr)){
+				byte push = Byte.parseByte(pushStr);
 				user.setPush(push);
 			}
 			if (!StringUtil.isNull(name)){

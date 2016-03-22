@@ -5,6 +5,7 @@ import com.keyking.coin.service.domain.user.UserCharacter;
 import com.keyking.coin.service.net.buffer.DataBuffer;
 import com.keyking.coin.service.net.logic.AbstractLogic;
 import com.keyking.coin.service.net.resp.impl.GeneralResp;
+import com.keyking.coin.service.net.resp.module.Module;
 import com.keyking.coin.util.ServerLog;
 import com.keyking.coin.util.TimeUtils;
 
@@ -35,6 +36,7 @@ public class SellerCommit extends AbstractLogic {
 					user.setNeedSave(true);
 					resp.setSucces();
 					resp.add(seller);
+					NET.sendMessageToAdmin(user.clientAdminMessage(Module.ADD_FLAG));
 					ServerLog.info(user.getAccount() + " applyed seller  approve at " + createTime);
 				}else{
 					resp.setError("系统错误");
