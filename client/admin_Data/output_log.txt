@@ -16,100 +16,7 @@ Platform assembly: H:\workspace\keyking-coin\client\admin_Data\Managed\LitJson.d
 Loading H:\workspace\keyking-coin\client\admin_Data\Managed\LitJson.dll into Unity Child Domain
 Platform assembly: H:\workspace\keyking-coin\client\admin_Data\Managed\zxing.unity.dll (this message is harmless)
 Loading H:\workspace\keyking-coin\client\admin_Data\Managed\zxing.unity.dll into Unity Child Domain
-- Completed reload, in  0.049 seconds
-desktop: 1920x1080 60Hz; virtual: 1920x1080 at 0,0
-<RI> Initializing input.
-XInput1_3.dll not found.
-<RI> Input initialized.
-Initialize engine version: 4.6.0f3 (30840d631a27)
-GfxDevice: creating device client; threaded=1
-Direct3D:
-    Version:  Direct3D 11.0 [level 11.0]
-    Renderer: NVIDIA GeForce GTX 650 (ID=0xfc6)
-    Vendor:   NVIDIA
-    VRAM:     971 MB
-Begin MonoManager ReloadAssembly
-Platform assembly: H:\workspace\keyking-coin\client\admin_Data\Managed\UnityEngine.dll (this message is harmless)
-Loading H:\workspace\keyking-coin\client\admin_Data\Managed\UnityEngine.dll into Unity Child Domain
-Platform assembly: H:\workspace\keyking-coin\client\admin_Data\Managed\Assembly-CSharp.dll (this message is harmless)
-Loading H:\workspace\keyking-coin\client\admin_Data\Managed\Assembly-CSharp.dll into Unity Child Domain
-Platform assembly: H:\workspace\keyking-coin\client\admin_Data\Managed\UnityEngine.UI.dll (this message is harmless)
-Loading H:\workspace\keyking-coin\client\admin_Data\Managed\UnityEngine.UI.dll into Unity Child Domain
-Platform assembly: H:\workspace\keyking-coin\client\admin_Data\Managed\LitJson.dll (this message is harmless)
-Loading H:\workspace\keyking-coin\client\admin_Data\Managed\LitJson.dll into Unity Child Domain
-Platform assembly: H:\workspace\keyking-coin\client\admin_Data\Managed\zxing.unity.dll (this message is harmless)
-Loading H:\workspace\keyking-coin\client\admin_Data\Managed\zxing.unity.dll into Unity Child Domain
-- Completed reload, in  0.047 seconds
-desktop: 1920x1080 60Hz; virtual: 1920x1080 at 0,0
-<RI> Initializing input.
-XInput1_3.dll not found.
-<RI> Input initialized.
-Platform assembly: H:\workspace\keyking-coin\client\admin_Data\Managed\System.Core.dll (this message is harmless)
-Platform assembly: H:\workspace\keyking-coin\client\admin_Data\Managed\System.dll (this message is harmless)
-SocketException: 一个封锁操作被对 WSACancelBlockingCall 的调用中断。
-
-  at System.Net.Sockets.Socket.Receive (System.Byte[] buffer) [0x00000] in <filename unknown>:0 
-  at NetUtil.ReceiveSorket () [0x00000] in <filename unknown>:0 
-UnityEngine.Debug:Internal_LogException(Exception, Object)
-UnityEngine.Debug:LogException(Exception)
-NetUtil:ReceiveSorket()
- 
-(Filename:  Line: -1)
-
-Initialize engine version: 4.6.0f3 (30840d631a27)
-GfxDevice: creating device client; threaded=1
-Direct3D:
-    Version:  Direct3D 11.0 [level 11.0]
-    Renderer: NVIDIA GeForce GTX 650 (ID=0xfc6)
-    Vendor:   NVIDIA
-    VRAM:     971 MB
-Begin MonoManager ReloadAssembly
-Platform assembly: H:\workspace\keyking-coin\client\admin_Data\Managed\UnityEngine.dll (this message is harmless)
-Loading H:\workspace\keyking-coin\client\admin_Data\Managed\UnityEngine.dll into Unity Child Domain
-Platform assembly: H:\workspace\keyking-coin\client\admin_Data\Managed\Assembly-CSharp.dll (this message is harmless)
-Loading H:\workspace\keyking-coin\client\admin_Data\Managed\Assembly-CSharp.dll into Unity Child Domain
-Platform assembly: H:\workspace\keyking-coin\client\admin_Data\Managed\UnityEngine.UI.dll (this message is harmless)
-Loading H:\workspace\keyking-coin\client\admin_Data\Managed\UnityEngine.UI.dll into Unity Child Domain
-Platform assembly: H:\workspace\keyking-coin\client\admin_Data\Managed\LitJson.dll (this message is harmless)
-Loading H:\workspace\keyking-coin\client\admin_Data\Managed\LitJson.dll into Unity Child Domain
-Platform assembly: H:\workspace\keyking-coin\client\admin_Data\Managed\zxing.unity.dll (this message is harmless)
-Loading H:\workspace\keyking-coin\client\admin_Data\Managed\zxing.unity.dll into Unity Child Domain
-- Completed reload, in  0.046 seconds
-desktop: 1920x1080 60Hz; virtual: 1920x1080 at 0,0
-<RI> Initializing input.
-XInput1_3.dll not found.
-<RI> Input initialized.
-Platform assembly: H:\workspace\keyking-coin\client\admin_Data\Managed\System.Core.dll (this message is harmless)
-Platform assembly: H:\workspace\keyking-coin\client\admin_Data\Managed\System.dll (this message is harmless)
-SocketException: 一个封锁操作被对 WSACancelBlockingCall 的调用中断。
-
-  at System.Net.Sockets.Socket.Receive (System.Byte[] buffer) [0x00000] in <filename unknown>:0 
-  at NetUtil.ReceiveSorket () [0x00000] in <filename unknown>:0 
-UnityEngine.Debug:Internal_LogException(Exception, Object)
-UnityEngine.Debug:LogException(Exception)
-NetUtil:ReceiveSorket()
- 
-(Filename:  Line: -1)
-
-Initialize engine version: 4.6.0f3 (30840d631a27)
-GfxDevice: creating device client; threaded=1
-Direct3D:
-    Version:  Direct3D 11.0 [level 11.0]
-    Renderer: NVIDIA GeForce GTX 650 (ID=0xfc6)
-    Vendor:   NVIDIA
-    VRAM:     971 MB
-Begin MonoManager ReloadAssembly
-Platform assembly: H:\workspace\keyking-coin\client\admin_Data\Managed\UnityEngine.dll (this message is harmless)
-Loading H:\workspace\keyking-coin\client\admin_Data\Managed\UnityEngine.dll into Unity Child Domain
-Platform assembly: H:\workspace\keyking-coin\client\admin_Data\Managed\Assembly-CSharp.dll (this message is harmless)
-Loading H:\workspace\keyking-coin\client\admin_Data\Managed\Assembly-CSharp.dll into Unity Child Domain
-Platform assembly: H:\workspace\keyking-coin\client\admin_Data\Managed\UnityEngine.UI.dll (this message is harmless)
-Loading H:\workspace\keyking-coin\client\admin_Data\Managed\UnityEngine.UI.dll into Unity Child Domain
-Platform assembly: H:\workspace\keyking-coin\client\admin_Data\Managed\LitJson.dll (this message is harmless)
-Loading H:\workspace\keyking-coin\client\admin_Data\Managed\LitJson.dll into Unity Child Domain
-Platform assembly: H:\workspace\keyking-coin\client\admin_Data\Managed\zxing.unity.dll (this message is harmless)
-Loading H:\workspace\keyking-coin\client\admin_Data\Managed\zxing.unity.dll into Unity Child Domain
-- Completed reload, in  0.044 seconds
+- Completed reload, in  0.045 seconds
 desktop: 1920x1080 60Hz; virtual: 1920x1080 at 0,0
 <RI> Initializing input.
 XInput1_3.dll not found.
@@ -117,6 +24,66 @@ XInput1_3.dll not found.
 Platform assembly: H:\workspace\keyking-coin\client\admin_Data\Managed\System.Core.dll (this message is harmless)
 Platform assembly: H:\workspace\keyking-coin\client\admin_Data\Managed\System.dll (this message is harmless)
 receive<AdminLogin>:309B
+ 
+(Filename: C:/BuildAgent/work/d63dfc6385190b60/artifacts/StandalonePlayerGenerated/UnityEngineDebug.cpp Line: 49)
+
+receive<AdminMemberSearch>:29B
+ 
+(Filename: C:/BuildAgent/work/d63dfc6385190b60/artifacts/StandalonePlayerGenerated/UnityEngineDebug.cpp Line: 49)
+
+receive<AdminDealMore>:172B
+ 
+(Filename: C:/BuildAgent/work/d63dfc6385190b60/artifacts/StandalonePlayerGenerated/UnityEngineDebug.cpp Line: 49)
+
+receive<AdminDealRevoke>:23B
+ 
+(Filename: C:/BuildAgent/work/d63dfc6385190b60/artifacts/StandalonePlayerGenerated/UnityEngineDebug.cpp Line: 49)
+
+ArgumentException: length
+  at System.Array.Copy (System.Array sourceArray, Int32 sourceIndex, System.Array destinationArray, Int32 destinationIndex, Int32 length) [0x00000] in <filename unknown>:0 
+  at ByteBuffer.Read (Int32 len) [0x00000] in <filename unknown>:0 
+  at ByteBuffer.ReadLong () [0x00000] in <filename unknown>:0 
+  at AdminDealManager.Update () [0x00000] in <filename unknown>:0 
+ 
+(Filename:  Line: -1)
+
+receive<AdminDealRevoke>:23B
+ 
+(Filename: C:/BuildAgent/work/d63dfc6385190b60/artifacts/StandalonePlayerGenerated/UnityEngineDebug.cpp Line: 49)
+
+ArgumentException: length
+  at System.Array.Copy (System.Array sourceArray, Int32 sourceIndex, System.Array destinationArray, Int32 destinationIndex, Int32 length) [0x00000] in <filename unknown>:0 
+  at ByteBuffer.Read (Int32 len) [0x00000] in <filename unknown>:0 
+  at ByteBuffer.ReadLong () [0x00000] in <filename unknown>:0 
+  at AdminDealManager.Update () [0x00000] in <filename unknown>:0 
+ 
+(Filename:  Line: -1)
+
+receive<AdminDealRevoke>:23B
+ 
+(Filename: C:/BuildAgent/work/d63dfc6385190b60/artifacts/StandalonePlayerGenerated/UnityEngineDebug.cpp Line: 49)
+
+ArgumentException: length
+  at System.Array.Copy (System.Array sourceArray, Int32 sourceIndex, System.Array destinationArray, Int32 destinationIndex, Int32 length) [0x00000] in <filename unknown>:0 
+  at ByteBuffer.Read (Int32 len) [0x00000] in <filename unknown>:0 
+  at ByteBuffer.ReadLong () [0x00000] in <filename unknown>:0 
+  at AdminDealManager.Update () [0x00000] in <filename unknown>:0 
+ 
+(Filename:  Line: -1)
+
+receive<AdminDealRevoke>:23B
+ 
+(Filename: C:/BuildAgent/work/d63dfc6385190b60/artifacts/StandalonePlayerGenerated/UnityEngineDebug.cpp Line: 49)
+
+ArgumentException: length
+  at System.Array.Copy (System.Array sourceArray, Int32 sourceIndex, System.Array destinationArray, Int32 destinationIndex, Int32 length) [0x00000] in <filename unknown>:0 
+  at ByteBuffer.Read (Int32 len) [0x00000] in <filename unknown>:0 
+  at ByteBuffer.ReadLong () [0x00000] in <filename unknown>:0 
+  at AdminDealManager.Update () [0x00000] in <filename unknown>:0 
+ 
+(Filename:  Line: -1)
+
+receive<AdminLockDeal>:21B
  
 (Filename: C:/BuildAgent/work/d63dfc6385190b60/artifacts/StandalonePlayerGenerated/UnityEngineDebug.cpp Line: 49)
 
