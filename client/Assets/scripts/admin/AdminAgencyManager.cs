@@ -186,6 +186,7 @@ public class AdminAgencyManager : MonoBehaviour {
 
     public void lookSeller()
     {
+
     }
 
     public void lookBuyer()

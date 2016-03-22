@@ -18,6 +18,8 @@ public class HttpAgency extends HttpHandler {
 	//http://127.0.0.1:32104/HttpAgency?uid=1
 	@Override
 	public void handle(HttpRequestMessage request, HttpResponseMessage response) {
+		response.setContentType("text/plain");
+		response.setResponseCode(HttpResponseMessage.HTTP_STATUS_SUCCESS);
 		long uid = Long.parseLong(request.getParameter("uid"));
 		//null、入库、现货 ---> 全部类型的 、入库类型、现货类型
 		String type    = request.getParameter("type");
@@ -31,8 +33,6 @@ public class HttpAgency extends HttpHandler {
 		String buyer   = request.getParameter("buyer");
 		//null、xxx ---> 不限有效期、其他选择的字符串(到目前无效，到目前有效)
 		String valid   = request.getParameter("valid");
-		response.setContentType("text/plain");
-		response.setResponseCode(HttpResponseMessage.HTTP_STATUS_SUCCESS);
 		List<Deal> deals = null;
 		UserCharacter user = CTRL.search(uid);
 		SearchCondition condition = new SearchCondition();

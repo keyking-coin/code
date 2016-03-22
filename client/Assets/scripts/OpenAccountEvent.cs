@@ -93,9 +93,10 @@ public class OpenAccountEvent : CenterEvent {
             return;
         }
         SendMessageEntity entity = new SendMessageEntity();
-        string dateStr = DateTime.Now.Year + "-" + DateTime.Now.Month + "-" + DateTime.Now.Day + DateTime.Now.Hour + "-" + DateTime.Now.Minute + "-" + DateTime.Now.Second + ".jpg";
-        entity.names.Add(tel_input.value + "-indent-front.jpg");
-        entity.names.Add(tel_input.value + "-indent-back.jpg");
+        System.DateTime tody = System.DateTime.Now;
+        string dateStr = tody.Year + "-" + tody.Month + "-" + tody.Day + "-" + tody.Hour + "-" + tody.Minute + "-" + tody.Second + ".jpg";
+        entity.names.Add(tel_input.value + "-indent-front-" + dateStr);
+        entity.names.Add(tel_input.value + "-indent-back-" + dateStr);
         entity.names.Add(tel_input.value + "-bank-front-" + dateStr);
         entity.buffer.skip(4);
         entity.buffer.WriteString("OpenAccountApply");

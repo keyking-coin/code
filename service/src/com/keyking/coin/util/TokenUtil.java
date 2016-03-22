@@ -50,6 +50,19 @@ public class TokenUtil {
 		return 1;
 	}
 	
+	public String check(String key){
+		String code = codes.get(key);
+		if (code != null){
+			String[] ss = code.split(",");
+			long time = Long.parseLong(ss[0]);
+			if (time + 5 * 60 * 1000 < TimeUtils.nowLong()){
+				return null;
+			}
+			return code;
+		}
+		return null;
+	}
+	
 	public void remove(String key){
 		codes.remove(key);
 	}

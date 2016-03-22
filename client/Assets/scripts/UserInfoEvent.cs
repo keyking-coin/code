@@ -599,10 +599,7 @@ public class UserInfoEvent : CenterEvent {
 		show(curShow,false);
 		show(preShow,true);
 		clears();
-		//CameraUtil.pop(7);
 		title.GetComponentInChildren<UILabel>().text = "个人中心";
-		title.GetComponent<JustChangeLayer>().change(5);
-		//title.transform.FindChild ("ok").gameObject.SetActive(true);
 		callback = null;
 	}
 
@@ -613,13 +610,8 @@ public class UserInfoEvent : CenterEvent {
 		preShow.Add(obj1);
 		obj2.SetActive(true);
 		curShow.Add(obj2);
-		//obj2.GetComponent<JustChangeLayer>().change(1,10,obj2);
-		//CameraUtil.push(7,2);
 		UILabel label  = title.GetComponentInChildren<UILabel>();
 		label.text = "用户认证";
-		//JustChangeLayer layer = title.GetComponent<JustChangeLayer>();
-		//layer.change(1,10,title);
-		//title.transform.FindChild ("ok").gameObject.SetActive(false);
         callback = new EventDelegate(backFromRZ);
 	}
 
@@ -783,7 +775,9 @@ public class UserInfoEvent : CenterEvent {
         EventDelegate ok = new EventDelegate(this, "uploadPicOk");
         ok.parameters[0] = new EventDelegate.Parameter();
         ok.parameters[0].obj = entity;
-        string picName = MainData.instance.user.account + "-sellercommit.jpg";
+        System.DateTime tody = System.DateTime.Now;
+        string dateStr = tody.Year + "-" + tody.Month + "-" + tody.Day + "-" + tody.Hour + "-" + tody.Minute + "-" + tody.Second + ".jpg";
+        string picName = MainData.instance.user.account + "-sellercommit-" + dateStr;
         entity.buffer.skip(4);
         entity.buffer.WriteString("SellerCommit");
         entity.buffer.WriteLong(MainData.instance.user.id);

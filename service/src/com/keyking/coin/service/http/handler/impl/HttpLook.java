@@ -13,6 +13,7 @@ public class HttpLook extends HttpHandler {
 	@Override
 	public void handle(HttpRequestMessage request, HttpResponseMessage response) {
 		response.setContentType("text/plain");
+		response.setResponseCode(HttpResponseMessage.HTTP_STATUS_SUCCESS);
 		String uid_str  = request.getParameter("uid");//要看的人的uid
 		String mid_str  = request.getParameter("mid");//我的uid
 		String deal_str = request.getParameter("did");//交易帖的编号
@@ -40,7 +41,6 @@ public class HttpLook extends HttpHandler {
 			if (look){
 				data.getCredit().copy(user.getCredit());
 			}
-			response.setResponseCode(HttpResponseMessage.HTTP_STATUS_SUCCESS);
 			response.appendBody(formatJosn(request,JsonUtil.ObjectToJsonString(data)));
 		}
 	}

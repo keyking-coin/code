@@ -22,6 +22,8 @@ public class HttpDealSearch extends HttpHandler {
 	//http://127.0.0.1:32104/HttpDealSearch?search=1&type=入库
 	@Override
 	public void handle(HttpRequestMessage request, HttpResponseMessage response) {
+		response.setContentType("text/plain");
+		response.setResponseCode(HttpResponseMessage.HTTP_STATUS_SUCCESS);
 		//null就是查询最近7天交易记录，默认点击交易区就传null，其他值都标示是条件查询
 		String uid_str  = request.getParameter("uid");
 		long uid = Long.parseLong(uid_str);
@@ -38,7 +40,6 @@ public class HttpDealSearch extends HttpHandler {
 		String buyer   = request.getParameter("buyer");
 		//null、xxx ---> 不限有效期、其他选择的字符串(到目前无效，到目前有效)
 		String valid   = request.getParameter("valid");
-		response.setResponseCode(HttpResponseMessage.HTTP_STATUS_SUCCESS);
 		List<Deal> deals = null;
 		UserCharacter user = CTRL.search(uid);
 		if (search != null && search.equals("null")){//普通查询7天内的所有的帖子

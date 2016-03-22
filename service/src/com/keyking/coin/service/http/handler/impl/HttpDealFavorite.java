@@ -11,6 +11,7 @@ public class HttpDealFavorite extends HttpHandler {
 	@Override
 	public void handle(HttpRequestMessage request, HttpResponseMessage response) {
 		response.setContentType("text/plain");
+		response.setResponseCode(HttpResponseMessage.HTTP_STATUS_SUCCESS);
 		String type     = request.getParameter("type");//0收藏,1取消收藏
 		String uid_str  = request.getParameter("uid");//我的编号
 		String deal_str = request.getParameter("did");//收藏的帖子编号
@@ -34,7 +35,6 @@ public class HttpDealFavorite extends HttpHandler {
 						user.getFavorites().remove(dealId);
 					}
 				}
-				response.setResponseCode(HttpResponseMessage.HTTP_STATUS_SUCCESS);
 				String str = "{\"result\":\"ok\"}";
 				response.appendBody(formatJosn(request,str));
 			}

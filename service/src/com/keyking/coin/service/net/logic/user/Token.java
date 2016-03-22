@@ -10,11 +10,14 @@ public class Token extends AbstractLogic{
 	public Object doLogic(DataBuffer buffer, String logicName) throws Exception {
 		GeneralResp resp = new GeneralResp(logicName);
 		String key    = buffer.getUTF();
-		String modlue = buffer.getUTF();
-		String code = TOKEN.create(key);
+		buffer.getUTF();
+		String code = TOKEN.check(key);
+		if (code == null){
+			code = TOKEN.create(key);
+		}
 		resp.setSucces();
-		if (!SMS.send(modlue,key,code)){
-			resp.setError("系统错误 : " + code);
+		if (!SMS.sendToken(key,code)){
+			resp.setError("系统错误 ");
 		}
 		return resp;
 	}

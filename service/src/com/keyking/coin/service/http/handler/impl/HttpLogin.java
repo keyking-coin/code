@@ -14,10 +14,10 @@ public class HttpLogin extends HttpHandler {
 	//http://139.196.30.53:32104/HttpLogin?account=13856094894&pwd=123456789
 	@Override
 	public void handle(HttpRequestMessage request,HttpResponseMessage response) {
-		String account = request.getParameter("account");  
-		String pwd     = request.getParameter("pwd");
         response.setContentType("text/plain");
         response.setResponseCode(HttpResponseMessage.HTTP_STATUS_SUCCESS);
+		String account = request.getParameter("account");  
+		String pwd     = request.getParameter("pwd");
         UserCharacter user = CTRL.search(account);
         Map<String,Object> datas = new HashMap<String,Object>();
 		if (user != null){
