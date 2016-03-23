@@ -54,11 +54,13 @@ public class Issue extends AbstractLogic{
 		deal.setHelpFlag(helpFlag);
 		float total_value = num * price;
 		if (user != null){
+			/*
 			float maxCredit = Math.max(user.computeMaxCredit(),user.computeTempCredit());
-			if (user.computeUsedCredit() + total_value > maxCredit){
+			float haveUsed = user.computeUsedCredit();
+			if (helpFlag == 0 && haveUsed + total_value > maxCredit){
 				resp.setError("你的信用不足");
 				return resp;
-			}
+			}*/
 			Seller seller = user.getSeller();
 			if (user.getPermission().seller()){
 				if (sendType == 1 && user.getRecharge().getCurMoney() < 10){//强制推送
@@ -78,7 +80,6 @@ public class Issue extends AbstractLogic{
 					NET.sendMessageToAllClent(deal.clientMessage(Module.ADD_FLAG),null);
 					ServerLog.info(user.getAccount() + " deployed deal-sell ok ----> id is " + deal.getId());
 				}
-				
 			}else if (seller != null && !seller.isPass()){
 				resp.setError("请等待卖家认证通过");
 			}else{

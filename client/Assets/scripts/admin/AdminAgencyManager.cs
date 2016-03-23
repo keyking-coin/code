@@ -20,6 +20,7 @@ public class AdminAgencyManager : MonoBehaviour {
         mjqr = container.transform.FindChild("mjqr");
         mjfk_link = mjfk.GetComponent<DownOpenLink>();
         mjqr_link = mjqr.GetComponent<DownOpenLink>();
+
 	}
 	
 	// Update is called once per frame
@@ -52,6 +53,19 @@ public class AdminAgencyManager : MonoBehaviour {
         if (buffer != null)
         {
             DialogUtil.tip("撤销成功",true);
+        }
+        buffer = MyUtilTools.tryToLogic("AdminDealOrderUpdate");
+        if (buffer != null)
+        {
+            DialogUtil.tip("操作成功",true);
+        }
+        Transform right = transform.FindChild("right");
+        if (orders.Count == 0)
+        {
+            right.FindChild("order-help").gameObject.SetActive(false);
+            right.FindChild("appraise").gameObject.SetActive(false);
+            right.FindChild("user-look").gameObject.SetActive(false);
+            return;
         }
 	}
 

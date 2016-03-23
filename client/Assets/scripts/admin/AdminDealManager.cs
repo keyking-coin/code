@@ -65,6 +65,11 @@ public class AdminDealManager : MonoBehaviour {
         {
             DialogUtil.tip("撤销成功",true);
         }
+        buffer = MyUtilTools.tryToLogic("AdminLockDeal");
+        if (buffer != null)
+        {
+            DialogUtil.tip("操作成功",true);
+        }
 	}
 
     void refreshList()
@@ -291,7 +296,7 @@ public class AdminDealManager : MonoBehaviour {
                     GameObject buy_obj = body.FindChild("buyer-appraise").gameObject;
                     GameObject sell_obj = body.FindChild("seller-appraise").gameObject;
                     order.buyerAppraise.insterToObj(buy_obj, body.transform.parent.gameObject,body.transform.parent.parent.gameObject,true);
-                    order.sellerAppraise.insterToObj(sell_obj, body.transform.parent.gameObject, body.transform.parent.parent.gameObject,true);
+                    order.sellerAppraise.insterToObj(sell_obj, body.transform.parent.gameObject,body.transform.parent.parent.gameObject,true);
                 }
                 else
                 {
@@ -302,8 +307,8 @@ public class AdminDealManager : MonoBehaviour {
                     order.insterToObj(body.gameObject,true);
                     GameObject buy_obj = body.FindChild("buyer-appraise").gameObject;
                     GameObject sell_obj = body.FindChild("seller-appraise").gameObject;
-                    order.buyerAppraise.insterToObj(buy_obj, body.transform.parent.gameObject, body.transform.parent.parent.gameObject,true);
-                    order.sellerAppraise.insterToObj(sell_obj, body.transform.parent.gameObject, body.transform.parent.parent.gameObject,true);
+                    order.buyerAppraise.insterToObj(buy_obj, body.transform.parent.gameObject,body.transform.parent.parent.gameObject,true);
+                    order.sellerAppraise.insterToObj(sell_obj, body.transform.parent.gameObject,body.transform.parent.parent.gameObject,true);
                 }
             }
         }

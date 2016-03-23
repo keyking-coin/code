@@ -174,6 +174,11 @@ public class MemberManager : MonoBehaviour {
         {
             DialogUtil.tip(buffer.ReadString(),true);
         }
+        buffer = MyUtilTools.tryToLogic("AdminUserCommit");
+        if (buffer != null)
+        {
+            DialogUtil.tip("提交成功",true);
+        }
 	}
 
     public void search()

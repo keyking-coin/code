@@ -33,11 +33,6 @@ public class BuyDeploy extends AbstractLogic {
 			return resp;
 		}
 		float needCredit = num * price;
-		float maxCredit = Math.max(user.computeMaxCredit(),user.computeTempCredit());
-		if (user.computeUsedCredit() + needCredit > maxCredit){
-			resp.setError("你的信用不足");
-			return resp;
-		}
 		Deal deal = new Deal();
 		deal.setType(type);
 		deal.setUid(uid);
@@ -50,6 +45,7 @@ public class BuyDeploy extends AbstractLogic {
 		deal.setCreateTime(createTime);
 		deal.setOther(other);
 		deal.setHelpFlag(helpFlag);
+		deal.setNeedDeposit(needCredit);
 		if (flag == 1 && user.getRecharge().getCurMoney() < 10){//强制推送
 			resp.setError("您的邮游币不足请先去充值");
 			return resp;

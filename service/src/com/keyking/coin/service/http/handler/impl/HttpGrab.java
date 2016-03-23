@@ -41,12 +41,13 @@ public class HttpGrab extends HttpHandler{
 			return;
 		}
 		synchronized (deal) {
+			/*
 			float need = num * deal.getPrice();
 			float maxCredit = Math.max(user.computeMaxCredit(),user.computeTempCredit());
-			if (user.computeUsedCredit() + need > maxCredit){
+			if (deal.getSellFlag() == 0 && deal.getHelpFlag() == 0 && user.computeUsedCredit() + need > maxCredit){
 				message(request,response,"你的信用不足");
 				return;
-			}
+			}*/
 			if (!deal.couldGrab(num)){
 				message(request,response,"剩余数量不足,抢单失败。");
 				return;

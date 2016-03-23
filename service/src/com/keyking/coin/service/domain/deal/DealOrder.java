@@ -46,7 +46,9 @@ public class DealOrder extends EntitySaver implements Comparable<DealOrder>{
 	//非中介模式:0买家下单,1买家已付款,2卖家已发货(入库),3买家确认收货() (互评-> 交易完成);
 	//中介模式：0买家下单,1买家付款给中介,2中介已收款,3卖家发货,4买家确认收货 ,5中介给卖家付款(互评-> 交易完成);
 	byte state;
+	
 	int revoke = 0 ;//0正常,1买家已申请撤销,2卖家已撤销,3撤销完成
+	
 	List<String> times = new ArrayList<String>();
 	
 	@Override
@@ -60,7 +62,7 @@ public class DealOrder extends EntitySaver implements Comparable<DealOrder>{
 		buffer.putUTF(price + "");
 		buffer.put(state);
 		buffer.put(helpFlag);
-		for (byte i = 0  ; i <= state ; i++){
+		for (byte i = 0 ; i <= state ; i++){
 			buffer.putUTF(times.get(i));
 		}
 		sellerAppraise.serialize(buffer);
@@ -212,7 +214,7 @@ public class DealOrder extends EntitySaver implements Comparable<DealOrder>{
 	
 	public void addTimes(byte state){
 		String str = TimeUtils.formatYear(TimeUtils.now());
-		times.add(state,str);
+		times.add(str);
 		this.state = state;
 		if (over()){
 			//释放买家信用,提升双方信用积分

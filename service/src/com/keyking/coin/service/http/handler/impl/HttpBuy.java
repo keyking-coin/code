@@ -55,12 +55,6 @@ public class HttpBuy extends HttpHandler {
 			deal.setOther(other);
 		}
 		deal.setHelpFlag(helpFlag);
-		float total_value = num * price;
-		float maxCredit = Math.max(user.computeMaxCredit(),user.computeTempCredit());
-		if (user.computeUsedCredit() + total_value > maxCredit){
-			message(request,response,"你的信用不足");
-			return;
-		}
 		boolean sendFlag = sendType.equals("1");
 		if (sendFlag && user.getRecharge().getCurMoney() < 10){//强制推送
 			message(request,response,"您的邮游币不足请先去充值");

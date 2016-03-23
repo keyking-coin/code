@@ -437,7 +437,7 @@ public class UserCharacter extends EntitySaver{
 	}
 	
 	/***
-	 * 已用的信用
+	 * 计算卖家已用的信用
 	 * @return
 	 */
 	public float computeUsedCredit(){
@@ -445,23 +445,26 @@ public class UserCharacter extends EntitySaver{
 		float result = 0;
 		long nowTime = TimeUtils.nowLong();
 		for (Deal deal : deals){
-			if (deal.isRevoke()){
+			if (deal.isRevoke()){//帖子已经撤销的释放全部信用
 				continue;
 			}
-			if (deal.getUid() == id){//卖家
-				float a = deal.notCompleteDeposit();
-				float b = deal.completeDeposit();
+			if (deal.getHelpFlag() == 1){//如果是中介模式不走信用流程
+				continue;
+			}
+			if (deal.getUid() == id && deal.getSellFlag() == 1){//出售帖的卖家
+				float a = deal.notCompleteDeposit();//未完成的订单信用
+				float b = deal.completeDeposit();//已完成的订单信用
 				long dealTime = TimeUtils.getTime(deal.getValidTime()).getMillis();
-				if (dealTime < nowTime){//已过期
+				if (dealTime < nowTime){//帖子已过期
 					result += a;
 				}else{
 					result += deal.getNeedDeposit() - b;
 				}
-			}else {//买家
-				float a = deal.notCompleteDeposit(id);
-				float b = deal.completeDeposit(id);
+			}else if (deal.getSellFlag() == 0){//求购贴的卖家
+				float a = deal.notCompleteDeposit(id);//未完成的订单信用
+				float b = deal.completeDeposit(id);//已完成的订单信用
 				long dealTime = TimeUtils.getTime(deal.getValidTime()).getMillis();
-				if (dealTime < nowTime){//已过期
+				if (dealTime < nowTime){//帖子已过期
 					result += a;
 				}else{
 					result += deal.getNeedDeposit() - b;

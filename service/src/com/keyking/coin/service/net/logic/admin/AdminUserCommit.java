@@ -47,43 +47,43 @@ public class AdminUserCommit extends AbstractLogic {
 					target.getPermission().setType(PermissionType.seller);
 				}
 				target.setTitle(title);
-				if (StringUtil.isNull(deposit)){
+				if (!StringUtil.isNull(deposit)){
 					target.setDeposit(Float.parseFloat(deposit));
 				}
-				if (StringUtil.isNull(deal)){
+				if (!StringUtil.isNull(deal)){
 					target.getCredit().setTotalDealValue(Float.parseFloat(deal));
 				}
-				if (StringUtil.isNull(credit_c)){
+				if (!StringUtil.isNull(credit_c)){
 					target.getCredit().setMaxValue(Float.parseFloat(credit_c));
 				}
-				if (StringUtil.isNull(credit_t)){
+				if (!StringUtil.isNull(credit_t)){
 					target.getCredit().setTempMaxValue(Float.parseFloat(credit_t));
 				}
-				if (StringUtil.isNull(hp)){
+				if (!StringUtil.isNull(hp)){
 					target.getCredit().setHp(Integer.parseInt(hp));
 				}
-				if (StringUtil.isNull(zp)){
+				if (!StringUtil.isNull(zp)){
 					target.getCredit().setZp(Integer.parseInt(zp));
 				}
-				if (StringUtil.isNull(cp)){
+				if (!StringUtil.isNull(cp)){
 					target.getCredit().setCp(Integer.parseInt(cp));
 				}
 				target.setRegistTime(regist);
 				target.getPermission().setEndTime(time);
-				if (StringUtil.isNull(breach)){
+				if (!StringUtil.isNull(breach)){
 					target.setBreach(Byte.parseByte(breach));
 				}
 				if (!StringUtil.isNull(fh_reason)){
 					if (fh_reason.endsWith("永久封号")){
 						target.getForbid().setEndTime(-1);
 					}else{
-						target.getForbid().setEndTime(TimeUtils.getTime(fh_time).getMillis());
+						target.getForbid().setEndTime(TimeUtils.getTime(fh_time).getMillis() / 1000);
 					}
 					target.getForbid().setReason(fh_reason);
 				}
 				target.setOther(other);
 				target.setNeedSave(true);
-				NET.sendMessageToClent(user.clientMessage(Module.UPDATE_FLAG),user.getSessionAddress());
+				NET.sendMessageToClent(target.clientMessage(Module.UPDATE_FLAG),target.getSessionAddress());
 				resp.setSucces();
 			}else{
 				resp.setError("找不到用户" + account);

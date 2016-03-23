@@ -19,11 +19,16 @@ public class AdminOrderRevoke extends AbstractLogic {
 			DealOrder order = deal.searchOrder(orderId);
 			synchronized (order) {
 				if (order != null){
+					if (order.getState() > 0){
+						resp.setError("订单已生效,无法撤销");
+						return resp;
+					}
 					order.setNeedSave(true);
 					order.setRevoke(DealOrder.ORDER_REVOKE_ALL);
 					if (order.getHelpFlag() == 1){
 						NET.sendMessageToAdmin(order.clientAdminMessage(Module.DEL_FLAG));
 					}
+					NET.sendMessageToAllClent(order.clientMessage(Module.UPDATE_FLAG),null);
 					resp.setSucces();
 				}
 			}

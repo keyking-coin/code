@@ -235,7 +235,7 @@ public class DealBody : Object
                     label.transform.parent.FindChild("icon-no").gameObject.SetActive(true);
                     if (!admin)
                     {
-                        if ((item.seller && MainData.instance.user.id == buyId) || (!item.seller && MainData.instance.user.id == item.uid))
+                        if (state == 0 && ((item.seller && MainData.instance.user.id == buyId) || (!item.seller && MainData.instance.user.id == item.uid)))
                         {//我是买家
                             label.transform.parent.FindChild("icon-no").FindChild("line").gameObject.SetActive(true);
                         }
@@ -263,7 +263,7 @@ public class DealBody : Object
                     label.transform.parent.FindChild("icon-no").gameObject.SetActive(true);
                     if (!admin)
                     {
-                        if ((!item.seller && MainData.instance.user.id == buyId) || (item.seller && MainData.instance.user.id == item.uid))
+                        if (state == 1 && ((!item.seller && MainData.instance.user.id == buyId) || (item.seller && MainData.instance.user.id == item.uid)))
                         {//我是卖家
                             label.transform.parent.FindChild("icon-no").FindChild("line").gameObject.SetActive(true);
                         }
@@ -291,7 +291,7 @@ public class DealBody : Object
                     label.transform.parent.FindChild("icon-no").gameObject.SetActive(true);
                     if (!admin)
                     {
-                        if ((item.seller && MainData.instance.user.id == buyId) || (!item.seller && MainData.instance.user.id == item.uid))
+                        if (state == 2 && ((item.seller && MainData.instance.user.id == buyId) || (!item.seller && MainData.instance.user.id == item.uid)))
                         {//我是买家
                             label.transform.parent.FindChild("icon-no").FindChild("line").gameObject.SetActive(true);
                         }
@@ -322,7 +322,7 @@ public class DealBody : Object
                     label.transform.parent.FindChild("icon-no").gameObject.SetActive(true);
                     if (!admin)
                     {
-                        if ((item.seller && MainData.instance.user.id == buyId) || (!item.seller && MainData.instance.user.id == item.uid))
+                        if (state == 0 && ((item.seller && MainData.instance.user.id == buyId) || (!item.seller && MainData.instance.user.id == item.uid)))
                         {//我是买家
                             label.transform.parent.FindChild("icon-no").FindChild("line").gameObject.SetActive(true);
                         }
@@ -356,7 +356,6 @@ public class DealBody : Object
                 {
                     label.transform.parent.FindChild("icon-ok").gameObject.SetActive(true);
                     label.transform.parent.FindChild("icon-no").gameObject.SetActive(false);
-                    label.transform.GetComponent<UIButton>().enabled = false;
                     label.transform.parent.FindChild("time").gameObject.SetActive(true);
                     label = label.transform.parent.FindChild("time").GetComponent<UILabel>();
                     label.text = times[3];
@@ -368,7 +367,7 @@ public class DealBody : Object
                     label.transform.parent.FindChild("icon-no").gameObject.SetActive(true);
                     if (!admin)
                     {
-                        if ((!item.seller && MainData.instance.user.id == buyId) || (item.seller && MainData.instance.user.id == item.uid))
+                        if (state == 2 && ((!item.seller && MainData.instance.user.id == buyId) || (item.seller && MainData.instance.user.id == item.uid)))
                         {//我是卖家
                             label.transform.parent.FindChild("icon-no").FindChild("line").gameObject.SetActive(true);
                         }
@@ -396,7 +395,7 @@ public class DealBody : Object
                     label.transform.parent.FindChild("icon-no").gameObject.SetActive(true);
                     if (!admin)
                     {
-                        if ((item.seller && MainData.instance.user.id == buyId) || (!item.seller && MainData.instance.user.id == item.uid))
+                        if (state == 3 && ((item.seller && MainData.instance.user.id == buyId) || (!item.seller && MainData.instance.user.id == item.uid)))
                         {//我是买家
                             label.transform.parent.FindChild("icon-no").FindChild("line").gameObject.SetActive(true);
                         }

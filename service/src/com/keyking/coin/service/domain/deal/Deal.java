@@ -373,9 +373,7 @@ public class Deal extends EntitySaver implements Comparable<Deal>{
 	public float completeDeposit(){
 		float result = 0;
 		for (DealOrder order : orders){
-			if (order.getHelpFlag() == 0 && order.getState() == DealOrder.ORDER_FINISH_NORMAL){//非中介模式
-				result += order.getPrice() * order.getNum();
-			}else if (order.getHelpFlag() == 1 && order.getState() == DealOrder.ORDER_FINISH_HELP){//中介模式
+			if (order.checkRevoke(DealOrder.ORDER_REVOKE_ALL) || order.getState() == DealOrder.ORDER_FINISH_NORMAL){//非中介模式
 				result += order.getPrice() * order.getNum();
 			}
 		}
@@ -385,9 +383,10 @@ public class Deal extends EntitySaver implements Comparable<Deal>{
 	public float notCompleteDeposit(){
 		float result = 0;
 		for (DealOrder order : orders){
-			if (order.getHelpFlag() == 0 && order.getState() < DealOrder.ORDER_FINISH_NORMAL){//非中介模式
-				result += order.getPrice() * order.getNum();
-			}else if (order.getHelpFlag() == 1 && order.getState() < DealOrder.ORDER_FINISH_HELP){//中介模式
+			if (order.checkRevoke(DealOrder.ORDER_REVOKE_ALL)){
+				continue;
+			}
+			if (order.getState() < DealOrder.ORDER_FINISH_NORMAL){
 				result += order.getPrice() * order.getNum();
 			}
 		}
@@ -400,9 +399,7 @@ public class Deal extends EntitySaver implements Comparable<Deal>{
 			if (order.getBuyId() != uid){
 				continue;
 			}
-			if (order.getHelpFlag() == 0 && order.getState() == DealOrder.ORDER_FINISH_NORMAL){//非中介模式
-				result += order.getPrice() * order.getNum();
-			}else if (order.getHelpFlag() == 1 && order.getState() == DealOrder.ORDER_FINISH_HELP){//中介模式
+			if (order.checkRevoke(DealOrder.ORDER_REVOKE_ALL) || order.getState() == DealOrder.ORDER_FINISH_NORMAL){//非中介模式
 				result += order.getPrice() * order.getNum();
 			}
 		}
@@ -412,12 +409,10 @@ public class Deal extends EntitySaver implements Comparable<Deal>{
 	public float notCompleteDeposit(long uid){
 		float result = 0;
 		for (DealOrder order : orders){
-			if (order.getBuyId() != uid){
+			if (order.getBuyId() != uid || order.checkRevoke(DealOrder.ORDER_REVOKE_ALL)){
 				continue;
 			}
-			if (order.getHelpFlag() == 0 && order.getState() < DealOrder.ORDER_FINISH_NORMAL){//非中介模式
-				result += order.getPrice() * order.getNum();
-			}else if (order.getHelpFlag() == 1 && order.getState() < DealOrder.ORDER_FINISH_HELP){//中介模式
+			if (order.getState() < DealOrder.ORDER_FINISH_NORMAL){//非中介模式
 				result += order.getPrice() * order.getNum();
 			}
 		}

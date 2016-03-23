@@ -307,6 +307,7 @@ public class MainData{
         public string other;
         public List<EmailBody> emails = new List<EmailBody>();
         public float deposit;
+        public bool needRefresh = false;
 
         public void deserialize(ByteBuffer buffer)
         {
@@ -386,6 +387,7 @@ public class MainData{
 
         public void deserializeModuleOne(ByteBuffer buffer)
         {
+            needRefresh = true;
             buffer.ReadByte();
             deserialize(buffer);
         }

@@ -39,12 +39,14 @@ public class DealGrab extends AbstractLogic {
 			return resp;
 		}
 		synchronized (deal) {
+			/*
 			float need = num * deal.getPrice();
 			float maxCredit = Math.max(user.computeMaxCredit(),user.computeTempCredit());
-			if (user.computeUsedCredit() + need > maxCredit){
+			float haveUsed = user.computeUsedCredit();
+			if (deal.getSellFlag() == 0 && deal.getHelpFlag() == 0 && haveUsed + need > maxCredit){
 				resp.setError("你的信用不足");
 				return resp;
-			}
+			}*/
 			if (!deal.couldGrab(num)){
 				resp.setError("剩余数量不足,抢单失败。");
 				return resp;
