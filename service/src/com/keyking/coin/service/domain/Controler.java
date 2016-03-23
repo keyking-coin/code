@@ -396,9 +396,6 @@ public class Controler implements Instances{
 	public List<UserCharacter> getSearchRZ() {
 		List<UserCharacter> result = new ArrayList<UserCharacter>();
 		for (UserCharacter user : characters.values()){
-			if (!user.getPermission().isBuyer()){
-				continue;
-			}
 			Seller seller = user.getSeller();
 			if (seller!= null && !seller.isPass()){
 				result.add(user);

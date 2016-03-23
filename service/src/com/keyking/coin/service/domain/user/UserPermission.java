@@ -1,11 +1,10 @@
 package com.keyking.coin.service.domain.user;
 
 import com.keyking.coin.service.net.buffer.DataBuffer;
-import com.keyking.coin.util.JsonUtil;
 import com.keyking.coin.util.StringUtil;
 
 public class UserPermission {
-	PermissionType permission = PermissionType.buyer;
+	PermissionType type = PermissionType.buyer;
 	String lastPayTime = "null";//上次支付时间
 	String endTime  = "2017-01-01 00:00:00";//会员到期日期
 	String safeCode = "uu_admin";//管理员的密码保护
@@ -13,16 +12,14 @@ public class UserPermission {
 	public UserPermission(){
 		
 	}
-	
-	public PermissionType getPermission() {
-		return permission;
+
+	public PermissionType getType() {
+		return type;
 	}
 
-	public void setPermission(PermissionType permission) {
-		this.permission = permission;
+	public void setType(PermissionType type) {
+		this.type = type;
 	}
-
-
 
 	public String getLastPayTime() {
 		return lastPayTime;
@@ -48,35 +45,40 @@ public class UserPermission {
 		this.safeCode = safeCode;
 	}
 
-	public boolean isAdmin(){
-		return permission.ordinal() == PermissionType.admin.ordinal();
+	public boolean admin(){
+		return type.ordinal() == PermissionType.admin.ordinal();
 	}
 	
-	public boolean isSeller(){
-		return permission.ordinal() == PermissionType.seller.ordinal();
+	public boolean seller(){
+		return type.ordinal() == PermissionType.seller.ordinal();
 	}
 	
-	public boolean isBuyer(){
-		return permission.ordinal() == PermissionType.buyer.ordinal();
+	public boolean buyer(){
+		return type.ordinal() == PermissionType.buyer.ordinal();
 	}
 	
 	public String serialize(){
-		String str = JsonUtil.ObjectToJsonString(permission);
-		return lastPayTime + "|" + endTime + "|" + str;
+		return lastPayTime + "," + endTime + "," + type.toString();
 	}
 	
 	public void deserialize(String str){
 		if (StringUtil.isNull(str)){
 			return;
 		}
-		String[] ss = str.split("\\|");
+		String[] ss = str.split(",");
 		lastPayTime = ss[0];
 		endTime     = ss[1];
-		permission = JsonUtil.JsonToObject(ss[2],PermissionType.class);
+		if (ss[2].equals("seller")){
+			type = PermissionType.seller;
+		}else if (ss[2].equals("buyer")){
+			type = PermissionType.buyer;
+		}else if (ss[2].equals("admin")){
+			type = PermissionType.admin;
+		}
 	}
 
 	public void serialize(DataBuffer buffer) {
-		buffer.putUTF(endTime==null?"":endTime);
-		buffer.putInt(permission.ordinal());
+		buffer.putUTF(endTime == null ? "" : endTime);
+		buffer.putInt(type.ordinal());
 	}
 }

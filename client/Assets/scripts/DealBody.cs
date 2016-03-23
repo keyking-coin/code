@@ -235,8 +235,7 @@ public class DealBody : Object
                     label.transform.parent.FindChild("icon-no").gameObject.SetActive(true);
                     if (!admin)
                     {
-                        if ((item.seller && MainData.instance.user.id == buyId) ||
-                            (!item.seller && MainData.instance.user.id == item.uid) && state >= 0)
+                        if ((item.seller && MainData.instance.user.id == buyId) || (!item.seller && MainData.instance.user.id == item.uid))
                         {//我是买家
                             label.transform.parent.FindChild("icon-no").FindChild("line").gameObject.SetActive(true);
                         }
@@ -264,8 +263,7 @@ public class DealBody : Object
                     label.transform.parent.FindChild("icon-no").gameObject.SetActive(true);
                     if (!admin)
                     {
-                        if (((!item.seller && MainData.instance.user.id == buyId) ||
-                        (item.seller && MainData.instance.user.id == item.uid)) && state >= 1)
+                        if ((!item.seller && MainData.instance.user.id == buyId) || (item.seller && MainData.instance.user.id == item.uid))
                         {//我是卖家
                             label.transform.parent.FindChild("icon-no").FindChild("line").gameObject.SetActive(true);
                         }
@@ -293,8 +291,7 @@ public class DealBody : Object
                     label.transform.parent.FindChild("icon-no").gameObject.SetActive(true);
                     if (!admin)
                     {
-                        if (((item.seller && MainData.instance.user.id == buyId) ||
-                        (!item.seller && MainData.instance.user.id == item.uid)) && state >= 2)
+                        if ((item.seller && MainData.instance.user.id == buyId) || (!item.seller && MainData.instance.user.id == item.uid))
                         {//我是买家
                             label.transform.parent.FindChild("icon-no").FindChild("line").gameObject.SetActive(true);
                         }
@@ -325,8 +322,7 @@ public class DealBody : Object
                     label.transform.parent.FindChild("icon-no").gameObject.SetActive(true);
                     if (!admin)
                     {
-                        if ((item.seller && MainData.instance.user.id == buyId) ||
-                        (!item.seller && MainData.instance.user.id == item.uid) && state >= 0)
+                        if ((item.seller && MainData.instance.user.id == buyId) || (!item.seller && MainData.instance.user.id == item.uid))
                         {//我是买家
                             label.transform.parent.FindChild("icon-no").FindChild("line").gameObject.SetActive(true);
                         }
@@ -372,8 +368,7 @@ public class DealBody : Object
                     label.transform.parent.FindChild("icon-no").gameObject.SetActive(true);
                     if (!admin)
                     {
-                        if (((!item.seller && MainData.instance.user.id == buyId) ||
-                        (item.seller && MainData.instance.user.id == item.uid)) && state >= 2)
+                        if ((!item.seller && MainData.instance.user.id == buyId) || (item.seller && MainData.instance.user.id == item.uid))
                         {//我是卖家
                             label.transform.parent.FindChild("icon-no").FindChild("line").gameObject.SetActive(true);
                         }
@@ -401,8 +396,7 @@ public class DealBody : Object
                     label.transform.parent.FindChild("icon-no").gameObject.SetActive(true);
                     if (!admin)
                     {
-                        if (((item.seller && MainData.instance.user.id == buyId) ||
-                        (!item.seller && MainData.instance.user.id == item.uid)) && state >= 3)
+                        if ((item.seller && MainData.instance.user.id == buyId) || (!item.seller && MainData.instance.user.id == item.uid))
                         {//我是买家
                             label.transform.parent.FindChild("icon-no").FindChild("line").gameObject.SetActive(true);
                         }

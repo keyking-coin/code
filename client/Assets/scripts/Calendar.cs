@@ -278,7 +278,7 @@ public class Calendar : JustChangeLayer
     void update_year_month()
     {
         UILabel label_year = transform.FindChild("year").FindChild("year-moth").GetComponent<UILabel>();
-        label_year.text = _year + "年" + MyUtilTools.numToString(_month) + "日";
+        label_year.text = _year + "年" + MyUtilTools.numToString(_month) + "月";
     }
 
     void update_time()

@@ -57,6 +57,7 @@ public class AdminAgencyManager : MonoBehaviour {
 
     void refresh()
     {
+        selectIndex = 0;
         mjfk_link.closeLink();
         mjqr_link.closeLink();
         mjfk.localPosition = new Vector3(0,820,0);
@@ -171,21 +172,26 @@ public class AdminAgencyManager : MonoBehaviour {
         DealBody deal = DealBody.read(data);
         if (flag == JustRun.ADD_FLAG)
         {
-            for (int i = 0; i < deal.orders.Count; i++)
+            bool insert = true;
+            for (int i = 0; i < orders.Count; i++)
             {
-                DealBody.Order order = deal.orders[i];
+                DealBody.Order order = orders[i];
                 if (order.id == orderId)
                 {
-                    orders.Add(order);
+                    insert = false;
                     break;
                 }
+            }
+            if (insert)
+            {
+                orders.Add(deal.searchOrder(orderId));
             }
         }
         else if (flag == JustRun.DEL_FLAG)
         {
-            for (int i = 0; i < deal.orders.Count ; i++)
+            for (int i = 0; i < orders.Count; i++)
             {
-                DealBody.Order order = deal.orders[i];
+                DealBody.Order order = orders[i];
                 if (order.id == orderId)
                 {
                     orders.Remove(order);
@@ -281,7 +287,7 @@ public class AdminAgencyManager : MonoBehaviour {
         container.FindChild("ident").FindChild("value").GetComponent<UILabel>().text = user.indentity;
         container.FindChild("type").FindChild("value").GetComponent<UILabel>().text = user.permission == 1 ? "买家" : "卖家";
         container.FindChild("title").FindChild("value").GetComponent<UILabel>().text = user.title;
-        container.FindChild("deposit").FindChild("value").GetComponent<UILabel>().text = user.seller.deposit + "";
+        container.FindChild("deposit").FindChild("value").GetComponent<UILabel>().text = user.deposit + "";
         container.FindChild("deal").FindChild("value").GetComponent<UILabel>().text = user.credit.totalDealValue + "";
         container.FindChild("credit-c").FindChild("value").GetComponent<UILabel>().text = user.credit.maxValue + "";
         container.FindChild("credit-t").FindChild("value").GetComponent<UILabel>().text = user.credit.tempMaxValue + "";

@@ -60,6 +60,8 @@ public class UserCharacter extends EntitySaver{
 	
 	byte breach;//违约次数
 	
+	float deposit;//保证金
+	
 	UserPermission permission = new UserPermission();
 	
 	List<Email> emails = new ArrayList<Email>();//邮件列表
@@ -260,6 +262,14 @@ public class UserCharacter extends EntitySaver{
 		this.other = other;
 	}
 
+	public float getDeposit() {
+		return deposit;
+	}
+
+	public void setDeposit(float deposit) {
+		this.deposit = deposit;
+	}
+
 	public void deserializeFavorites(String str){
 		if (StringUtil.isNull(str)){
 			return;
@@ -349,6 +359,7 @@ public class UserCharacter extends EntitySaver{
 		buffer.put(breach);
 		forbid.serialize(buffer);
 		buffer.putUTF(other==null?"":other);
+		buffer.putUTF(deposit+"");
 	}
 
 	public void save() {
@@ -461,18 +472,12 @@ public class UserCharacter extends EntitySaver{
 	}
 	
 	public float computeMaxCredit(){
-		float result = credit.getMaxValue();
-		if (seller != null && seller.isPass()){
-			result += seller.getDeposit();
-		}
+		float result = credit.getMaxValue() + deposit;
 		return result;
 	}
 	
 	public float computeTempCredit(){
-		float result = credit.getTempMaxValue();
-		if (seller != null && seller.isPass()){
-			result += seller.getDeposit();
-		}
+		float result = credit.getTempMaxValue() + deposit;
 		return result;
 	}
 	

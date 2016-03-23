@@ -22,7 +22,7 @@ public class AdminLogin extends AbstractLogic {
 		String account = buffer.getUTF();
 		String pwd     = buffer.getUTF();
 		UserCharacter user = CTRL.login(account,pwd,resp);
-		if (user != null && user.getPermission().isAdmin()){
+		if (user != null && user.getPermission().admin()){
 			String saveKey = user.getSessionAddress();
 			if (saveKey != null){
 				IoSession save = NET.search(saveKey);

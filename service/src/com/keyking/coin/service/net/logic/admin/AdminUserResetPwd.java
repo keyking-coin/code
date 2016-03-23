@@ -13,7 +13,7 @@ public class AdminUserResetPwd extends AbstractLogic {
 		long adminId   = buffer.getLong();
 		String account = buffer.getUTF();
 		UserCharacter user = CTRL.search(adminId);
-		if (user != null && user.getPermission().isAdmin()){
+		if (user != null && user.getPermission().admin()){
 			UserCharacter target = CTRL.search(account);
 			if (target != null){
 				target.setPwd("888888");

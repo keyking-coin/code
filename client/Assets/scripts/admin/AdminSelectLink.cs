@@ -3,8 +3,8 @@ using System.Collections.Generic;
 
 public class AdminSelectLink : MonoBehaviour {
     string[][] items = new string[][]{
-      new string[]{"普通买家","高级买家"},
-      new string[]{"普通营销员","高级营销员","金牌营销员"}
+      new string[]{"普通会员","金牌经纪人"},
+      new string[]{"高级营销员","知名邮商","金牌经纪人"}
     };
 	// Use this for initialization
 	void Start () {

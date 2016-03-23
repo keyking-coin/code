@@ -41,6 +41,7 @@ public class UserRow implements RowMapper<UserCharacter>{
 		str = rs.getString("use_permission");
 		user.getPermission().deserialize(str);
 		user.setOther(rs.getString("other"));
+		user.setDeposit(rs.getFloat("deposit"));
 		return user;
 	}
 }

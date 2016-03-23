@@ -60,7 +60,7 @@ public class Issue extends AbstractLogic{
 				return resp;
 			}
 			Seller seller = user.getSeller();
-			if (user.getPermission().isSeller()){
+			if (user.getPermission().seller()){
 				if (sendType == 1 && user.getRecharge().getCurMoney() < 10){//强制推送
 					resp.setError("您的邮游币不足请先去充值");
 					return resp;

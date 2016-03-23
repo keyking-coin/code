@@ -28,13 +28,28 @@ public class DealOrderUpdate extends AbstractLogic {
 					}
 					resp.add(order);
 					boolean couldUpdate = false;
-					if (index == 1 || index == 3){//买家付款，确认收货
-						if ((deal.getSellFlag() == 0 && deal.getUid() == uid) || (deal.getSellFlag() == 1 && order.getBuyId() == uid)){
-							couldUpdate = true;
+					if (order.getHelpFlag() == 0){
+						//普通模式
+						if (index == 1 || index == 3){//买家
+							if ((deal.getSellFlag() == 0 && deal.getUid() == uid) || (deal.getSellFlag() == 1 && order.getBuyId() == uid)){
+								couldUpdate = true;
+							}
 						}
-					}else if (index == 2){//卖家发货
-						if ((deal.getSellFlag() == 1 && deal.getUid() == uid) || (deal.getSellFlag() == 0 && order.getBuyId() == uid)){
-							couldUpdate = true;
+						if (index == 2){//卖家
+							if ((deal.getSellFlag() == 1 && deal.getUid() == uid) || (deal.getSellFlag() == 0 && order.getBuyId() == uid)){
+								couldUpdate = true;
+							}
+						}
+					}else{
+						if (index == 1 || index == 4){//买家
+							if ((deal.getSellFlag() == 0 && deal.getUid() == uid) || (deal.getSellFlag() == 1 && order.getBuyId() == uid)){
+								couldUpdate = true;
+							}
+						}
+						if (index == 3){//卖家
+							if ((deal.getSellFlag() == 1 && deal.getUid() == uid) || (deal.getSellFlag() == 0 && order.getBuyId() == uid)){
+								couldUpdate = true;
+							}
 						}
 					}
 					if (couldUpdate){

@@ -9,7 +9,6 @@ public class Seller extends EntitySaver{
 	byte   type;//0个人,1公司
 	String key;
 	String pic;
-	float deposit;
 	boolean pass;
 
 	public String getTime() {
@@ -44,14 +43,6 @@ public class Seller extends EntitySaver{
 		this.pic = pic;
 	}
 
-	public float getDeposit() {
-		return deposit;
-	}
-
-	public void setDeposit(float deposit) {
-		this.deposit = deposit;
-	}
-
 	public boolean isPass() {
 		return pass;
 	}
@@ -70,7 +61,6 @@ public class Seller extends EntitySaver{
 		out.put(type);
 		out.putUTF(key);
 		out.putUTF(pic);
-		out.putUTF(deposit + "");
 		out.put((byte)(pass ? 1 : 0));
 	}
 }

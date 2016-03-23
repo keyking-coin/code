@@ -54,7 +54,6 @@ public class MainData{
 		public byte type;
 		public string key;
 		public string picName;
-		public float deposit;
 		public bool pass;
 		public void deserialize(ByteBuffer buffer)
 		{
@@ -64,7 +63,6 @@ public class MainData{
 			type = buffer.ReadByte();
 			key = buffer.ReadString();
 			picName = buffer.ReadString();
-			deposit = float.Parse(buffer.ReadString());
 			pass = buffer.ReadByte() == 1;
 		}
 	}
@@ -308,6 +306,7 @@ public class MainData{
         public Forbid forbid = new Forbid();
         public string other;
         public List<EmailBody> emails = new List<EmailBody>();
+        public float deposit;
 
         public void deserialize(ByteBuffer buffer)
         {
@@ -381,7 +380,8 @@ public class MainData{
             credit.deserialize(buffer);
             breach = buffer.ReadByte();
             forbid.deserialize(buffer);
-            other = buffer.ReadString();
+            other   = buffer.ReadString();
+            deposit = float.Parse(buffer.ReadString());
         }
 
         public void deserializeModuleOne(ByteBuffer buffer)

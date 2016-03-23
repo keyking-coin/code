@@ -18,14 +18,19 @@ public class AdminUserRZ : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-        if (datas.Count != leftContainer.childCount)
-        {
-            refresh();
-        }
         ByteBuffer buffer = MyUtilTools.tryToLogic("AdminSellerOpration");
         if (buffer != null)
         {
+            if (selectIndex > 0)
+            {
+                selectIndex--;
+            }
             DialogUtil.tip("操作成功", true);
+            return;
+        }
+        if (datas.Count != leftContainer.childCount)
+        {
+            refresh();
         }
 	}
 
@@ -123,7 +128,7 @@ public class AdminUserRZ : MonoBehaviour {
         container.FindChild("ident").FindChild("value").GetComponent<UILabel>().text = user.indentity;
         container.FindChild("type").FindChild("value").GetComponent<UILabel>().text = user.permission == 1 ? "买家" : "卖家";
         container.FindChild("title").FindChild("value").GetComponent<UILabel>().text = user.title;
-        container.FindChild("deposit").FindChild("value").GetComponent<UILabel>().text = user.seller.deposit + "";
+        container.FindChild("deposit").FindChild("value").GetComponent<UILabel>().text = user.deposit + "";
         container.FindChild("deal").FindChild("value").GetComponent<UILabel>().text = user.credit.totalDealValue + "";
         container.FindChild("credit-c").FindChild("value").GetComponent<UILabel>().text = user.credit.maxValue + "";
         container.FindChild("credit-t").FindChild("value").GetComponent<UILabel>().text = user.credit.tempMaxValue + "";

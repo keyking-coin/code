@@ -17,7 +17,7 @@ public class AdminResetPwd extends AbstractLogic {
 		UserCharacter admin = CTRL.search(account);
 		if (admin != null){
 			UserPermission permission = admin.getPermission();
-			if (!permission.isAdmin()){
+			if (!permission.admin()){
 				resp.setError(account + "不是管理员账号");
 				return resp;
 			}

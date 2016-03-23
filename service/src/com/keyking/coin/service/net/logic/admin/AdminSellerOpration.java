@@ -17,7 +17,7 @@ public class AdminSellerOpration extends AbstractLogic {
 		UserCharacter user = CTRL.search(uid);
 		if (user != null){
 			if (type == 0){
-				user.getPermission().setPermission(PermissionType.seller);
+				user.getPermission().setType(PermissionType.seller);
 				user.setTitle("普通营销员");
 				user.getSeller().setPass(true);
 			}else{

@@ -29,6 +29,7 @@ public class AdminDealManager : MonoBehaviour {
         if (buffer != null)
         {
             MainData.instance.deserializeDeals(buffer);
+            selectIndex = 0;
             refreshList();
         }
         buffer = MyUtilTools.tryToLogic("AdminDealMore");
@@ -53,6 +54,10 @@ public class AdminDealManager : MonoBehaviour {
             }
             MainData.instance.deserializeDeals(buffer);
             backHighSearch(transform.FindChild("right").gameObject, transform.FindChild("search-pop").gameObject);
+            if (selectIndex > 0)
+            {
+                selectIndex --;
+            }
             refreshList();
         }
         buffer = MyUtilTools.tryToLogic("AdminOrderRevoke");

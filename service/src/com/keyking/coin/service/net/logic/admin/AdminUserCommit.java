@@ -35,28 +35,44 @@ public class AdminUserCommit extends AbstractLogic {
 		String fh_time = buffer.getUTF();
 		String other  = buffer.getUTF();
 		UserCharacter user = CTRL.search(adminId);
-		if (user != null && user.getPermission().isAdmin()){
+		if (user != null && user.getPermission().admin()){
 			UserCharacter target = CTRL.search(account);
 			if (target != null){
 				target.setNikeName(nikeName);
 				target.setName(name);
 				target.setIdentity(ident);
 				if (type.equals("买家")){
-					target.getPermission().setPermission(PermissionType.buyer);
+					target.getPermission().setType(PermissionType.buyer);
 				}else{
-					target.getPermission().setPermission(PermissionType.seller);
+					target.getPermission().setType(PermissionType.seller);
 				}
 				target.setTitle(title);
-				target.getSeller().setDeposit(Float.parseFloat(deposit));
-				target.getCredit().setTotalDealValue(Float.parseFloat(deal));
-				target.getCredit().setMaxValue(Float.parseFloat(credit_c));
-				target.getCredit().setTempMaxValue(Float.parseFloat(credit_t));
-				target.getCredit().setHp(Integer.parseInt(hp));
-				target.getCredit().setZp(Integer.parseInt(zp));
-				target.getCredit().setCp(Integer.parseInt(cp));
+				if (StringUtil.isNull(deposit)){
+					target.setDeposit(Float.parseFloat(deposit));
+				}
+				if (StringUtil.isNull(deal)){
+					target.getCredit().setTotalDealValue(Float.parseFloat(deal));
+				}
+				if (StringUtil.isNull(credit_c)){
+					target.getCredit().setMaxValue(Float.parseFloat(credit_c));
+				}
+				if (StringUtil.isNull(credit_t)){
+					target.getCredit().setTempMaxValue(Float.parseFloat(credit_t));
+				}
+				if (StringUtil.isNull(hp)){
+					target.getCredit().setHp(Integer.parseInt(hp));
+				}
+				if (StringUtil.isNull(zp)){
+					target.getCredit().setZp(Integer.parseInt(zp));
+				}
+				if (StringUtil.isNull(cp)){
+					target.getCredit().setCp(Integer.parseInt(cp));
+				}
 				target.setRegistTime(regist);
 				target.getPermission().setEndTime(time);
-				target.setBreach(Byte.parseByte(breach));
+				if (StringUtil.isNull(breach)){
+					target.setBreach(Byte.parseByte(breach));
+				}
 				if (!StringUtil.isNull(fh_reason)){
 					if (fh_reason.endsWith("永久封号")){
 						target.getForbid().setEndTime(-1);

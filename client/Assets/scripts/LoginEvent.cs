@@ -26,7 +26,7 @@ public class LoginEvent : MonoBehaviour {
         {//登录成功
             MainData.instance.user.deserialize(buffer);
             MainData.instance.deserializeSimpleOrderModule(buffer);
-            dataSaver.save(account.value, pwd.value);
+            dataSaver.save(account.value,pwd.value);
             enterIn();
             if (callback != null)
             {

@@ -129,7 +129,10 @@ public class JustRun : MonoBehaviour {
 	void Update () {
 		if (NetUtil.getInstance.mustLogin && !ConfirmUtil.isConfirmShow() && !LoadUtil.isActivity() && !DialogUtil.isPopTips())
 		{
-			pushEvent.ignoreAll();
+            if (pushEvent != null)
+            {
+                pushEvent.ignoreAll();
+            }
 			NetUtil.getInstance.mustLogin = false;
 			ConfirmUtil.confirm("你的账号在别处登录了",goToLogin,exit);
 			return;

@@ -19,7 +19,7 @@ public class MemberManager : MonoBehaviour {
 
     void refresh()
     {
-        Transform body      = transform.FindChild("left").FindChild("list").FindChild("body");
+        Transform body  = transform.FindChild("left").FindChild("list").FindChild("body");
         body.localPosition = Vector3.zero;
         body.GetComponent<UIPanel>().clipOffset = Vector2.zero;
         Transform container = body.FindChild("container");
@@ -66,9 +66,14 @@ public class MemberManager : MonoBehaviour {
     void refreshRight()
     {
         Transform container = transform.FindChild("right");
-        if (selectIndex > users.Count)
+        if (users.Count == 0)
         {
+            container.gameObject.SetActive(false);
             return;
+        }
+        else
+        {
+            container.gameObject.SetActive(true);
         }
         MainData.UserData user = users[selectIndex];
         container.FindChild("account").FindChild("value").GetComponent<UILabel>().text = user.account;
@@ -93,7 +98,7 @@ public class MemberManager : MonoBehaviour {
             title.items.Add("金牌营销员");
         }
         title.value = user.title;
-        container.FindChild("deposit").FindChild("inputer").GetComponent<UIInput>().value = user.seller.deposit + "";
+        container.FindChild("deposit").FindChild("inputer").GetComponent<UIInput>().value = user.deposit + "";
         container.FindChild("deal").FindChild("inputer").GetComponent<UIInput>().value = user.credit.totalDealValue + "";
         container.FindChild("credit-c").FindChild("inputer").GetComponent<UIInput>().value = user.credit.maxValue + "";
         container.FindChild("credit-t").FindChild("inputer").GetComponent<UIInput>().value = user.credit.tempMaxValue + "";
@@ -211,7 +216,7 @@ public class MemberManager : MonoBehaviour {
         UIInput other = container.FindChild("other").FindChild("inputer").GetComponent<UIInput>();
         ByteBuffer buffer = ByteBuffer.Allocate(1024);
         buffer.skip(4);
-        buffer.WriteString("AdminUserResetPwd");
+        buffer.WriteString("AdminUserCommit");
         buffer.WriteLong(MainData.instance.user.id);
         buffer.WriteString(account.text);
         buffer.WriteString(nickName.value);
