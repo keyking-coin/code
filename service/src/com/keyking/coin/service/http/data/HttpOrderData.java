@@ -21,6 +21,7 @@ public class HttpOrderData implements Instances{
 	List<String> times = new ArrayList<String>();
 	DealAppraise sellerAppraise = new DealAppraise();
 	DealAppraise buyerAppraise = new DealAppraise();
+	int revoke;
 	
 	public long getId() {
 		return id;
@@ -118,6 +119,14 @@ public class HttpOrderData implements Instances{
 		this.times = times;
 	}
 
+	public int getRevoke() {
+		return revoke;
+	}
+
+	public void setRevoke(int revoke) {
+		this.revoke = revoke;
+	}
+
 	public void copy(DealOrder order) {
 		id                 = order.getId();
 		dealId             = order.getDealId();
@@ -132,5 +141,6 @@ public class HttpOrderData implements Instances{
 		buyerAppraise      = order.getBuyerAppraise();
 		state              = order.getState();
 		times.addAll(order.getTimes());
+		revoke             = order.getRevoke();
 	}
 }
