@@ -26,16 +26,14 @@ public class HttpResponseMessage {
     Map<String, Object> datas = new HashMap<String,Object>();
 	
 	public HttpResponseMessage() {
-		// headers.put("Server", "HttpServer (" + Server.VERSION_STRING + ')');
-		headers.put("Server", "HttpServer (" + "Mina 2.0" + ')');
+		headers.put("Server", "HttpServer (Mina 2.0)");
 		headers.put("Cache-Control", "private");
 		headers.put("Content-Type", "text/html; charset=UTF-8");
 		headers.put("Connection", "keep-alive");
 		headers.put("Keep-Alive", "200");
-		headers.put("Date", new SimpleDateFormat(
-				"EEE, dd MMM yyyy HH:mm:ss zzz").format(new Date()));
-		headers.put("Last-Modified", new SimpleDateFormat(
-				"EEE, dd MMM yyyy HH:mm:ss zzz").format(new Date()));
+		headers.put("Date", new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz").format(new Date()));
+		headers.put("Last-Modified", new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz").format(new Date()));
+		headers.put("Access-Control-Allow-Origin","*");
 	}
 
 	public Map<String, String> getHeaders() {

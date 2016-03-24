@@ -35,8 +35,7 @@ public class HttpDealFavorite extends HttpHandler {
 						user.getFavorites().remove(dealId);
 					}
 				}
-				String str = "{\"result\":\"ok\"}";
-				response.appendBody(formatJosn(request,str));
+				message(request,response,"ok");
 			}
 		}else{
 			message(request,response,"未找到知道交易贴");

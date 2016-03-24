@@ -406,5 +406,17 @@ public class Controler implements Instances{
 		}
 		return result;
 	}
+
+	public int computeOkOrderNum(long id) {
+		int count = 0 ;
+		for (Deal deal : deals){
+			for (DealOrder order : deal.getOrders()){
+				if (order.over()){
+					count++;
+				}
+			}
+		}
+		return count;
+	}
 }
  

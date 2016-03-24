@@ -50,10 +50,10 @@ public class HttpResponseEncoder implements MessageEncoder<HttpResponseMessage> 
 			buf.putString(String.valueOf(msg.getResponseCode()), encoder);
 			switch (msg.getResponseCode()) {
 			case HttpResponseMessage.HTTP_STATUS_SUCCESS:
-				buf.putString("OK", encoder);
+				buf.putString(" OK", encoder);
 				break;
 			case HttpResponseMessage.HTTP_STATUS_NOT_FOUND:
-				buf.putString("Not Found", encoder);
+				buf.putString(" Not Found", encoder);
 				break;
 			}
 			buf.put(CRLF);

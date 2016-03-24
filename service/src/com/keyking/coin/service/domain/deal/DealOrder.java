@@ -235,6 +235,7 @@ public class DealOrder extends EntitySaver implements Comparable<DealOrder>{
 				}
 			}
 		}
+		needSave = true;
 	}
 	
 	public boolean over(){
@@ -293,5 +294,13 @@ public class DealOrder extends EntitySaver implements Comparable<DealOrder>{
 		module.add(deal);
 		modules.addModule(module);
 		return modules;
+	}
+	
+	public boolean checkSeller(Deal deal, long uid) {
+	    return (deal.getSellFlag() == 0) && (this.buyId == uid);
+	}
+
+	public boolean checkBuyer(Deal deal, long uid) {
+	    return (deal.getSellFlag() == 1) && (this.buyId == uid);
 	}
 }

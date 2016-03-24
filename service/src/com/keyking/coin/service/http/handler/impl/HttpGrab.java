@@ -1,14 +1,19 @@
 package com.keyking.coin.service.http.handler.impl;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import com.keyking.coin.service.domain.deal.Deal;
 import com.keyking.coin.service.domain.deal.DealOrder;
 import com.keyking.coin.service.domain.deal.SimpleOrderModule;
 import com.keyking.coin.service.domain.user.UserCharacter;
+import com.keyking.coin.service.http.data.HttpOrderData;
 import com.keyking.coin.service.http.handler.HttpHandler;
 import com.keyking.coin.service.http.request.HttpRequestMessage;
 import com.keyking.coin.service.http.response.HttpResponseMessage;
 import com.keyking.coin.service.net.resp.module.Module;
 import com.keyking.coin.service.net.resp.module.ModuleResp;
+import com.keyking.coin.util.JsonUtil;
 import com.keyking.coin.util.ServerLog;
 
 public class HttpGrab extends HttpHandler{
@@ -70,10 +75,14 @@ public class HttpGrab extends HttpHandler{
 			order.clientMessage(Module.ADD_FLAG,modules);
 			deal.clientMessage(Module.UPDATE_FLAG,modules);
 			NET.sendMessageToAllClent(modules,null);
-			StringBuffer sb = new StringBuffer();
 			int left = Math.max(0,deal.getNum()-deal.orderNum());
-			sb.append("{\"result\":\"ok\",\"num\":" + left + "}");
-			response.appendBody(formatJosn(request,sb.toString()));
+			Map<String,Object> datas = new HashMap<String,Object>();
+			HttpOrderData hd = new HttpOrderData();
+			hd.copy(order);
+			datas.put("result","ok");
+			datas.put("num",left);
+			String str = JsonUtil.ObjectToJsonString(datas);
+			response.appendBody(formatJosn(request,str));
 			ServerLog.info(user.getAccount() + " grab deal ok ----> id is " + id);
 		}
 	}

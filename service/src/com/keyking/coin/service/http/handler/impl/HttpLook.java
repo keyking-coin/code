@@ -24,6 +24,9 @@ public class HttpLook extends HttpHandler {
 		if (user != null){
 			Deal deal = CTRL.tryToSearch(dealId);
 			boolean look = (deal.getUid() == uid && deal.checkBuyerId(mid)) || (deal.getUid() == mid && deal.checkBuyerId(uid));
+			if (uid == mid){
+				look = true;
+			}
 			HttpLookData data = new HttpLookData();
 			data.setFace(user.getFace());
 			data.setNikeName(user.getNikeName());

@@ -73,7 +73,9 @@ public class DealAppraise implements SerializeEntity{
 	public void appraise(byte star , String detail){
 		isCompleted = true;
 		this.star = star ;
-		this.detail = detail;
+		if (!StringUtil.isNull(detail)){
+			this.detail = detail;
+		}
 		time = TimeUtils.nowChStr();
 	}
 }

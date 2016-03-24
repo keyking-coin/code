@@ -8,8 +8,9 @@ import com.keyking.coin.service.domain.user.Credit;
 import com.keyking.coin.service.domain.user.Recharge;
 import com.keyking.coin.service.domain.user.Seller;
 import com.keyking.coin.service.domain.user.UserCharacter;
+import com.keyking.coin.util.Instances;
 
-public class HttpUserCharacterData {
+public class HttpUserCharacterData implements Instances{
 	long id;
 	String account;
 	String face = "face1";
@@ -28,6 +29,7 @@ public class HttpUserCharacterData {
 	byte breach;//违约次数
 	Seller seller;
 	Recharge recharge;
+	int completeDealNum;
 	
 	public HttpUserCharacterData(UserCharacter user){
 		id = user.getId();
@@ -35,7 +37,8 @@ public class HttpUserCharacterData {
 		face = user.getFace();
 		nikeName = user.getNikeName();
 		title = user.getTitle();
-		registTime = user.getRegistTime();
+		String[] ss = user.getRegistTime().split(" ");
+		registTime  = ss[0];
 		addresses.addAll(user.getAddresses());
 		name = user.getName();
 		age = user.getAge();
@@ -48,6 +51,7 @@ public class HttpUserCharacterData {
 		favorites.addAll(user.getFavorites());
 		seller = user.getSeller();
 		recharge = user.getRecharge();
+		completeDealNum = CTRL.computeOkOrderNum(id);
 	}
 	
 	public long getId() {
@@ -193,5 +197,14 @@ public class HttpUserCharacterData {
 	public void setRecharge(Recharge recharge) {
 		this.recharge = recharge;
 	}
+
+	public int getCompleteDealNum() {
+		return completeDealNum;
+	}
+
+	public void setCompleteDealNum(int completeDealNum) {
+		this.completeDealNum = completeDealNum;
+	}
+	
 	
 }

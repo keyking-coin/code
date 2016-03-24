@@ -246,6 +246,14 @@ public class Deal extends EntitySaver implements Comparable<Deal>{
 		compare_o();
 	}
 	
+	public boolean checkSeller(long uid) {
+	    return (this.sellFlag == 1) && (this.uid == uid);
+	}
+
+	public boolean checkBuyer(long uid) {
+	    return (this.sellFlag == 0) && (this.uid == uid);
+	}
+	
 	public void serialize(DataBuffer buffer) {
 		buffer.putLong(id);
 		buffer.put(sellFlag);

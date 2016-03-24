@@ -19,18 +19,20 @@ public class HttpLogin extends HttpHandler {
 		String account = request.getParameter("account");  
 		String pwd     = request.getParameter("pwd");
         UserCharacter user = CTRL.search(account);
-        Map<String,Object> datas = new HashMap<String,Object>();
+        
 		if (user != null){
-			if (pwd.equals(pwd)){
+			if (user.getPwd().equals(pwd)){
+				Map<String,Object> datas = new HashMap<String,Object>();
 				HttpUserCharacterData http_user= new HttpUserCharacterData(user);
 				datas.put("result","OK");
 				datas.put("datas",http_user);
+				String str = JsonUtil.ObjectToJsonString(datas);
+				response.appendBody(formatJosn(request,str));
 			}else{
-				datas.put("result","密码错误");
+				message(request,response,"密码错误");
 			}
 		}else{
-			datas.put("result","账号不存在");
+			message(request, response,"账号不存在");
 		}
-		response.appendBody(formatJosn(request,JsonUtil.ObjectToJsonString(datas)));
 	}
 }
