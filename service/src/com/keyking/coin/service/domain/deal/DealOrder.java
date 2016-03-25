@@ -296,6 +296,33 @@ public class DealOrder extends EntitySaver implements Comparable<DealOrder>{
 		return modules;
 	}
 	
+	public boolean isDealing(){
+		if ((helpFlag == 0 && state < ORDER_FINISH_NORMAL) || (helpFlag == 1 && state < ORDER_FINISH_HELP)){
+			return true;
+		}
+		return false;
+	}
+	
+	public boolean isConfirming(){
+		if (Appraise()){
+			return false;
+		}
+		if ((helpFlag == 0 && state == ORDER_FINISH_NORMAL) || (helpFlag == 1 && state == ORDER_FINISH_HELP)){
+			return true;
+		}
+		return false;
+	}
+	
+	public boolean isCompleted(){
+		if (!Appraise()){
+			return false;
+		}
+		if ((helpFlag == 0 && state == ORDER_FINISH_NORMAL) || (helpFlag == 1 && state == ORDER_FINISH_HELP)){
+			return true;
+		}
+		return false;
+	}
+	
 	public boolean checkSeller(Deal deal, long uid) {
 	    return deal.getSellFlag() == 0 && buyId == uid;
 	}

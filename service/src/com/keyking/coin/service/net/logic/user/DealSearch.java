@@ -3,10 +3,10 @@ package com.keyking.coin.service.net.logic.user;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.keyking.coin.service.domain.condition.SearchCondition;
 import com.keyking.coin.service.domain.deal.Deal;
 import com.keyking.coin.service.domain.user.UserCharacter;
 import com.keyking.coin.service.net.buffer.DataBuffer;
-import com.keyking.coin.service.net.data.SearchCondition;
 import com.keyking.coin.service.net.logic.AbstractLogic;
 import com.keyking.coin.service.net.resp.impl.GeneralResp;
 

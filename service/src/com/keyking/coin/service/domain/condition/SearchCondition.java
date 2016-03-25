@@ -1,4 +1,6 @@
-package com.keyking.coin.service.net.data;
+package com.keyking.coin.service.domain.condition;
+
+import org.joda.time.DateTime;
 
 import com.keyking.coin.service.domain.deal.Deal;
 import com.keyking.coin.util.Instances;
@@ -140,15 +142,15 @@ public class SearchCondition implements Instances{
 		}
 		//有效时间发帖时间
 		if (!valid.equals("null")){
-			long now = TimeUtils.nowLong();
-			long dealTime = TimeUtils.getTime(deal.getValidTime()).getMillis();
+			DateTime now = TimeUtils.now();
+			DateTime dealTime = TimeUtils.getTime(deal.getValidTime());
 			if (valid.equals("到目前有效")){
-				if (dealTime <= now){
+				if (now.isBefore(dealTime)){
 					return false;
 				}
 			}else if (valid.equals("到目前无效")){
-				if (dealTime <= now){
-					return true;
+				if (dealTime.isBefore(now)){
+					return false;
 				}
 			}
 		}

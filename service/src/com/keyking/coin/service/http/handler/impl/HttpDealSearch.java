@@ -7,13 +7,14 @@ import java.util.List;
 
 import org.joda.time.DateTime;
 
+import com.keyking.coin.service.domain.condition.SearchCondition;
 import com.keyking.coin.service.domain.deal.Deal;
+import com.keyking.coin.service.domain.deal.DealOrder;
 import com.keyking.coin.service.domain.user.UserCharacter;
 import com.keyking.coin.service.http.data.HttpDealData;
 import com.keyking.coin.service.http.handler.HttpHandler;
 import com.keyking.coin.service.http.request.HttpRequestMessage;
 import com.keyking.coin.service.http.response.HttpResponseMessage;
-import com.keyking.coin.service.net.data.SearchCondition;
 import com.keyking.coin.util.JsonUtil;
 import com.keyking.coin.util.StringUtil;
 import com.keyking.coin.util.TimeUtils;
@@ -67,10 +68,11 @@ public class HttpDealSearch extends HttpHandler {
 			deals = CTRL.getSearchDeals(condition);
 		}
 		if (deals.size() > 0){
-			List<Deal> issues   = new ArrayList<Deal>();
-			List<Deal> valides  = new ArrayList<Deal>();
+			List<Deal> issues    = new ArrayList<Deal>();
+			List<Deal> valides_r = new ArrayList<Deal>();
+			List<Deal> valides_n   = new ArrayList<Deal>();
 			List<Deal> normals   = new ArrayList<Deal>();
-			List<Deal> tails    = new ArrayList<Deal>();
+			List<Deal> tails     = new ArrayList<Deal>();
 			for (Deal deal : deals){
 				if (deal.getLeftNum() == 0){
 					tails.add(deal);
@@ -79,7 +81,11 @@ public class HttpDealSearch extends HttpHandler {
 				if (deal.isIssueRecently()){
 					issues.add(deal);
 				}else if (deal.checkValidTime()){
-					valides.add(deal);
+					if (deal.getRecentOrder() != null){
+						valides_r.add(deal);
+					}else{
+						valides_n.add(deal);
+					}
 				}else{
 					normals.add(deal);
 				}
@@ -98,12 +104,14 @@ public class HttpDealSearch extends HttpHandler {
 					}
 				});
 			}
-			if (valides.size() > 0){
-				Collections.sort(valides,new Comparator<Deal>(){
+			if (valides_r.size() > 0){
+				Collections.sort(valides_r,new Comparator<Deal>(){
 					@Override
 					public int compare(Deal o1, Deal o2) {
-						DateTime time1 = TimeUtils.getTime(o1.getValidTime());
-						DateTime time2 = TimeUtils.getTime(o2.getValidTime());
+						DealOrder order1 = o1.getRecentOrder();
+						DealOrder order2 = o1.getRecentOrder();
+						DateTime time1 = TimeUtils.getTime(order1.getTimes().get(0));
+						DateTime time2 = TimeUtils.getTime(order2.getTimes().get(0));
 						if (time1.isBefore(time2)){
 							return 1;
 						}else{
@@ -111,6 +119,9 @@ public class HttpDealSearch extends HttpHandler {
 						}
 					}
 				});
+			}
+			if (valides_n.size() > 0){
+				Collections.sort(valides_n);
 			}
 			if (normals.size() > 0){
 				Collections.sort(normals);
@@ -125,7 +136,12 @@ public class HttpDealSearch extends HttpHandler {
 				hdeal.copy(deal,user);
 				hDeals.add(hdeal);
 			}
-			for (Deal deal : valides){
+			for (Deal deal : valides_r){
+				HttpDealData hdeal = new HttpDealData();
+				hdeal.copy(deal,user);
+				hDeals.add(hdeal);
+			}
+			for (Deal deal : valides_n){
 				HttpDealData hdeal = new HttpDealData();
 				hdeal.copy(deal,user);
 				hDeals.add(hdeal);

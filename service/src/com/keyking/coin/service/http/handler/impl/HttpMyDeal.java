@@ -1,16 +1,15 @@
 package com.keyking.coin.service.http.handler.impl;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import com.keyking.coin.service.domain.deal.Deal;
+import com.keyking.coin.service.domain.deal.DealOrder;
 import com.keyking.coin.service.domain.user.UserCharacter;
 import com.keyking.coin.service.http.data.HttpDealData;
 import com.keyking.coin.service.http.handler.HttpHandler;
 import com.keyking.coin.service.http.request.HttpRequestMessage;
 import com.keyking.coin.service.http.response.HttpResponseMessage;
-import com.keyking.coin.service.net.data.SearchCondition;
 import com.keyking.coin.util.JsonUtil;
 
 public class HttpMyDeal extends HttpHandler {
@@ -27,112 +26,194 @@ public class HttpMyDeal extends HttpHandler {
 			response.appendBody(str);
 			return;
 		}
-		List<Deal> deals = null;
+		List<HttpDealData> deals = null;
 		switch(index){
 		case 1:
-			deals = searchSells(user);//ddjy 我所发的所有在有效期的帖子
+			deals = searchSells(user);//等待交易 我所发的所有在有效期的帖子
 			break;
 		case 2:
-			deals = searchDealing(user);//zzjy 有两人参与的帖子，未到评分这一步的
+			deals = searchDealing(user);//正在交易 有两人参与的帖子，未到评分这一步的
 			break;
 		case 3:
-			deals = searchConfirmOrders(user);//ddpj 已经完成收货确认,但没有互评的（这一步未完成也应该释放信用额度）
+			deals = searchConfirmOrders(user);//已经完成收货确认,但没有互评的（这一步未完成也应该释放信用额度）
 			break;
 		case 4:
-			deals = searchDealOver(user);//ywcjy 已经完成评分的，包括交割失败的
+			deals = searchDealOver(user);//已经完成评分的
 			break;
 		case 5:
-			deals = searchDealRevert(user);//wdct 所有我发布的到期系统自动撤销的帖子或者我自己撤销的帖子
+			deals = searchDealHelp(user);//正在中介交易
 			break;
 		case 6:
 			deals = searchFavorite(user);//我的收藏夹
 			break;
 		}
-		if (deals.size() > 0){
-			List<HttpDealData> hDeals = new ArrayList<HttpDealData>();
-			for (Deal deal : deals){
-				HttpDealData hdeal = new HttpDealData();
-				hdeal.copy(deal,user);
-				hDeals.add(hdeal);
-			}
-			String str = formatJosn(request,JsonUtil.ObjectToJsonString(hDeals));
-			response.appendBody(str);
-		}else{
-			message(request,response,"[]");
-		}
+		String str = formatJosn(request,JsonUtil.ObjectToJsonString(deals));
+		response.appendBody(str);
 	}
 	
-	private List<Deal> searchSells(UserCharacter user){
-		SearchCondition condition = new SearchCondition();
-		condition.setSeller(user.getNikeName());
-		condition.setValid("到目前有效");
-		List<Deal> deals = CTRL.getSearchDeals(condition);
-		Iterator<Deal> iter = deals.iterator();
-		while (iter.hasNext()){
-			Deal deal = iter.next();
-			if (deal.isRevoke()){
-				iter.remove();
+	private List<HttpDealData> searchSells(UserCharacter user){
+		List<HttpDealData> result = new ArrayList<HttpDealData>();
+		List<Deal> deals = CTRL.getDeals();
+		for (Deal deal : deals){
+			if (!deal.checkValidTime() || deal.getUid() != user.getId() || deal.isRevoke() || deal.getLeftNum() == 0){
+				continue;
 			}
+			HttpDealData hd = new HttpDealData();
+			hd.copy(deal,user);
+			result.add(hd);
 		}
-		return deals;
+		return result;
 	}
 	
-	private List<Deal> searchDealing(UserCharacter user){
-		SearchCondition condition = new SearchCondition();
-		condition.setDealing(true);
-		List<Deal> deals = CTRL.getSearchDeals(condition);
+	private List<HttpDealData> searchDealing(UserCharacter user){
+		List<HttpDealData> result = new ArrayList<HttpDealData>();
+		List<Deal> deals = CTRL.getDeals();
 		long uid = user.getId();
-		for (int i = 0  ; i < deals.size() ;){
-			Deal deal = deals.get(i);
+		for (Deal deal : deals){
 			if (!deal.checkJoin(uid)){
-				deals.remove(i);
+				continue;
+			}
+			HttpDealData hd = null;
+			if (deal.getUid() == uid){
+				for (DealOrder order : deal.getOrders()){
+					if (order.isDealing()){
+						if (hd == null){
+							hd = new HttpDealData();
+							hd.copy(deal);
+						}
+						hd.add(order);
+					}
+				}
 			}else{
-				i++;
+				for (DealOrder order : deal.getOrders()){
+					if (order.getBuyId() == uid && order.isDealing()){
+						if (hd == null){
+							hd = new HttpDealData();
+							hd.copy(deal);
+						}
+						hd.add(order);
+					}
+				}
+			}
+			if (hd != null){
+				result.add(hd);
 			}
 		}
-		return deals;
+		return result;
 	}
 	
-	private List<Deal> searchConfirmOrders(UserCharacter user){
-		SearchCondition condition = new SearchCondition();
-		condition.setConfirming(true);
-		List<Deal> deals = CTRL.getSearchDeals(condition);
+	private List<HttpDealData> searchConfirmOrders(UserCharacter user){
+		List<HttpDealData> result = new ArrayList<HttpDealData>();
+		List<Deal> deals = CTRL.getDeals();
 		long uid = user.getId();
-		for (int i = 0  ; i < deals.size() ;){
-			Deal deal = deals.get(i);
+		for (Deal deal : deals){
 			if (!deal.checkJoin(uid)){
-				deals.remove(i);
+				continue;
+			}
+			HttpDealData hd = null;
+			if (deal.getUid() == uid){
+				for (DealOrder order : deal.getOrders()){
+					if (order.isConfirming()){
+						if (hd == null){
+							hd = new HttpDealData();
+							hd.copy(deal);
+						}
+						hd.add(order);
+					}
+				}
 			}else{
-				i++;
+				for (DealOrder order : deal.getOrders()){
+					if (order.getBuyId() == uid && order.isConfirming()){
+						if (hd == null){
+							hd = new HttpDealData();
+							hd.copy(deal);
+						}
+						hd.add(order);
+					}
+				}
+			}
+			if (hd != null){
+				result.add(hd);
 			}
 		}
-		return deals;
+		return result;
 	}
 	
-	private List<Deal> searchDealOver(UserCharacter user){
-		SearchCondition condition = new SearchCondition();
-		condition.setOver(true);
-		List<Deal> deals = CTRL.getSearchDeals(condition);
+	private List<HttpDealData> searchDealOver(UserCharacter user){
+		List<HttpDealData> result = new ArrayList<HttpDealData>();
+		List<Deal> deals = CTRL.getDeals();
 		long uid = user.getId();
-		for (int i = 0  ; i < deals.size() ;){
-			Deal deal = deals.get(i);
+		for (Deal deal : deals){
 			if (!deal.checkJoin(uid)){
-				deals.remove(i);
+				continue;
+			}
+			HttpDealData hd = null;
+			if (deal.getUid() == uid){
+				for (DealOrder order : deal.getOrders()){
+					if (order.isCompleted()){
+						if (hd == null){
+							hd = new HttpDealData();
+							hd.copy(deal);
+						}
+						hd.add(order);
+					}
+				}
 			}else{
-				i++;
+				for (DealOrder order : deal.getOrders()){
+					if (order.getBuyId() == uid && order.isCompleted()){
+						if (hd == null){
+							hd = new HttpDealData();
+							hd.copy(deal);
+						}
+						hd.add(order);
+					}
+				}
+			}
+			if (hd != null){
+				result.add(hd);
 			}
 		}
-		return deals;
+		return result;
 	}
 	
-	private List<Deal> searchDealRevert(UserCharacter user){
-		SearchCondition condition = new SearchCondition();
-		condition.setSeller(user.getNikeName());
-		condition.setValid("到目前无效");
-		return CTRL.getSearchDeals(condition);
+	private List<HttpDealData> searchDealHelp(UserCharacter user){
+		List<HttpDealData> result = new ArrayList<HttpDealData>();
+		List<Deal> deals = CTRL.getDeals();
+		long uid = user.getId();
+		for (Deal deal : deals){
+			if (deal.getHelpFlag() == 0 || !deal.checkJoin(uid)){
+				continue;
+			}
+			HttpDealData hd = null;
+			if (deal.getUid() == uid){
+				for (DealOrder order : deal.getOrders()){
+					if (order.isDealing()){
+						if (hd == null){
+							hd = new HttpDealData();
+							hd.copy(deal);
+						}
+						hd.add(order);
+					}
+				}
+			}else{
+				for (DealOrder order : deal.getOrders()){
+					if (order.getBuyId() == uid && order.isDealing()){
+						if (hd == null){
+							hd = new HttpDealData();
+							hd.copy(deal);
+						}
+						hd.add(order);
+					}
+				}
+			}
+			if (hd != null){
+				result.add(hd);
+			}
+		}
+		return result;
 	}
 	
-	private List<Deal> searchFavorite(UserCharacter user){
+	private List<HttpDealData> searchFavorite(UserCharacter user){
 		List<Deal> result = new ArrayList<Deal>();
 		List<Long> favorites = user.getFavorites();
 		for (Long favorite : favorites){
@@ -141,7 +222,7 @@ public class HttpMyDeal extends HttpHandler {
 				result.add(deal);
 			}
 		}
-		return result;
+		return null;
 	}
 
 }

@@ -182,6 +182,12 @@ public class HttpDealData implements Instances{
 		this.revoke = revoke;
 	}
 
+	public void add(DealOrder order){
+		HttpOrderData ho = new HttpOrderData();
+		ho.copy(order);
+		orders.add(ho);
+	}
+	
 	public void copy(Deal deal,UserCharacter look) {
 		id         = deal.getId();
 		uid        = deal.getUid();
@@ -217,4 +223,60 @@ public class HttpDealData implements Instances{
 		}
 	}
 	
+	public void copy(Deal deal,long orderId) {
+		id         = deal.getId();
+		uid        = deal.getUid();
+		sellFlag   = deal.getSellFlag();
+		type       = deal.getType();
+		helpFlag   = deal.getHelpFlag();
+		bourse     = deal.getBourse();
+		name       = deal.getName();
+		price      = deal.getPrice();
+		monad      = deal.getMonad();
+		num        = deal.getLeftNum();
+		validTime  = deal.getValidTime();
+		createTime = deal.getCreateTime();
+		other      = deal.getOther();
+		revoke     = deal.isRevoke();
+		UserCharacter user = CTRL.search(uid);
+		issueName  = user.getNikeName();
+		issueIcon  = user.getFace();
+		for (Revert revert : deal.getReverts()){
+			HttpRevertData hr = new HttpRevertData();
+			hr.copy(revert);
+			reverts.add(hr);
+		}
+		for (DealOrder order : deal.getOrders()){
+			if (order.getId() == orderId){
+				HttpOrderData ho = new HttpOrderData();
+				ho.copy(order);
+				orders.add(ho);
+			}
+		}
+	}
+	
+	public void copy(Deal deal) {
+		id         = deal.getId();
+		uid        = deal.getUid();
+		sellFlag   = deal.getSellFlag();
+		type       = deal.getType();
+		helpFlag   = deal.getHelpFlag();
+		bourse     = deal.getBourse();
+		name       = deal.getName();
+		price      = deal.getPrice();
+		monad      = deal.getMonad();
+		num        = deal.getLeftNum();
+		validTime  = deal.getValidTime();
+		createTime = deal.getCreateTime();
+		other      = deal.getOther();
+		revoke     = deal.isRevoke();
+		UserCharacter user = CTRL.search(uid);
+		issueName  = user.getNikeName();
+		issueIcon  = user.getFace();
+		for (Revert revert : deal.getReverts()){
+			HttpRevertData hr = new HttpRevertData();
+			hr.copy(revert);
+			reverts.add(hr);
+		}
+	}
 }

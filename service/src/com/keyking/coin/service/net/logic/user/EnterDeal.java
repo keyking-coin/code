@@ -7,9 +7,9 @@ import java.util.List;
 
 import org.joda.time.DateTime;
 
+import com.keyking.coin.service.domain.condition.SearchCondition;
 import com.keyking.coin.service.domain.deal.Deal;
 import com.keyking.coin.service.net.buffer.DataBuffer;
-import com.keyking.coin.service.net.data.SearchCondition;
 import com.keyking.coin.service.net.logic.AbstractLogic;
 import com.keyking.coin.service.net.resp.impl.GeneralResp;
 import com.keyking.coin.util.JsonUtil;

@@ -3,13 +3,13 @@ package com.keyking.coin.service.http.handler.impl;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.keyking.coin.service.domain.condition.SearchCondition;
 import com.keyking.coin.service.domain.deal.Deal;
 import com.keyking.coin.service.domain.user.UserCharacter;
 import com.keyking.coin.service.http.data.HttpDealData;
 import com.keyking.coin.service.http.handler.HttpHandler;
 import com.keyking.coin.service.http.request.HttpRequestMessage;
 import com.keyking.coin.service.http.response.HttpResponseMessage;
-import com.keyking.coin.service.net.data.SearchCondition;
 import com.keyking.coin.util.JsonUtil;
 import com.keyking.coin.util.StringUtil;
 

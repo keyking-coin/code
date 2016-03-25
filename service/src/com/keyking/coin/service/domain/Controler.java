@@ -10,15 +10,14 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.apache.mina.core.session.IoSession;
 import org.joda.time.DateTime;
 
+import com.keyking.coin.service.domain.condition.SearchCondition;
 import com.keyking.coin.service.domain.deal.Deal;
 import com.keyking.coin.service.domain.deal.DealOrder;
-import com.keyking.coin.service.domain.deal.Revert;
 import com.keyking.coin.service.domain.deal.SimpleOrderModule;
 import com.keyking.coin.service.domain.user.RankEntity;
 import com.keyking.coin.service.domain.user.Seller;
 import com.keyking.coin.service.domain.user.UserCharacter;
 import com.keyking.coin.service.http.data.HttpTouristDealOrderData;
-import com.keyking.coin.service.net.data.SearchCondition;
 import com.keyking.coin.service.net.resp.impl.GeneralResp;
 import com.keyking.coin.util.Instances;
 import com.keyking.coin.util.ServerLog;
@@ -252,27 +251,6 @@ public class Controler implements Instances{
 		return result;
 	}
 	
-	
-	public void compareDeals(List<Deal> list , boolean init){
-		if (list == null || list.size() == 0){
-			return;
-		}
-		Collections.sort(list);
-		if (init){
-			for (Deal deal : list){
-				List<Revert> reverts = DB.getRevertDao().search(deal.getId());
-				if (reverts != null){
-					deal.setReverts(reverts);
-				}
-				List<DealOrder> orders = DB.getDealOrderDao().search(deal.getId());
-				if (orders != null){
-					deal.setOrders(orders);
-				}
-				deal.compare();
-			}
-		}
-	}
-	
 	public Deal tryToSearch(long id) {
 		for (Deal deal : deals){
 			if (deal.getId() == id){
@@ -414,6 +392,10 @@ public class Controler implements Instances{
 			}
 		}
 		return count;
+	}
+
+	public List<Deal> getDeals() {
+		return deals;
 	}
 }
  

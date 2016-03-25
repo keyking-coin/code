@@ -45,6 +45,8 @@ public class HttpLook extends HttpHandler {
 				data.getCredit().copy(user.getCredit());
 			}
 			response.appendBody(formatJosn(request,JsonUtil.ObjectToJsonString(data)));
+		}else{
+			message(request, response,"找不到用户");
 		}
 	}
 }

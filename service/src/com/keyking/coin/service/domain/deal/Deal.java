@@ -52,8 +52,6 @@ public class Deal extends EntitySaver implements Comparable<Deal>{
 	
 	List<Revert> reverts    = new ArrayList<Revert>();//回复内容列表
 	
-	List<Revert> delReverts = new ArrayList<Revert>();
-	
 	List<DealOrder> orders  = new ArrayList<DealOrder>();//订单
 	
 	float needDeposit = 0;
@@ -211,22 +209,15 @@ public class Deal extends EntitySaver implements Comparable<Deal>{
 	public void setLock(boolean lock) {
 		this.lock = lock;
 	}
-
-	public void delRevert(Revert revert){
-		if (reverts.contains(revert)){
-			reverts.remove(revert);
-			delReverts.add(revert);
-		}
-	}
 	
 	public void addRevert(Revert revert){
 		reverts.add(revert);
-		//compare_r();
+		compare_r();
 	}
 	
 	public void addOrder(DealOrder order){
 		orders.add(order);
-		//compare_o();
+		compare_o();
 	}
 	
 	private void compare_r(){
@@ -241,11 +232,6 @@ public class Deal extends EntitySaver implements Comparable<Deal>{
 		}
 	}
 	
-	public void compare(){
-		compare_r();
-		compare_o();
-	}
-	
 	public boolean checkSeller(long uid) {
 	    return sellFlag == 1 && this.uid == uid;
 	}
@@ -256,6 +242,10 @@ public class Deal extends EntitySaver implements Comparable<Deal>{
 	
 	public int getLeftNum(){
 		return Math.max(0,num - orderNum());
+	}
+	
+	public DealOrder getRecentOrder(){
+		return orders.size() > 0 ? orders.get(0) : null;
 	}
 	
 	public void serialize(DataBuffer buffer) {
@@ -335,9 +325,6 @@ public class Deal extends EntitySaver implements Comparable<Deal>{
 	
 	public void save(){
 		for (Revert revert : reverts){
-			revert.save();
-		}
-		for (Revert revert : delReverts){
 			revert.save();
 		}
 		for (DealOrder order : orders){
@@ -450,11 +437,7 @@ public class Deal extends EntitySaver implements Comparable<Deal>{
 		List<Revert> lis = DB.getRevertDao().search(id);
 		if (lis != null){
 			for (Revert revert : lis){
-				if (revert.isRevoke()){
-					delReverts.add(revert);
-				}else{
-					reverts.add(revert);
-				}
+				reverts.add(revert);
 			}
 		}
 		List<DealOrder> temps = DB.getDealOrderDao().search(id);
@@ -481,6 +464,7 @@ public class Deal extends EntitySaver implements Comparable<Deal>{
 				orders.add(order);
 			}
 		}
+		compare_o();
 	}
 	
 	public Map<Long,RankEntity> compute(){

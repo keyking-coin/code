@@ -4,10 +4,10 @@ import java.util.List;
 
 import org.apache.mina.core.session.IoSession;
 
+import com.keyking.coin.service.domain.condition.SearchCondition;
 import com.keyking.coin.service.domain.deal.Deal;
 import com.keyking.coin.service.domain.user.UserCharacter;
 import com.keyking.coin.service.net.buffer.DataBuffer;
-import com.keyking.coin.service.net.data.SearchCondition;
 import com.keyking.coin.service.net.logic.AbstractLogic;
 import com.keyking.coin.service.net.resp.impl.GeneralResp;
 import com.keyking.coin.service.net.resp.sys.MustLoginAgain;
