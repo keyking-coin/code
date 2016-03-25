@@ -1,6 +1,7 @@
 package com.keyking.coin.service.http.handler.impl;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import com.keyking.coin.service.domain.deal.Deal;
@@ -66,6 +67,13 @@ public class HttpMyDeal extends HttpHandler {
 		condition.setSeller(user.getNikeName());
 		condition.setValid("到目前有效");
 		List<Deal> deals = CTRL.getSearchDeals(condition);
+		Iterator<Deal> iter = deals.iterator();
+		while (iter.hasNext()){
+			Deal deal = iter.next();
+			if (deal.isRevoke()){
+				iter.remove();
+			}
+		}
 		return deals;
 	}
 	

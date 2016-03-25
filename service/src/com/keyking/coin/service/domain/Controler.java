@@ -199,9 +199,6 @@ public class Controler implements Instances{
 	public List<Deal> getSearchDeals(SearchCondition condition) {
 		List<Deal> result = new ArrayList<Deal>();
 		for (Deal deal : deals){
-			if (deal.isRevoke()){
-				continue;
-			}
 			if (condition.legal(deal)){
 				result.add(deal);
 			}

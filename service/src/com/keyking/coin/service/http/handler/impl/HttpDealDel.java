@@ -30,13 +30,11 @@ public class HttpDealDel extends HttpHandler {
 			}
 			Deal deal = CTRL.tryToSearch(dealId);
 			synchronized (deal) {
-				String tips = deal.couldDel();
-				if (tips != null){
-					message(request,response,tips);
-				}else if (deal.getUid() == uid){
+				if (deal.getUid() == uid){
+					deal.setNum(deal.getLeftNum());
 					deal.setRevoke(true);
-					message(request,response,"ok");
 					deal.setNeedSave(true);
+					message(request,response,"ok");
 					NET.sendMessageToAllClent(deal.clientMessage(Module.DEL_FLAG),null);
 					ServerLog.info(user.getAccount() + " revoke deal ----> id is " + dealId);
 				}else{

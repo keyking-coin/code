@@ -1,6 +1,8 @@
 package com.keyking.coin.service.http.handler.impl;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.keyking.coin.service.domain.deal.Deal;
@@ -75,12 +77,17 @@ public class HttpGrab extends HttpHandler{
 			order.clientMessage(Module.ADD_FLAG,modules);
 			deal.clientMessage(Module.UPDATE_FLAG,modules);
 			NET.sendMessageToAllClent(modules,null);
-			int left = Math.max(0,deal.getNum()-deal.orderNum());
 			Map<String,Object> datas = new HashMap<String,Object>();
-			HttpOrderData hd = new HttpOrderData();
-			hd.copy(order);
 			datas.put("result","ok");
-			datas.put("num",left);
+			List<HttpOrderData> hds = new ArrayList<HttpOrderData>();
+			for (DealOrder o : deal.getOrders()){
+				HttpOrderData hd = new HttpOrderData();
+				hd.copy(o);
+				hds.add(hd);
+			}
+			datas.put("orders",hds);
+			datas.put("num",deal.getLeftNum());
+			datas.put("monad",deal.getMonad());
 			String str = JsonUtil.ObjectToJsonString(datas);
 			response.appendBody(formatJosn(request,str));
 			ServerLog.info(user.getAccount() + " grab deal ok ----> id is " + id);

@@ -25,8 +25,6 @@ public class HttpAppraise extends HttpHandler {
 		String pwd = request.getParameter("pwd");//密码验证
 		long dealId = Long.parseLong(request.getParameter("did"));//交易编号
 		long orderId = Long.parseLong(request.getParameter("oid"));//订单编号
-		String type = request.getParameter("type");//0买家评价,1卖家评价
-		boolean flag = type.equals("1");
 		byte star = Byte.parseByte(request.getParameter("star"));//评价星级
 		String context = request.getParameter("context");//评价内容
 		UserCharacter user = CTRL.search(uid);
@@ -52,15 +50,13 @@ public class HttpAppraise extends HttpHandler {
 						message(request, response, "订单已撤销,无法评价");
 						return;
 					}
-					boolean couldAppraise = false;
-					if (!flag && (deal.checkBuyer(uid) || order.checkBuyer(deal,uid))){//我是买家
-						couldAppraise = true;
+					DealAppraise appraise = null;
+					if (deal.checkSeller(uid) || order.checkSeller(deal,uid)){//买家
+						appraise = order.getSellerAppraise();
+					}else if (deal.checkBuyer(uid) || order.checkBuyer(deal,uid)){//卖家
+						appraise = order.getBuyerAppraise();
 					}
-					if (flag && (deal.checkSeller(uid) || order.checkSeller(deal,uid))){//我是卖家
-						couldAppraise = true;
-					}
-					if (couldAppraise){
-						DealAppraise appraise = flag ? order.getSellerAppraise() : order.getBuyerAppraise();
+					if (appraise != null){
 						if (!appraise.isCompleted()) {
 							appraise.appraise(star,context);
 							order.setNeedSave(true);
@@ -77,11 +73,11 @@ public class HttpAppraise extends HttpHandler {
 							ServerLog.info(user.getAccount()+ " appraised : star = " + star + " context = "+ context);
 							String result = formatJosn(request,JsonUtil.ObjectToJsonString(datas));
 							response.appendBody(result);
-						} else {
+						}else{
 							message(request, response, "您已评价过了");
 						}
 					}else{
-						message(request, response, "您没有权限评价");
+						message(request, response,"您没有权限评价");
 					}
 				}
 			}else{

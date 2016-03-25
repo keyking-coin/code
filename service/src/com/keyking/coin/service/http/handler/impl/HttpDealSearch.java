@@ -67,43 +67,57 @@ public class HttpDealSearch extends HttpHandler {
 			deals = CTRL.getSearchDeals(condition);
 		}
 		if (deals.size() > 0){
-			List<Deal> issues = new ArrayList<Deal>();
-			List<Deal> valides = new ArrayList<Deal>();
-			List<Deal> normal = new ArrayList<Deal>();
+			List<Deal> issues   = new ArrayList<Deal>();
+			List<Deal> valides  = new ArrayList<Deal>();
+			List<Deal> normals   = new ArrayList<Deal>();
+			List<Deal> tails    = new ArrayList<Deal>();
 			for (Deal deal : deals){
+				if (deal.getLeftNum() == 0){
+					tails.add(deal);
+					continue;
+				}
 				if (deal.isIssueRecently()){
 					issues.add(deal);
 				}else if (deal.checkValidTime()){
 					valides.add(deal);
 				}else{
-					normal.add(deal);
+					normals.add(deal);
 				}
 			}
-			Collections.sort(issues,new Comparator<Deal>(){
-				@Override
-				public int compare(Deal o1, Deal o2) {
-					DateTime time1 = TimeUtils.getTime(o1.getLastIssue());
-					DateTime time2 = TimeUtils.getTime(o2.getLastIssue());
-					if (time1.isBefore(time2)){
-						return 1;
-					}else{
-						return -1;
+			if (issues.size() > 0){
+				Collections.sort(issues,new Comparator<Deal>(){
+					@Override
+					public int compare(Deal o1, Deal o2) {
+						DateTime time1 = TimeUtils.getTime(o1.getLastIssue());
+						DateTime time2 = TimeUtils.getTime(o2.getLastIssue());
+						if (time1.isBefore(time2)){
+							return 1;
+						}else{
+							return -1;
+						}
 					}
-				}
-			});
-			Collections.sort(valides,new Comparator<Deal>(){
-				@Override
-				public int compare(Deal o1, Deal o2) {
-					DateTime time1 = TimeUtils.getTime(o1.getValidTime());
-					DateTime time2 = TimeUtils.getTime(o2.getValidTime());
-					if (time1.isBefore(time2)){
-						return 1;
-					}else{
-						return -1;
+				});
+			}
+			if (valides.size() > 0){
+				Collections.sort(valides,new Comparator<Deal>(){
+					@Override
+					public int compare(Deal o1, Deal o2) {
+						DateTime time1 = TimeUtils.getTime(o1.getValidTime());
+						DateTime time2 = TimeUtils.getTime(o2.getValidTime());
+						if (time1.isBefore(time2)){
+							return 1;
+						}else{
+							return -1;
+						}
 					}
-				}
-			});
-			Collections.sort(normal);
+				});
+			}
+			if (normals.size() > 0){
+				Collections.sort(normals);
+			}
+			if (tails.size() > 0){
+				Collections.sort(tails);
+			}
 			deals.clear();
 			List<HttpDealData> hDeals = new ArrayList<HttpDealData>();
 			for (Deal deal : issues){
@@ -116,7 +130,12 @@ public class HttpDealSearch extends HttpHandler {
 				hdeal.copy(deal,user);
 				hDeals.add(hdeal);
 			}
-			for (Deal deal : normal){
+			for (Deal deal : normals){
+				HttpDealData hdeal = new HttpDealData();
+				hdeal.copy(deal,user);
+				hDeals.add(hdeal);
+			}
+			for (Deal deal : tails){
 				HttpDealData hdeal = new HttpDealData();
 				hdeal.copy(deal,user);
 				hDeals.add(hdeal);

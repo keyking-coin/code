@@ -30,16 +30,21 @@ public class EnterDeal extends AbstractLogic{
 			deals = CTRL.getSearchDeals(condition);
 		}
 		if (deals.size() > 0){
-			List<Deal> issues = new ArrayList<Deal>();
-			List<Deal> valides = new ArrayList<Deal>();
-			List<Deal> normal = new ArrayList<Deal>();
+			List<Deal> issues   = new ArrayList<Deal>();
+			List<Deal> valides  = new ArrayList<Deal>();
+			List<Deal> normals   = new ArrayList<Deal>();
+			List<Deal> tails    = new ArrayList<Deal>();
 			for (Deal deal : deals){
+				if (deal.getLeftNum() == 0){
+					tails.add(deal);
+					continue;
+				}
 				if (deal.isIssueRecently()){
 					issues.add(deal);
 				}else if (deal.checkValidTime()){
 					valides.add(deal);
 				}else{
-					normal.add(deal);
+					normals.add(deal);
 				}
 			}
 			Collections.sort(issues,new Comparator<Deal>(){
@@ -66,7 +71,8 @@ public class EnterDeal extends AbstractLogic{
 					}
 				}
 			});
-			Collections.sort(normal);
+			Collections.sort(normals);
+			Collections.sort(tails);
 			deals.clear();
 			for (Deal deal : issues){
 				if (!deals.contains(deal)){
@@ -78,7 +84,12 @@ public class EnterDeal extends AbstractLogic{
 					deals.add(deal);
 				}
 			}
-			for (Deal deal : normal){
+			for (Deal deal : normals){
+				if (!deals.contains(deal)){
+					deals.add(deal);
+				}
+			}
+			for (Deal deal : tails){
 				if (!deals.contains(deal)){
 					deals.add(deal);
 				}

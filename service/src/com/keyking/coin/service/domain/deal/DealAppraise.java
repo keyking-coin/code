@@ -70,9 +70,9 @@ public class DealAppraise implements SerializeEntity{
 		buffer.putUTF(time);
 	}
 	
-	public void appraise(byte star , String detail){
+	public void appraise(byte star,String detail){
 		isCompleted = true;
-		this.star = star ;
+		this.star = star;
 		if (!StringUtil.isNull(detail)){
 			this.detail = detail;
 		}

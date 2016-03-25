@@ -445,9 +445,6 @@ public class UserCharacter extends EntitySaver{
 		float result = 0;
 		long nowTime = TimeUtils.nowLong();
 		for (Deal deal : deals){
-			if (deal.isRevoke()){//帖子已经撤销的释放全部信用
-				continue;
-			}
 			if (deal.getHelpFlag() == 1){//如果是中介模式不走信用流程
 				continue;
 			}

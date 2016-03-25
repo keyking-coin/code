@@ -13,11 +13,7 @@ public class AdminDealRevoke extends AbstractLogic {
 		long dealId = buffer.getLong();
 		Deal deal = CTRL.tryToSearch(dealId);
 		if (deal != null){
-			String tips = deal.couldDel();
-			if (tips != null){
-				resp.setError(tips);
-				return resp;
-			}
+			deal.setNum(deal.getLeftNum());
 			deal.setRevoke(true);
 			deal.setNeedSave(true);
 			resp.setSucces();

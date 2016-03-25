@@ -21,9 +21,9 @@ public class DealOrder extends EntitySaver implements Comparable<DealOrder>{
 	
 	public static final byte ORDER_FINISH_HELP      = 5;
 	
-	public static final int ORDER_REVOKE_BUYER     = 1;
+	public static final int ORDER_REVOKE_BUYER      = 1;
 	
-	public static final int ORDER_REVOKE_SELLER    = 1 << 1;
+	public static final int ORDER_REVOKE_SELLER     = 1 << 1;
 	
 	public static final int ORDER_REVOKE_ALL       = (ORDER_REVOKE_BUYER|ORDER_REVOKE_SELLER);
 	
@@ -213,7 +213,7 @@ public class DealOrder extends EntitySaver implements Comparable<DealOrder>{
 	}
 	
 	public void addTimes(byte state){
-		String str = TimeUtils.formatYear(TimeUtils.now());
+		String str = TimeUtils.nowChStr();
 		times.add(str);
 		this.state = state;
 		if (over()){
@@ -297,10 +297,10 @@ public class DealOrder extends EntitySaver implements Comparable<DealOrder>{
 	}
 	
 	public boolean checkSeller(Deal deal, long uid) {
-	    return (deal.getSellFlag() == 0) && (this.buyId == uid);
+	    return deal.getSellFlag() == 0 && buyId == uid;
 	}
 
 	public boolean checkBuyer(Deal deal, long uid) {
-	    return (deal.getSellFlag() == 1) && (this.buyId == uid);
+	    return deal.getSellFlag() == 1 && buyId == uid;
 	}
 }

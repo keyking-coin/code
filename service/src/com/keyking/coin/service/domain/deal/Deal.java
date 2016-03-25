@@ -247,11 +247,15 @@ public class Deal extends EntitySaver implements Comparable<Deal>{
 	}
 	
 	public boolean checkSeller(long uid) {
-	    return (this.sellFlag == 1) && (this.uid == uid);
+	    return sellFlag == 1 && this.uid == uid;
 	}
 
 	public boolean checkBuyer(long uid) {
-	    return (this.sellFlag == 0) && (this.uid == uid);
+	    return sellFlag == 0 && this.uid == uid;
+	}
+	
+	public int getLeftNum(){
+		return Math.max(0,num - orderNum());
 	}
 	
 	public void serialize(DataBuffer buffer) {
@@ -267,7 +271,7 @@ public class Deal extends EntitySaver implements Comparable<Deal>{
 		buffer.putUTF(bourse);
 		buffer.putUTF(name);
 		buffer.putUTF(monad);
-		buffer.putInt(num - orderNum());
+		buffer.putInt(getLeftNum());
 		buffer.putUTF(String.valueOf(price));
 		buffer.putUTF(other == null ? "" : other);
 		buffer.put(helpFlag);
@@ -505,7 +509,7 @@ public class Deal extends EntitySaver implements Comparable<Deal>{
 
 	public boolean isDealing() {
 		for (DealOrder order : orders){
-			if ((order.getHelpFlag()==0 && order.getState() < DealOrder.ORDER_FINISH_NORMAL) || (order.getHelpFlag()==1 && order.getState() < DealOrder.ORDER_FINISH_HELP)){
+			if ((order.getHelpFlag()== 0 && order.getState() < DealOrder.ORDER_FINISH_NORMAL) || (order.getHelpFlag()==1 && order.getState() < DealOrder.ORDER_FINISH_HELP)){
 				return true;
 			}
 		}
