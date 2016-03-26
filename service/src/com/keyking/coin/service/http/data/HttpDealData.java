@@ -3,13 +3,16 @@ package com.keyking.coin.service.http.data;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.joda.time.DateTime;
+
 import com.keyking.coin.service.domain.deal.Deal;
 import com.keyking.coin.service.domain.deal.DealOrder;
 import com.keyking.coin.service.domain.deal.Revert;
 import com.keyking.coin.service.domain.user.UserCharacter;
 import com.keyking.coin.util.Instances;
+import com.keyking.coin.util.TimeUtils;
 
-public class HttpDealData implements Instances{
+public class HttpDealData implements Instances,Comparable<HttpDealData>{
 	long id;//编号
 	long uid;//用户编号
 	byte sellFlag;//出售帖还是求购帖
@@ -255,6 +258,34 @@ public class HttpDealData implements Instances{
 		}
 	}
 	
+	public void copy(Deal deal,DealOrder order) {
+		id         = deal.getId();
+		uid        = deal.getUid();
+		sellFlag   = deal.getSellFlag();
+		type       = deal.getType();
+		helpFlag   = deal.getHelpFlag();
+		bourse     = deal.getBourse();
+		name       = deal.getName();
+		price      = deal.getPrice();
+		monad      = deal.getMonad();
+		num        = deal.getLeftNum();
+		validTime  = deal.getValidTime();
+		createTime = deal.getCreateTime();
+		other      = deal.getOther();
+		revoke     = deal.isRevoke();
+		UserCharacter user = CTRL.search(uid);
+		issueName  = user.getNikeName();
+		issueIcon  = user.getFace();
+		for (Revert revert : deal.getReverts()){
+			HttpRevertData hr = new HttpRevertData();
+			hr.copy(revert);
+			reverts.add(hr);
+		}
+		HttpOrderData ho = new HttpOrderData();
+		ho.copy(order);
+		orders.add(ho);
+	}
+	
 	public void copy(Deal deal) {
 		id         = deal.getId();
 		uid        = deal.getUid();
@@ -277,6 +308,17 @@ public class HttpDealData implements Instances{
 			HttpRevertData hr = new HttpRevertData();
 			hr.copy(revert);
 			reverts.add(hr);
+		}
+	}
+
+	@Override
+	public int compareTo(HttpDealData o) {
+		DateTime time1 = TimeUtils.getTime(createTime);
+		DateTime time2 = TimeUtils.getTime(o.createTime);
+		if (time1.isBefore(time2)){
+			return 1;
+		}else{
+			return -1;
 		}
 	}
 }
