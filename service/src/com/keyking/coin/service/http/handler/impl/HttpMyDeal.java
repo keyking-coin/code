@@ -10,10 +10,10 @@ import org.joda.time.DateTime;
 import com.keyking.coin.service.domain.deal.Deal;
 import com.keyking.coin.service.domain.deal.DealOrder;
 import com.keyking.coin.service.domain.user.UserCharacter;
-import com.keyking.coin.service.http.data.HttpDealData;
 import com.keyking.coin.service.http.handler.HttpHandler;
 import com.keyking.coin.service.http.request.HttpRequestMessage;
 import com.keyking.coin.service.http.response.HttpResponseMessage;
+import com.keyking.coin.service.tranform.TransformDealData;
 import com.keyking.coin.util.JsonUtil;
 import com.keyking.coin.util.TimeUtils;
 
@@ -31,7 +31,7 @@ public class HttpMyDeal extends HttpHandler {
 			response.appendBody(str);
 			return;
 		}
-		List<HttpDealData> deals = null;
+		List<TransformDealData> deals = null;
 		switch(index){
 		case 1:
 			deals = searchSells(user);//等待交易 我所发的所有在有效期的帖子
@@ -56,24 +56,24 @@ public class HttpMyDeal extends HttpHandler {
 		response.appendBody(str);
 	}
 	
-	private List<HttpDealData> searchSells(UserCharacter user){
-		List<HttpDealData> result = new ArrayList<HttpDealData>();
+	private List<TransformDealData> searchSells(UserCharacter user){
+		List<TransformDealData> result = new ArrayList<TransformDealData>();
 		List<Deal> deals = CTRL.getDeals();
 		long uid = user.getId();
 		for (Deal deal : deals){
 			if (!deal.checkValidTime() || deal.getUid() != uid || deal.isRevoke() || deal.getLeftNum() == 0){
 				continue;
 			}
-			HttpDealData hd = new HttpDealData();
-			hd.copy(deal,user);
+			TransformDealData hd = new TransformDealData();
+			hd.copy(deal);
 			result.add(hd);
 		}
 		Collections.sort(result);
 		return result;
 	}
 	
-	private List<HttpDealData> searchDealing(UserCharacter user){
-		List<HttpDealData> result = new ArrayList<HttpDealData>();
+	private List<TransformDealData> searchDealing(UserCharacter user){
+		List<TransformDealData> result = new ArrayList<TransformDealData>();
 		List<Deal> deals = CTRL.getDeals();
 		long uid = user.getId();
 		for (Deal deal : deals){
@@ -82,25 +82,25 @@ public class HttpMyDeal extends HttpHandler {
 			}
 			if (deal.getUid() == uid){
 				for (DealOrder order : deal.getOrders()){
-					if (order.isDealing()){
-						HttpDealData hd = new HttpDealData();
+					if (order.isDealing() && !order.checkRevoke()){
+						TransformDealData hd = new TransformDealData();
 						hd.copy(deal,order);
 						result.add(hd);
 					}
 				}
 			}else{
 				for (DealOrder order : deal.getOrders()){
-					if (order.getBuyId() == uid && order.isDealing()){
-						HttpDealData hd = new HttpDealData();
+					if (order.getBuyId() == uid && order.isDealing() && !order.checkRevoke()){
+						TransformDealData hd = new TransformDealData();
 						hd.copy(deal,order);
 						result.add(hd);
 					}
 				}
 			}
 		}
-		Collections.sort(result,new Comparator<HttpDealData>(){
+		Collections.sort(result,new Comparator<TransformDealData>(){
 			@Override
-			public int compare(HttpDealData o1, HttpDealData o2) {
+			public int compare(TransformDealData o1, TransformDealData o2) {
 				String str1 = o1.getOrders().get(0).getTimes().get(0);
 				String str2 = o2.getOrders().get(0).getTimes().get(0);
 				DateTime time1 = TimeUtils.getTime(str1);
@@ -115,8 +115,8 @@ public class HttpMyDeal extends HttpHandler {
 		return result;
 	}
 	
-	private List<HttpDealData> searchConfirmOrders(UserCharacter user){
-		List<HttpDealData> result = new ArrayList<HttpDealData>();
+	private List<TransformDealData> searchConfirmOrders(UserCharacter user){
+		List<TransformDealData> result = new ArrayList<TransformDealData>();
 		List<Deal> deals = CTRL.getDeals();
 		long uid = user.getId();
 		for (Deal deal : deals){
@@ -125,25 +125,25 @@ public class HttpMyDeal extends HttpHandler {
 			}
 			if (deal.getUid() == uid){
 				for (DealOrder order : deal.getOrders()){
-					if (order.isConfirming()){
-						HttpDealData hd = new HttpDealData();
+					if (order.isConfirming() && !order.checkRevoke()){
+						TransformDealData hd = new TransformDealData();
 						hd.copy(deal,order);
 						result.add(hd);
 					}
 				}
 			}else{
 				for (DealOrder order : deal.getOrders()){
-					if (order.getBuyId() == uid && order.isConfirming()){
-						HttpDealData hd = new HttpDealData();
+					if (order.getBuyId() == uid && order.isConfirming() && !order.checkRevoke()){
+						TransformDealData hd = new TransformDealData();
 						hd.copy(deal,order);
 						result.add(hd);
 					}
 				}
 			}
 		}
-		Collections.sort(result,new Comparator<HttpDealData>(){
+		Collections.sort(result,new Comparator<TransformDealData>(){
 			@Override
-			public int compare(HttpDealData o1, HttpDealData o2) {
+			public int compare(TransformDealData o1, TransformDealData o2) {
 				String str1 = o1.getOrders().get(0).getTimes().get(0);
 				String str2 = o2.getOrders().get(0).getTimes().get(0);
 				DateTime time1 = TimeUtils.getTime(str1);
@@ -158,8 +158,8 @@ public class HttpMyDeal extends HttpHandler {
 		return result;
 	}
 	
-	private List<HttpDealData> searchDealOver(UserCharacter user){
-		List<HttpDealData> result = new ArrayList<HttpDealData>();
+	private List<TransformDealData> searchDealOver(UserCharacter user){
+		List<TransformDealData> result = new ArrayList<TransformDealData>();
 		List<Deal> deals = CTRL.getDeals();
 		long uid = user.getId();
 		for (Deal deal : deals){
@@ -168,25 +168,25 @@ public class HttpMyDeal extends HttpHandler {
 			}
 			if (deal.getUid() == uid){
 				for (DealOrder order : deal.getOrders()){
-					if (order.isCompleted()){
-						HttpDealData hd = new HttpDealData();
+					if (order.isCompleted() && !order.checkRevoke()){
+						TransformDealData hd = new TransformDealData();
 						hd.copy(deal,order);
 						result.add(hd);
 					}
 				}
 			}else{
 				for (DealOrder order : deal.getOrders()){
-					if (order.getBuyId() == uid && order.isCompleted()){
-						HttpDealData hd = new HttpDealData();
+					if (order.getBuyId() == uid && order.isCompleted() && !order.checkRevoke()){
+						TransformDealData hd = new TransformDealData();
 						hd.copy(deal,order);
 						result.add(hd);
 					}
 				}
 			}
 		}
-		Collections.sort(result,new Comparator<HttpDealData>(){
+		Collections.sort(result,new Comparator<TransformDealData>(){
 			@Override
-			public int compare(HttpDealData o1, HttpDealData o2) {
+			public int compare(TransformDealData o1, TransformDealData o2) {
 				String str1 = o1.getOrders().get(0).getTimes().get(0);
 				String str2 = o2.getOrders().get(0).getTimes().get(0);
 				DateTime time1 = TimeUtils.getTime(str1);
@@ -201,8 +201,8 @@ public class HttpMyDeal extends HttpHandler {
 		return result;
 	}
 	
-	private List<HttpDealData> searchDealHelp(UserCharacter user){
-		List<HttpDealData> result = new ArrayList<HttpDealData>();
+	private List<TransformDealData> searchDealHelp(UserCharacter user){
+		List<TransformDealData> result = new ArrayList<TransformDealData>();
 		List<Deal> deals = CTRL.getDeals();
 		long uid = user.getId();
 		for (Deal deal : deals){
@@ -211,25 +211,25 @@ public class HttpMyDeal extends HttpHandler {
 			}
 			if (deal.getUid() == uid){
 				for (DealOrder order : deal.getOrders()){
-					if (order.isDealing()){
-						HttpDealData hd = new HttpDealData();
+					if (order.isDealing() && !order.checkRevoke()){
+						TransformDealData hd = new TransformDealData();
 						hd.copy(deal,order);
 						result.add(hd);
 					}
 				}
 			}else{
 				for (DealOrder order : deal.getOrders()){
-					if (order.getBuyId() == uid && order.isDealing()){
-						HttpDealData hd = new HttpDealData();
+					if (order.getBuyId() == uid && order.isDealing() && !order.checkRevoke()){
+						TransformDealData hd = new TransformDealData();
 						hd.copy(deal,order);
 						result.add(hd);
 					}
 				}
 			}
 		}
-		Collections.sort(result,new Comparator<HttpDealData>(){
+		Collections.sort(result,new Comparator<TransformDealData>(){
 			@Override
-			public int compare(HttpDealData o1, HttpDealData o2) {
+			public int compare(TransformDealData o1, TransformDealData o2) {
 				String str1 = o1.getOrders().get(0).getTimes().get(0);
 				String str2 = o2.getOrders().get(0).getTimes().get(0);
 				DateTime time1 = TimeUtils.getTime(str1);
@@ -244,7 +244,7 @@ public class HttpMyDeal extends HttpHandler {
 		return result;
 	}
 	
-	private List<HttpDealData> searchFavorite(UserCharacter user){
+	private List<TransformDealData> searchFavorite(UserCharacter user){
 		List<Deal> result = new ArrayList<Deal>();
 		List<Long> favorites = user.getFavorites();
 		for (Long favorite : favorites){

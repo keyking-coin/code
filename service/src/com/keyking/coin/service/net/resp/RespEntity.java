@@ -4,7 +4,6 @@ import com.keyking.coin.service.net.buffer.DataBuffer;
 
 public abstract class RespEntity {
 	
-	
 	public static final int RESP_RESULT_SUCC = 0;
 	
 	public static final int RESP_RESULT_FAIL = 1;

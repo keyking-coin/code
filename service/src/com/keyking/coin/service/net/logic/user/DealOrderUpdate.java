@@ -22,7 +22,7 @@ public class DealOrderUpdate extends AbstractLogic {
 			DealOrder order = deal.searchOrder(orderId);
 			if (order != null){
 				synchronized (order) {
-					if (order.checkRevoke(DealOrder.ORDER_REVOKE_ALL)){
+					if (order.checkRevoke()){
 						resp.setError("订单已撤销,无法操作");
 						return resp;
 					}

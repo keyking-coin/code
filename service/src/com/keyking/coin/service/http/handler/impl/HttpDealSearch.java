@@ -9,12 +9,10 @@ import org.joda.time.DateTime;
 
 import com.keyking.coin.service.domain.condition.SearchCondition;
 import com.keyking.coin.service.domain.deal.Deal;
-import com.keyking.coin.service.domain.deal.DealOrder;
-import com.keyking.coin.service.domain.user.UserCharacter;
-import com.keyking.coin.service.http.data.HttpDealData;
 import com.keyking.coin.service.http.handler.HttpHandler;
 import com.keyking.coin.service.http.request.HttpRequestMessage;
 import com.keyking.coin.service.http.response.HttpResponseMessage;
+import com.keyking.coin.service.tranform.TransformDealData;
 import com.keyking.coin.util.JsonUtil;
 import com.keyking.coin.util.StringUtil;
 import com.keyking.coin.util.TimeUtils;
@@ -26,8 +24,8 @@ public class HttpDealSearch extends HttpHandler {
 		response.setContentType("text/plain");
 		response.setResponseCode(HttpResponseMessage.HTTP_STATUS_SUCCESS);
 		//null就是查询最近7天交易记录，默认点击交易区就传null，其他值都标示是条件查询
-		String uid_str  = request.getParameter("uid");
-		long uid = Long.parseLong(uid_str);
+		//String uid_str  = request.getParameter("uid");
+		//long uid = Long.parseLong(uid_str);
 		String search  = request.getParameter("search");
 		//null、入库、现货 ---> 全部类型的 、入库类型、现货类型
 		String type    = request.getParameter("type");
@@ -42,7 +40,7 @@ public class HttpDealSearch extends HttpHandler {
 		//null、xxx ---> 不限有效期、其他选择的字符串(到目前无效，到目前有效)
 		String valid   = request.getParameter("valid");
 		List<Deal> deals = null;
-		UserCharacter user = CTRL.search(uid);
+		//UserCharacter user = CTRL.search(uid);
 		if (search != null && search.equals("null")){//普通查询7天内的所有的帖子
 			deals = CTRL.getWeekDeals();
 		}else{
@@ -69,8 +67,7 @@ public class HttpDealSearch extends HttpHandler {
 		}
 		if (deals.size() > 0){
 			List<Deal> issues    = new ArrayList<Deal>();
-			List<Deal> valides_r = new ArrayList<Deal>();
-			List<Deal> valides_n   = new ArrayList<Deal>();
+			List<Deal> valides = new ArrayList<Deal>();
 			List<Deal> normals   = new ArrayList<Deal>();
 			List<Deal> tails     = new ArrayList<Deal>();
 			for (Deal deal : deals){
@@ -81,11 +78,7 @@ public class HttpDealSearch extends HttpHandler {
 				if (deal.isIssueRecently()){
 					issues.add(deal);
 				}else if (deal.checkValidTime()){
-					if (deal.getRecentOrder() != null){
-						valides_r.add(deal);
-					}else{
-						valides_n.add(deal);
-					}
+					valides.add(deal);
 				}else{
 					normals.add(deal);
 				}
@@ -104,24 +97,8 @@ public class HttpDealSearch extends HttpHandler {
 					}
 				});
 			}
-			if (valides_r.size() > 0){
-				Collections.sort(valides_r,new Comparator<Deal>(){
-					@Override
-					public int compare(Deal o1, Deal o2) {
-						DealOrder order1 = o1.getRecentOrder();
-						DealOrder order2 = o1.getRecentOrder();
-						DateTime time1 = TimeUtils.getTime(order1.getTimes().get(0));
-						DateTime time2 = TimeUtils.getTime(order2.getTimes().get(0));
-						if (time1.isBefore(time2)){
-							return 1;
-						}else{
-							return -1;
-						}
-					}
-				});
-			}
-			if (valides_n.size() > 0){
-				Collections.sort(valides_n);
+			if (valides.size() > 0){
+				Collections.sort(valides);
 			}
 			if (normals.size() > 0){
 				Collections.sort(normals);
@@ -130,30 +107,25 @@ public class HttpDealSearch extends HttpHandler {
 				Collections.sort(tails);
 			}
 			deals.clear();
-			List<HttpDealData> hDeals = new ArrayList<HttpDealData>();
+			List<TransformDealData> hDeals = new ArrayList<TransformDealData>();
 			for (Deal deal : issues){
-				HttpDealData hdeal = new HttpDealData();
-				hdeal.copy(deal,user);
+				TransformDealData hdeal = new TransformDealData();
+				hdeal.copy(deal);
 				hDeals.add(hdeal);
 			}
-			for (Deal deal : valides_r){
-				HttpDealData hdeal = new HttpDealData();
-				hdeal.copy(deal,user);
-				hDeals.add(hdeal);
-			}
-			for (Deal deal : valides_n){
-				HttpDealData hdeal = new HttpDealData();
-				hdeal.copy(deal,user);
+			for (Deal deal : valides){
+				TransformDealData hdeal = new TransformDealData();
+				hdeal.copy(deal);
 				hDeals.add(hdeal);
 			}
 			for (Deal deal : normals){
-				HttpDealData hdeal = new HttpDealData();
-				hdeal.copy(deal,user);
+				TransformDealData hdeal = new TransformDealData();
+				hdeal.copy(deal);
 				hDeals.add(hdeal);
 			}
 			for (Deal deal : tails){
-				HttpDealData hdeal = new HttpDealData();
-				hdeal.copy(deal,user);
+				TransformDealData hdeal = new TransformDealData();
+				hdeal.copy(deal);
 				hDeals.add(hdeal);
 			}
 			String str = formatJosn(request,JsonUtil.ObjectToJsonString(hDeals));

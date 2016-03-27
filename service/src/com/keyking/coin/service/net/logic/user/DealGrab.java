@@ -60,7 +60,6 @@ public class DealGrab extends AbstractLogic {
 			order.setHelpFlag(deal.getHelpFlag());
 			long orderId = PK.key("deal_order");
 			order.setId(orderId);
-			CTRL.addRecents(order);
 			deal.addOrder(order);
 			resp.setSucces();
 			SimpleOrderModule module = new SimpleOrderModule();

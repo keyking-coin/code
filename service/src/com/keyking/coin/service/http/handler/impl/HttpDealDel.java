@@ -31,7 +31,7 @@ public class HttpDealDel extends HttpHandler {
 			Deal deal = CTRL.tryToSearch(dealId);
 			synchronized (deal) {
 				if (deal.getUid() == uid){
-					deal.setNum(deal.getLeftNum());
+					deal.setNum(deal.orderNum());
 					deal.setRevoke(true);
 					deal.setNeedSave(true);
 					message(request,response,"ok");
@@ -41,7 +41,8 @@ public class HttpDealDel extends HttpHandler {
 					message(request,response,"您不是发帖人");
 				}
 			}
+		}else{
+			message(request,response,"找不到用户");
 		}
 	}
-
 }

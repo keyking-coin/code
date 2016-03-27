@@ -20,7 +20,7 @@ public class LookEmail extends AbstractLogic {
 			email.setIsNew((byte)1);
 			email.setNeedSave(true);
 			EmailModule module = new EmailModule();
-			module.add(email);
+			module.add("email",email);
 			ModuleResp modules = new ModuleResp();
 			module.setFlag(Module.UPDATE_FLAG);
 			modules.addModule(module);

@@ -22,7 +22,7 @@ public class BankAccountDel extends AbstractLogic {
 				ModuleResp modules = new ModuleResp();
 				Module module = new Module();
 				module.setCode(Module.MODULE_CODE_BANK_ACCOUNT);
-				module.add(bank);
+				module.add("banks",bank.getAccounts());
 				modules.addModule(module);
 				NET.sendMessageToClent(modules,user);
 				resp.setSucces();

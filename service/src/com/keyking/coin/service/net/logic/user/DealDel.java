@@ -25,7 +25,7 @@ public class DealDel extends AbstractLogic {
 		if (deal != null){
 			synchronized (deal) {
 				if (deal.getUid() == uid){
-					deal.setNum(deal.getLeftNum());
+					deal.setNum(deal.orderNum());
 					deal.setRevoke(true);
 					resp.setSucces();
 					resp.add(deal.getId());

@@ -37,7 +37,7 @@ public class Appraise extends AbstractLogic {
 					return resp;
 				}
 				synchronized (order) {
-					if (order.checkRevoke(DealOrder.ORDER_REVOKE_ALL)) {
+					if (order.checkRevoke()) {
 						resp.setError("订单已撤销,无法评价");
 						return resp;
 					}

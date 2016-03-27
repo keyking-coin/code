@@ -1,4 +1,4 @@
-package com.keyking.coin.service.http.data;
+package com.keyking.coin.service.tranform;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,7 +8,7 @@ import com.keyking.coin.service.domain.deal.DealOrder;
 import com.keyking.coin.service.domain.user.UserCharacter;
 import com.keyking.coin.util.Instances;
 
-public class HttpOrderData implements Instances{
+public class TransformOrderData implements Instances{
 	long id;
 	long dealId;
 	long buyId;

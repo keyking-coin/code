@@ -5,11 +5,10 @@ import java.util.List;
 
 import com.keyking.coin.service.domain.condition.SearchCondition;
 import com.keyking.coin.service.domain.deal.Deal;
-import com.keyking.coin.service.domain.user.UserCharacter;
-import com.keyking.coin.service.http.data.HttpDealData;
 import com.keyking.coin.service.http.handler.HttpHandler;
 import com.keyking.coin.service.http.request.HttpRequestMessage;
 import com.keyking.coin.service.http.response.HttpResponseMessage;
+import com.keyking.coin.service.tranform.TransformDealData;
 import com.keyking.coin.util.JsonUtil;
 import com.keyking.coin.util.StringUtil;
 
@@ -20,7 +19,7 @@ public class HttpAgency extends HttpHandler {
 	public void handle(HttpRequestMessage request, HttpResponseMessage response) {
 		response.setContentType("text/plain");
 		response.setResponseCode(HttpResponseMessage.HTTP_STATUS_SUCCESS);
-		long uid = Long.parseLong(request.getParameter("uid"));
+		//long uid = Long.parseLong(request.getParameter("uid"));
 		//null、入库、现货 ---> 全部类型的 、入库类型、现货类型
 		String type    = request.getParameter("type");
 		//null、xxx ---> 全部文交所 、其他选择的文交所
@@ -34,7 +33,7 @@ public class HttpAgency extends HttpHandler {
 		//null、xxx ---> 不限有效期、其他选择的字符串(到目前无效，到目前有效)
 		String valid   = request.getParameter("valid");
 		List<Deal> deals = null;
-		UserCharacter user = CTRL.search(uid);
+		//UserCharacter user = CTRL.search(uid);
 		SearchCondition condition = new SearchCondition();
 		condition.setAgency(true);
 		if (!StringUtil.isNull(type)){
@@ -57,10 +56,10 @@ public class HttpAgency extends HttpHandler {
 		}
 		deals = CTRL.getSearchDeals(condition);
 		if (deals.size() > 0){
-			List<HttpDealData> hDeals = new ArrayList<HttpDealData>();
+			List<TransformDealData> hDeals = new ArrayList<TransformDealData>();
 			for (Deal deal : deals){
-				HttpDealData hdeal = new HttpDealData();
-				hdeal.copy(deal,user);
+				TransformDealData hdeal = new TransformDealData();
+				hdeal.copy(deal);
 				hDeals.add(hdeal);
 			}
 			String str = formatJosn(request,JsonUtil.ObjectToJsonString(hDeals));

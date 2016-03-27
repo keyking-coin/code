@@ -15,6 +15,7 @@ import com.keyking.coin.service.domain.user.UserCharacter;
 import com.keyking.coin.service.net.buffer.DataBuffer;
 import com.keyking.coin.service.net.resp.module.Module;
 import com.keyking.coin.service.net.resp.module.ModuleResp;
+import com.keyking.coin.service.tranform.TransformDealData;
 import com.keyking.coin.util.StringUtil;
 import com.keyking.coin.util.TimeUtils;
 
@@ -372,7 +373,7 @@ public class Deal extends EntitySaver implements Comparable<Deal>{
 	public float completeDeposit(){
 		float result = 0;
 		for (DealOrder order : orders){
-			if (order.checkRevoke(DealOrder.ORDER_REVOKE_ALL) || order.getState() == DealOrder.ORDER_FINISH_NORMAL){//非中介模式
+			if (order.checkRevoke() || order.getState() == DealOrder.ORDER_FINISH_NORMAL){//非中介模式
 				result += order.getPrice() * order.getNum();
 			}
 		}
@@ -382,7 +383,7 @@ public class Deal extends EntitySaver implements Comparable<Deal>{
 	public float notCompleteDeposit(){
 		float result = 0;
 		for (DealOrder order : orders){
-			if (order.checkRevoke(DealOrder.ORDER_REVOKE_ALL)){
+			if (order.checkRevoke()){
 				continue;
 			}
 			if (order.getState() < DealOrder.ORDER_FINISH_NORMAL){
@@ -398,7 +399,7 @@ public class Deal extends EntitySaver implements Comparable<Deal>{
 			if (order.getBuyId() != uid){
 				continue;
 			}
-			if (order.checkRevoke(DealOrder.ORDER_REVOKE_ALL) || order.getState() == DealOrder.ORDER_FINISH_NORMAL){//非中介模式
+			if (order.checkRevoke() || order.getState() == DealOrder.ORDER_FINISH_NORMAL){//非中介模式
 				result += order.getPrice() * order.getNum();
 			}
 		}
@@ -408,7 +409,7 @@ public class Deal extends EntitySaver implements Comparable<Deal>{
 	public float notCompleteDeposit(long uid){
 		float result = 0;
 		for (DealOrder order : orders){
-			if (order.getBuyId() != uid || order.checkRevoke(DealOrder.ORDER_REVOKE_ALL)){
+			if (order.getBuyId() != uid || order.checkRevoke()){
 				continue;
 			}
 			if (order.getState() < DealOrder.ORDER_FINISH_NORMAL){//非中介模式
@@ -527,7 +528,7 @@ public class Deal extends EntitySaver implements Comparable<Deal>{
 	public int orderNum(){
 		int num = 0;
 		for (DealOrder order : orders){
-			if (order.checkRevoke(DealOrder.ORDER_REVOKE_ALL)){
+			if (order.checkRevoke()){
 				continue;
 			}
 			num += order.getNum();
@@ -553,14 +554,18 @@ public class Deal extends EntitySaver implements Comparable<Deal>{
 		Module module = new Module();
 		module.setCode(Module.MODULE_CODE_DEAL);
 		module.setFlag(type);
-		module.add(this);
+		TransformDealData rdd = new TransformDealData();
+		rdd.copy(this);
+		module.add("deal",rdd);
 		resp.addModule(module);
 		return resp;
 	}
 	
 	public ModuleResp pushMessage(){
 		PushDealModule module = new PushDealModule();
-		module.add(this);
+		TransformDealData rdd = new TransformDealData();
+		rdd.copy(this);
+		module.add("deal",rdd);
 		ModuleResp modules = new ModuleResp();
 		modules.addModule(module);
 		return modules;

@@ -1,4 +1,4 @@
-package com.keyking.coin.service.http.data;
+package com.keyking.coin.service.tranform;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -6,7 +6,7 @@ import java.util.List;
 import com.keyking.coin.service.domain.user.Account;
 import com.keyking.coin.service.domain.user.Credit;
 
-public class HttpLookData {
+public class TransformLookData {
 	String face = "face1";
 	String nikeName="";//昵称
 	String signature;

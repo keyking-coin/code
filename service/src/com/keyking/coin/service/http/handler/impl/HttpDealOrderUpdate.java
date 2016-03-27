@@ -6,11 +6,11 @@ import java.util.Map;
 import com.keyking.coin.service.domain.deal.Deal;
 import com.keyking.coin.service.domain.deal.DealOrder;
 import com.keyking.coin.service.domain.user.UserCharacter;
-import com.keyking.coin.service.http.data.HttpOrderData;
 import com.keyking.coin.service.http.handler.HttpHandler;
 import com.keyking.coin.service.http.request.HttpRequestMessage;
 import com.keyking.coin.service.http.response.HttpResponseMessage;
 import com.keyking.coin.service.net.resp.module.Module;
+import com.keyking.coin.service.tranform.TransformOrderData;
 import com.keyking.coin.util.JsonUtil;
 import com.keyking.coin.util.ServerLog;
 
@@ -74,7 +74,7 @@ public class HttpDealOrderUpdate extends HttpHandler {
 							}
 						}
 						Map<String,Object> datas = new HashMap<String,Object>();
-						HttpOrderData hd = new HttpOrderData();
+						TransformOrderData hd = new TransformOrderData();
 						hd.copy(order);
 						datas.put("result","ok");
 						datas.put("order",hd);

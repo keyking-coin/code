@@ -1,4 +1,4 @@
-package com.keyking.coin.service.http.data;
+package com.keyking.coin.service.tranform;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,7 +10,7 @@ import com.keyking.coin.service.domain.user.Seller;
 import com.keyking.coin.service.domain.user.UserCharacter;
 import com.keyking.coin.util.Instances;
 
-public class HttpUserCharacterData implements Instances{
+public class TransformUserData implements Instances{
 	long id;
 	String account;
 	String face = "face1";
@@ -31,7 +31,7 @@ public class HttpUserCharacterData implements Instances{
 	Recharge recharge;
 	int completeDealNum;
 	
-	public HttpUserCharacterData(UserCharacter user){
+	public TransformUserData(UserCharacter user){
 		id = user.getId();
 		account = user.getAccount();
 		face = user.getFace();

@@ -9,12 +9,12 @@ import com.keyking.coin.service.domain.deal.Deal;
 import com.keyking.coin.service.domain.deal.DealOrder;
 import com.keyking.coin.service.domain.deal.SimpleOrderModule;
 import com.keyking.coin.service.domain.user.UserCharacter;
-import com.keyking.coin.service.http.data.HttpOrderData;
 import com.keyking.coin.service.http.handler.HttpHandler;
 import com.keyking.coin.service.http.request.HttpRequestMessage;
 import com.keyking.coin.service.http.response.HttpResponseMessage;
 import com.keyking.coin.service.net.resp.module.Module;
 import com.keyking.coin.service.net.resp.module.ModuleResp;
+import com.keyking.coin.service.tranform.TransformOrderData;
 import com.keyking.coin.util.JsonUtil;
 import com.keyking.coin.util.ServerLog;
 
@@ -68,7 +68,6 @@ public class HttpGrab extends HttpHandler{
 			order.setHelpFlag(deal.getHelpFlag());
 			long orderId = PK.key("deal_order");
 			order.setId(orderId);
-			CTRL.addRecents(order);
 			deal.addOrder(order);
 			SimpleOrderModule module = new SimpleOrderModule();
 			order.simpleDes(module);
@@ -79,9 +78,9 @@ public class HttpGrab extends HttpHandler{
 			NET.sendMessageToAllClent(modules,null);
 			Map<String,Object> datas = new HashMap<String,Object>();
 			datas.put("result","ok");
-			List<HttpOrderData> hds = new ArrayList<HttpOrderData>();
+			List<TransformOrderData> hds = new ArrayList<TransformOrderData>();
 			for (DealOrder o : deal.getOrders()){
-				HttpOrderData hd = new HttpOrderData();
+				TransformOrderData hd = new TransformOrderData();
 				hd.copy(o);
 				hds.add(hd);
 			}

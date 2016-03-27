@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.keyking.coin.service.net.buffer.DataBuffer;
 import com.keyking.coin.service.net.resp.RespEntity;
+import com.keyking.coin.util.JsonUtil;
 
 public class ModuleResp extends RespEntity {
 	
@@ -17,10 +18,8 @@ public class ModuleResp extends RespEntity {
 
 	@Override
 	public void _serialize_ok(DataBuffer buffer) {
-		buffer.putInt(modules.size());
-		for (Module module : modules){
-			module.serialize(buffer);
-		}
+		String str = JsonUtil.ObjectToJsonString(modules);
+		buffer.putUTF(str);
 	}
 	
 	public void addModule(Module module) {

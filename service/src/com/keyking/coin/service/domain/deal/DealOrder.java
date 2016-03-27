@@ -11,6 +11,8 @@ import com.keyking.coin.service.domain.user.UserCharacter;
 import com.keyking.coin.service.net.buffer.DataBuffer;
 import com.keyking.coin.service.net.resp.module.Module;
 import com.keyking.coin.service.net.resp.module.ModuleResp;
+import com.keyking.coin.service.tranform.TransformDealData;
+import com.keyking.coin.service.tranform.TransformOrderData;
 import com.keyking.coin.util.JsonUtil;
 import com.keyking.coin.util.StringUtil;
 import com.keyking.coin.util.TimeUtils;
@@ -24,8 +26,6 @@ public class DealOrder extends EntitySaver implements Comparable<DealOrder>{
 	public static final int ORDER_REVOKE_BUYER      = 1;
 	
 	public static final int ORDER_REVOKE_SELLER     = 1 << 1;
-	
-	public static final int ORDER_REVOKE_ALL       = (ORDER_REVOKE_BUYER|ORDER_REVOKE_SELLER);
 	
 	long id;
 	
@@ -144,6 +144,10 @@ public class DealOrder extends EntitySaver implements Comparable<DealOrder>{
 		return result != 0;
 	}
 	
+	public boolean checkRevoke() {
+		return checkRevoke(ORDER_REVOKE_BUYER) && checkRevoke(ORDER_REVOKE_SELLER);
+	}
+	
 	public String appraiseSerialize(){
 		return sellerAppraise.serialize() + "|" + buyerAppraise.serialize();
 	}
@@ -257,11 +261,11 @@ public class DealOrder extends EntitySaver implements Comparable<DealOrder>{
 			sb.append("[ff0000]" + deal.getName() + "[-]");
 			sb.append(price + "元成交");
 			sb.append("[ff0000]" + num + "[-]" + deal.getMonad());
-			module.add(dealId);
-			module.add(id);
-			module.add(sb.toString());
+			module.add("dealId",dealId);
+			module.add("orderId",id);
+			module.add("des",sb.toString());
 			String time = times.get(0);
-			module.add(time);
+			module.add("time",time);
 		}
 	}
 	
@@ -279,7 +283,9 @@ public class DealOrder extends EntitySaver implements Comparable<DealOrder>{
 		Module module = new Module();
 		module.setCode(Module.MODULE_CODE_ORDER);
 		module.setFlag(type);
-		module.add(this);
+		TransformOrderData tod = new TransformOrderData();
+		tod.copy(this);
+		module.add("order",tod);
 		modules.addModule(module);
 	}
 	
@@ -289,9 +295,10 @@ public class DealOrder extends EntitySaver implements Comparable<DealOrder>{
 		Module module = new Module();
 		module.setCode(Module.MODULE_CODE_ADMIN_AGENCY);
 		module.setFlag(type);
-		module.add(id);
 		Deal deal = CTRL.tryToSearch(dealId);
-		module.add(deal);
+		TransformDealData tdd = new TransformDealData();
+		tdd.copy(deal, this);
+		module.add("deal",tdd);
 		modules.addModule(module);
 		return modules;
 	}

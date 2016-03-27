@@ -13,12 +13,12 @@ import org.joda.time.DateTime;
 import com.keyking.coin.service.domain.condition.SearchCondition;
 import com.keyking.coin.service.domain.deal.Deal;
 import com.keyking.coin.service.domain.deal.DealOrder;
-import com.keyking.coin.service.domain.deal.SimpleOrderModule;
 import com.keyking.coin.service.domain.user.RankEntity;
 import com.keyking.coin.service.domain.user.Seller;
 import com.keyking.coin.service.domain.user.UserCharacter;
-import com.keyking.coin.service.http.data.HttpTouristDealOrderData;
 import com.keyking.coin.service.net.resp.impl.GeneralResp;
+import com.keyking.coin.service.tranform.TransformTouristOrder;
+import com.keyking.coin.service.tranform.TransformUserData;
 import com.keyking.coin.util.Instances;
 import com.keyking.coin.util.ServerLog;
 import com.keyking.coin.util.TimeUtils;
@@ -31,8 +31,6 @@ public class Controler implements Instances{
 	
 	List<Deal> deals = new ArrayList<Deal>();
 	
-	List<DealOrder> recents = new ArrayList<DealOrder>();//最近成交的20条记录
-	
 	public static Controler getInstance() {
 		return instance;
 	}
@@ -41,10 +39,8 @@ public class Controler implements Instances{
 		ServerLog.info("load all deals");
 		List<Deal> lis = DB.getDealDao().loadAll();
 		for (Deal deal : lis){
-			deal.read(recents);
 			deals.add(deal);
 		}
-		Collections.sort(recents);
 		ServerLog.info("load all users");
 		List<UserCharacter> users = DB.getUserDao().loadAll();
 		for (UserCharacter user : users){
@@ -55,10 +51,11 @@ public class Controler implements Instances{
 	public UserCharacter login(String account,String pwd,GeneralResp resp){
 		UserCharacter user = search(account);
 		if (user == null){//不存在账号是account
-			resp.setError("账号:" + account + "不存");
+			resp.setError("账号:" + account + "不存在");
 		}else{
 			if (user.getPwd().equals(pwd)){
-				resp.add(user);
+				TransformUserData tud = new TransformUserData(user);
+				resp.add(tud);
 				resp.setSucces();
 				return user;
 			}else{//密码错误
@@ -239,15 +236,12 @@ public class Controler implements Instances{
 		}
 		String start = preYear + "-" + preMonth + "-" + preDay + " 00:00:00";
 		long startTime = TimeUtils.getTime(start).getMillis();
-		//String end = year + "-" + month + "-" + day + " 23:59:59";
-		//long endTime = TimeUtils.getTime(end).getMillis();
 		for (Deal deal : deals){//先看有效期
 			long dealTime = TimeUtils.getTime(deal.getValidTime()).getMillis();
 			if (dealTime >= startTime){
 				result.add(deal);
 			}
 		}
-		//compareDeals(result,false);
 		return result;
 	}
 	
@@ -302,61 +296,39 @@ public class Controler implements Instances{
 		}
 		return result;
 	}
-	
-	public List<SimpleOrderModule> trySearchRecentOrder(){
-		List<SimpleOrderModule> modules = new ArrayList<SimpleOrderModule>();
-		for (DealOrder order : recents){
-			if (order.getRevoke() == 0){
-				SimpleOrderModule module = new SimpleOrderModule();
-				order.simpleDes(module);
-				modules.add(module);
+
+	public List<TransformTouristOrder> trySearchHttpRecentOrder(){
+		List<TransformTouristOrder> orders = new ArrayList<TransformTouristOrder>();
+		DateTime time = TimeUtils.now();
+		for (Deal deal : deals){
+			for (DealOrder order : deal.getOrders()){
+				DateTime otime = TimeUtils.getTime(order.getTimes().get(0));
+				if (TimeUtils.isSameDay(time,otime)){
+					orders.add(new TransformTouristOrder(deal,order));
+				}
 			}
 		}
-		return modules;
-	}
-	
-	public List<HttpTouristDealOrderData> trySearchHttpRecentOrder(){
-		List<HttpTouristDealOrderData> orders = new ArrayList<HttpTouristDealOrderData>();
-		for (DealOrder order : recents){
-			if (order.getRevoke() == 0){
-				Deal deal = CTRL.tryToSearch(order.getDealId());
-				if (deal != null){
-					HttpTouristDealOrderData ho = new HttpTouristDealOrderData();
-					ho.setDealId(order.getDealId());
-					ho.setOrderId(order.getId());
-					String[] ss = deal.getBourse().split(",");
-					StringBuffer sb = new StringBuffer();
-					sb.append(ss[1]);
-					sb.append("<span style='color: #CC3366'>");
-					sb.append(deal.getType() == 0 ? "(入库)" : "(现货)");
-					sb.append("</span>");
-					sb.append("<span style='color: #6699CC'>");
-					sb.append(deal.getName());
-					sb.append("</span>");
-					sb.append(order.getPrice() + "元");
-					sb.append("成交");
-					sb.append("<span style='color: #009933'>");
-					sb.append(order.getNum());
-					sb.append("</span>");
-					sb.append(deal.getMonad());
-					ho.setDes(sb.toString());
-					String time = order.getTimes().get(0);
-					ho.setTime(time);
-					orders.add(ho);
+		if (orders.size() < 20){
+			long pre = time.getMillis() - 24 * 3600 * 1000;
+			time = TimeUtils.getTime(pre);
+			for (Deal deal : deals){
+				for (DealOrder order : deal.getOrders()){
+					DateTime otime = TimeUtils.getTime(order.getTimes().get(0));
+					if (TimeUtils.isSameDay(time,otime)){
+						orders.add(new TransformTouristOrder(deal,order));
+					}
+					if (orders.size() >= 20){
+						break;
+					}
+				}
+				if (orders.size() >= 20){
+					break;
 				}
 			}
 		}
 		return orders;
 	}
 	
-	public void addRecents(DealOrder order){
-		synchronized (recents) {
-			if (recents.size() >= 20){
-				recents.remove(recents.size() - 1);
-			}
-			recents.add(0,order);
-		}
-	}
 	
 	public List<UserCharacter> searchFuzzyUser(String key) {
 		List<UserCharacter> result = new ArrayList<UserCharacter>();
@@ -371,12 +343,13 @@ public class Controler implements Instances{
 		return result;
 	}
 
-	public List<UserCharacter> getSearchRZ() {
-		List<UserCharacter> result = new ArrayList<UserCharacter>();
+	public List<TransformUserData> getSearchRZ() {
+		List<TransformUserData> result = new ArrayList<TransformUserData>();
 		for (UserCharacter user : characters.values()){
 			Seller seller = user.getSeller();
 			if (seller!= null && !seller.isPass()){
-				result.add(user);
+				TransformUserData tud = new TransformUserData(user);
+				result.add(tud);
 			}
 		}
 		return result;

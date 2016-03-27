@@ -32,7 +32,7 @@ public class SendEmail extends AbstractLogic {
 			email.setId(id);
 			target.addEmail(email);
 			EmailModule module = new EmailModule();
-			module.add(email);
+			module.add("eamil",email);
 			ModuleResp modules = new ModuleResp();
 			modules.addModule(module);
 			NET.sendMessageToClent(modules,target);

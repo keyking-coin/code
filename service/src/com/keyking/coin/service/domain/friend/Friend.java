@@ -70,7 +70,7 @@ public class Friend extends EntitySaver{
 		Module module = new Module();
 		module.setCode(Module.MODULE_CODE_FRIEND);
 		module.setFlag(type);
-		module.add(this);
+		module.add("friend",this);
 		ModuleResp modules = new ModuleResp();
 		modules.addModule(module);
 		return modules;
@@ -80,7 +80,7 @@ public class Friend extends EntitySaver{
 		Module module = new Module();
 		module.setCode(Module.MODULE_CODE_FRIEND);
 		module.setFlag(type);
-		module.add(this);
+		module.add("friend",this);
 		modules.addModule(module);
 		return modules;
 	}

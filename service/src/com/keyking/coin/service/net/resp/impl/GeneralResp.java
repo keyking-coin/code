@@ -6,7 +6,7 @@ import com.keyking.coin.service.net.resp.RespEntity;
 
 public class GeneralResp extends RespEntity {
 	
-	ParametersEntity params = new ParametersEntity();
+	protected ParametersEntity params = new ParametersEntity();
 	
 	public GeneralResp(String logicName) {
 		super(logicName);
@@ -30,6 +30,10 @@ public class GeneralResp extends RespEntity {
 	
 	public void add(int cursor,Object obj){
 		params.put(cursor,obj);
+	}
+	
+	public Object get(int cursor){
+		return params.get(cursor);
 	}
 }
  

@@ -5,7 +5,6 @@ import com.keyking.coin.service.net.buffer.DataBuffer;
 import com.keyking.coin.service.net.logic.AbstractLogic;
 import com.keyking.coin.service.net.resp.impl.GeneralResp;
 import com.keyking.coin.service.net.resp.module.Module;
-import com.keyking.coin.service.net.resp.module.ModuleResp;
 import com.keyking.coin.util.StringUtil;
 
 public class DealEdit extends AbstractLogic {
@@ -37,13 +36,13 @@ public class DealEdit extends AbstractLogic {
 			deal.setNeedSave(true);
 			resp.add(Module.UPDATE_FLAG);
 			resp.add(deal);
-			Module module = new Module();
-			module.setCode(Module.MODULE_CODE_DEAL);
-			module.setFlag(Module.UPDATE_FLAG);
-			module.add(deal);
-			ModuleResp modules = new ModuleResp();
-			modules.addModule(module);
-			NET.sendMessageToAllClent(modules,null);
+			//Module module = new Module();
+			//module.setCode(Module.MODULE_CODE_DEAL);
+			//module.setFlag(Module.UPDATE_FLAG);
+			//module.add(deal);
+			//ModuleResp modules = new ModuleResp();
+			//modules.addModule(module);
+			//NET.sendMessageToAllClent(modules,null);
 			resp.setSucces();
 		}else{
 			resp.setError("交易帖子不存在");

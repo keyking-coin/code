@@ -1,10 +1,7 @@
 package com.keyking.coin.service.net.logic.user;
 
-import java.util.List;
-
 import org.apache.mina.core.session.IoSession;
 
-import com.keyking.coin.service.domain.deal.SimpleOrderModule;
 import com.keyking.coin.service.domain.user.UserCharacter;
 import com.keyking.coin.service.net.buffer.DataBuffer;
 import com.keyking.coin.service.net.logic.AbstractLogic;
@@ -30,8 +27,8 @@ public class Login extends AbstractLogic{
 			}
 			user.setSessionAddress(session.getRemoteAddress().toString());
 			//下发最近成交的20数据
-			List<SimpleOrderModule> modules = CTRL.trySearchRecentOrder();
-			resp.add(modules);
+			//List<SimpleOrderModule> modules = CTRL.trySearchRecentOrder();
+			//resp.add(modules);
 			ServerLog.info(account + " login from " + session.getRemoteAddress());
 		}
 		return resp;

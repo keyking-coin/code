@@ -2,10 +2,10 @@ package com.keyking.coin.service.http.handler.impl;
 
 import com.keyking.coin.service.domain.deal.Deal;
 import com.keyking.coin.service.domain.user.UserCharacter;
-import com.keyking.coin.service.http.data.HttpLookData;
 import com.keyking.coin.service.http.handler.HttpHandler;
 import com.keyking.coin.service.http.request.HttpRequestMessage;
 import com.keyking.coin.service.http.response.HttpResponseMessage;
+import com.keyking.coin.service.tranform.TransformLookData;
 import com.keyking.coin.util.JsonUtil;
 
 public class HttpLook extends HttpHandler {
@@ -27,7 +27,7 @@ public class HttpLook extends HttpHandler {
 			if (uid == mid){
 				look = true;
 			}
-			HttpLookData data = new HttpLookData();
+			TransformLookData data = new TransformLookData();
 			data.setFace(user.getFace());
 			data.setNikeName(user.getNikeName());
 			data.setSignature(look ? user.getSignature() : "保密");

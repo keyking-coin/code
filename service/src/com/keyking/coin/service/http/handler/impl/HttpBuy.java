@@ -11,14 +11,14 @@ import com.keyking.coin.util.StringUtil;
 import com.keyking.coin.util.TimeUtils;
 
 public class HttpBuy extends HttpHandler {
-	//http://139.196.30.53:32104/HttpBuy?uid=x&pwd=x&st=x&type=x&bourse=x&title=x&price=x&num=x&monad=x&valid=x&other=x&help=x
+	//http://1270.0.1:32104/HttpBuy?uid=x&pwd=x&st=x&type=x&bourse=x&title=x&price=x&num=x&monad=x&valid=x&other=x&help=x
 	@Override
 	public void handle(HttpRequestMessage request, HttpResponseMessage response) {
 		response.setContentType("text/plain");
 		response.setResponseCode(HttpResponseMessage.HTTP_STATUS_SUCCESS);
 		long uid   = Long.parseLong(request.getParameter("uid"));//我的编号
 		String pwd = request.getParameter("pwd");//验证码
-		String sendType = request.getParameter("st");//发布方式 1 推送发送;2普通发送
+		String sendType = request.getParameter("st");//发布方式 0普通发送,1 推送发送
 		String typeSTr = request.getParameter("type");
 		byte type = (byte)(typeSTr.equals("入库") ? 0 : 1);//交割类型
 		String bourse = request.getParameter("bourse");//文交所
@@ -70,7 +70,7 @@ public class HttpBuy extends HttpHandler {
 			}
 			NET.sendMessageToAllClent(deal.clientMessage(Module.ADD_FLAG),null);
 			message(request,response,"ok");
-			ServerLog.info(user.getAccount() + " deployed deal-sell ok ----> id is " + deal.getId());
+			ServerLog.info(user.getAccount() + " deployed deal-buy ok ----> id is " + deal.getId());
 		}
 	}
 

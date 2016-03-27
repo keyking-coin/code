@@ -55,6 +55,19 @@ public class TimeUtils {
 		return getTime(time).toString(FORMAT_CH_YEAR);
 	}
 	
+	
+	/***
+	 * 是否是同一天
+	 * @param time1
+	 * @param time2
+	 * @return
+	 */
+	public static boolean isSameDay(DateTime time1,DateTime time2){
+		String d1 = formatDay(time1);
+		String d2 = formatDay(time2);
+		return d1.equals(d2);
+	}
+	
 	/**
 	 * 是否是同一天
 	 * @param start
@@ -62,11 +75,9 @@ public class TimeUtils {
 	 * @return
 	 */
 	public static boolean isSameDay(long start,long end){
-		DateTime startDate = TimeUtils.getTime(start);
-		DateTime endDate   = TimeUtils.getTime(end); 
-		String d1 = formatDay(startDate);
-		String d2 = formatDay(endDate);
-		return d1.equals(d2);
+		DateTime time1 = TimeUtils.getTime(start);
+		DateTime time2   = TimeUtils.getTime(end); 
+		return isSameDay(time1,time2);
 	}
 	
 	

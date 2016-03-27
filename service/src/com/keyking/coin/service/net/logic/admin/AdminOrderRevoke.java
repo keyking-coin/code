@@ -24,7 +24,8 @@ public class AdminOrderRevoke extends AbstractLogic {
 						return resp;
 					}
 					order.setNeedSave(true);
-					order.setRevoke(DealOrder.ORDER_REVOKE_ALL);
+					order.addRevoke(DealOrder.ORDER_REVOKE_BUYER);
+					order.addRevoke(DealOrder.ORDER_REVOKE_SELLER);
 					if (order.getHelpFlag() == 1){
 						NET.sendMessageToAdmin(order.clientAdminMessage(Module.DEL_FLAG));
 					}

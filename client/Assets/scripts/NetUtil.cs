@@ -31,8 +31,9 @@ public class NetUtil{
     Thread receiveThread = null;
 
 #if UNITY_EDITOR
-    string URL = "127.0.0.1";
-    //string URL = "139.196.30.53";
+    //string URL = "127.0.0.1";
+    string URL = "139.196.30.53";
+    //string URL = "keyking-ty.xicp.net:11240";
 #else
     //string URL = "139.196.30.53";
     string URL = "127.0.0.1";
@@ -84,8 +85,11 @@ public class NetUtil{
             socket = null;
         }
         socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-		IPAddress ipAddress = IPAddress.Parse(URL);	
-		IPEndPoint ipEndpoint = new IPEndPoint(ipAddress,port);
+		//IPAddress ipAddress = IPAddress.Parse(URL);
+        String url = Dns.GetHostEntry("keyking-ty.xicp.net").AddressList[0].ToString();
+        IPAddress ipAddress = IPAddress.Parse(url);
+		//IPEndPoint ipEndpoint = new IPEndPoint(ipAddress,port);
+        IPEndPoint ipEndpoint = new IPEndPoint(ipAddress,12213);
 		IAsyncResult result = socket.BeginConnect(ipEndpoint,null,socket);
 		if (result != null){
 			bool success = result.AsyncWaitHandle.WaitOne(5000,true);
@@ -93,7 +97,7 @@ public class NetUtil{
 				receiveThread = new Thread(new ThreadStart(ReceiveSorket));  
 				receiveThread.IsBackground = true;  
 				receiveThread.Start();
-                //Loom.RunAsync(ReceiveSorket);
+        //Loom.RunAsync(ReceiveSorket);
 			}
 		}
 		return false;

@@ -1,4 +1,4 @@
-package com.keyking.coin.service.http.data;
+package com.keyking.coin.service.tranform;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,7 +12,7 @@ import com.keyking.coin.service.domain.user.UserCharacter;
 import com.keyking.coin.util.Instances;
 import com.keyking.coin.util.TimeUtils;
 
-public class HttpDealData implements Instances,Comparable<HttpDealData>{
+public class TransformDealData implements Instances,Comparable<TransformDealData>{
 	long id;//编号
 	long uid;//用户编号
 	byte sellFlag;//出售帖还是求购帖
@@ -28,8 +28,8 @@ public class HttpDealData implements Instances,Comparable<HttpDealData>{
 	String validTime = "永久";//有效时间
 	String createTime;//创建时间
 	String other;//其他描述
-	List<HttpRevertData> reverts    = new ArrayList<HttpRevertData>();//回复内容列表
-	List<HttpOrderData> orders  = new ArrayList<HttpOrderData>();//订单
+	List<TransformRevertData> reverts    = new ArrayList<TransformRevertData>();//回复内容列表
+	List<TransformOrderData> orders  = new ArrayList<TransformOrderData>();//订单
 	String issueName;
 	String issueIcon;
 	
@@ -137,19 +137,19 @@ public class HttpDealData implements Instances,Comparable<HttpDealData>{
 		this.other = other;
 	}
 	
-	public List<HttpRevertData> getReverts() {
+	public List<TransformRevertData> getReverts() {
 		return reverts;
 	}
 
-	public void setReverts(List<HttpRevertData> reverts) {
+	public void setReverts(List<TransformRevertData> reverts) {
 		this.reverts = reverts;
 	}
 
-	public List<HttpOrderData> getOrders() {
+	public List<TransformOrderData> getOrders() {
 		return orders;
 	}
 
-	public void setOrders(List<HttpOrderData> orders) {
+	public void setOrders(List<TransformOrderData> orders) {
 		this.orders = orders;
 	}
 
@@ -186,102 +186,7 @@ public class HttpDealData implements Instances,Comparable<HttpDealData>{
 	}
 
 	public void add(DealOrder order){
-		HttpOrderData ho = new HttpOrderData();
-		ho.copy(order);
-		orders.add(ho);
-	}
-	
-	public void copy(Deal deal,UserCharacter look) {
-		id         = deal.getId();
-		uid        = deal.getUid();
-		sellFlag   = deal.getSellFlag();
-		type       = deal.getType();
-		helpFlag   = deal.getHelpFlag();
-		if (look != null && look.getFavorites().contains(id)){
-			favorite = 1;
-		}else{
-			favorite = 0;
-		}
-		bourse     = deal.getBourse();
-		name       = deal.getName();
-		price      = deal.getPrice();
-		monad      = deal.getMonad();
-		num        = deal.getLeftNum();
-		validTime  = deal.getValidTime();
-		createTime = deal.getCreateTime();
-		other      = deal.getOther();
-		revoke     = deal.isRevoke();
-		UserCharacter user = CTRL.search(uid);
-		issueName  = user.getNikeName();
-		issueIcon  = user.getFace();
-		for (Revert revert : deal.getReverts()){
-			HttpRevertData hr = new HttpRevertData();
-			hr.copy(revert);
-			reverts.add(hr);
-		}
-		for (DealOrder order : deal.getOrders()){
-			HttpOrderData ho = new HttpOrderData();
-			ho.copy(order);
-			orders.add(ho);
-		}
-	}
-	
-	public void copy(Deal deal,long orderId) {
-		id         = deal.getId();
-		uid        = deal.getUid();
-		sellFlag   = deal.getSellFlag();
-		type       = deal.getType();
-		helpFlag   = deal.getHelpFlag();
-		bourse     = deal.getBourse();
-		name       = deal.getName();
-		price      = deal.getPrice();
-		monad      = deal.getMonad();
-		num        = deal.getLeftNum();
-		validTime  = deal.getValidTime();
-		createTime = deal.getCreateTime();
-		other      = deal.getOther();
-		revoke     = deal.isRevoke();
-		UserCharacter user = CTRL.search(uid);
-		issueName  = user.getNikeName();
-		issueIcon  = user.getFace();
-		for (Revert revert : deal.getReverts()){
-			HttpRevertData hr = new HttpRevertData();
-			hr.copy(revert);
-			reverts.add(hr);
-		}
-		for (DealOrder order : deal.getOrders()){
-			if (order.getId() == orderId){
-				HttpOrderData ho = new HttpOrderData();
-				ho.copy(order);
-				orders.add(ho);
-			}
-		}
-	}
-	
-	public void copy(Deal deal,DealOrder order) {
-		id         = deal.getId();
-		uid        = deal.getUid();
-		sellFlag   = deal.getSellFlag();
-		type       = deal.getType();
-		helpFlag   = deal.getHelpFlag();
-		bourse     = deal.getBourse();
-		name       = deal.getName();
-		price      = deal.getPrice();
-		monad      = deal.getMonad();
-		num        = deal.getLeftNum();
-		validTime  = deal.getValidTime();
-		createTime = deal.getCreateTime();
-		other      = deal.getOther();
-		revoke     = deal.isRevoke();
-		UserCharacter user = CTRL.search(uid);
-		issueName  = user.getNikeName();
-		issueIcon  = user.getFace();
-		for (Revert revert : deal.getReverts()){
-			HttpRevertData hr = new HttpRevertData();
-			hr.copy(revert);
-			reverts.add(hr);
-		}
-		HttpOrderData ho = new HttpOrderData();
+		TransformOrderData ho = new TransformOrderData();
 		ho.copy(order);
 		orders.add(ho);
 	}
@@ -305,14 +210,56 @@ public class HttpDealData implements Instances,Comparable<HttpDealData>{
 		issueName  = user.getNikeName();
 		issueIcon  = user.getFace();
 		for (Revert revert : deal.getReverts()){
-			HttpRevertData hr = new HttpRevertData();
+			if (revert.isRevoke()){
+				continue;
+			}
+			TransformRevertData hr = new TransformRevertData();
 			hr.copy(revert);
 			reverts.add(hr);
 		}
+		for (DealOrder order : deal.getOrders()){
+			if (order.checkRevoke()){
+				continue;
+			}
+			TransformOrderData ho = new TransformOrderData();
+			ho.copy(order);
+			orders.add(ho);
+		}
 	}
-
+	
+	public void copy(Deal deal,DealOrder order) {
+		id         = deal.getId();
+		uid        = deal.getUid();
+		sellFlag   = deal.getSellFlag();
+		type       = deal.getType();
+		helpFlag   = deal.getHelpFlag();
+		bourse     = deal.getBourse();
+		name       = deal.getName();
+		price      = deal.getPrice();
+		monad      = deal.getMonad();
+		num        = deal.getLeftNum();
+		validTime  = deal.getValidTime();
+		createTime = deal.getCreateTime();
+		other      = deal.getOther();
+		revoke     = deal.isRevoke();
+		UserCharacter user = CTRL.search(uid);
+		issueName  = user.getNikeName();
+		issueIcon  = user.getFace();
+		for (Revert revert : deal.getReverts()){
+			if (revert.isRevoke()){
+				continue;
+			}
+			TransformRevertData hr = new TransformRevertData();
+			hr.copy(revert);
+			reverts.add(hr);
+		}
+		TransformOrderData ho = new TransformOrderData();
+		ho.copy(order);
+		orders.add(ho);
+	}
+	
 	@Override
-	public int compareTo(HttpDealData o) {
+	public int compareTo(TransformDealData o) {
 		DateTime time1 = TimeUtils.getTime(createTime);
 		DateTime time2 = TimeUtils.getTime(o.createTime);
 		if (time1.isBefore(time2)){

@@ -13,6 +13,7 @@ import com.keyking.coin.service.domain.friend.Message;
 import com.keyking.coin.service.net.buffer.DataBuffer;
 import com.keyking.coin.service.net.resp.module.Module;
 import com.keyking.coin.service.net.resp.module.ModuleResp;
+import com.keyking.coin.service.tranform.TransformUserData;
 import com.keyking.coin.util.JsonUtil;
 import com.keyking.coin.util.StringUtil;
 import com.keyking.coin.util.TimeUtils;
@@ -409,7 +410,7 @@ public class UserCharacter extends EntitySaver{
 				for (Email email : emails){
 					if (email.getId() == id){
 						EmailModule module = new EmailModule();
-						module.add(email);
+						module.add("email",email);
 						module.setFlag(Module.DEL_FLAG);
 						modules.addModule(module);
 						emails.remove(email);
@@ -544,7 +545,8 @@ public class UserCharacter extends EntitySaver{
 		Module module = new Module();
 		module.setCode(Module.MODULE_CODE_USER);
 		module.setFlag(type);
-		module.add(this);
+		TransformUserData tud = new TransformUserData(this);
+		module.add("user",tud);
 		modules.addModule(module);
 		return modules;
 	}
@@ -554,7 +556,8 @@ public class UserCharacter extends EntitySaver{
 		Module module = new Module();
 		module.setCode(Module.MODULE_CODE_ADMIN_SELLER);
 		module.setFlag(type);
-		module.add(this);
+		TransformUserData tud = new TransformUserData(this);
+		module.add("user",tud);
 		modules.addModule(module);
 		return modules;
 	}

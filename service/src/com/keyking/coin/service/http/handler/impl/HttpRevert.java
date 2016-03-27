@@ -6,11 +6,11 @@ import java.util.List;
 import com.keyking.coin.service.domain.deal.Deal;
 import com.keyking.coin.service.domain.deal.Revert;
 import com.keyking.coin.service.domain.user.UserCharacter;
-import com.keyking.coin.service.http.data.HttpRevertData;
 import com.keyking.coin.service.http.handler.HttpHandler;
 import com.keyking.coin.service.http.request.HttpRequestMessage;
 import com.keyking.coin.service.http.response.HttpResponseMessage;
 import com.keyking.coin.service.net.resp.module.Module;
+import com.keyking.coin.service.tranform.TransformRevertData;
 import com.keyking.coin.util.JsonUtil;
 import com.keyking.coin.util.ServerLog;
 import com.keyking.coin.util.StringUtil;
@@ -62,9 +62,9 @@ public class HttpRevert extends HttpHandler {
 			ServerLog.info(user.getAccount() + " revert deal ok ----> deal-id is " + deal.getId() + " revert-id is " + revrt.getId() + "revert-context is " + content);
 		}
 		NET.sendMessageToAllClent(deal.clientMessage(Module.UPDATE_FLAG),null);
-		List<HttpRevertData> reverts = new ArrayList<HttpRevertData>();
+		List<TransformRevertData> reverts = new ArrayList<TransformRevertData>();
 		for (Revert revert : deal.getReverts()){
-			HttpRevertData hr = new HttpRevertData();
+			TransformRevertData hr = new TransformRevertData();
 			hr.copy(revert);
 			reverts.add(hr);
 		}

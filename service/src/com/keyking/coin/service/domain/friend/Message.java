@@ -89,7 +89,6 @@ public class Message extends EntitySaver implements Comparable<Message>{
 		out.putLong(id);
 		UserCharacter user = CTRL.search(sendId);
 		out.putLong(sendId);
-		//out.putUTF(user.getNikeName());
 		out.putUTF(user.getFace());
 		out.put(type);
 		out.put(look);
@@ -102,7 +101,7 @@ public class Message extends EntitySaver implements Comparable<Message>{
 		Module module = new Module();
 		module.setCode(Module.MODULE_CODE_MESSAGE);
 		module.setFlag(type);
-		module.add(this);
+		module.add("message",this);
 		ModuleResp modules = new ModuleResp();
 		modules.addModule(module);
 		return modules;
@@ -112,7 +111,7 @@ public class Message extends EntitySaver implements Comparable<Message>{
 		Module module = new Module();
 		module.setCode(Module.MODULE_CODE_MESSAGE);
 		module.setFlag(type);
-		module.add(this);
+		module.add("message",this);
 		modules.addModule(module);
 		return modules;
 	}

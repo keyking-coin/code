@@ -1,10 +1,10 @@
-package com.keyking.coin.service.http.data;
+package com.keyking.coin.service.tranform;
 
 import com.keyking.coin.service.domain.deal.Revert;
 import com.keyking.coin.service.domain.user.UserCharacter;
 import com.keyking.coin.util.Instances;
 
-public class HttpRevertData implements Instances{
+public class TransformRevertData implements Instances{
 	long id;
 	long dealId;
 	long uid;

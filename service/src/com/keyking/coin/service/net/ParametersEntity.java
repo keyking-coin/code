@@ -58,4 +58,8 @@ public class ParametersEntity {
 	public void put(int index , Object obj){
 		values.add(index,obj);
 	}
+	
+	public Object get(int index){
+		return values.get(index);
+	}
 }

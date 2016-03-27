@@ -4,10 +4,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.keyking.coin.service.domain.user.UserCharacter;
-import com.keyking.coin.service.http.data.HttpUserCharacterData;
 import com.keyking.coin.service.http.handler.HttpHandler;
 import com.keyking.coin.service.http.request.HttpRequestMessage;
 import com.keyking.coin.service.http.response.HttpResponseMessage;
+import com.keyking.coin.service.tranform.TransformUserData;
 import com.keyking.coin.util.JsonUtil;
 
 public class HttpLogin extends HttpHandler {
@@ -23,7 +23,7 @@ public class HttpLogin extends HttpHandler {
 		if (user != null){
 			if (user.getPwd().equals(pwd)){
 				Map<String,Object> datas = new HashMap<String,Object>();
-				HttpUserCharacterData http_user= new HttpUserCharacterData(user);
+				TransformUserData http_user= new TransformUserData(user);
 				datas.put("result","OK");
 				datas.put("datas",http_user);
 				String str = JsonUtil.ObjectToJsonString(datas);
