@@ -4,9 +4,11 @@ import org.joda.time.DateTime;
 
 import com.keyking.coin.service.domain.deal.Deal;
 import com.keyking.coin.service.domain.deal.DealOrder;
+import com.keyking.coin.service.net.SerializeEntity;
+import com.keyking.coin.service.net.buffer.DataBuffer;
 import com.keyking.coin.util.TimeUtils;
 
-public class TransformTouristOrder implements Comparable<TransformTouristOrder>{
+public class TransformTouristOrder implements Comparable<TransformTouristOrder>,SerializeEntity{
 	long dealId;
 	long orderId;
 	String des;
@@ -77,5 +79,11 @@ public class TransformTouristOrder implements Comparable<TransformTouristOrder>{
 			return 1;
 		}
 		return -1;
+	}
+
+	@Override
+	public void serialize(DataBuffer out) {
+		// TODO Auto-generated method stub
+		
 	}
 }

@@ -9,6 +9,7 @@ import com.keyking.coin.service.domain.user.UserCharacter;
 import com.keyking.coin.service.http.handler.HttpHandler;
 import com.keyking.coin.service.http.request.HttpRequestMessage;
 import com.keyking.coin.service.http.response.HttpResponseMessage;
+import com.keyking.coin.service.net.resp.module.AdminModuleResp;
 import com.keyking.coin.service.net.resp.module.Module;
 import com.keyking.coin.service.tranform.TransformOrderData;
 import com.keyking.coin.util.JsonUtil;
@@ -68,9 +69,9 @@ public class HttpDealOrderUpdate extends HttpHandler {
 						NET.sendMessageToAllClent(order.clientMessage(Module.UPDATE_FLAG), null);
 						if (order.getHelpFlag() == 1) {
 							if (order.getState() == 1 || order.getState() == 4){
-								NET.sendMessageToAdmin(order.clientAdminMessage(Module.ADD_FLAG));
+								NET.sendMessageToAdmin(order.clientAdminMessage(Module.ADD_FLAG,new AdminModuleResp()));
 							}else if(pre == 1 || pre == 4){
-								NET.sendMessageToAdmin(order.clientAdminMessage(Module.DEL_FLAG));
+								NET.sendMessageToAdmin(order.clientAdminMessage(Module.DEL_FLAG,new AdminModuleResp()));
 							}
 						}
 						Map<String,Object> datas = new HashMap<String,Object>();

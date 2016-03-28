@@ -110,7 +110,8 @@ public class ServiceHandler extends IoHandlerAdapter implements Instances {
 		}
 		if (key != null && sessions.containsKey(key)){
 			IoSession session = sessions.get(key);
-			if (session.getAttribute("isAdmin").toString().equals("true")){
+			Object attribute = session.getAttribute("isAdmin");
+			if (attribute != null && attribute.toString().equals("true")){
 				return;
 			}
 			ServerLog.info("send module to " + key);

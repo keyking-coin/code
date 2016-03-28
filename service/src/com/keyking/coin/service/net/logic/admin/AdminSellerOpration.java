@@ -12,8 +12,8 @@ public class AdminSellerOpration extends AbstractLogic {
 	@Override
 	public Object doLogic(DataBuffer buffer, String logicName) throws Exception {
 		GeneralResp resp = new GeneralResp(logicName);
-		int type  = buffer.getInt();
-		long uid  = buffer.getLong();
+		int type  = buffer.getInt();//0通过认证;1拒绝认证(可能是用户的上传资料不对)
+		long uid  = buffer.getLong();//用户编号
 		UserCharacter user = CTRL.search(uid);
 		if (user != null){
 			if (type == 0){

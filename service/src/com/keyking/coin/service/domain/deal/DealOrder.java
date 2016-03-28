@@ -9,10 +9,10 @@ import com.keyking.coin.service.domain.data.EntitySaver;
 import com.keyking.coin.service.domain.user.Credit;
 import com.keyking.coin.service.domain.user.UserCharacter;
 import com.keyking.coin.service.net.buffer.DataBuffer;
+import com.keyking.coin.service.net.resp.module.AdminModuleResp;
 import com.keyking.coin.service.net.resp.module.Module;
 import com.keyking.coin.service.net.resp.module.ModuleResp;
 import com.keyking.coin.service.tranform.TransformDealData;
-import com.keyking.coin.service.tranform.TransformOrderData;
 import com.keyking.coin.util.JsonUtil;
 import com.keyking.coin.util.StringUtil;
 import com.keyking.coin.util.TimeUtils;
@@ -203,9 +203,9 @@ public class DealOrder extends EntitySaver implements Comparable<DealOrder>{
 		DateTime time1 = TimeUtils.getTime(times.get(0));
 		DateTime time2 = TimeUtils.getTime(o.times.get(0));
 		if (time1.isBefore(time2)){
-			return 1;
-		}else{
 			return -1;
+		}else{
+			return 1;
 		}
 	}
 
@@ -283,15 +283,15 @@ public class DealOrder extends EntitySaver implements Comparable<DealOrder>{
 		Module module = new Module();
 		module.setCode(Module.MODULE_CODE_ORDER);
 		module.setFlag(type);
-		TransformOrderData tod = new TransformOrderData();
-		tod.copy(this);
-		module.add("order",tod);
+		//TransformOrderData tod = new TransformOrderData();
+		//tod.copy(this);
+		//module.add("order",tod);
+		module.add("order",this);
 		modules.addModule(module);
 	}
 	
 	
-	public ModuleResp clientAdminMessage(byte type){
-		ModuleResp modules = new ModuleResp();
+	public ModuleResp clientAdminMessage(byte type,AdminModuleResp modules){
 		Module module = new Module();
 		module.setCode(Module.MODULE_CODE_ADMIN_AGENCY);
 		module.setFlag(type);

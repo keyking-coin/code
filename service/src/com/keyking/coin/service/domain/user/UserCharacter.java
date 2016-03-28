@@ -609,6 +609,10 @@ public class UserCharacter extends EntitySaver{
 		addresses.remove(address);
 		return true;
 	}
+
+	public void copy(TransformUserData userData) {
+		
+	}
 	
 }
  

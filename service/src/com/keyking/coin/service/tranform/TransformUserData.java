@@ -8,9 +8,11 @@ import com.keyking.coin.service.domain.user.Credit;
 import com.keyking.coin.service.domain.user.Recharge;
 import com.keyking.coin.service.domain.user.Seller;
 import com.keyking.coin.service.domain.user.UserCharacter;
+import com.keyking.coin.service.net.SerializeEntity;
+import com.keyking.coin.service.net.buffer.DataBuffer;
 import com.keyking.coin.util.Instances;
 
-public class TransformUserData implements Instances{
+public class TransformUserData implements Instances,SerializeEntity{
 	long id;
 	String account;
 	String face = "face1";
@@ -204,6 +206,12 @@ public class TransformUserData implements Instances{
 
 	public void setCompleteDealNum(int completeDealNum) {
 		this.completeDealNum = completeDealNum;
+	}
+
+	@Override
+	public void serialize(DataBuffer out) {
+		// TODO Auto-generated method stub
+		
 	}
 	
 	

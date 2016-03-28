@@ -557,6 +557,7 @@ public class DealEvent : CenterEvent{
         public DealEvent dealEvent = null;
         void Update()
         {
+            /*
             bool refesh = false;
             for (int i = 0; i < MainData.instance.deal_all.Count; )
             {
@@ -578,7 +579,7 @@ public class DealEvent : CenterEvent{
             if (refesh)
             {
                 dealEvent.updateList();
-            }
+            }*/
         }
     }
 

@@ -6,6 +6,7 @@ import com.keyking.coin.service.domain.user.UserCharacter;
 import com.keyking.coin.service.http.handler.HttpHandler;
 import com.keyking.coin.service.http.request.HttpRequestMessage;
 import com.keyking.coin.service.http.response.HttpResponseMessage;
+import com.keyking.coin.service.net.resp.module.AdminModuleResp;
 import com.keyking.coin.service.net.resp.module.Module;
 import com.keyking.coin.service.net.resp.module.ModuleResp;
 
@@ -42,7 +43,7 @@ public class HttpDealOrderRevoke extends HttpHandler {
 							order.clientMessage(Module.UPDATE_FLAG,modules);
 							NET.sendMessageToAllClent(modules,null);
 							if (order.checkRevoke()){//双方都同意了
-								NET.sendMessageToAdmin(order.clientAdminMessage(Module.DEL_FLAG));
+								NET.sendMessageToAdmin(order.clientAdminMessage(Module.DEL_FLAG,new AdminModuleResp()));
 							}
 							message(request,response,"ok");
 						}else{

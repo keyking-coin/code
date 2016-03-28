@@ -5,6 +5,7 @@ import com.keyking.coin.service.domain.deal.DealOrder;
 import com.keyking.coin.service.net.buffer.DataBuffer;
 import com.keyking.coin.service.net.logic.AbstractLogic;
 import com.keyking.coin.service.net.resp.impl.AdminResp;
+import com.keyking.coin.service.net.resp.module.AdminModuleResp;
 import com.keyking.coin.service.net.resp.module.Module;
 import com.keyking.coin.util.ServerLog;
 
@@ -26,7 +27,7 @@ public class AdminDealOrderUpdate extends AbstractLogic {
 					synchronized (order) {
 						order.addTimes(index);
 						NET.sendMessageToAllClent(order.clientMessage(Module.UPDATE_FLAG),null);
-						NET.sendMessageToAdmin(order.clientAdminMessage(Module.DEL_FLAG));
+						NET.sendMessageToAdmin(order.clientAdminMessage(Module.DEL_FLAG,new AdminModuleResp()));
 						resp.addKey("result","操作成功");
 					}
 				}else{

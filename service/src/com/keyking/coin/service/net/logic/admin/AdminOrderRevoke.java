@@ -5,6 +5,7 @@ import com.keyking.coin.service.domain.deal.DealOrder;
 import com.keyking.coin.service.net.buffer.DataBuffer;
 import com.keyking.coin.service.net.logic.AbstractLogic;
 import com.keyking.coin.service.net.resp.impl.GeneralResp;
+import com.keyking.coin.service.net.resp.module.AdminModuleResp;
 import com.keyking.coin.service.net.resp.module.Module;
 
 public class AdminOrderRevoke extends AbstractLogic {
@@ -27,7 +28,7 @@ public class AdminOrderRevoke extends AbstractLogic {
 					order.addRevoke(DealOrder.ORDER_REVOKE_BUYER);
 					order.addRevoke(DealOrder.ORDER_REVOKE_SELLER);
 					if (order.getHelpFlag() == 1){
-						NET.sendMessageToAdmin(order.clientAdminMessage(Module.DEL_FLAG));
+						NET.sendMessageToAdmin(order.clientAdminMessage(Module.DEL_FLAG,new AdminModuleResp()));
 					}
 					NET.sendMessageToAllClent(order.clientMessage(Module.UPDATE_FLAG),null);
 					resp.setSucces();

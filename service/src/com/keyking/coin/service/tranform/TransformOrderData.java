@@ -6,9 +6,11 @@ import java.util.List;
 import com.keyking.coin.service.domain.deal.DealAppraise;
 import com.keyking.coin.service.domain.deal.DealOrder;
 import com.keyking.coin.service.domain.user.UserCharacter;
+import com.keyking.coin.service.net.SerializeEntity;
+import com.keyking.coin.service.net.buffer.DataBuffer;
 import com.keyking.coin.util.Instances;
 
-public class TransformOrderData implements Instances{
+public class TransformOrderData implements Instances,SerializeEntity{
 	long id;
 	long dealId;
 	long buyId;
@@ -142,5 +144,11 @@ public class TransformOrderData implements Instances{
 		state              = order.getState();
 		times.addAll(order.getTimes());
 		revoke             = order.getRevoke();
+	}
+
+	@Override
+	public void serialize(DataBuffer out) {
+		// TODO Auto-generated method stub
+		
 	}
 }

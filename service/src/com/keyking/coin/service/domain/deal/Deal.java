@@ -15,7 +15,6 @@ import com.keyking.coin.service.domain.user.UserCharacter;
 import com.keyking.coin.service.net.buffer.DataBuffer;
 import com.keyking.coin.service.net.resp.module.Module;
 import com.keyking.coin.service.net.resp.module.ModuleResp;
-import com.keyking.coin.service.tranform.TransformDealData;
 import com.keyking.coin.util.StringUtil;
 import com.keyking.coin.util.TimeUtils;
 
@@ -535,18 +534,20 @@ public class Deal extends EntitySaver implements Comparable<Deal>{
 		Module module = new Module();
 		module.setCode(Module.MODULE_CODE_DEAL);
 		module.setFlag(type);
-		TransformDealData rdd = new TransformDealData();
-		rdd.copy(this);
-		module.add("deal",rdd);
+		//TransformDealData rdd = new TransformDealData();
+		//rdd.copy(this);
+		//module.add("deal",rdd);
+		module.add("deal",this);
 		resp.addModule(module);
 		return resp;
 	}
 	
 	public ModuleResp pushMessage(){
 		PushDealModule module = new PushDealModule();
-		TransformDealData rdd = new TransformDealData();
-		rdd.copy(this);
-		module.add("deal",rdd);
+		//TransformDealData rdd = new TransformDealData();
+		//rdd.copy(this);
+		//module.add("deal",rdd);
+		module.add("deal",this);
 		ModuleResp modules = new ModuleResp();
 		modules.addModule(module);
 		return modules;

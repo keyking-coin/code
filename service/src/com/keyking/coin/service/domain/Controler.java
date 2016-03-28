@@ -374,7 +374,18 @@ public class Controler implements Instances{
 		}
 		return result;
 	}
-
+	
+	public List<TransformUserData> getAllUser() {
+		List<TransformUserData> result = new ArrayList<TransformUserData>();
+		for (UserCharacter user : characters.values()){
+			if (!user.getPermission().admin()){
+				TransformUserData tud = new TransformUserData(user);
+				result.add(tud);
+			}
+		}
+		return result;
+	}
+	
 	public int computeOkOrderNum(long id) {
 		int count = 0 ;
 		for (Deal deal : deals){

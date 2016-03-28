@@ -5,6 +5,7 @@ import com.keyking.coin.service.domain.deal.DealOrder;
 import com.keyking.coin.service.net.buffer.DataBuffer;
 import com.keyking.coin.service.net.logic.AbstractLogic;
 import com.keyking.coin.service.net.resp.impl.GeneralResp;
+import com.keyking.coin.service.net.resp.module.AdminModuleResp;
 import com.keyking.coin.service.net.resp.module.Module;
 import com.keyking.coin.util.ServerLog;
 
@@ -52,9 +53,9 @@ public class DealOrderUpdate extends AbstractLogic {
 						resp.setSucces();
 						if (order.getHelpFlag() == 1){
 							if (order.getState() == 1 || order.getState() == 4){
-								NET.sendMessageToAdmin(order.clientAdminMessage(Module.ADD_FLAG));
+								NET.sendMessageToAdmin(order.clientAdminMessage(Module.ADD_FLAG,new AdminModuleResp()));
 							}else if (pre == 1 || pre == 4){
-								NET.sendMessageToAdmin(order.clientAdminMessage(Module.DEL_FLAG));
+								NET.sendMessageToAdmin(order.clientAdminMessage(Module.DEL_FLAG,new AdminModuleResp()));
 							}
 						}
 						ServerLog.info(CTRL.search(uid).getAccount() + " update deal-order state from " + pre + " to " + order.getState() + " ----> id is " + orderId);

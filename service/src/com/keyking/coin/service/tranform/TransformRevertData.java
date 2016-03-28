@@ -2,9 +2,11 @@ package com.keyking.coin.service.tranform;
 
 import com.keyking.coin.service.domain.deal.Revert;
 import com.keyking.coin.service.domain.user.UserCharacter;
+import com.keyking.coin.service.net.SerializeEntity;
+import com.keyking.coin.service.net.buffer.DataBuffer;
 import com.keyking.coin.util.Instances;
 
-public class TransformRevertData implements Instances{
+public class TransformRevertData implements Instances,SerializeEntity{
 	long id;
 	long dealId;
 	long uid;
@@ -89,5 +91,11 @@ public class TransformRevertData implements Instances{
 		target             = user.getNikeName();
 		context            = revert.getContext();
 		createTime         = revert.getCreateTime();
+	}
+
+	@Override
+	public void serialize(DataBuffer out) {
+		// TODO Auto-generated method stub
+		
 	}
 }

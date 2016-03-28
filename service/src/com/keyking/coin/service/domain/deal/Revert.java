@@ -102,9 +102,9 @@ public class Revert extends EntitySaver implements Comparable<Revert>{
 		DateTime time1 = TimeUtils.getTime(createTime);
 		DateTime time2 = TimeUtils.getTime(o.createTime);
 		if (time1.isBefore(time2)){
-			return 1;
-		}else{
 			return -1;
+		}else{
+			return 1;
 		}
 	}
 

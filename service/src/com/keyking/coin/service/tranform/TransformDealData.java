@@ -9,10 +9,12 @@ import com.keyking.coin.service.domain.deal.Deal;
 import com.keyking.coin.service.domain.deal.DealOrder;
 import com.keyking.coin.service.domain.deal.Revert;
 import com.keyking.coin.service.domain.user.UserCharacter;
+import com.keyking.coin.service.net.SerializeEntity;
+import com.keyking.coin.service.net.buffer.DataBuffer;
 import com.keyking.coin.util.Instances;
 import com.keyking.coin.util.TimeUtils;
 
-public class TransformDealData implements Instances,Comparable<TransformDealData>{
+public class TransformDealData implements Instances,Comparable<TransformDealData>,SerializeEntity{
 	long id;//编号
 	long uid;//用户编号
 	byte sellFlag;//出售帖还是求购帖
@@ -267,5 +269,11 @@ public class TransformDealData implements Instances,Comparable<TransformDealData
 		}else{
 			return -1;
 		}
+	}
+
+	@Override
+	public void serialize(DataBuffer out) {
+		// TODO Auto-generated method stub
+		
 	}
 }

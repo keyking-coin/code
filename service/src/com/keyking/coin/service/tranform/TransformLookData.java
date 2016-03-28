@@ -5,8 +5,10 @@ import java.util.List;
 
 import com.keyking.coin.service.domain.user.Account;
 import com.keyking.coin.service.domain.user.Credit;
+import com.keyking.coin.service.net.SerializeEntity;
+import com.keyking.coin.service.net.buffer.DataBuffer;
 
-public class TransformLookData {
+public class TransformLookData implements SerializeEntity{
 	String face = "face1";
 	String nikeName="";//昵称
 	String signature;
@@ -77,5 +79,10 @@ public class TransformLookData {
 	}
 	public void setCredit(Credit credit) {
 		this.credit = credit;
+	}
+	@Override
+	public void serialize(DataBuffer out) {
+		// TODO Auto-generated method stub
+		
 	}
 }
