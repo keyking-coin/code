@@ -20,6 +20,10 @@ public class ModuleResp extends RespEntity {
 	public void _serialize_ok(DataBuffer buffer) {
 		String str = JsonUtil.ObjectToJsonString(modules);
 		buffer.putUTF(str);
+		//buffer.putInt(modules.size());
+		//for (Module module : modules){
+			
+		//}
 	}
 	
 	public void addModule(Module module) {

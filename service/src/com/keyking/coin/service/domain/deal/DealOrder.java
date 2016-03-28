@@ -218,7 +218,7 @@ public class DealOrder extends EntitySaver implements Comparable<DealOrder>{
 	
 	public void addTimes(byte state){
 		String str = TimeUtils.nowChStr();
-		times.add(str);
+		times.add(state,str);
 		this.state = state;
 		if (over()){
 			//释放买家信用,提升双方信用积分
@@ -297,7 +297,7 @@ public class DealOrder extends EntitySaver implements Comparable<DealOrder>{
 		module.setFlag(type);
 		Deal deal = CTRL.tryToSearch(dealId);
 		TransformDealData tdd = new TransformDealData();
-		tdd.copy(deal, this);
+		tdd.copy(deal,this);
 		module.add("deal",tdd);
 		modules.addModule(module);
 		return modules;

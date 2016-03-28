@@ -41,8 +41,16 @@ public class Module{
 		this.flag = flag;
 	}
 	
+	public Map<String,Object> getDatas() {
+		return datas;
+	}
+
+	public void setDatas(Map<String, Object> datas) {
+		this.datas = datas;
+	}
+
 	public void add(String key,Object obj){
-		datas .put(key,obj);
+		datas.put(key,obj);
 	}
 }
  

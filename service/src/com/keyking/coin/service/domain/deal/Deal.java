@@ -434,36 +434,17 @@ public class Deal extends EntitySaver implements Comparable<Deal>{
 		return null;
 	}
 	
-	public void read(List<DealOrder> recents){
+	public void read(){
 		List<Revert> lis = DB.getRevertDao().search(id);
 		if (lis != null){
 			for (Revert revert : lis){
 				reverts.add(revert);
 			}
 		}
+		compare_r();
 		List<DealOrder> temps = DB.getDealOrderDao().search(id);
 		if (temps != null){
-			for (DealOrder order : temps){
-				String orderTime = order.getTimes().get(0);
-				long time = TimeUtils.getTime(orderTime).getMillis();
-				if (!TimeUtils.isSameDay(time)){
-					if (recents.size() >= 20){//如果列表大于20了
-						DealOrder remove = null;
-						for (DealOrder rec : recents){
-							if (order.compareTo(rec) == -1){
-								remove = rec;
-							}
-						}
-						if (remove != null){
-							recents.remove(remove);
-							recents.add(order);
-						}
-					}else{
-						recents.add(order);
-					}
-				}
-				orders.add(order);
-			}
+			orders.addAll(temps);
 		}
 		compare_o();
 	}

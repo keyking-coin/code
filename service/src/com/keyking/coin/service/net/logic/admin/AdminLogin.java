@@ -28,7 +28,7 @@ public class AdminLogin extends AbstractLogic {
 		AdminResp resp = new AdminResp(logicName);
 		String account = buffer.getUTF();
 		String pwd     = buffer.getUTF();
-		UserCharacter user = CTRL.login(account,pwd,resp);
+		UserCharacter user = CTRL.adminLogin(account,pwd,resp);
 		if (user != null){
 			if (user.getPermission().admin()){
 				String saveKey = user.getSessionAddress();
@@ -38,8 +38,8 @@ public class AdminLogin extends AbstractLogic {
 						save.write(new MustLoginAgain());
 					}
 				}
-				resp.addKey("user");
 				NET.setAdminSession(session);
+				session.setAttribute("isAdmin","true");
 				user.setSessionAddress(session.getRemoteAddress().toString());
 				SearchCondition condition = new SearchCondition();
 				condition.setAgency(true);

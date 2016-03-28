@@ -13,9 +13,11 @@ import org.joda.time.DateTime;
 import com.keyking.coin.service.domain.condition.SearchCondition;
 import com.keyking.coin.service.domain.deal.Deal;
 import com.keyking.coin.service.domain.deal.DealOrder;
+import com.keyking.coin.service.domain.deal.SimpleOrderModule;
 import com.keyking.coin.service.domain.user.RankEntity;
 import com.keyking.coin.service.domain.user.Seller;
 import com.keyking.coin.service.domain.user.UserCharacter;
+import com.keyking.coin.service.net.resp.impl.AdminResp;
 import com.keyking.coin.service.net.resp.impl.GeneralResp;
 import com.keyking.coin.service.tranform.TransformTouristOrder;
 import com.keyking.coin.service.tranform.TransformUserData;
@@ -39,6 +41,7 @@ public class Controler implements Instances{
 		ServerLog.info("load all deals");
 		List<Deal> lis = DB.getDealDao().loadAll();
 		for (Deal deal : lis){
+			deal.read();
 			deals.add(deal);
 		}
 		ServerLog.info("load all users");
@@ -48,14 +51,31 @@ public class Controler implements Instances{
 		}
 	}
 	
-	public UserCharacter login(String account,String pwd,GeneralResp resp){
+	public UserCharacter adminLogin(String account,String pwd,AdminResp resp){
 		UserCharacter user = search(account);
 		if (user == null){//不存在账号是account
 			resp.setError("账号:" + account + "不存在");
 		}else{
 			if (user.getPwd().equals(pwd)){
 				TransformUserData tud = new TransformUserData(user);
-				resp.add(tud);
+				resp.addKey("user",tud);
+				resp.setSucces();
+				return user;
+			}else{//密码错误
+				resp.setError("密码错误");
+			}
+		}
+		return null;
+	}
+	
+	public UserCharacter login(String account,String pwd,GeneralResp resp){
+		UserCharacter user = search(account);
+		if (user == null){//不存在账号是account
+			resp.setError("账号:" + account + "不存在");
+		}else{
+			if (user.getPwd().equals(pwd)){
+				//TransformUserData tud = new TransformUserData(user);
+				resp.add(user);
 				resp.setSucces();
 				return user;
 			}else{//密码错误
@@ -369,6 +389,42 @@ public class Controler implements Instances{
 
 	public List<Deal> getDeals() {
 		return deals;
+	}
+
+	public List<SimpleOrderModule> trySearchRecentOrder() {
+		List<SimpleOrderModule> result = new ArrayList<SimpleOrderModule>();
+		DateTime time = TimeUtils.now();
+		for (Deal deal : deals){
+			for (DealOrder order : deal.getOrders()){
+				DateTime otime = TimeUtils.getTime(order.getTimes().get(0));
+				if (TimeUtils.isSameDay(time,otime)){
+					SimpleOrderModule module = new SimpleOrderModule();
+					order.simpleDes(module);
+					result.add(module);
+				}
+			}
+		}
+		if (result.size() < 20){
+			long pre = time.getMillis() - 24 * 3600 * 1000;
+			time = TimeUtils.getTime(pre);
+			for (Deal deal : deals){
+				for (DealOrder order : deal.getOrders()){
+					DateTime otime = TimeUtils.getTime(order.getTimes().get(0));
+					if (TimeUtils.isSameDay(time,otime)){
+						SimpleOrderModule module = new SimpleOrderModule();
+						order.simpleDes(module);
+						result.add(module);
+					}
+					if (result.size() >= 20){
+						break;
+					}
+				}
+				if (result.size() >= 20){
+					break;
+				}
+			}
+		}
+		return result;
 	}
 }
  
