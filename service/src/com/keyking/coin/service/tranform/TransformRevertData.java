@@ -7,15 +7,15 @@ import com.keyking.coin.service.net.buffer.DataBuffer;
 import com.keyking.coin.util.Instances;
 
 public class TransformRevertData implements Instances,SerializeEntity{
-	long id;
-	long dealId;
-	long uid;
-	String target;
-	String context;
-	String createTime;
-	String sayerName;
-	String sayerIcon;
-	
+	long id;//用户回复编号
+	long dealId;//关联交易编号
+	long uid;//回复人编号
+	String sayerName;//回复人名称
+	String sayerIcon;//回复人头像
+	String target;//表示回复目标的名称
+	String context;//内容
+	String createTime;//回复时间
+
 	public long getId() {
 		return id;
 	}
@@ -95,7 +95,6 @@ public class TransformRevertData implements Instances,SerializeEntity{
 
 	@Override
 	public void serialize(DataBuffer out) {
-		// TODO Auto-generated method stub
 		
 	}
 }

@@ -31,7 +31,7 @@ public class HttpDealDel extends HttpHandler {
 			Deal deal = CTRL.tryToSearch(dealId);
 			synchronized (deal) {
 				if (deal.getUid() == uid){
-					deal.setNum(deal.orderNum());
+					deal.setNum(0);
 					deal.setRevoke(true);
 					deal.setNeedSave(true);
 					message(request,response,"ok");

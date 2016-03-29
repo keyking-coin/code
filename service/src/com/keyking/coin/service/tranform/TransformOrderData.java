@@ -11,19 +11,19 @@ import com.keyking.coin.service.net.buffer.DataBuffer;
 import com.keyking.coin.util.Instances;
 
 public class TransformOrderData implements Instances,SerializeEntity{
-	long id;
-	long dealId;
-	long buyId;
-	int num;
-	float price;
-	byte helpFlag;
-	String buyerName;
-	String buyerIcon;
-	byte state;
-	List<String> times = new ArrayList<String>();
-	DealAppraise sellerAppraise = new DealAppraise();
-	DealAppraise buyerAppraise = new DealAppraise();
-	int revoke;
+	long id;//订单编号
+	long dealId;//关联交易编号
+	long buyId;//抢单人编号
+	int num;//抢单数量
+	float price;//抢单价钱
+	byte helpFlag;//0普通模式，1中介模式
+	String buyerName;//抢单人姓名
+	String buyerIcon;//抢单人头像
+	byte state;//订单状态
+	List<String> times = new ArrayList<String>();//订单状态修改时间列表
+	DealAppraise sellerAppraise = new DealAppraise();//卖家评价
+	DealAppraise buyerAppraise = new DealAppraise();//买家评价
+	int revoke;//撤销状态0正常，1买家撤销，2卖家撤销，3双方都撤销
 	
 	public long getId() {
 		return id;

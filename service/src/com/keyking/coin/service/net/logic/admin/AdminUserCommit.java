@@ -17,6 +17,8 @@ public class AdminUserCommit extends AbstractLogic {
 		UserCharacter user = CTRL.search(userData.getId());
 		if (user != null){
 			user.copy(userData);
+			userData = new TransformUserData(user);
+			resp.addKey("user",userData);
 			resp.setSucces();
 		}else{
 			resp.setError("json数据有错误");

@@ -20,8 +20,7 @@ public class TransformDealData implements Instances,Comparable<TransformDealData
 	byte sellFlag;//出售帖还是求购帖
 	byte type;//类型0入库，1现货
 	byte helpFlag;//可以使用中介服务;0未开启，1开启。
-	byte favorite;
-	boolean revoke;
+	boolean revoke;//true撤销，false未撤销
 	String bourse;//文交所名称
 	String name;//藏品名称
 	float price;//藏品单价
@@ -169,14 +168,6 @@ public class TransformDealData implements Instances,Comparable<TransformDealData
 
 	public void setIssueIcon(String issueIcon) {
 		this.issueIcon = issueIcon;
-	}
-
-	public byte getFavorite() {
-		return favorite;
-	}
-
-	public void setFavorite(byte favorite) {
-		this.favorite = favorite;
 	}
 
 	public boolean isRevoke() {

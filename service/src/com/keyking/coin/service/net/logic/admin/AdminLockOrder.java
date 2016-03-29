@@ -5,6 +5,9 @@ import com.keyking.coin.service.domain.deal.DealOrder;
 import com.keyking.coin.service.net.buffer.DataBuffer;
 import com.keyking.coin.service.net.logic.AbstractLogic;
 import com.keyking.coin.service.net.resp.impl.AdminResp;
+import com.keyking.coin.service.net.resp.module.AdminModuleResp;
+import com.keyking.coin.service.net.resp.module.Module;
+import com.keyking.coin.service.tranform.TransformDealData;
 
 public class AdminLockOrder extends AbstractLogic {
 
@@ -20,7 +23,13 @@ public class AdminLockOrder extends AbstractLogic {
 				if (order.getState() == 0){
 					order.addRevoke(DealOrder.ORDER_REVOKE_BUYER);
 					order.addRevoke(DealOrder.ORDER_REVOKE_SELLER);
+					if (order.getState() == 1 || order.getState() == 4){
+						NET.sendMessageToAdmin(order.clientAdminMessage(Module.DEL_FLAG,new AdminModuleResp()));
+					}
 					order.setNeedSave(true);
+					TransformDealData tdd = new TransformDealData();
+					tdd.copy(deal,order);
+					resp.addKey("deal",tdd);
 					resp.setSucces();
 				}else{
 					resp.setError("此订单正在交易 state = " + order.getState());

@@ -36,13 +36,18 @@ public class TransformUserData implements Instances,SerializeEntity{
 	int completeDealNum;
 	Forbid forbid;//封号
 	
+	public TransformUserData(){
+		
+	}
+	
 	public TransformUserData(UserCharacter user){
 		id = user.getId();
 		account = user.getAccount();
 		face = user.getFace();
 		nikeName = user.getNikeName();
 		title = user.getTitle();
-		registTime  = user.getRegistTime();
+		String[] ss = user.getRegistTime().split(" ");
+		registTime  = ss[0];
 		addresses.addAll(user.getAddresses());
 		name = user.getName();
 		age = user.getAge();
