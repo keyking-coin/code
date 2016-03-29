@@ -132,6 +132,9 @@ public class Credit implements SerializeEntity{
 	}
 
 	public void copy(Credit credit) {
+		if (credit == null){
+			return;
+		}
 		curValue       = credit.curValue;
 		maxValue       = credit.maxValue;
 		tempMaxValue   = credit.tempMaxValue;

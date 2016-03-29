@@ -5,6 +5,7 @@ import com.keyking.coin.service.domain.user.UserCharacter;
 import com.keyking.coin.service.http.handler.HttpHandler;
 import com.keyking.coin.service.http.request.HttpRequestMessage;
 import com.keyking.coin.service.http.response.HttpResponseMessage;
+import com.keyking.coin.service.net.resp.module.Module;
 import com.keyking.coin.util.ServerLog;
 import com.keyking.coin.util.TimeUtils;
 
@@ -43,7 +44,8 @@ public class HttpSellerCommit extends HttpHandler {
 				seller.setPic(pic);
 				user.setSeller(seller);
 				user.setNeedSave(true);
-				message(request,response,"ok");
+				message(request,response,"申请成功");
+				NET.sendMessageToAdmin(user.clientAdminMessage(Module.ADD_FLAG));
 				ServerLog.info(user.getAccount() + " applyed seller  approve at " + createTime);
 			}else{
 				message(request,response,"系统错误");

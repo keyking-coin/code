@@ -58,10 +58,6 @@ public class BankAccount implements SerializeEntity{
 		return false;
 	}
 	
-	public void copy(BankAccount other){
-		accounts.addAll(other.accounts);
-	}
-
 	public List<Account> getAccounts() {
 		return accounts;
 	}

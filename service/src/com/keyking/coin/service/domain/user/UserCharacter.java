@@ -11,6 +11,7 @@ import com.keyking.coin.service.domain.email.EmailModule;
 import com.keyking.coin.service.domain.friend.Friend;
 import com.keyking.coin.service.domain.friend.Message;
 import com.keyking.coin.service.net.buffer.DataBuffer;
+import com.keyking.coin.service.net.resp.module.AdminModuleResp;
 import com.keyking.coin.service.net.resp.module.Module;
 import com.keyking.coin.service.net.resp.module.ModuleResp;
 import com.keyking.coin.service.tranform.TransformUserData;
@@ -545,14 +546,15 @@ public class UserCharacter extends EntitySaver{
 		Module module = new Module();
 		module.setCode(Module.MODULE_CODE_USER);
 		module.setFlag(type);
-		TransformUserData tud = new TransformUserData(this);
-		module.add("user",tud);
+		//TransformUserData tud = new TransformUserData(this);
+		//module.add("user",tud);
+		module.add("user",this);
 		modules.addModule(module);
 		return modules;
 	}
 	
 	public ModuleResp clientAdminMessage(byte type){
-		ModuleResp modules = new ModuleResp();
+		AdminModuleResp modules = new AdminModuleResp();
 		Module module = new Module();
 		module.setCode(Module.MODULE_CODE_ADMIN_SELLER);
 		module.setFlag(type);
@@ -611,8 +613,29 @@ public class UserCharacter extends EntitySaver{
 	}
 
 	public void copy(TransformUserData userData) {
-		
+		nikeName = userData.getNikeName();
+		title    = userData.getTitle();
+		registTime  = userData.getRegistTime();
+		name = userData.getName();
+		age = userData.getAge();
+		identity = userData.getIdentity();
+		push = userData.getPush();
+		signature = userData.getSignature();
+		credit.copy(userData.getCredit());
+		breach = userData.getBreach();
+		seller.copy(userData.getSeller());
+		permission.copy(userData.getPerission());
+		recharge.copy(userData.getRecharge());
+		forbid.copy(userData.getForbid());
+		if (userData.getAddresses() != null && userData.getAddresses().size() > 0){
+			addresses.clear();
+			addresses.addAll(userData.getAddresses());
+		}
+		if (userData.getBanks() != null && userData.getBanks().size() > 0){
+			List<Account> accounts = bankAccount.getAccounts();
+			accounts.clear();
+			accounts.addAll(userData.getBanks());
+		}
 	}
-	
 }
  

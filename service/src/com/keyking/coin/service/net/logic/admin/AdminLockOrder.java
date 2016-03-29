@@ -4,36 +4,32 @@ import com.keyking.coin.service.domain.deal.Deal;
 import com.keyking.coin.service.domain.deal.DealOrder;
 import com.keyking.coin.service.net.buffer.DataBuffer;
 import com.keyking.coin.service.net.logic.AbstractLogic;
-import com.keyking.coin.service.net.resp.impl.GeneralResp;
-import com.keyking.coin.service.net.resp.module.AdminModuleResp;
-import com.keyking.coin.service.net.resp.module.Module;
+import com.keyking.coin.service.net.resp.impl.AdminResp;
 
-public class AdminOrderRevoke extends AbstractLogic {
+public class AdminLockOrder extends AbstractLogic {
 
 	@Override
 	public Object doLogic(DataBuffer buffer, String logicName) throws Exception {
-		GeneralResp resp = new GeneralResp(logicName);
+		AdminResp resp = new AdminResp(logicName);
 		long dealId  = buffer.getLong();
 		long orderId = buffer.getLong();
 		Deal deal = CTRL.tryToSearch(dealId);
 		if (deal != null){
 			DealOrder order = deal.searchOrder(orderId);
-			synchronized (order) {
-				if (order != null){
-					if (order.getState() > 0){
-						resp.setError("订单已生效,无法撤销");
-						return resp;
-					}
-					order.setNeedSave(true);
+			if (order != null){
+				if (order.getState() == 0){
 					order.addRevoke(DealOrder.ORDER_REVOKE_BUYER);
 					order.addRevoke(DealOrder.ORDER_REVOKE_SELLER);
-					if (order.getHelpFlag() == 1){
-						NET.sendMessageToAdmin(order.clientAdminMessage(Module.DEL_FLAG,new AdminModuleResp()));
-					}
-					NET.sendMessageToAllClent(order.clientMessage(Module.UPDATE_FLAG),null);
+					order.setNeedSave(true);
 					resp.setSucces();
+				}else{
+					resp.setError("此订单正在交易 state = " + order.getState());
 				}
+			}else{
+				resp.setError("找不到订单编号是:" + orderId);
 			}
+		}else{
+			resp.setError("找不到交易编号是:" + dealId);
 		}
 		return resp;
 	}

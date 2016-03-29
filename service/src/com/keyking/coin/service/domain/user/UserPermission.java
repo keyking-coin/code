@@ -5,13 +5,9 @@ import com.keyking.coin.util.StringUtil;
 
 public class UserPermission {
 	PermissionType type = PermissionType.buyer;
-	String lastPayTime = "null";//上次支付时间
-	String endTime  = "2017-01-01 00:00:00";//会员到期日期
-	String safeCode = "uu_admin";//管理员的密码保护
-	
-	public UserPermission(){
-		
-	}
+	String lastPayTime  = "null";//上次支付时间
+	String endTime      = "2017-01-01 00:00:00";//会员到期日期
+	String safeCode     = "uu_admin";//管理员的密码保护
 
 	public PermissionType getType() {
 		return type;
@@ -80,5 +76,14 @@ public class UserPermission {
 	public void serialize(DataBuffer buffer) {
 		buffer.putUTF(endTime == null ? "" : endTime);
 		buffer.putInt(type.ordinal());
+	}
+
+	public void copy(UserPermission perission) {
+		if (perission == null){
+			return;
+		}
+		type = perission.type;
+		lastPayTime = perission.lastPayTime;
+		endTime = perission.endTime;
 	}
 }

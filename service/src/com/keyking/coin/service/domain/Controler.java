@@ -437,5 +437,9 @@ public class Controler implements Instances{
 		}
 		return result;
 	}
+
+	public void tryToDelDeal(Deal deal) {
+		
+	}
 }
  

@@ -5,9 +5,11 @@ import java.util.List;
 
 import com.keyking.coin.service.domain.user.Account;
 import com.keyking.coin.service.domain.user.Credit;
+import com.keyking.coin.service.domain.user.Forbid;
 import com.keyking.coin.service.domain.user.Recharge;
 import com.keyking.coin.service.domain.user.Seller;
 import com.keyking.coin.service.domain.user.UserCharacter;
+import com.keyking.coin.service.domain.user.UserPermission;
 import com.keyking.coin.service.net.SerializeEntity;
 import com.keyking.coin.service.net.buffer.DataBuffer;
 import com.keyking.coin.util.Instances;
@@ -16,22 +18,23 @@ public class TransformUserData implements Instances,SerializeEntity{
 	long id;
 	String account;
 	String face = "face1";
-	String nikeName="";//昵称
+	String nikeName= "";//昵称
 	String title = "普通营销员";//称号
 	String registTime;
 	List<String> addresses = new ArrayList<String>();//地址
-	String name ="";//姓名
-	int age = 18;//年龄
+	String name = "";//姓名
+	int age = 18 ;//年龄
 	String identity = "";//身份验证
 	byte push = 1;//推送设置
 	String signature = "大家好";//签名
 	List<Account> banks = new ArrayList<Account>();//绑定银行账户
 	Credit credit = new Credit();//信用度
-	List<Long> favorites = new ArrayList<Long>();//收藏夹
 	byte breach;//违约次数
+	UserPermission perission;//用户权限
 	Seller seller;
 	Recharge recharge;
 	int completeDealNum;
+	Forbid forbid;//封号
 	
 	public TransformUserData(UserCharacter user){
 		id = user.getId();
@@ -39,8 +42,7 @@ public class TransformUserData implements Instances,SerializeEntity{
 		face = user.getFace();
 		nikeName = user.getNikeName();
 		title = user.getTitle();
-		String[] ss = user.getRegistTime().split(" ");
-		registTime  = ss[0];
+		registTime  = user.getRegistTime();
 		addresses.addAll(user.getAddresses());
 		name = user.getName();
 		age = user.getAge();
@@ -50,9 +52,10 @@ public class TransformUserData implements Instances,SerializeEntity{
 		banks.addAll(user.getBankAccount().getAccounts());
 		credit = user.getCredit();
 		breach = user.getBreach();
-		favorites.addAll(user.getFavorites());
 		seller = user.getSeller();
+		perission = user.getPermission();
 		recharge = user.getRecharge();
+		forbid = user.getForbid();
 		completeDealNum = CTRL.computeOkOrderNum(id);
 	}
 	
@@ -168,12 +171,12 @@ public class TransformUserData implements Instances,SerializeEntity{
 		this.breach = breach;
 	}
 
-	public List<Long> getFavorites() {
-		return favorites;
+	public Forbid getForbid() {
+		return forbid;
 	}
 
-	public void setFavorites(List<Long> favorites) {
-		this.favorites = favorites;
+	public void setForbid(Forbid forbid) {
+		this.forbid = forbid;
 	}
 
 	public String getRegistTime() {
@@ -208,11 +211,18 @@ public class TransformUserData implements Instances,SerializeEntity{
 		this.completeDealNum = completeDealNum;
 	}
 
+	public UserPermission getPerission() {
+		return perission;
+	}
+
+	public void setPerission(UserPermission perission) {
+		this.perission = perission;
+	}
+
 	@Override
 	public void serialize(DataBuffer out) {
 		// TODO Auto-generated method stub
 		
 	}
-	
 	
 }

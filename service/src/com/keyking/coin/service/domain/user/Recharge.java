@@ -9,7 +9,8 @@ import com.keyking.coin.util.StringUtil;
 
 public class Recharge {
 	
-	float curMoney=100;//当前剩余
+	float curMoney = 100;//当前剩余
+	
 	
 	float historyMoney;//历史累计充值
 	
@@ -68,5 +69,13 @@ public class Recharge {
 		for (RechargeOrder order : orders){
 			order._serialize(buffer);
 		}
+	}
+
+	public void copy(Recharge recharge) {
+		if (recharge == null){
+			return;
+		}
+		curMoney     = recharge.curMoney;
+		historyMoney = recharge.historyMoney;
 	}
 }
