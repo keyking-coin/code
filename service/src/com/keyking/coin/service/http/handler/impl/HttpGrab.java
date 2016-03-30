@@ -8,6 +8,7 @@ import java.util.Map;
 import com.keyking.coin.service.domain.deal.Deal;
 import com.keyking.coin.service.domain.deal.DealOrder;
 import com.keyking.coin.service.domain.deal.SimpleOrderModule;
+import com.keyking.coin.service.domain.user.Seller;
 import com.keyking.coin.service.domain.user.UserCharacter;
 import com.keyking.coin.service.http.handler.HttpHandler;
 import com.keyking.coin.service.http.request.HttpRequestMessage;
@@ -48,15 +49,17 @@ public class HttpGrab extends HttpHandler{
 			return;
 		}
 		synchronized (deal) {
-			/*
-			float need = num * deal.getPrice();
-			float maxCredit = Math.max(user.computeMaxCredit(),user.computeTempCredit());
-			if (deal.getSellFlag() == 0 && deal.getHelpFlag() == 0 && user.computeUsedCredit() + need > maxCredit){
-				message(request,response,"你的信用不足");
+			if (deal.getSellFlag() == Deal.DEAL_TYPE_BUY && !user.getPermission().seller()){//这个买帖
+				Seller seller = user.getSeller();
+				if (seller != null && !seller.isPass()){
+					message(request,response,"请等待卖家认证通过");
+				}else{
+					message(request,response,"请先进行卖家认证");
+				}
 				return;
-			}*/
+			}
 			if (!deal.couldGrab(num)){
-				message(request,response,"剩余数量不足,抢单失败。");
+				message(request,response,"剩余数量不足，抢单失败。");
 				return;
 			}
 			DealOrder order = new DealOrder();

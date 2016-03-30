@@ -19,43 +19,26 @@ import com.keyking.coin.util.StringUtil;
 import com.keyking.coin.util.TimeUtils;
 
 public class Deal extends EntitySaver implements Comparable<Deal>{
-	
+	public static final byte DEAL_TYPE_BUY  = 0;
+	public static final byte DEAL_TYPE_SELL = 1;
 	long id;//编号
-	
 	long uid;//用户编号
-	
-	byte sellFlag;//出售帖还是求购帖
-	
+	byte sellFlag = DEAL_TYPE_BUY;//出售帖还是求购帖
 	byte type;//类型0入库，1现货
-	
 	byte helpFlag;//可以使用中介服务;0未开启，1开启。
-	
 	String bourse;//文交所名称
-	
 	String name;//藏品名称
-	
 	float price;//藏品单价
-	
 	String monad;//单位
-	
 	int num;//藏品数量
-	
 	String validTime = "永久";//有效时间
-	
 	String createTime;//创建时间
-	
 	String other = "";//其他描述
-
 	boolean revoke;//是否撤销了
-	
 	boolean lock;//被管理员锁定
-	
 	List<Revert> reverts    = new ArrayList<Revert>();//回复内容列表
-	
 	List<DealOrder> orders  = new ArrayList<DealOrder>();//订单
-	
 	float needDeposit = 0;
-	
 	String lastIssue  = "null";//离最近的推送时间
 	
 	public long getId() {

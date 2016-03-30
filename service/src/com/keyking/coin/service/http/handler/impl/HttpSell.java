@@ -43,7 +43,7 @@ public class HttpSell extends HttpHandler {
 		}
 		Deal deal = new Deal();
 		deal.setUid(uid);
-		deal.setSellFlag((byte)1);
+		deal.setSellFlag(Deal.DEAL_TYPE_SELL);
 		deal.setType(type);
 		deal.setBourse(bourse);
 		deal.setName(title);
@@ -57,28 +57,30 @@ public class HttpSell extends HttpHandler {
 		}
 		deal.setHelpFlag(helpFlag);
 		boolean sendFlag = sendType.equals("1");
-		Seller seller = user.getSeller();
-		if (user.getPermission().seller()){
-			if (sendFlag && user.getRecharge().getCurMoney() < 10){//强制推送
-				message(request,response,"您的邮游币不足请先去充值");
-				return;
+		if (!user.getPermission().seller()){
+			Seller seller = user.getSeller();
+			if (seller != null && !seller.isPass()){
+				message(request,response,"请等待卖家认证通过");
+			}else{
+				message(request,response,"请先进行卖家认证");
 			}
-			if (CTRL.tryToInsert(deal)){
-				long dealId = PK.key("deal");
-				deal.setId(dealId);
-				if (sendFlag){//强制推送
-					user.getRecharge().changeMoney(-10);
-					deal.setLastIssue(TimeUtils.nowChStr());
-					NET.sendMessageToAllClent(deal.pushMessage(),user.getSessionAddress());
-				}
-				NET.sendMessageToAllClent(deal.clientMessage(Module.ADD_FLAG),null);
-				ServerLog.info(user.getAccount() + " deployed deal-sell ok ----> id is " + deal.getId());
-				message(request,response,"ok");
+			return;
+		}
+		if (sendFlag && user.getRecharge().getCurMoney() < 10){//强制推送
+			message(request,response,"您的邮游币不足请先去充值");
+			return;
+		}
+		if (CTRL.tryToInsert(deal)){
+			long dealId = PK.key("deal");
+			deal.setId(dealId);
+			if (sendFlag){//强制推送
+				user.getRecharge().changeMoney(-10);
+				deal.setLastIssue(TimeUtils.nowChStr());
+				NET.sendMessageToAllClent(deal.pushMessage(),user.getSessionAddress());
 			}
-		}else if (seller != null && !seller.isPass()){
-			message(request,response,"请等待卖家认证通过");
-		}else{
-			message(request,response,"请先进行卖家认证");
+			NET.sendMessageToAllClent(deal.clientMessage(Module.ADD_FLAG),null);
+			ServerLog.info(user.getAccount() + " deployed deal-sell ok ----> id is " + deal.getId());
+			message(request,response,"ok");
 		}
 	}
 }

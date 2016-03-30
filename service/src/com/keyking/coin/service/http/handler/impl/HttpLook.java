@@ -34,10 +34,10 @@ public class HttpLook extends HttpHandler {
 			data.setTitle(user.getTitle());
 			data.setRegistTime(user.getRegistTime());
 			data.setTel(look ? user.getAccount() : "保密");
+			data.setName(look ? user.getName() : "保密");
 			if (look){
 				data.getAddresses().addAll(user.getAddresses());
 			}
-			data.setName(look ? user.getName() : "保密");
 			if (look){
 				data.getBanks().addAll(user.getBankAccount().getAccounts());
 			}

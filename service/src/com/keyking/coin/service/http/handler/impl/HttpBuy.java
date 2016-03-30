@@ -42,7 +42,6 @@ public class HttpBuy extends HttpHandler {
 		}
 		Deal deal = new Deal();
 		deal.setUid(uid);
-		deal.setSellFlag((byte)0);
 		deal.setType(type);
 		deal.setBourse(bourse);
 		deal.setName(title);
