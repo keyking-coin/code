@@ -32,7 +32,7 @@ public class UserCharacter extends EntitySaver{
 	
 	String nikeName="";//昵称
 	
-	String title = "普通营销员";//称号
+	String title = "买家会员";//称号
 	
 	String registTime = "";//注册时间
 	
@@ -623,7 +623,9 @@ public class UserCharacter extends EntitySaver{
 		signature = userData.getSignature();
 		credit.copy(userData.getCredit());
 		breach = userData.getBreach();
-		seller.copy(userData.getSeller());
+		if (seller != null){
+			seller.copy(userData.getSeller());
+		}
 		permission.copy(userData.getPerission());
 		recharge.copy(userData.getRecharge());
 		forbid.copy(userData.getForbid());

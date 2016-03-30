@@ -3,7 +3,7 @@ using System.Collections;
 
 public class LoadUtil : MonoBehaviour {
 
-    int count = 1000;
+    int count = 2000;
 
     private static GameObject currentLoad = null;
 
@@ -28,7 +28,7 @@ public class LoadUtil : MonoBehaviour {
     void appear(string showStr)
     {
         gameObject.SetActive(true);
-        count = 1000;
+        count = 2000;
         if (tips == null){
             tips = transform.FindChild("tips").GetComponent<UILabel>();
         }

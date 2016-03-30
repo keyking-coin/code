@@ -1,5 +1,6 @@
 package com.keyking.coin.util;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import com.cloopen.rest.sdk.CCPRestSmsSDK;
@@ -9,7 +10,9 @@ public class SMSUtil {
 	private static SMSUtil instance = new SMSUtil();
 
 	private CCPRestSmsSDK sms = new CCPRestSmsSDK();
-
+	
+	private Map<String,Long> lastSends = new HashMap<String,Long>();
+	
 	public static SMSUtil getInstance() {
 		return instance;
 	}
@@ -53,6 +56,7 @@ public class SMSUtil {
 	public boolean sendToken(String num,String code){
 		Map<?,?> datas = sms.sendTemplateSMS(num,"74501",new String[]{code,"5"});
 		if ("000000".equals(datas.get("statusCode"))) {
+			lastSends.put(num,TimeUtils.nowLong());
 			return true;
 		}
 		return false;
@@ -61,9 +65,20 @@ public class SMSUtil {
 	public boolean sendPassword(String num,String code){
 		Map<?,?> datas = sms.sendTemplateSMS(num,"74839",new String[]{code});
 		if ("000000".equals(datas.get("statusCode"))) {
+			lastSends.put(num,TimeUtils.nowLong());
 			return true;
 		}
 		return false;
+	}
+	
+	public boolean couldSend(String num){
+		if (lastSends.containsKey(num)){
+			long time = lastSends.get(num).longValue();
+			if (time + 2 * 60 * 1000 > TimeUtils.nowLong()){
+				return false;
+			}
+		}
+		return true;
 	}
 }
  

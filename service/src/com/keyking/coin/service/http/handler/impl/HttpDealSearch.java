@@ -67,7 +67,7 @@ public class HttpDealSearch extends HttpHandler {
 		}
 		if (deals.size() > 0){
 			List<Deal> issues    = new ArrayList<Deal>();
-			List<Deal> valides = new ArrayList<Deal>();
+			List<Deal> valides   = new ArrayList<Deal>();
 			List<Deal> normals   = new ArrayList<Deal>();
 			List<Deal> tails     = new ArrayList<Deal>();
 			for (Deal deal : deals){
@@ -106,7 +106,6 @@ public class HttpDealSearch extends HttpHandler {
 			if (tails.size() > 0){
 				Collections.sort(tails);
 			}
-			deals.clear();
 			List<TransformDealData> hDeals = new ArrayList<TransformDealData>();
 			for (Deal deal : issues){
 				TransformDealData hdeal = new TransformDealData();

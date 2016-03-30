@@ -19,6 +19,7 @@ import com.keyking.coin.service.domain.user.Seller;
 import com.keyking.coin.service.domain.user.UserCharacter;
 import com.keyking.coin.service.net.resp.impl.AdminResp;
 import com.keyking.coin.service.net.resp.impl.GeneralResp;
+import com.keyking.coin.service.tranform.TransformDealData;
 import com.keyking.coin.service.tranform.TransformTouristOrder;
 import com.keyking.coin.service.tranform.TransformUserData;
 import com.keyking.coin.util.Instances;
@@ -119,17 +120,17 @@ public class Controler implements Instances{
 	
 	public String checkHttpAccout(String account,String nickName){
 		for (UserCharacter user : characters.values()){
-			if (user.getAccount().equals(account)){
+			if (account != null && user.getAccount().equals(account)){
 				return account + "已被注册";
 			}
-			if (user.getNikeName().equals(nickName)){
+			if (nickName != null && user.getNikeName().equals(nickName)){
 				return nickName + "已被使用";
 			}
 		}
-		if (DB.getUserDao().search(account) != null){
+		if (account != null &&  DB.getUserDao().search(account) != null){
 			return account + "已被注册";
 		}
-		if (DB.getUserDao().checkNikeName(nickName) != null){
+		if (nickName != null && DB.getUserDao().checkNikeName(nickName) != null){
 			return nickName + "已被使用";
 		}
 		return null;
@@ -137,26 +138,26 @@ public class Controler implements Instances{
 	
 	public boolean checkAccout(String account,String nickName,GeneralResp resp){
 		for (UserCharacter user : characters.values()){
-			if (user.getAccount().equals(account)){
+			if (account != null && user.getAccount().equals(account)){
 				if (resp != null){
 					resp.setError(account + "已被注册");
 				}
 				return false;
 			}
-			if (user.getNikeName().equals(nickName)){
+			if (nickName != null && user.getNikeName().equals(nickName)){
 				if (resp != null){
 					resp.setError(nickName + "已被使用");
 				}
 				return false;
 			}
 		}
-		if (DB.getUserDao().search(account) != null){
+		if (account != null && DB.getUserDao().search(account) != null){
 			if (resp != null){
 				resp.setError(account + "已被注册");
 			}
 			return false;
 		}
-		if (DB.getUserDao().checkNikeName(nickName) != null){
+		if (nickName != null && DB.getUserDao().checkNikeName(nickName) != null){
 			if (resp != null){
 				resp.setError(nickName + "已被使用");
 			}
@@ -257,7 +258,7 @@ public class Controler implements Instances{
 		String start = preYear + "-" + preMonth + "-" + preDay + " 00:00:00";
 		long startTime = TimeUtils.getTime(start).getMillis();
 		for (Deal deal : deals){//先看有效期
-			long dealTime = TimeUtils.getTime(deal.getValidTime()).getMillis();
+			long dealTime = TimeUtils.getTime(deal.getCreateTime()).getMillis();
 			if (dealTime >= startTime){
 				result.add(deal);
 			}
@@ -273,7 +274,20 @@ public class Controler implements Instances{
 		}
 		return DB.getDealDao().search(id);
 	}
-
+	
+	public TransformDealData tryToSearchOrder(long id) {
+		for (Deal deal : deals){
+			for (DealOrder order : deal.getOrders()){
+				if (order.getId() == id){
+					TransformDealData tdd = new TransformDealData();
+					tdd.copy(deal,order);
+					return tdd;
+				}
+			}
+		}
+		return null;
+	}
+	
 	public synchronized boolean tryToInsert(Deal deal) {
 		deals.add(0,deal);
 		return true;
@@ -328,8 +342,9 @@ public class Controler implements Instances{
 				}
 			}
 		}
-		if (orders.size() < 20){
-			long pre = time.getMillis() - 24 * 3600 * 1000;
+		int count = 1 ;
+		while (orders.size() < 20 && count < 8){
+			long pre = time.getMillis() - count * 24 * 3600 * 1000;
 			time = TimeUtils.getTime(pre);
 			for (Deal deal : deals){
 				for (DealOrder order : deal.getOrders()){
@@ -345,6 +360,7 @@ public class Controler implements Instances{
 					break;
 				}
 			}
+			count ++;
 		}
 		return orders;
 	}

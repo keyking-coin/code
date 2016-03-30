@@ -20,20 +20,16 @@ public class AdminLockOrder extends AbstractLogic {
 		if (deal != null){
 			DealOrder order = deal.searchOrder(orderId);
 			if (order != null){
-				if (order.getState() == 0){
-					order.addRevoke(DealOrder.ORDER_REVOKE_BUYER);
-					order.addRevoke(DealOrder.ORDER_REVOKE_SELLER);
-					if (order.getState() == 1 || order.getState() == 4){
-						NET.sendMessageToAdmin(order.clientAdminMessage(Module.DEL_FLAG,new AdminModuleResp()));
-					}
-					order.setNeedSave(true);
-					TransformDealData tdd = new TransformDealData();
-					tdd.copy(deal,order);
-					resp.addKey("deal",tdd);
-					resp.setSucces();
-				}else{
-					resp.setError("此订单正在交易 state = " + order.getState());
+				order.addRevoke(DealOrder.ORDER_REVOKE_BUYER);
+				order.addRevoke(DealOrder.ORDER_REVOKE_SELLER);
+				if (order.getState() == 1 || order.getState() == 4){
+					NET.sendMessageToAdmin(order.clientAdminMessage(Module.DEL_FLAG,new AdminModuleResp()));
 				}
+				order.setNeedSave(true);
+				TransformDealData tdd = new TransformDealData();
+				tdd.copy(deal,order);
+				resp.addKey("deal",tdd);
+				resp.setSucces();
 			}else{
 				resp.setError("找不到订单编号是:" + orderId);
 			}

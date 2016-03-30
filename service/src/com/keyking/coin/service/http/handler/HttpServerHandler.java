@@ -8,6 +8,7 @@ import org.apache.mina.core.session.IoSession;
 import com.keyking.coin.service.http.request.HttpRequestMessage;
 import com.keyking.coin.service.http.response.HttpResponseMessage;
 import com.keyking.coin.util.Instances;
+import com.keyking.coin.util.ServerLog;
 
 public class HttpServerHandler extends IoHandlerAdapter implements Instances {
 	
@@ -31,7 +32,7 @@ public class HttpServerHandler extends IoHandlerAdapter implements Instances {
 			HttpHandler handler = clazz.newInstance();
 			handler.handle(request,response); 
 		}catch(Exception e){
-			//e.printStackTrace();
+			ServerLog.error("http handler error",e);
 		}
 		session.write(response).addListener(IoFutureListener.CLOSE);
     }  

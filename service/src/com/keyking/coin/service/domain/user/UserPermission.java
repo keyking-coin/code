@@ -46,7 +46,7 @@ public class UserPermission {
 	}
 	
 	public boolean seller(){
-		return type.ordinal() == PermissionType.seller.ordinal();
+		return type.ordinal() > PermissionType.buyer.ordinal();
 	}
 	
 	public boolean buyer(){

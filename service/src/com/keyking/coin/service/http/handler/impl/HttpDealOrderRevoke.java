@@ -39,6 +39,7 @@ public class HttpDealOrderRevoke extends HttpHandler {
 						int flag = ((deal.getSellFlag() == 1 && order.getBuyId() == uid) || (deal.getSellFlag() == 0 && deal.getUid() == uid)) ? DealOrder.ORDER_REVOKE_BUYER : DealOrder.ORDER_REVOKE_SELLER;
 						if (!order.checkRevoke(flag)){//撤销成功
 							order.addRevoke(flag);
+							order.setNeedSave(true);
 							ModuleResp modules = new ModuleResp();
 							order.clientMessage(Module.UPDATE_FLAG,modules);
 							NET.sendMessageToAllClent(modules,null);

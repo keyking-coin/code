@@ -31,16 +31,18 @@ public class NetUtil{
     Thread receiveThread = null;
 
 #if UNITY_EDITOR
-    //string URL = "127.0.0.1";
-    string URL = "keyking-ty.xicp.net";
-    int port = 12213;
+    string URL = "127.0.0.1";
+    int port = 32105;
+    //string URL = "keyking-ty.xicp.net";
+    //int port = 12213;
 #else
     //string URL = "139.196.30.53";
-    string URL = "www.521uu.cc";
-    int port = 32105;
+    //int port = 32105;
+    string URL = "keyking-ty.xicp.net";
+    int port = 12213;
 #endif
 
-	public static NetUtil getInstance
+    public static NetUtil getInstance
     {
         get{
             if (instance == null) {

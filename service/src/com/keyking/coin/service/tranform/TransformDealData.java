@@ -30,7 +30,7 @@ public class TransformDealData implements Instances,Comparable<TransformDealData
 	String createTime;//创建时间
 	String other;//其他描述
 	List<TransformRevertData> reverts    = new ArrayList<TransformRevertData>();//回复内容列表
-	List<TransformOrderData> orders  = new ArrayList<TransformOrderData>();//订单
+	List<TransformOrderData> orders      = new ArrayList<TransformOrderData>();//订单
 	String issueName;
 	String issueIcon;
 	

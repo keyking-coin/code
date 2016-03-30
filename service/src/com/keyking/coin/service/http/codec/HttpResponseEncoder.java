@@ -1,6 +1,5 @@
 package com.keyking.coin.service.http.codec;
 
-import java.nio.charset.CharacterCodingException;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetEncoder;
 import java.util.Collections;
@@ -15,6 +14,7 @@ import org.apache.mina.filter.codec.ProtocolEncoderOutput;
 import org.apache.mina.filter.codec.demux.MessageEncoder;
 
 import com.keyking.coin.service.http.response.HttpResponseMessage;
+import com.keyking.coin.util.ServerLog;
 
 /**
  * A {
@@ -69,8 +69,9 @@ public class HttpResponseEncoder implements MessageEncoder<HttpResponseMessage> 
 			buf.put(CRLF);
 			buf.put(CRLF);
 			buf.put(msg.getBody());
-		} catch (CharacterCodingException ex) {
-			ex.printStackTrace();
+		} catch (Exception ex) {
+			//ex.printStackTrace();
+			ServerLog.error("http tranform error", ex);
 		}
 		buf.flip();
 		out.write(buf);

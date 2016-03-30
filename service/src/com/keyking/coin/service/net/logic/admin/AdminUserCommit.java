@@ -16,6 +16,9 @@ public class AdminUserCommit extends AbstractLogic {
 		TransformUserData userData = JsonUtil.JsonToObject(str, TransformUserData.class);
 		UserCharacter user = CTRL.search(userData.getId());
 		if (user != null){
+			if (!userData.getNikeName().equals(user.getNikeName()) && !CTRL.checkAccout(null,userData.getNikeName(),resp)){
+				return resp;
+			}
 			user.copy(userData);
 			userData = new TransformUserData(user);
 			resp.addKey("user",userData);

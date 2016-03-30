@@ -190,18 +190,15 @@ public class XmlUtils {
 		return localHashMap;
 	}
 
-	public static void save(String paramString, Document paramDocument)
-			throws Exception {
+	public static void save(String paramString, Document paramDocument)throws Exception {
 		DOMSource localDOMSource = new DOMSource(paramDocument);
 		File localFile1 = new File(paramString);
-		File localFile2 = localFile1.getParentFile();
-		localFile2.mkdirs();
+		//File localFile2 = localFile1.getParentFile();
+		//localFile2.mkdirs();
 		StreamResult localStreamResult = new StreamResult(localFile1);
 		try {
-			TransformerFactory localTransformerFactory = TransformerFactory
-					.newInstance();
-			Transformer localTransformer = localTransformerFactory
-					.newTransformer();
+			TransformerFactory localTransformerFactory = TransformerFactory.newInstance();
+			Transformer localTransformer = localTransformerFactory.newTransformer();
 			Properties localProperties = localTransformer.getOutputProperties();
 			localProperties.setProperty("encoding", "UTF-8");
 			localProperties.setProperty("indent", "yes");
@@ -215,41 +212,33 @@ public class XmlUtils {
 	}
 
 	public static Document blankDocument(String paramString) throws Exception {
-		DocumentBuilderFactory localDocumentBuilderFactory = DocumentBuilderFactory
-				.newInstance();
+		DocumentBuilderFactory localDocumentBuilderFactory = DocumentBuilderFactory.newInstance();
 		localDocumentBuilderFactory.setIgnoringComments(false);
 		localDocumentBuilderFactory.setIgnoringElementContentWhitespace(false);
 		localDocumentBuilderFactory.setValidating(false);
 		localDocumentBuilderFactory.setCoalescing(false);
-		DocumentBuilder localDocumentBuilder = localDocumentBuilderFactory
-				.newDocumentBuilder();
+		DocumentBuilder localDocumentBuilder = localDocumentBuilderFactory.newDocumentBuilder();
 		Document localDocument = localDocumentBuilder.newDocument();
 		Element localElement = localDocument.createElement(paramString);
 		localDocument.appendChild(localElement);
 		return localDocument;
 	}
 
-	public static Element createChild(Document paramDocument,
-			Element paramElement, String paramString) {
+	public static Element createChild(Document paramDocument,Element paramElement, String paramString) {
 		Element localElement = paramDocument.createElement(paramString);
 		paramElement.appendChild(localElement);
 		return localElement;
 	}
 
-	public static void createChildText(Document paramDocument,
-			Element paramElement, String paramString1, String paramString2) {
+	public static void createChildText(Document paramDocument,Element paramElement, String paramString1, String paramString2) {
 		Element localElement = paramDocument.createElement(paramString1);
-		localElement.appendChild(paramDocument
-				.createTextNode((paramString2 == null) ? "" : paramString2));
+		localElement.appendChild(paramDocument.createTextNode((paramString2 == null) ? "" : paramString2));
 		paramElement.appendChild(localElement);
 	}
 
-	public static void createChildTextWithComment(Document paramDocument,
-			Element paramElement, String paramString1, String paramString2,
-			String paramString3) {
+	public static void createChildTextWithComment(Document paramDocument,Element paramElement, String paramString1, String paramString2,String paramString3) {
 		Element localElement = paramDocument.createElement(paramString1);
-		localElement.appendChild(paramDocument
-				.createTextNode((paramString2 == null) ? "" : paramString2));
+		localElement.appendChild(paramDocument.createTextNode((paramString2 == null) ? "" : paramString2));
 		Comment localComment = paramDocument.createComment(paramString3);
 		paramElement.appendChild(localComment);
 		paramElement.appendChild(localElement);
@@ -260,8 +249,7 @@ public class XmlUtils {
 		paramDocument.getDocumentElement().appendChild(localComment);
 	}
 
-	public static void createOptionalChildText(Document paramDocument,
-			Element paramElement, String paramString1, String paramString2) {
+	public static void createOptionalChildText(Document paramDocument,Element paramElement, String paramString1, String paramString2) {
 		if ((paramString2 == null) || (paramString2.length() == 0))
 			return;
 		Element localElement = paramDocument.createElement(paramString1);
@@ -274,10 +262,8 @@ public class XmlUtils {
 			DOMSource localDOMSource = new DOMSource(paramDocument);
 			StringWriter localStringWriter = new StringWriter();
 			StreamResult localStreamResult = new StreamResult(localStringWriter);
-			TransformerFactory localTransformerFactory = TransformerFactory
-					.newInstance();
-			Transformer localTransformer = localTransformerFactory
-					.newTransformer();
+			TransformerFactory localTransformerFactory = TransformerFactory.newInstance();
+			Transformer localTransformer = localTransformerFactory.newTransformer();
 			localTransformer.transform(localDOMSource, localStreamResult);
 			return localStringWriter.toString();
 		} catch (Exception localException) {
@@ -354,6 +340,21 @@ public class XmlUtils {
 	public static final FileFilter getXmlFileExtFilter() {
 		return xmlFileExtFilter;
 	}
+	
+	public static void main(String[] args) {
+		try {
+			Document document = load("content.xml");
+			Element element   = document.getDocumentElement();
+			//Element notice = createChild(document,element,"notice");
+			Element notice = getChildByName(element, "notice");
+			notice.setAttribute("text","我靠哦啊哦啊");
+			save("content.xml",document);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+	}
+	
 }
  
  
