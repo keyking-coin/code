@@ -157,14 +157,27 @@ public class SearchCondition implements Instances{
 			}
 		}
 		if (!seller.equals("null")){
-			String name = CTRL.search(deal.getUid()).getNikeName();
-			if (!seller.equals(name)){
-				return false;
+			if (deal.getSellFlag() == 0){//求购贴
+				if (!deal.checkBuyerName(seller)){
+					return false;
+				}
+			}else{//出售帖
+				String name = CTRL.search(deal.getUid()).getNikeName();
+				if (!seller.equals(name)){
+					return false;
+				}
 			}
 		}
 		if (!buyer.equals("null")){
-			if (!deal.checkBuyerName(buyer)){
-				return false;
+			if (deal.getSellFlag() == 1){//出售帖
+				if (!deal.checkBuyerName(buyer)){
+					return false;
+				}
+			}else{//求购贴
+				String name = CTRL.search(deal.getUid()).getNikeName();
+				if (!buyer.equals(name)){
+					return false;
+				}
 			}
 		}
 		//有效时间发帖时间

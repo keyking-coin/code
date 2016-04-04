@@ -324,10 +324,7 @@ public class DealOrder extends EntitySaver implements Comparable<DealOrder>{
 		if (!Appraise()){
 			return false;
 		}
-		if ((helpFlag == 0 && state == ORDER_FINISH_NORMAL) || (helpFlag == 1 && state == ORDER_FINISH_HELP)){
-			return true;
-		}
-		return false;
+		return true;
 	}
 	
 	public boolean checkSeller(Deal deal, long uid) {

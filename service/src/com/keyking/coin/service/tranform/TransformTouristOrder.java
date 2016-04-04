@@ -11,7 +11,12 @@ import com.keyking.coin.util.TimeUtils;
 public class TransformTouristOrder implements Comparable<TransformTouristOrder>,SerializeEntity{
 	long dealId;
 	long orderId;
-	String des;
+	String type;
+	String name;
+	String bourse;
+	float price;
+	int num;
+	String monad;
 	String time;
 	
 	public TransformTouristOrder(){
@@ -22,23 +27,15 @@ public class TransformTouristOrder implements Comparable<TransformTouristOrder>,
 		dealId = deal.getId();
 		orderId = order.getId();
 		String[] ss = deal.getBourse().split(",");
-		StringBuffer sb = new StringBuffer();
-		sb.append(ss[1]);
-		sb.append("<span style='color: #CC3366'>");
-		sb.append(deal.getType() == 0 ? "(入库)" : "(现货)");
-		sb.append("</span>");
-		sb.append("<span style='color: #6699CC'>");
-		sb.append(deal.getName());
-		sb.append("</span>");
-		sb.append(order.getPrice() + "元");
-		sb.append("成交");
-		sb.append("<span style='color: #009933'>");
-		sb.append(order.getNum());
-		sb.append("</span>");
-		sb.append(deal.getMonad());
-		des = sb.toString();
+		bourse = ss[1];
+		type = deal.getType() == 0 ? "入库" : "现货";
+		name = deal.getName();
+		price = order.getPrice();
+		num = order.getNum();
+		monad = deal.getMonad();
 		time = order.getTimes().get(0);
 	}
+	
 	public long getDealId() {
 		return dealId;
 	}
@@ -55,12 +52,52 @@ public class TransformTouristOrder implements Comparable<TransformTouristOrder>,
 		this.orderId = orderId;
 	}
 	
-	public String getDes() {
-		return des;
+	public String getType() {
+		return type;
 	}
-	
-	public void setDes(String des) {
-		this.des = des;
+
+	public void setType(String type) {
+		this.type = type;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public String getBourse() {
+		return bourse;
+	}
+
+	public void setBourse(String bourse) {
+		this.bourse = bourse;
+	}
+
+	public float getPrice() {
+		return price;
+	}
+
+	public void setPrice(float price) {
+		this.price = price;
+	}
+
+	public int getNum() {
+		return num;
+	}
+
+	public void setNum(int num) {
+		this.num = num;
+	}
+
+	public String getMonad() {
+		return monad;
+	}
+
+	public void setMonad(String monad) {
+		this.monad = monad;
 	}
 
 	public String getTime() {
@@ -83,7 +120,6 @@ public class TransformTouristOrder implements Comparable<TransformTouristOrder>,
 
 	@Override
 	public void serialize(DataBuffer out) {
-		// TODO Auto-generated method stub
 		
 	}
 }

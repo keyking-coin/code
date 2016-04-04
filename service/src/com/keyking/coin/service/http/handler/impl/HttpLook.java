@@ -32,7 +32,8 @@ public class HttpLook extends HttpHandler {
 			data.setNikeName(user.getNikeName());
 			data.setSignature(look ? user.getSignature() : "仅对交易方可见");
 			data.setTitle(user.getTitle());
-			data.setRegistTime(user.getRegistTime());
+			String[] ss = user.getRegistTime().split(" ");
+			data.setRegistTime(ss[0]);
 			data.setTel(look ? user.getAccount() : "仅对交易方可见");
 			data.setName(look ? user.getName() : "仅对交易方可见");
 			if (look){

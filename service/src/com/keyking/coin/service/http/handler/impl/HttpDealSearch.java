@@ -32,7 +32,7 @@ public class HttpDealSearch extends HttpHandler {
 		//null、xxx ---> 藏品名称不限 、输入的的藏品名称
 		String title   = request.getParameter("title");
 		//null、xxx ---> 成交盘中出售人名字是：不限、输入名称
-		String seller  = request.getParameter("title");
+		String seller  = request.getParameter("seller");
 		//null、xxx ---> 成交盘中购买人名字是：不限、输入名称
 		String buyer   = request.getParameter("buyer");
 		//null、xxx ---> 不限有效期、其他选择的字符串(到目前无效，到目前有效)
