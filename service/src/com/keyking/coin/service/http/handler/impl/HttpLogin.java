@@ -9,6 +9,7 @@ import com.keyking.coin.service.http.request.HttpRequestMessage;
 import com.keyking.coin.service.http.response.HttpResponseMessage;
 import com.keyking.coin.service.tranform.TransformUserData;
 import com.keyking.coin.util.JsonUtil;
+import com.keyking.coin.util.ServerLog;
 
 public class HttpLogin extends HttpHandler {
 	//http://139.196.30.53:32104/HttpLogin?account=13856094894&pwd=123456789
@@ -19,7 +20,6 @@ public class HttpLogin extends HttpHandler {
 		String account = request.getParameter("account");  
 		String pwd     = request.getParameter("pwd");
         UserCharacter user = CTRL.search(account);
-        
 		if (user != null){
 			if (user.getPwd().equals(pwd)){
 				Map<String,Object> datas = new HashMap<String,Object>();
@@ -28,6 +28,7 @@ public class HttpLogin extends HttpHandler {
 				datas.put("datas",http_user);
 				String str = JsonUtil.ObjectToJsonString(datas);
 				response.appendBody(formatJosn(request,str));
+				ServerLog.info(account + " login");
 			}else{
 				message(request,response,"密码错误");
 			}

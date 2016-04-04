@@ -9,6 +9,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import com.keyking.coin.service.Service;
+import com.keyking.coin.service.domain.Controler;
 import com.keyking.coin.util.ServerLog;
 
 public class Terminal {
@@ -49,6 +50,8 @@ public class Terminal {
 				case "exit":
 					writer.println("exit console system");
 					writer.flush();
+					writer.close();
+					reader.close();
 					return true;
 				case "close":
 					if (cmds.length < 1){
@@ -66,6 +69,21 @@ public class Terminal {
 			        },time*1000);
 			        writer.println("server will be closed in " + time + " second");
 			        writer.flush();
+					break;
+				case "save":
+					Controler.getInstance().save();
+					writer.println("save ok");
+					writer.flush();
+					break;
+				case "insert":
+					if (cmds.length < 3){
+						writer.println("please input tel number and nikeName");
+						writer.flush();
+						return false;
+					}
+					String result = Controler.getInstance().insertUser(cmds[1],cmds[2]);
+					writer.println(result);
+					writer.flush();
 					break;
 				default:
 					writer.println("invalid cmd");

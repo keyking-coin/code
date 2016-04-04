@@ -4,6 +4,7 @@ import com.keyking.coin.service.domain.user.UserCharacter;
 import com.keyking.coin.service.http.handler.HttpHandler;
 import com.keyking.coin.service.http.request.HttpRequestMessage;
 import com.keyking.coin.service.http.response.HttpResponseMessage;
+import com.keyking.coin.util.ServerLog;
 import com.keyking.coin.util.StringUtil;
 import com.keyking.coin.util.TimeUtils;
 
@@ -43,6 +44,7 @@ public class HttpRegist extends HttpHandler {
 			user.setRegistTime(registTime);
 			CTRL.register(user);
 			message(request,response,"ok");
+			ServerLog.info(account + " regist at " + registTime);
 		}else{
 			message(request,response,result);
 		}

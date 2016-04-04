@@ -15,12 +15,10 @@ public class ConsoleService {
 				@Override
 				public void run() {
 					try {
-						Terminal terminal = new Terminal();
 						while (true){
 							Socket socket = server.accept();
-							if (terminal.logic(socket)){
-								socket.shutdownInput();
-							}
+							Terminal terminal = new Terminal();
+							terminal.logic(socket);
 						}
 					} catch (Exception e) {
 						//e.printStackTrace();

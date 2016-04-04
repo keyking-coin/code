@@ -30,11 +30,11 @@ public class HttpLook extends HttpHandler {
 			TransformLookData data = new TransformLookData();
 			data.setFace(user.getFace());
 			data.setNikeName(user.getNikeName());
-			data.setSignature(look ? user.getSignature() : "保密");
+			data.setSignature(look ? user.getSignature() : "仅对交易方可见");
 			data.setTitle(user.getTitle());
 			data.setRegistTime(user.getRegistTime());
-			data.setTel(look ? user.getAccount() : "保密");
-			data.setName(look ? user.getName() : "保密");
+			data.setTel(look ? user.getAccount() : "仅对交易方可见");
+			data.setName(look ? user.getName() : "仅对交易方可见");
 			if (look){
 				data.getAddresses().addAll(user.getAddresses());
 			}

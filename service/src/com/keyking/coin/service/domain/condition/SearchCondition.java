@@ -18,6 +18,15 @@ public class SearchCondition implements Instances{
 	boolean dealing = false;//正在交易，未到评分这一步的。
 	boolean confirming = false;//已经完成收货确认，但没有互评的（这一步未完成也应该释放信用额度）
 	boolean over = false;//已经完成评分的，包括交割失败的
+	public static final String[] OTHER_BOURSE_NAMES = {
+		"南京文交所","中南文交所","渤商收藏品",
+		"南方钱币邮票","上海邮币卡","湖北华中",
+		"北文中心", "中艺邮币卡","汉唐邮币卡",
+		"华夏文交所","上文申江","东北商品",
+		"乾元文交所","安贵艺术品","北京邮票"
+	};
+	
+	public static final String[] OTHER_CITY_NAMES = {"北京","上海","广州"};
 	
 	public String getType() {
 		return type;
@@ -120,12 +129,30 @@ public class SearchCondition implements Instances{
 		}
 		if (!bourse.equals("null") && !bourse.equals("全部文交所")){
 			String[] ss = deal.getBourse().split(",");
-			if (!bourse.equals(ss[1])){
-				return false;
+			if (deal.getType() == 0 && type.equals("入库")){
+				if (bourse.equals("其他文交所")){
+					for (int i = 0; i < OTHER_BOURSE_NAMES.length ; i++){
+						if (ss[1].equals(OTHER_BOURSE_NAMES[i])){
+							return false;
+						}
+					}
+				}else if (!ss[1].contains(bourse)){
+					return false;
+				}
+			}else{
+				if (bourse.equals("其他城市")){
+					for (int i = 0; i < OTHER_CITY_NAMES.length ; i++){
+						if (ss[1].equals(OTHER_BOURSE_NAMES[i])){
+							return false;
+						}
+					}
+				}else if (!ss[1].contains(bourse)){
+					return false;
+				}
 			}
 		}
 		if (!title.equals("null")){
-			if (!title.equals(deal.getName())){
+			if (!deal.getName().contains(title)){
 				return false;
 			}
 		}

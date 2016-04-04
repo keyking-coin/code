@@ -638,6 +638,7 @@ public class UserCharacter extends EntitySaver{
 			accounts.clear();
 			accounts.addAll(userData.getBanks());
 		}
+		needSave = true;
 	}
 }
  

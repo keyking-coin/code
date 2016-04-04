@@ -47,7 +47,12 @@ public class HttpRequestMessage {
 	public String[] getHeader(String name) {
 		return headers.get(name);
 	}
-
+	
+	public String getPostValue() {
+		String[] param = headers.get("$value");
+		return param == null ? "" : param[0];
+	}
+	
 	@Override
 	public String toString() {
 		StringBuilder str = new StringBuilder();

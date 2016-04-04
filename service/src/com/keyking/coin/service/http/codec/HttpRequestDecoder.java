@@ -147,27 +147,17 @@ public class HttpRequestDecoder extends MessageDecoderAdapter {
 			map.put("Method", new String[] { url[0].toUpperCase() });
 			map.put("Context", new String[] { url[1].substring(1) });
 			map.put("Protocol", new String[] { url[2] });
-			// Read header
+			//Read header
 			while ((line = rdr.readLine()) != null && line.length() > 0) {
 				String[] tokens = line.split(": ");
 				map.put(tokens[0], new String[] { tokens[1] });
 			}
-
-			// If method 'POST' then read Content-Length worth of data
-			if (url[0].equalsIgnoreCase("POST")) {
-				int len = Integer.parseInt(map.get("Content-Length")[0]);
-				char[] buf = new char[len];
-				if (rdr.read(buf) == len) {
-					line = String.copyValueOf(buf);
-				}
-			} else if (url[0].equalsIgnoreCase("GET")) {
-				int idx = url[1].indexOf('?');
-				if (idx != -1) {
-					map.put("Context",new String[] { url[1].substring(1, idx) });
-					line = url[1].substring(idx + 1);
-				} else {
-					line = null;
-				}
+			int idx = url[1].indexOf('?');
+			if (idx != -1) {
+				map.put("Context",new String[] { url[1].substring(1, idx) });
+				line = url[1].substring(idx + 1);
+			} else {
+				line = null;
 			}
 			if (line != null) {
 				String[] match = line.split("\\&");
@@ -198,6 +188,19 @@ public class HttpRequestDecoder extends MessageDecoderAdapter {
 					}
 				}
 			}
+			if (url[0].equalsIgnoreCase("POST")) {
+				char[] buf = new char[1024];
+				int blen = 0;
+				StringBuffer sb = new StringBuffer();
+				while((blen = rdr.read(buf)) > 0){
+					for (int i = 0 ; i < blen ; i++){
+						sb.append(buf[i]);
+					}
+				}
+				String[] params = new String[1];
+				params[0] = sb.toString();
+				map.put("$value", params);
+			} 
 		} catch (IOException ex) {
 			ex.printStackTrace();
 		}

@@ -24,8 +24,6 @@ public class HttpDealSearch extends HttpHandler {
 		response.setContentType("text/plain");
 		response.setResponseCode(HttpResponseMessage.HTTP_STATUS_SUCCESS);
 		//null就是查询最近7天交易记录，默认点击交易区就传null，其他值都标示是条件查询
-		//String uid_str  = request.getParameter("uid");
-		//long uid = Long.parseLong(uid_str);
 		String search  = request.getParameter("search");
 		//null、入库、现货 ---> 全部类型的 、入库类型、现货类型
 		String type    = request.getParameter("type");
@@ -40,7 +38,6 @@ public class HttpDealSearch extends HttpHandler {
 		//null、xxx ---> 不限有效期、其他选择的字符串(到目前无效，到目前有效)
 		String valid   = request.getParameter("valid");
 		List<Deal> deals = null;
-		//UserCharacter user = CTRL.search(uid);
 		if (search != null && search.equals("null")){//普通查询7天内的所有的帖子
 			deals = CTRL.getWeekDeals();
 		}else{

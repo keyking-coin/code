@@ -21,6 +21,7 @@ public class EmailRow implements RowMapper<Email> {
 		email.setTheme(rs.getString("theme"));
 		email.setTime(rs.getString("time"));
 		email.setContent(rs.getString("content"));
+		email.setNeedSave(false);
 		return email;
 	}
 

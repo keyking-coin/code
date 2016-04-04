@@ -13,6 +13,7 @@ public class FriendRow implements RowMapper<Friend> {
 	@Override
 	public Friend mapRow(ResultSet rs, int arg1) throws SQLException {
 		Friend friend = new Friend();
+		friend.setNeedSave(false);
 		friend.setUid(rs.getLong("uid"));
 		friend.setFid(rs.getLong("fid"));
 		Timestamp ts = rs.getTimestamp("time");

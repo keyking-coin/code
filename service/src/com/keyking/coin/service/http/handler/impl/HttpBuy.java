@@ -48,6 +48,12 @@ public class HttpBuy extends HttpHandler {
 		deal.setPrice(price);
 		deal.setNum(num);
 		deal.setMonad(monad);
+		try {
+			TimeUtils.getTime(validTime);
+		} catch (Exception e) {
+			message(request,response,"时间格式不对");
+			return;
+		}
 		deal.setValidTime(validTime);
 		deal.setCreateTime(createTime);
 		if (!StringUtil.isNull(other)){

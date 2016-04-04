@@ -13,6 +13,7 @@ public class RevertRow implements RowMapper<Revert> {
 	@Override
 	public Revert mapRow(ResultSet rs, int i) throws SQLException {
 		Revert revert = new Revert();
+		revert.setNeedSave(false);
 		revert.setId(rs.getLong("id"));
 		revert.setDependentId(rs.getLong("dependentId"));
 		revert.setUid(rs.getLong("uid"));

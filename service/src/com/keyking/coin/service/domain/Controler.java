@@ -3,6 +3,7 @@ package com.keyking.coin.service.domain;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -43,11 +44,14 @@ public class Controler implements Instances{
 		List<Deal> lis = DB.getDealDao().loadAll();
 		for (Deal deal : lis){
 			deal.read();
+			deal.setNeedSave(false);
 			deals.add(deal);
 		}
 		ServerLog.info("load all users");
 		List<UserCharacter> users = DB.getUserDao().loadAll();
 		for (UserCharacter user : users){
+			user.load();
+			user.setNeedSave(false);
 			characters.put(user.getAccount(),user);
 		}
 	}
@@ -120,15 +124,23 @@ public class Controler implements Instances{
 	
 	public String checkHttpAccout(String account,String nickName){
 		for (UserCharacter user : characters.values()){
-			if (account != null && user.getAccount().equals(account)){
-				return account + "已被注册";
+			if (account != null){
+				if (user.getAccount().equals(account)){
+					return account + "已被注册";
+				}else if(account.length() < 11){
+					return account + "少于11位";
+				}
 			}
 			if (nickName != null && user.getNikeName().equals(nickName)){
 				return nickName + "已被使用";
 			}
 		}
-		if (account != null &&  DB.getUserDao().search(account) != null){
-			return account + "已被注册";
+		if (account != null){
+			if (DB.getUserDao().search(account) != null){
+				return account + "已被注册";
+			}else if(account.length() < 11){
+				return account + "少于11位";
+			}
 		}
 		if (nickName != null && DB.getUserDao().checkNikeName(nickName) != null){
 			return nickName + "已被使用";
@@ -352,15 +364,24 @@ public class Controler implements Instances{
 					if (TimeUtils.isSameDay(time,otime)){
 						orders.add(new TransformTouristOrder(deal,order));
 					}
-					if (orders.size() >= 20){
-						break;
-					}
-				}
-				if (orders.size() >= 20){
-					break;
 				}
 			}
 			count ++;
+			if (orders.size() >= 20){
+				break;
+			}
+		}
+		Collections.sort(orders);
+		if (count > 1){
+			count = 0;
+			Iterator<TransformTouristOrder> iter = orders.iterator();
+			while (iter.hasNext()){
+				iter.next();
+				if (count >= 20){
+					iter.remove();
+				}
+				count++;
+			}
 		}
 		return orders;
 	}
@@ -405,9 +426,17 @@ public class Controler implements Instances{
 	public int computeOkOrderNum(long id) {
 		int count = 0 ;
 		for (Deal deal : deals){
-			for (DealOrder order : deal.getOrders()){
-				if (order.over()){
-					count++;
+			if (deal.getUid() == id){
+				for (DealOrder order : deal.getOrders()){
+					if (order.over()){
+						count++;
+					}
+				}
+			}else{
+				for (DealOrder order : deal.getOrders()){
+					if (order.getBuyId() == id && order.over()){
+						count++;
+					}
 				}
 			}
 		}
@@ -454,8 +483,18 @@ public class Controler implements Instances{
 		return result;
 	}
 
-	public void tryToDelDeal(Deal deal) {
-		
+	public String insertUser(String num,String nikeName) {
+		String result = CTRL.checkHttpAccout(num,nikeName);
+		if (result == null){
+			UserCharacter user = new UserCharacter();
+			user.setAccount(num);
+			user.setPwd("123456789");
+			user.setNikeName(nikeName);
+			user.setRegistTime(TimeUtils.nowChStr());
+			CTRL.register(user);
+			return "ok";
+		}
+		return result;
 	}
 }
  

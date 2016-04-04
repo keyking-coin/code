@@ -13,6 +13,7 @@ public class DealRow implements RowMapper<Deal> {
 	@Override
 	public Deal mapRow(ResultSet rs, int i) throws SQLException {
 		Deal deal = new Deal();
+		deal.setNeedSave(false);
 		deal.setId(rs.getLong("id"));
 		deal.setUid(rs.getLong("uid"));
 		deal.setSellFlag(rs.getByte("sellFlag"));

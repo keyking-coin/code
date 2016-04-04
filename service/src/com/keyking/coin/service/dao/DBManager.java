@@ -9,6 +9,7 @@ import com.keyking.coin.service.dao.impl.DealOrderDAO;
 import com.keyking.coin.service.dao.impl.EmailDAO;
 import com.keyking.coin.service.dao.impl.FriendDAO;
 import com.keyking.coin.service.dao.impl.MessageDAO;
+import com.keyking.coin.service.dao.impl.OtherDAO;
 import com.keyking.coin.service.dao.impl.RevertDAO;
 import com.keyking.coin.service.dao.impl.TimeLineDAO;
 import com.keyking.coin.service.dao.impl.UserDAO;
@@ -41,6 +42,8 @@ public class DBManager {
 	
 	MessageDAO messageDao = null;
 	
+	OtherDAO otherDao = null;
+	
 	public void init() {
 		context         = new FileSystemXmlApplicationContext("conf/DB.xml");
 		userDao         = (UserDAO)context.getBean("userDao");
@@ -52,6 +55,7 @@ public class DBManager {
 		timeDao         = (TimeLineDAO)context.getBean("timeDao");
 		friendDao       = (FriendDAO)context.getBean("friendDao");
 		messageDao      = (MessageDAO)context.getBean("messageDao");
+		otherDao      = (OtherDAO)context.getBean("otherDao");
 	}
 	
 	public UserDAO getUserDao() {
@@ -88,6 +92,10 @@ public class DBManager {
 
 	public MessageDAO getMessageDao() {
 		return messageDao;
+	}
+
+	public OtherDAO getOtherDao() {
+		return otherDao;
 	}
 }
  

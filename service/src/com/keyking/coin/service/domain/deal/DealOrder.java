@@ -203,9 +203,9 @@ public class DealOrder extends EntitySaver implements Comparable<DealOrder>{
 		DateTime time1 = TimeUtils.getTime(times.get(0));
 		DateTime time2 = TimeUtils.getTime(o.times.get(0));
 		if (time1.isBefore(time2)){
-			return -1;
-		}else{
 			return 1;
+		}else{
+			return 0;
 		}
 	}
 
