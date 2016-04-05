@@ -63,6 +63,7 @@ public class HttpAppraise extends HttpHandler {
 							UserCharacter other = CTRL.search(uid == deal.getUid() ? order.getBuyId() : deal.getUid());
 							if (other != null) {
 								other.getCredit().addNum(star);
+								other.setNeedSave(true);
 							}
 							Map<String,Object> datas = new HashMap<String,Object>();
 							TransformOrderData hd = new TransformOrderData();

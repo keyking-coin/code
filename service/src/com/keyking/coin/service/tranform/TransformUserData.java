@@ -55,7 +55,7 @@ public class TransformUserData implements Instances,SerializeEntity{
 		push = user.getPush();
 		signature = user.getSignature();
 		banks.addAll(user.getBankAccount().getAccounts());
-		credit = user.getCredit();
+		credit.copy(user.getCredit());
 		breach = user.getBreach();
 		seller = user.getSeller();
 		perission = user.getPermission();

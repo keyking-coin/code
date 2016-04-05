@@ -6,42 +6,53 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context="com.keyking.admin.AdminLogin" >
-
+    tools:context="com.keyking.admin.frame.AdminLogin" >
     <EditText
-        android:id="@+id/editText2"
+        android:id="@+id/login_account"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/editText1"
-        android:layout_centerVertical="true"
-        android:ems="10"
-        android:inputType="textPassword" />
-
-    <EditText
-        android:id="@+id/editText1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_above="@+id/editText2"
+        android:layout_above="@+id/login_pwd"
+        android:layout_centerHorizontal="true"
         android:layout_marginBottom="30dp"
-        android:layout_toRightOf="@+id/button1"
-        android:ems="10" />
+        android:ems="10"
+        android:hint="请输入账号" />
 
-    <Button
-        android:id="@+id/button1"
+    <ImageView
+        android:id="@+id/image_account"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignBottom="@+id/editText1"
-        android:layout_alignParentLeft="true"
-        android:layout_alignTop="@+id/editText1"
-        android:text="账号" />
+        android:layout_alignBottom="@+id/login_account"
+        android:layout_toLeftOf="@+id/login_pwd"
+        android:src="@drawable/account" />
 
-    <Button
-        android:id="@+id/Button01"
+    <ImageView
+        android:id="@+id/image_pwd"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignBottom="@+id/editText2"
-        android:layout_below="@+id/editText1"
-        android:layout_toLeftOf="@+id/editText2"
-        android:text="密码" />
+        android:layout_alignBottom="@+id/login_pwd"
+        android:layout_toLeftOf="@+id/login_pwd"
+        android:src="@drawable/pwd" />
+
+    <EditText
+        android:id="@+id/login_pwd"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/login_action"
+        android:layout_alignLeft="@+id/login_action"
+        android:layout_marginBottom="14dp"
+        android:ems="10"
+        android:hint="请输入密码"
+        android:inputType="textPassword" >
+
+        <requestFocus />
+    </EditText>
+
+    <Button
+        android:id="@+id/login_action"
+        android:layout_width="200dp"
+        android:layout_height="40dp"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        android:text="登  录" />
 
 </RelativeLayout>
