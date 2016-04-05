@@ -11,7 +11,7 @@ import com.keyking.coin.util.StringUtil;
 import com.keyking.coin.util.TimeUtils;
 
 public class HttpBuy extends HttpHandler {
-	//http://1270.0.1:32104/HttpBuy?uid=x&pwd=x&st=x&type=x&bourse=x&title=x&price=x&num=x&monad=x&valid=x&other=x&help=x
+	//http://127.0.0.1:32104/HttpBuy?uid=x&pwd=x&st=x&type=x&bourse=x&title=x&price=x&num=x&monad=x&valid=x&other=x&help=x
 	@Override
 	public void handle(HttpRequestMessage request, HttpResponseMessage response) {
 		response.setContentType("text/plain");

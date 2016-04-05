@@ -42,9 +42,7 @@ public class HttpLook extends HttpHandler {
 			if (look){
 				data.getBanks().addAll(user.getBankAccount().getAccounts());
 			}
-			if (look){
-				data.getCredit().copy(user.getCredit());
-			}
+			data.getCredit().copy(user.getCredit());
 			response.appendBody(formatJosn(request,JsonUtil.ObjectToJsonString(data)));
 		}else{
 			message(request, response,"找不到用户");
