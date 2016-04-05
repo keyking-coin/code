@@ -19,7 +19,9 @@ public class AdminSellerOpration extends AbstractLogic {
 		if (user != null){
 			if (type == 0){
 				user.getPermission().setType(PermissionType.seller);
-				user.setTitle("普通营销员");
+				if (user.getTitle().equals("买家会员")){
+					user.setTitle("普通营销员");
+				}
 				Seller seller = user.getSeller();
 				if (seller != null){
 					seller.setPass(true);
