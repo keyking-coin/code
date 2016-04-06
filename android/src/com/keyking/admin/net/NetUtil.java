@@ -1,6 +1,7 @@
 package com.keyking.admin.net;
 
 import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Executors;
@@ -13,8 +14,8 @@ import org.apache.mina.core.future.IoFutureListener;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.codec.ProtocolCodecFilter;
 import org.apache.mina.transport.socket.nio.NioSocketConnector;
-
-import android.util.Log;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.keyking.admin.net.codec.MessageCodecFactory;
 import com.keyking.admin.net.handler.NetConnectHandler;
@@ -22,13 +23,15 @@ import com.keyking.admin.net.request.Request;
 import com.keyking.admin.net.resp.ResultCallBack;
 
 public class NetUtil {
-	static final String CONNECT_URL = "139.196.30.53";
-	static final int CONNECT_PORT = 32105;
+	static final String CONNECT_URL = "keyking-ty.xicp.net";
+	static final int CONNECT_PORT = 12213;
+	//static final String CONNECT_URL = "139.196.30.53";
+	//static final int CONNECT_PORT = 32105;
 	private static NetUtil instance = null;
 	NioSocketConnector connector;
-	Object lock = new Object();
 	IoSession writer = null;
 	Map<String,ResultCallBack> callBacks = new HashMap<String,ResultCallBack>();
+	private static final Logger logger = LoggerFactory.getLogger(NetUtil.class); 
 	
 	public static NetUtil getInstance(){
 		if (instance == null){
@@ -42,8 +45,8 @@ public class NetUtil {
 		connector = new NioSocketConnector();
 		connector.setConnectTimeoutMillis(30000L);
 		connector.setHandler(new NetConnectHandler());
+		//connector.getFilterChain().addLast("logger", new LoggingFilter());
 		connector.getFilterChain().addLast("byte",new ProtocolCodecFilter(new MessageCodecFactory()));
-		//connector.getFilterChain().addLast("threadPool",new ExecutorFilter(configureExecutorService()));
 		ScheduledExecutorService service = Executors.newScheduledThreadPool(1);
 		service.scheduleAtFixedRate(new Runnable() {
 			@Override
@@ -51,8 +54,9 @@ public class NetUtil {
 				if (writer != null && writer.isConnected()){
 					return;
 				}
-				//Log.i("NET","try to connect " + CONNECT_URL + ":" + CONNECT_PORT);
-				ConnectFuture future = connector.connect(new InetSocketAddress(CONNECT_URL,CONNECT_PORT));
+				logger.info("try to connect " + CONNECT_URL + ":" + CONNECT_PORT);
+				SocketAddress address = new InetSocketAddress(CONNECT_URL,CONNECT_PORT);
+				ConnectFuture future = connector.connect(address);
 				future.addListener(new IoFutureListener<IoFuture>() {
 					@Override
 					public void operationComplete(IoFuture arg0) {
@@ -65,10 +69,13 @@ public class NetUtil {
 		},0L,10,TimeUnit.SECONDS);
 	}
 	
-	public boolean send(Request request){
+	public boolean send(Request request,ResultCallBack callBack){
 		if (writer == null || !writer.isConnected()){
-			Log.e("NET","send error because the connect is out of line!");
+			logger.info("send error because the connect is out of line!");
 			return false;
+		}
+		if (callBack != null){
+			callBacks.put(request.getLogicName(),callBack);
 		}
 		writer.write(request);
 		return true;

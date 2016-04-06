@@ -24,9 +24,16 @@ public class BaseActiivity extends Activity {
 		.show();  
 	}
 	
-	public void showLoading(Activity activity,String title){
+	public static void showLoading(Activity activity,String title){
 		if (loading == null){
-			loading = ProgressDialog.show(activity,title,"通讯中,请稍候...",true,false); 
+			loading = ProgressDialog.show(activity,title,"通讯中,请稍候...",true,true); 
+		}
+	}
+	
+	public static void dispearLoading(){
+		if (loading != null){
+			loading.hide();
+			loading = null;
 		}
 	}
 }

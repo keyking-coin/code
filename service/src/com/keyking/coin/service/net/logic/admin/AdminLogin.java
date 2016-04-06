@@ -32,7 +32,7 @@ public class AdminLogin extends AbstractLogic {
 		if (user != null){
 			if (user.getPermission().admin()){
 				String saveKey = user.getSessionAddress();
-				if (saveKey != null){
+				if (saveKey != null && !saveKey.equals(session.getRemoteAddress().toString())){
 					IoSession save = NET.search(saveKey);
 					if (save != null){
 						save.write(new MustLoginAgain());

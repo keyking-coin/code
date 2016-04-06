@@ -348,6 +348,9 @@ public class Controler implements Instances{
 		DateTime time = TimeUtils.now();
 		for (Deal deal : deals){
 			for (DealOrder order : deal.getOrders()){
+				if (order.checkRevoke()){
+					continue;
+				}
 				DateTime otime = TimeUtils.getTime(order.getTimes().get(0));
 				if (TimeUtils.isSameDay(time,otime)){
 					orders.add(new TransformTouristOrder(deal,order));
@@ -360,6 +363,9 @@ public class Controler implements Instances{
 			time = TimeUtils.getTime(pre);
 			for (Deal deal : deals){
 				for (DealOrder order : deal.getOrders()){
+					if (order.checkRevoke()){
+						continue;
+					}
 					DateTime otime = TimeUtils.getTime(order.getTimes().get(0));
 					if (TimeUtils.isSameDay(time,otime)){
 						orders.add(new TransformTouristOrder(deal,order));

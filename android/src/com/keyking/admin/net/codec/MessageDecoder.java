@@ -10,16 +10,16 @@ import com.keyking.admin.net.DataBuffer;
 public class MessageDecoder extends CumulativeProtocolDecoder {
 
 	@Override
-	protected boolean doDecode(IoSession arg0, IoBuffer arg1,ProtocolDecoderOutput arg2) throws Exception {
-		int len = arg1.getInt();
-		if (len != arg1.remaining()) {
-			arg1.position(arg1.position() + arg1.remaining());
+	protected boolean doDecode(IoSession session, IoBuffer buffer , ProtocolDecoderOutput out) throws Exception {
+		int len = buffer.getInt();
+		if (len != buffer.remaining()) {
+			buffer.position(buffer.position() + buffer.remaining());
 			return false;
 		}
 		byte[] datas = new byte[len];
-		arg1.get(datas);
+		buffer.get(datas);
 		DataBuffer data = DataBuffer.wrap(datas);
-		arg2.write(data);
+		out.write(data);
 		return true;
 	}
 

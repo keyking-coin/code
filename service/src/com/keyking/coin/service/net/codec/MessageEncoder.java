@@ -20,7 +20,8 @@ public class MessageEncoder extends ProtocolEncoderAdapter {
 		DataBuffer buffer = DataBuffer.allocate(1024);
 		entity.serialize(buffer);
 		byte[] datas = buffer.arrayToPosition();
-		out.write(IoBuffer.wrap(datas));
+		IoBuffer result = IoBuffer.wrap(datas);
+		out.write(result);
 	}
 }
  

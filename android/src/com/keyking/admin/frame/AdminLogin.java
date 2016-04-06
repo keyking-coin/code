@@ -26,8 +26,6 @@ public class AdminLogin extends BaseActiivity implements ResultCallBack{
 		button.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				//Toast tst = Toast.makeText(TestButtonActivity.this,"111111111", Toast.LENGTH_SHORT);
-				//tst.show();
 				String str_account = account.getText().toString();
 				if (StringUtil.isNull(str_account)){
 					showTips(AdminLogin.this,account.getHint().toString());
@@ -39,7 +37,9 @@ public class AdminLogin extends BaseActiivity implements ResultCallBack{
 					return;
 				}
 				Request request = new Request(NetLogicName.admin_login.getKey());
-				if (net.send(request)){
+				request.add(str_account);
+				request.add(str_pwd);
+				if (net.send(request,AdminLogin.this)){
 					showLoading(AdminLogin.this,"µÇÂ¼");
 				}
 			}
@@ -48,11 +48,19 @@ public class AdminLogin extends BaseActiivity implements ResultCallBack{
 
 	@Override
 	public void succ(DataBuffer data) {
-		
+		dispearLoading();
 	}
 
 	@Override
 	public void fail(DataBuffer data) {
-		
+		dispearLoading();
+		String tips = data.getUTF();
+		showTips(this,tips);
+	}
+
+	@Override
+	public void onBackPressed() {
+		//super.onBackPressed();
+		dispearLoading();
 	}
 }
