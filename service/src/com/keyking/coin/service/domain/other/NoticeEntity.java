@@ -4,6 +4,7 @@ public class NoticeEntity {
 	String time;
 	String title;
 	String body;
+	byte type;//0公告,1规则,2其他
 	
 	public String getTime() {
 		return time;
@@ -28,4 +29,14 @@ public class NoticeEntity {
 	public void setBody(String body) {
 		this.body = body;
 	}
+
+	public byte getType() {
+		return type;
+	}
+
+	public void setType(byte type) {
+		this.type = type;
+	}
+	
+	
 }

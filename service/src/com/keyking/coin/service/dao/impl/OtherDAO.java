@@ -19,13 +19,15 @@ public class OtherDAO extends JdbcDaoSupport {
 	
 	NoticeRow noticeRow = new NoticeRow();
 	
-	private static String INSERT_SQL_STR = "insert into notice (_time,title,body)values(?,?,?)";
+	private static String INSERT_SQL_STR = "insert into notice (_time,title,body,type)values(?,?,?,?)";
 	
-	private static String DELETE_SQL_STR = "delete from notice where time=?";
+	private static String DELETE_SQL_STR = "delete from notice where _time=?";
 	
 	private static String SELECT_SQL_STR_MORE = "select * from notice where _time>=? and _time<=?";
 	
-	public synchronized boolean insert(final NoticeEntity notice) {
+	private static String SAVE_SQL_STR = "update notice set title=?,body=?,type=? where _time=?";
+	
+	public boolean insert(final NoticeEntity notice) {
 		try {
 			getJdbcTemplate().update(new PreparedStatementCreator() {
 				@Override
@@ -45,7 +47,25 @@ public class OtherDAO extends JdbcDaoSupport {
 		}
 	}
 	
-	public synchronized boolean delete(String time){
+	public boolean update(NoticeEntity notice) {
+		try {
+			getJdbcTemplate().update(SAVE_SQL_STR,notice.getTitle(),notice.getBody(),notice.getTime());
+		} catch (DataAccessException e) {
+			ServerLog.error("save notice error",e);
+			return false;
+		}
+		return true;
+	}
+	
+	public boolean save(final NoticeEntity notice) {
+		if (check(notice.getTime())){
+			return update(notice);
+		}else{
+			return insert(notice);
+		}
+	}
+	
+	public boolean delete(String time){
 		try {
 			getJdbcTemplate().update(DELETE_SQL_STR,time);
 		} catch (DataAccessException e) {
@@ -65,5 +85,15 @@ public class OtherDAO extends JdbcDaoSupport {
 			//e.printStackTrace();
 		}
 		return times;
+	}
+	
+	public boolean check(String time) {
+		int num = 0;
+		try {
+			num = getJdbcTemplate().queryForInt("select count(*) from notice where _time=?",time);
+		} catch (Exception e) {
+			
+		}
+		return num > 0;
 	}
 }
