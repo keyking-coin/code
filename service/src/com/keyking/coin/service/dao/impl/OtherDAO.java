@@ -37,6 +37,7 @@ public class OtherDAO extends JdbcDaoSupport {
 					ps.setString(cursor++,notice.getTime());
 					ps.setString(cursor++,notice.getTitle());
 					ps.setString(cursor++,notice.getBody());
+					ps.setByte(cursor++,notice.getType());
 					return ps;
 				}
 			});
@@ -49,7 +50,7 @@ public class OtherDAO extends JdbcDaoSupport {
 	
 	public boolean update(NoticeEntity notice) {
 		try {
-			getJdbcTemplate().update(SAVE_SQL_STR,notice.getTitle(),notice.getBody(),notice.getTime());
+			getJdbcTemplate().update(SAVE_SQL_STR,notice.getTitle(),notice.getBody(),notice.getType(),notice.getTime());
 		} catch (DataAccessException e) {
 			ServerLog.error("save notice error",e);
 			return false;

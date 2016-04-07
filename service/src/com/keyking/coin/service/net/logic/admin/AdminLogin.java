@@ -44,11 +44,9 @@ public class AdminLogin extends AbstractLogic {
 				SearchCondition condition = new SearchCondition();
 				condition.setAgency(true);
 				List<TransformDealData> deals = getAgencys();
-				resp.addKey("deals");
-				resp.add(deals);
+				resp.addKey("deals",deals);
 				List<TransformUserData> sellers = CTRL.getSearchRZ();
-				resp.addKey("sellers");
-				resp.add(sellers);
+				resp.addKey("sellers",sellers);
 				ServerLog.info("admin<" + account + "> login at " + TimeUtils.nowChStr());
 			}else{
 				resp.setError(account + "不是管理员账号");

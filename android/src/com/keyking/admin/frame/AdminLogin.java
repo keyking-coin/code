@@ -19,7 +19,7 @@ public class AdminLogin extends BaseActiivity implements ResultCallBack{
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_admin_login);
+		setContentView(R.layout.admin_login);
 		account = (EditText) findViewById(R.id.login_account);
 		pwd = (EditText) findViewById(R.id.login_pwd);
 		Button button = (Button) findViewById(R.id.login_action);
@@ -60,7 +60,10 @@ public class AdminLogin extends BaseActiivity implements ResultCallBack{
 
 	@Override
 	public void onBackPressed() {
-		//super.onBackPressed();
-		dispearLoading();
+		if (loading != null && loading.isShowing()){
+			dispearLoading();
+		}else{
+			exit(this);
+		}
 	}
 }

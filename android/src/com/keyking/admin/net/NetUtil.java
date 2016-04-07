@@ -17,6 +17,9 @@ import org.apache.mina.transport.socket.nio.NioSocketConnector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import android.widget.Toast;
+
+import com.keyking.admin.frame.BaseActiivity;
 import com.keyking.admin.net.codec.MessageCodecFactory;
 import com.keyking.admin.net.handler.NetConnectHandler;
 import com.keyking.admin.net.request.Request;
@@ -45,7 +48,7 @@ public class NetUtil {
 		connector = new NioSocketConnector();
 		connector.setConnectTimeoutMillis(30000L);
 		connector.setHandler(new NetConnectHandler());
-		//connector.getFilterChain().addLast("logger", new LoggingFilter());
+		//connector.getSessionConfig().setReadBufferSize(1024*1024);
 		connector.getFilterChain().addLast("byte",new ProtocolCodecFilter(new MessageCodecFactory()));
 		ScheduledExecutorService service = Executors.newScheduledThreadPool(1);
 		service.scheduleAtFixedRate(new Runnable() {
@@ -62,6 +65,7 @@ public class NetUtil {
 					public void operationComplete(IoFuture arg0) {
 						if (arg0.isDone()){
 							writer = arg0.getSession();
+							Toast.makeText(BaseActiivity.base," connect service ok ",Toast.LENGTH_SHORT).show();
 						}
 					}
 				});

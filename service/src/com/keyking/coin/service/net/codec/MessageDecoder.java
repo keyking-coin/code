@@ -12,15 +12,16 @@ public class MessageDecoder extends CumulativeProtocolDecoder {
 	@Override
 	protected boolean doDecode(IoSession session, IoBuffer buffer , ProtocolDecoderOutput out) throws Exception {
 		int len = buffer.getInt();
-		if (len != buffer.remaining()) {
-			buffer.position(buffer.position() + buffer.remaining());
+		int remain = buffer.remaining();
+		if (len != remain) {
+			buffer.position(buffer.position() + remain);
 			return false;
 		}
 		byte[] datas = new byte[len];
 		buffer.get(datas);
 		DataBuffer data = DataBuffer.wrap(datas);
 		out.write(data);
-		return true;
+		return buffer.remaining() > 0;
 	}
 }
  

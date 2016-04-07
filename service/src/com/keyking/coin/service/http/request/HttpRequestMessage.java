@@ -30,7 +30,7 @@ public class HttpRequestMessage {
 	 */
 	public String getParameter(String name) {
 		String[] param = headers.get("@".concat(name));
-		return param == null ? "" : param[0];
+		return (param == null || param.length == 0) ? "" : param[0];
 	}
 
 	/**

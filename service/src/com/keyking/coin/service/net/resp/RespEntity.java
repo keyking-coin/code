@@ -29,7 +29,8 @@ public abstract class RespEntity {
 		}else{
 			_serialize_fail(buffer);
 		}
-		buffer.putInt(0,buffer.position()-4);
+		int len = buffer.position() - 4;
+		buffer.putInt(0,len);
 	}
 	
 	public abstract void _serialize_ok(DataBuffer buffer);
