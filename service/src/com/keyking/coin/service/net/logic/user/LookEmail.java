@@ -17,7 +17,7 @@ public class LookEmail extends AbstractLogic {
 		UserCharacter user = CTRL.search(uid);
 		if (user != null){
 			Email email = user.searchEmail(emailId);
-			email.setIsNew((byte)1);
+			email.setStatus((byte)1);
 			email.setNeedSave(true);
 			EmailModule module = new EmailModule();
 			module.add("email",email);

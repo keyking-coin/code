@@ -14,7 +14,6 @@ public class EmailRow implements RowMapper<Email> {
 		Email email = new Email();
 		email.setId(rs.getLong("id"));
 		email.setType(rs.getByte("type"));
-		email.setIsNew(rs.getByte("isNew"));
 		email.setUserId(rs.getLong("userId"));
 		email.setSenderId(rs.getLong("senderId"));
 		email.setStatus(rs.getByte("status"));

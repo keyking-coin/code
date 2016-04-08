@@ -10,7 +10,6 @@ import com.keyking.coin.util.TimeUtils;
 public class Email extends EntitySaver implements Comparable<Email>{
 	byte type = 1;//邮件类型 0系统邮件 1用户邮件
 	byte status;//状态 0新邮件 1已查看
-	byte isNew;//0新邮件，1查看过
 	long id;//邮件编号
 	long senderId;//发送者编号
 	long userId;//接受者编号
@@ -50,14 +49,6 @@ public class Email extends EntitySaver implements Comparable<Email>{
 		this.senderId = senderId;
 	}
 	
-	public byte getIsNew() {
-		return isNew;
-	}
-
-	public void setIsNew(byte isNew) {
-		this.isNew = isNew;
-	}
-
 	public long getUserId() {
 		return userId;
 	}
@@ -108,7 +99,6 @@ public class Email extends EntitySaver implements Comparable<Email>{
 		buffer.putUTF(content);
 		buffer.putUTF(sender.getNikeName());
 		buffer.putUTF(sender.getFace());
-		buffer.put(isNew);
 	}
 
 	@Override

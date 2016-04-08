@@ -18,9 +18,9 @@ public class EmailDAO extends JdbcDaoSupport {
 	
 	EmailRow row = new EmailRow();
 	
-	private static String INSERT_SQL_STR = "insert into email (id,type,status,senderId,userId,time,theme,content,isNew)values(?,?,?,?,?,?,?,?,?)";
+	private static String INSERT_SQL_STR = "insert into email (id,type,status,senderId,userId,time,theme,content)values(?,?,?,?,?,?,?,?)";
 	
-	private static String UPDATE_SQL_STR = "update email set status=?,isNew=? where id=?";
+	private static String UPDATE_SQL_STR = "update email set status=? where id=?";
 	
 	private static String DELETE_SQL_STR = "delete from email where id=?";
 	
@@ -43,7 +43,6 @@ public class EmailDAO extends JdbcDaoSupport {
 					ps.setString(cursor++,email.getTime());
 					ps.setString(cursor++,email.getTheme());
 					ps.setString(cursor++,email.getContent());
-					ps.setByte(cursor++,email.getIsNew());
 					return ps;
 				}
 			});
@@ -56,7 +55,7 @@ public class EmailDAO extends JdbcDaoSupport {
 	
 	private synchronized boolean update(Email email){
 		try {
-			getJdbcTemplate().update(UPDATE_SQL_STR,email.getStatus(),email.getIsNew(),email.getId());
+			getJdbcTemplate().update(UPDATE_SQL_STR,email.getStatus(),email.getId());
 		} catch (DataAccessException e) {
 			ServerLog.error("save email error",e);
 			return false;

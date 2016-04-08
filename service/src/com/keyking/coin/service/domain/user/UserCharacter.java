@@ -272,6 +272,15 @@ public class UserCharacter extends EntitySaver{
 		this.deposit = deposit;
 	}
 
+	
+	public List<Email> getEmails() {
+		return emails;
+	}
+
+	public void setEmails(List<Email> emails) {
+		this.emails = emails;
+	}
+
 	public void deserializeFavorites(String str){
 		if (StringUtil.isNull(str)){
 			return;
