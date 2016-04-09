@@ -18,7 +18,7 @@ import com.keyking.coin.util.StringUtil;
 import com.keyking.coin.util.TimeUtils;
 
 public class HttpDealSearch extends HttpHandler {
-	//http://127.0.0.1:32104/HttpDealSearch?search=1&type=入库
+	//http://127.0.0.1:32104/HttpDealSearch?search=null
 	@Override
 	public void handle(HttpRequestMessage request, HttpResponseMessage response) {
 		response.setContentType("text/plain");

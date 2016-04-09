@@ -1,7 +1,6 @@
 package com.keyking.coin.service.domain;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -236,42 +235,17 @@ public class Controler implements Instances{
 	}
 	
 	public List<Deal> getWeekDeals() {
+		DateTime now = TimeUtils.now();
+		int hour     = now.getHourOfDay();
+		int minue    = now.getMinuteOfHour();
+		int second   = now.getSecondOfMinute();
+		int off = hour * 3600 + minue * 60 + second;
+		long start = now.getMillis() - (7 * 24 * 3600 + off) * 1000;
+		//System.out.println(TimeUtils.formatYear(TimeUtils.getTime(start)));
 		List<Deal> result = new ArrayList<Deal>();
-		DateTime time = TimeUtils.now();
-		int year = time.getYear();
-		int month = time.getMonthOfYear();
-		int day = time.getDayOfMonth();
-		int preDay = day - 7;
-		int preMonth = month;
-		int preYear = year;
-		if (preDay < 1){
-			preMonth --;
-			if (preMonth <= 0){
-				preMonth = 12;
-				preYear --;
-			}
-			int maxDate = 0;
-			if (month == 3){
-				if ((year % 4 == 0 && year % 100 != 0) || year % 400 == 0){
-					maxDate = 29;
-				}else{
-					maxDate = 28;
-				}
-			}else{
-				Calendar cal = Calendar.getInstance();   
-				cal.set(Calendar.YEAR,year);   
-				cal.set(Calendar.MONTH,month);
-				cal.set(Calendar.DAY_OF_MONTH,1);//把日期设置为当月第一天  
-				cal.roll(Calendar.DAY_OF_MONTH,-1);//日期回滚一天，也就是最后一天  
-			    maxDate = cal.get(Calendar.DAY_OF_MONTH);  
-			}
-			preDay += maxDate;
-		}
-		String start = preYear + "-" + preMonth + "-" + preDay + " 00:00:00";
-		long startTime = TimeUtils.getTime(start).getMillis();
-		for (Deal deal : deals){//先看有效期
+		for (Deal deal : deals){
 			long dealTime = TimeUtils.getTime(deal.getCreateTime()).getMillis();
-			if (dealTime >= startTime){
+			if (dealTime >= start){
 				result.add(deal);
 			}
 		}
