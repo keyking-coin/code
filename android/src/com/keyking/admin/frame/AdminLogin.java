@@ -1,13 +1,22 @@
 package com.keyking.admin.frame;
 
+import java.util.List;
+import java.util.Map;
+
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
 
+import com.alibaba.fastjson.JSON;
+import com.keyking.admin.JsonUtil;
 import com.keyking.admin.R;
 import com.keyking.admin.StringUtil;
+import com.keyking.admin.data.DataManager;
+import com.keyking.admin.data.deal.Deal;
+import com.keyking.admin.data.user.UserData;
 import com.keyking.admin.net.DataBuffer;
 import com.keyking.admin.net.request.NetLogicName;
 import com.keyking.admin.net.request.Request;
@@ -46,8 +55,22 @@ public class AdminLogin extends BaseActiivity implements ResultCallBack{
 		});
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public void succ(DataBuffer data) {
+		String str = data.getUTF();
+		Map<String,Object> temp = (Map<String,Object>)JSON.parse(str);
+		Object obj = temp.get("user");
+		UserData user = JsonUtil.JsonToObject(obj.toString(),UserData.class);
+		DataManager.getInstance().setUser(user);
+		obj = temp.get("deals");
+		List<Deal> deals = JsonUtil.JsonToObjectList(obj.toString(),Deal.class);
+		DataManager.getInstance().setDeals(deals);
+		obj = temp.get("sellers");
+		List<UserData> sellers = JsonUtil.JsonToObjectList(obj.toString(),UserData.class);
+		DataManager.getInstance().setSellers(sellers);
+		Intent intent = new Intent(this,AdminUser.class);
+		startActivity(intent);
 		dispearLoading();
 	}
 

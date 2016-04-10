@@ -51,7 +51,7 @@ public class BaseActiivity extends Activity {
 	
 	public static void dispearLoading(){
 		if (loading != null){
-			loading.hide();
+			loading.dismiss();
 		}
 	}
 }
