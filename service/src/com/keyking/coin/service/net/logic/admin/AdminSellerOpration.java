@@ -17,17 +17,18 @@ public class AdminSellerOpration extends AbstractLogic {
 		long uid  = buffer.getLong();//用户编号
 		UserCharacter user = CTRL.search(uid);
 		if (user != null){
+			Seller seller = user.getSeller();
 			if (type == 0){
 				user.getPermission().setType(PermissionType.seller);
 				if (user.getTitle().equals("买家会员")){
 					user.setTitle("普通营销员");
 				}
-				Seller seller = user.getSeller();
 				if (seller != null){
 					seller.setPass(true);
 				}
 			}else{
-				user.setSeller(null);
+				seller.setPass(false);
+				user.getPermission().setType(PermissionType.buyer);
 			}
 			user.setNeedSave(true);
 			NET.sendMessageToAdmin(user.clientAdminMessage(Module.DEL_FLAG));

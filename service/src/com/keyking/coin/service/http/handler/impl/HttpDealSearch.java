@@ -124,6 +124,7 @@ public class HttpDealSearch extends HttpHandler {
 				hdeal.copy(deal);
 				hDeals.add(hdeal);
 			}
+			//ServerLog.info(hDeals.get(hDeals.size()-1).getCreateTime());
 			String str = formatJosn(request,JsonUtil.ObjectToJsonString(hDeals));
 			response.appendBody(str);
 		}else{

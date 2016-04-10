@@ -1,10 +1,13 @@
 package com.keyking.coin.service.tranform;
 
+import org.joda.time.DateTime;
+
 import com.keyking.coin.service.domain.email.Email;
 import com.keyking.coin.service.domain.user.UserCharacter;
 import com.keyking.coin.util.Instances;
+import com.keyking.coin.util.TimeUtils;
 
-public class TransformEmail implements Instances{
+public class TransformEmail implements Instances,Comparable<TransformEmail>{
 	byte type = 1;//邮件类型 0系统邮件 1用户邮件
 	long id;//邮件编号
 	long senderId;//发送者编号
@@ -82,5 +85,15 @@ public class TransformEmail implements Instances{
 	}
 	public void setContent(String content) {
 		this.content = content;
+	}
+
+	@Override
+	public int compareTo(TransformEmail o) {
+		DateTime time1 = TimeUtils.getTime(time);
+		DateTime time2 = TimeUtils.getTime(o.time);
+		if (time1.isBefore(time2)){
+			return -1;
+		}
+		return 1;
 	}
 }

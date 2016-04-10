@@ -241,7 +241,7 @@ public class Controler implements Instances{
 		int second   = now.getSecondOfMinute();
 		int off = hour * 3600 + minue * 60 + second;
 		long start = now.getMillis() - (7 * 24 * 3600 + off) * 1000;
-		//System.out.println(TimeUtils.formatYear(TimeUtils.getTime(start)));
+		//ServerLog.info("start : " + TimeUtils.formatYear(TimeUtils.getTime(start)));
 		List<Deal> result = new ArrayList<Deal>();
 		for (Deal deal : deals){
 			long dealTime = TimeUtils.getTime(deal.getCreateTime()).getMillis();
@@ -384,7 +384,7 @@ public class Controler implements Instances{
 		List<TransformUserData> result = new ArrayList<TransformUserData>();
 		for (UserCharacter user : characters.values()){
 			Seller seller = user.getSeller();
-			if (seller!= null && !seller.isPass()){
+			if (seller!= null){
 				TransformUserData tud = new TransformUserData(user);
 				result.add(tud);
 			}

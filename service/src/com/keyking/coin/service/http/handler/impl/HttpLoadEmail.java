@@ -1,6 +1,7 @@
 package com.keyking.coin.service.http.handler.impl;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import com.keyking.coin.service.domain.email.Email;
@@ -36,6 +37,7 @@ public class HttpLoadEmail extends HttpHandler {
 			for (Email email : emails){
 				tfes.add(new TransformEmail(email));
 			}
+			Collections.sort(tfes);
 			str = formatJosn(request,JsonUtil.ObjectToJsonString(tfes));
 		}else{
 			str = formatJosn(request,"[]");;
