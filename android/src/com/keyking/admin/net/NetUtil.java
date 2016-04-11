@@ -17,9 +17,6 @@ import org.apache.mina.transport.socket.nio.NioSocketConnector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import android.widget.Toast;
-
-import com.keyking.admin.frame.BaseActiivity;
 import com.keyking.admin.net.codec.MessageCodecFactory;
 import com.keyking.admin.net.handler.NetConnectHandler;
 import com.keyking.admin.net.request.Request;
@@ -65,7 +62,6 @@ public class NetUtil {
 					public void operationComplete(IoFuture arg0) {
 						if (arg0.isDone()){
 							writer = arg0.getSession();
-							Toast.makeText(BaseActiivity.base," connect service ok ",Toast.LENGTH_SHORT).show();
 						}
 					}
 				});

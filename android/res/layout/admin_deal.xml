@@ -6,7 +6,7 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context=".frame.AdminUser" >
+    tools:context=".frame.AdminDeal" >
 
     <LinearLayout
         android:id="@+id/linearLayout2"
@@ -36,7 +36,6 @@
             android:id="@+id/button_user"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:background="#ff0000"
             android:text="会 员" />
     </LinearLayout>
 
@@ -66,6 +65,7 @@
             android:id="@+id/button_deal"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
+            android:background="#ff0000"
             android:text="帖 子" />
     </LinearLayout>
 

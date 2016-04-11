@@ -384,7 +384,7 @@ public class Controler implements Instances{
 		List<TransformUserData> result = new ArrayList<TransformUserData>();
 		for (UserCharacter user : characters.values()){
 			Seller seller = user.getSeller();
-			if (seller!= null){
+			if (seller != null && !seller.isPass()){
 				TransformUserData tud = new TransformUserData(user);
 				result.add(tud);
 			}

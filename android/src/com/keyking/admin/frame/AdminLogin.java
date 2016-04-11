@@ -35,6 +35,7 @@ public class AdminLogin extends BaseActiivity implements ResultCallBack{
 		button.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
+				/*
 				String str_account = account.getText().toString();
 				if (StringUtil.isNull(str_account)){
 					showTips(AdminLogin.this,account.getHint().toString());
@@ -50,7 +51,9 @@ public class AdminLogin extends BaseActiivity implements ResultCallBack{
 				request.add(str_pwd);
 				if (net.send(request,AdminLogin.this)){
 					showLoading(AdminLogin.this,"µÇÂ¼");
-				}
+				}*/
+				Intent intent = new Intent(AdminLogin.this,AdminUser.class);
+				startActivity(intent);
 			}
 		});
 	}
@@ -79,14 +82,5 @@ public class AdminLogin extends BaseActiivity implements ResultCallBack{
 		dispearLoading();
 		String tips = data.getUTF();
 		showTips(this,tips);
-	}
-
-	@Override
-	public void onBackPressed() {
-		if (loading != null && loading.isShowing()){
-			dispearLoading();
-		}else{
-			exit(this);
-		}
 	}
 }

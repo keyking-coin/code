@@ -5,7 +5,7 @@
     android:versionName="1.0" >
 
     <uses-sdk
-        android:minSdkVersion="8"
+        android:minSdkVersion="14"
         android:targetSdkVersion="21" />
     <uses-permission android:name="android.permission.INTERNET" />
     <application
@@ -23,6 +23,8 @@
             </intent-filter>
         </activity>
         <activity android:name=".frame.AdminUser" />
+        <activity android:name=".frame.AdminDeal" />
+        <activity android:name=".frame.AdminAgency" />
     </application>
     
 </manifest>

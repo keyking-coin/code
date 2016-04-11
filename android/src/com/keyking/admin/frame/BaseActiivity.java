@@ -1,5 +1,9 @@
 package com.keyking.admin.frame;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import android.R;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
@@ -11,13 +15,14 @@ import com.keyking.admin.net.NetUtil;
 
 public class BaseActiivity extends Activity {
 	NetUtil net = null;
-	public static ProgressDialog loading;
-	public static BaseActiivity base = null;
+	static ProgressDialog loading;
+	static List<Activity> exitList  = new ArrayList<Activity>();
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		base = this;
 		net = NetUtil.getInstance();
+		exitList.add(this);
 	}
 
 	public void showTips(Activity activity,String str){
@@ -28,6 +33,20 @@ public class BaseActiivity extends Activity {
 		.show();  
 	}
 	
+	private void over(){
+		try { 
+            for (Activity activity : exitList) { 
+                if (activity != null){
+                	activity.finish();
+                }   
+            } 
+        } catch (Exception e) { 
+            e.printStackTrace(); 
+        } finally { 
+            System.exit(0); 
+        } 
+	}
+	
 	public void exit(final Activity activity){
 		new AlertDialog.Builder(activity)    
 		.setTitle("系统提示") 
@@ -35,7 +54,10 @@ public class BaseActiivity extends Activity {
 		.setNegativeButton("确定",new OnClickListener() {
 			@Override
 			public void onClick(DialogInterface dialog,int which) {
-				activity.finish();
+				//activity.finish();
+				//System.exit(0);
+				//android.os.Process.killProcess(android.os.Process.myPid());s
+				over();
 			}
 		}).setPositiveButton("取消",null)
 		.show();
@@ -54,4 +76,15 @@ public class BaseActiivity extends Activity {
 			loading.dismiss();
 		}
 	}
+	
+	@Override
+	public void onBackPressed() {
+		if (loading != null && loading.isShowing()){
+			dispearLoading();
+		}else{
+			exit(this);
+		}
+	}
+	
+	
 }
