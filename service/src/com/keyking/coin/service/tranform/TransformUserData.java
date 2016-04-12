@@ -46,8 +46,7 @@ public class TransformUserData implements Instances,SerializeEntity{
 		face = user.getFace();
 		nikeName = user.getNikeName();
 		title = user.getTitle();
-		String[] ss = user.getRegistTime().split(" ");
-		registTime  = ss[0];
+		registTime  = user.getRegistTime();
 		addresses.addAll(user.getAddresses());
 		name = user.getName();
 		age = user.getAge();

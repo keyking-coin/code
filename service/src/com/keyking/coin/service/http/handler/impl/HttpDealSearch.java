@@ -18,13 +18,11 @@ import com.keyking.coin.util.StringUtil;
 import com.keyking.coin.util.TimeUtils;
 
 public class HttpDealSearch extends HttpHandler {
-	//http://127.0.0.1:32104/HttpDealSearch?search=null
+	//http://127.0.0.1:32104/HttpDealSearch?
 	@Override
 	public void handle(HttpRequestMessage request, HttpResponseMessage response) {
 		response.setContentType("text/plain");
 		response.setResponseCode(HttpResponseMessage.HTTP_STATUS_SUCCESS);
-		//null就是查询最近7天交易记录，默认点击交易区就传null，其他值都标示是条件查询
-		String search  = request.getParameter("search");
 		//null、入库、现货 ---> 全部类型的 、入库类型、现货类型
 		String type    = request.getParameter("type");
 		//null、xxx ---> 全部文交所 、其他选择的文交所
@@ -37,30 +35,31 @@ public class HttpDealSearch extends HttpHandler {
 		String buyer   = request.getParameter("buyer");
 		//null、xxx ---> 不限有效期、其他选择的字符串(到目前无效，到目前有效)
 		String valid   = request.getParameter("valid");
-		List<Deal> deals = null;
-		if (search != null && search.equals("null")){//普通查询7天内的所有的帖子
-			deals = CTRL.getWeekDeals();
-		}else{
-			SearchCondition condition = new SearchCondition();
-			if (!StringUtil.isNull(type)){
-				condition.setType(type);
+		List<Deal> temp = CTRL.getWeekDeals();
+		SearchCondition condition = new SearchCondition();
+		if (!StringUtil.isNull(type)){
+			condition.setType(type);
+		}
+		if (!StringUtil.isNull(title)){
+			condition.setTitle(title);
+		}
+		if (!StringUtil.isNull(bourse)){
+			condition.setBourse(bourse);
+		}
+		if (!StringUtil.isNull(seller)){
+			condition.setSeller(seller);
+		}
+		if (!StringUtil.isNull(buyer)){
+			condition.setBuyer(buyer);
+		}
+		if (!StringUtil.isNull(valid)){
+			condition.setValid(valid);
+		}
+		List<Deal> deals = new ArrayList<Deal>();
+		for (Deal deal : temp){
+			if (condition.legal(deal)){
+				deals.add(deal);
 			}
-			if (!StringUtil.isNull(title)){
-				condition.setTitle(title);
-			}
-			if (!StringUtil.isNull(bourse)){
-				condition.setBourse(bourse);
-			}
-			if (!StringUtil.isNull(seller)){
-				condition.setSeller(seller);
-			}
-			if (!StringUtil.isNull(buyer)){
-				condition.setBuyer(buyer);
-			}
-			if (!StringUtil.isNull(valid)){
-				condition.setValid(valid);
-			}
-			deals = CTRL.getSearchDeals(condition);
 		}
 		if (deals.size() > 0){
 			List<Deal> issues    = new ArrayList<Deal>();
