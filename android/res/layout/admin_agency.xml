@@ -7,16 +7,14 @@
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context=".frame.AdminDeal" >
-
     <LinearLayout
-        android:id="@+id/linearLayout2"
+        android:id="@+id/agencyLayout0"
         android:layout_width="wrap_content"
         android:layout_height="fill_parent"
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true"
         android:layout_marginLeft="71dp"
         android:orientation="vertical" >
-
         <View
             android:layout_width="2dp"
             android:layout_height="fill_parent"
@@ -25,7 +23,7 @@
     </LinearLayout>
 
     <LinearLayout
-        android:id="@+id/linearLayout3"
+        android:id="@+id/agencyLayout1"
         android:layout_width="70dp"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
@@ -33,22 +31,21 @@
         android:layout_marginTop="50dp" >
 
         <Button
-            android:id="@+id/button_user"
+            android:id="@+id/agency_button_user"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:text="会 员" />
     </LinearLayout>
 
     <LinearLayout
-        android:id="@+id/linearLayout1"
+        android:id="@+id/agencyLayout2"
         android:layout_width="70dp"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true"
         android:layout_marginTop="200dp" >
-
         <Button
-            android:id="@+id/button_agency"
+            android:id="@+id/agency_button_agency"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:background="#ff0000"
@@ -56,114 +53,105 @@
     </LinearLayout>
 
     <LinearLayout
+        android:id="@+id/agencyLayout3"
         android:layout_width="70dp"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true"
         android:layout_marginTop="350dp" >
-
         <Button
-            android:id="@+id/button_deal"
+            android:id="@+id/agency_button_deal"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:text="帖 子" />
     </LinearLayout>
+	<Button
+           android:id="@+id/agency_button_left"
+           android:layout_width="wrap_content"
+           android:layout_height="wrap_content"
+           android:layout_alignLeft="@+id/agencyLayout0"
+        	android:layout_alignParentBottom="true"
+           android:text="上个" />
+	<Button
+	    android:id="@+id/agency_button_right"
+	    android:layout_width="wrap_content"
+	    android:layout_height="wrap_content"
+	    android:layout_alignParentBottom="true"
+	    android:layout_alignParentRight="true"
+	    android:text="下个" />
 
-    <LinearLayout
-        android:id="@+id/linearLayout4"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
-        android:layout_toRightOf="@+id/linearLayout2" >
+	<Button
+	    android:id="@+id/agency_button_sure"
+	    android:layout_width="wrap_content"
+	    android:layout_height="wrap_content"
+	    android:layout_alignParentBottom="true"
+	    android:layout_marginLeft="20dp"
+	    android:layout_toRightOf="@+id/agency_button_left"
+	    android:layout_marginRight="20dp"
+	    android:layout_toLeftOf="@+id/agency_button_right"
+	    android:text="确认" />
 
-        <SearchView
-            android:id="@+id/searchView1"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1" >
-        </SearchView>
-    </LinearLayout>
+	<ScrollView
+	    android:id="@+id/dealScrollView"
+	    android:layout_width="match_parent"
+	    android:layout_height="match_parent"
+	    android:layout_above="@+id/agency_button_left"
+	    android:layout_toRightOf="@+id/agencyLayout0" >
+	    <LinearLayout
+	        android:layout_width="match_parent"
+	        android:layout_height="wrap_content"
+	        android:orientation="vertical" >	        <TextView
+	           android:id="@+id/asvt1"
+	           android:layout_width="wrap_content"
+	           android:layout_height="wrap_content"
+	           android:text="买家已付款给中介" />
+	       	<View
+	       	    android:id="@+id/agency_s_line1"
+		        android:layout_width="2dp"
+		        android:layout_height="40dp"
+		        android:layout_marginLeft="15dp"
+		        android:background="#FF909090" />
+	       	<Button
+	       	    android:id="@+id/agency_s_zjsk"
+	       	    android:layout_width="match_parent"
+	       	    android:layout_height="wrap_content"
+	       	    android:text="中介已确认收款" />
+			<View
+	       	    android:id="@+id/agency_s_line2"
+		        android:layout_width="2dp"
+		        android:layout_height="40dp"
+		        android:layout_marginLeft="15dp"
+		        android:background="#FF909090" />
+			<TextView
+	            android:id="@+id/asvt2"
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:text="卖家已发货" />
+	        <View
+	       	    android:id="@+id/agency_s_line3"
+		        android:layout_width="2dp"
+		        android:layout_height="40dp"
+		        android:layout_marginLeft="15dp"
+		        android:background="#FF909090" />
 
-    <LinearLayout
-        android:id="@+id/linearLayout5"
-        android:layout_width="200dp"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/linearLayout4"
-        android:layout_alignLeft="@+id/linearLayout3"
-        android:layout_marginTop="5dp"
-        android:layout_marginLeft="110dp" >
+	        <TextView
+	            android:id="@+id/asvt3"
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:text="买家已确认收货" />
 
-        <Spinner
-            android:id="@+id/spinner_title"
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent" />
-    </LinearLayout>
+	        <View
+	       	    android:id="@+id/agency_s_line4"
+		        android:layout_width="2dp"
+		        android:layout_height="40dp"
+		        android:layout_marginLeft="15dp"
+		        android:background="#FF909090" />
+	        <Button
+	       	    android:id="@+id/agency_s_zjfk2"
+	       	    android:layout_width="match_parent"
+	       	    android:layout_height="wrap_content"
+	       	    android:text="中介付款给卖家" />
+	    </LinearLayout>
+	</ScrollView>
 
-    <LinearLayout
-        android:id="@+id/linearLayout6"
-        android:layout_width="200dp"
-        android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/linearLayout5"
-        android:layout_below="@+id/linearLayout5"
-        android:layout_marginTop="5dp"
-        android:orientation="vertical" >
-        <EditText
-            android:id="@+id/editText_title"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="用户头衔" >
-            <requestFocus />
-        </EditText>
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/linearLayout7"
-        android:layout_width="200dp"
-        android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/linearLayout6"
-        android:layout_below="@+id/linearLayout6"
-        android:layout_marginTop="10dp"
-        android:layout_centerVertical="true"
-        android:orientation="vertical" >
-
-        <Spinner
-            android:id="@+id/spinner_permission"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
-
-    </LinearLayout>
-    <LinearLayout
-        android:id="@+id/linearLayout8"
-        android:layout_width="200dp"
-        android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/linearLayout7"
-        android:layout_below="@+id/linearLayout7"
-        android:layout_marginTop="20dp"
-        android:orientation="vertical" >
-        <EditText
-            android:id="@+id/editText_nike"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:maxLength="12"
-            android:hint="用户昵称(限12字)">
-            <requestFocus />
-        </EditText>
-    </LinearLayout>
-    
-    <LinearLayout
-        android:id="@+id/linearLayout9"
-        android:layout_width="200dp"
-        android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/linearLayout8"
-        android:layout_below="@+id/linearLayout8"
-        android:layout_marginTop="50dp"
-        android:orientation="vertical" >
-
-        <Button
-            android:id="@+id/button_user_update"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:text="修    改" />
-
-    </LinearLayout>
 </RelativeLayout>

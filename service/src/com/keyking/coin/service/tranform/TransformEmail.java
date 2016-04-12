@@ -17,6 +17,7 @@ public class TransformEmail implements Instances,Comparable<TransformEmail>{
 	String time;// 发送时间
 	String theme   = "";// 主题
 	String content = "";// 内容
+	byte status;//状态 0新邮件 1已查看
 	
 	public TransformEmail(Email email){
 		type = email.getType();
@@ -30,6 +31,7 @@ public class TransformEmail implements Instances,Comparable<TransformEmail>{
 		time = email.getTime();
 		theme = email.getTheme();
 		content = email.getContent();
+		status = email.getStatus();
 	}
 	
 	public byte getType() {
@@ -85,6 +87,14 @@ public class TransformEmail implements Instances,Comparable<TransformEmail>{
 	}
 	public void setContent(String content) {
 		this.content = content;
+	}
+
+	public byte getStatus() {
+		return status;
+	}
+
+	public void setStatus(byte status) {
+		this.status = status;
 	}
 
 	@Override
