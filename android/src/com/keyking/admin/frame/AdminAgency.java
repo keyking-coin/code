@@ -13,7 +13,7 @@ public class AdminAgency extends BaseActiivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.admin_agency);
-		Button button = (Button)findViewById(R.id.button_user);
+		Button button = (Button)findViewById(R.id.agency_button_user);
 		button.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -21,7 +21,7 @@ public class AdminAgency extends BaseActiivity {
 				startActivity(intent);
 			}
 		});
-		button = (Button)findViewById(R.id.button_deal);
+		button = (Button)findViewById(R.id.agency_button_deal);
 		button.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {

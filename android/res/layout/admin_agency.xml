@@ -6,72 +6,104 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context=".frame.AdminDeal" >
-    <LinearLayout
-        android:id="@+id/agencyLayout0"
-        android:layout_width="wrap_content"
+    tools:context=".frame.AdminAgency" >
+    <View
+        android:id="@+id/agencyLine"
+        android:layout_width="2dp"
         android:layout_height="fill_parent"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentTop="true"
-        android:layout_marginLeft="71dp"
-        android:orientation="vertical" >
-        <View
-            android:layout_width="2dp"
-            android:layout_height="fill_parent"
-            android:layout_alignParentLeft="true"
-            android:background="#FF909090" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/agencyLayout1"
+   	    android:layout_alignParentTop="true"
+  	    android:layout_marginLeft="71dp"
+        android:background="#FF909090" />
+    <Button
+	    android:id="@+id/agency_button_user"
+	    android:layout_width="70dp"
+	    android:layout_height="wrap_content"
+	    android:layout_alignParentLeft="true"
+  		android:layout_alignParentTop="true"
+  		android:layout_marginTop="50dp" 
+      	android:text="会 员" />
+    <Button
+        android:id="@+id/agency_button_agency"
+        android:layout_width="70dp"
+        android:layout_height="wrap_content"
+        android:background="#ff0000"
+        android:layout_alignParentLeft="true"
+    	android:layout_alignParentTop="true"
+    	android:layout_marginTop="200dp"
+        android:text="中 介" />
+    <Button
+        android:id="@+id/agency_button_deal"
         android:layout_width="70dp"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentTop="true"
-        android:layout_marginTop="50dp" >
-
-        <Button
-            android:id="@+id/agency_button_user"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:text="会 员" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/agencyLayout2"
-        android:layout_width="70dp"
-        android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentTop="true"
-        android:layout_marginTop="200dp" >
-        <Button
-            android:id="@+id/agency_button_agency"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:background="#ff0000"
-            android:text="中 介" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/agencyLayout3"
-        android:layout_width="70dp"
-        android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentTop="true"
-        android:layout_marginTop="350dp" >
-        <Button
-            android:id="@+id/agency_button_deal"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:text="帖 子" />
-    </LinearLayout>
-	<Button
-           android:id="@+id/agency_button_left"
+       	android:layout_alignParentTop="true"
+       	android:layout_marginTop="350dp"
+        android:text="帖 子" />
+	<LinearLayout
+	    android:layout_width="match_parent"
+	    android:layout_height="wrap_content"
+	    android:layout_toRightOf="@+id/agencyLine"
+	    android:orientation="vertical" >
+        <TextView
+           android:id="@+id/asvt1"
            android:layout_width="wrap_content"
            android:layout_height="wrap_content"
-           android:layout_alignLeft="@+id/agencyLayout0"
-        	android:layout_alignParentBottom="true"
-           android:text="上个" />
+           android:text="买家已付款给中介" />
+       	<View
+       	    android:id="@+id/agency_s_line1"
+	        android:layout_width="2dp"
+	        android:layout_height="40dp"
+	        android:layout_marginLeft="15dp"
+	        android:background="#FF909090" />
+       	<Button
+       	    android:id="@+id/agency_s_zjsk"
+       	    android:layout_width="match_parent"
+       	    android:layout_height="wrap_content"
+       	    android:text="中介已确认收款" />
+		<View
+       	    android:id="@+id/agency_s_line2"
+	        android:layout_width="2dp"
+	        android:layout_height="40dp"
+	        android:layout_marginLeft="15dp"
+	        android:background="#FF909090" />
+		<TextView
+            android:id="@+id/asvt2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="卖家已发货" />
+        <View
+       	    android:id="@+id/agency_s_line3"
+	        android:layout_width="2dp"
+	        android:layout_height="40dp"
+	        android:layout_marginLeft="15dp"
+	        android:background="#FF909090" />
+
+        <TextView
+            android:id="@+id/asvt3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="买家已确认收货" />
+
+        <View
+       	    android:id="@+id/agency_s_line4"
+	        android:layout_width="2dp"
+	        android:layout_height="40dp"
+	        android:layout_marginLeft="15dp"
+	        android:background="#FF909090" />
+        <Button
+       	    android:id="@+id/agency_s_zjfk2"
+       	    android:layout_width="match_parent"
+       	    android:layout_height="wrap_content"
+       	    android:text="中介付款给卖家" />
+	 </LinearLayout>
+	 <Button
+        android:id="@+id/agency_button_left"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/agencyLine"
+        android:layout_alignParentBottom="true"
+        android:text="上个" />
 	<Button
 	    android:id="@+id/agency_button_right"
 	    android:layout_width="wrap_content"
@@ -79,79 +111,12 @@
 	    android:layout_alignParentBottom="true"
 	    android:layout_alignParentRight="true"
 	    android:text="下个" />
-
 	<Button
 	    android:id="@+id/agency_button_sure"
 	    android:layout_width="wrap_content"
 	    android:layout_height="wrap_content"
 	    android:layout_alignParentBottom="true"
-	    android:layout_marginLeft="20dp"
-	    android:layout_toRightOf="@+id/agency_button_left"
-	    android:layout_marginRight="20dp"
+	    android:layout_marginRight="26dp"
 	    android:layout_toLeftOf="@+id/agency_button_right"
 	    android:text="确认" />
-
-	<ScrollView
-	    android:id="@+id/dealScrollView"
-	    android:layout_width="match_parent"
-	    android:layout_height="match_parent"
-	    android:layout_above="@+id/agency_button_left"
-	    android:layout_toRightOf="@+id/agencyLayout0" >
-	    <LinearLayout
-	        android:layout_width="match_parent"
-	        android:layout_height="wrap_content"
-	        android:orientation="vertical" >	        <TextView
-	           android:id="@+id/asvt1"
-	           android:layout_width="wrap_content"
-	           android:layout_height="wrap_content"
-	           android:text="买家已付款给中介" />
-	       	<View
-	       	    android:id="@+id/agency_s_line1"
-		        android:layout_width="2dp"
-		        android:layout_height="40dp"
-		        android:layout_marginLeft="15dp"
-		        android:background="#FF909090" />
-	       	<Button
-	       	    android:id="@+id/agency_s_zjsk"
-	       	    android:layout_width="match_parent"
-	       	    android:layout_height="wrap_content"
-	       	    android:text="中介已确认收款" />
-			<View
-	       	    android:id="@+id/agency_s_line2"
-		        android:layout_width="2dp"
-		        android:layout_height="40dp"
-		        android:layout_marginLeft="15dp"
-		        android:background="#FF909090" />
-			<TextView
-	            android:id="@+id/asvt2"
-	            android:layout_width="wrap_content"
-	            android:layout_height="wrap_content"
-	            android:text="卖家已发货" />
-	        <View
-	       	    android:id="@+id/agency_s_line3"
-		        android:layout_width="2dp"
-		        android:layout_height="40dp"
-		        android:layout_marginLeft="15dp"
-		        android:background="#FF909090" />
-
-	        <TextView
-	            android:id="@+id/asvt3"
-	            android:layout_width="wrap_content"
-	            android:layout_height="wrap_content"
-	            android:text="买家已确认收货" />
-
-	        <View
-	       	    android:id="@+id/agency_s_line4"
-		        android:layout_width="2dp"
-		        android:layout_height="40dp"
-		        android:layout_marginLeft="15dp"
-		        android:background="#FF909090" />
-	        <Button
-	       	    android:id="@+id/agency_s_zjfk2"
-	       	    android:layout_width="match_parent"
-	       	    android:layout_height="wrap_content"
-	       	    android:text="中介付款给卖家" />
-	    </LinearLayout>
-	</ScrollView>
-
 </RelativeLayout>

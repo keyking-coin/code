@@ -7,64 +7,73 @@
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context=".frame.AdminDeal" >
-
-    <LinearLayout
-        android:id="@+id/dealLayout0"
-        android:layout_width="wrap_content"
+	<View
+	    android:id="@+id/dealLine"
+        android:layout_width="2dp"
         android:layout_height="fill_parent"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentTop="true"
-        android:layout_marginLeft="71dp"
-        android:orientation="vertical" >
-        <View
-            android:layout_width="2dp"
-            android:layout_height="fill_parent"
-            android:layout_alignParentLeft="true"
-            android:background="#FF909090" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/dealLayout1"
+    	android:layout_alignParentTop="true"
+    	android:layout_marginLeft="71dp"
+        android:background="#FF909090" />
+    <Button
+      	android:id="@+id/deal_button_user"
+      	android:layout_width="70dp"
+      	android:layout_height="wrap_content"
+      	android:layout_alignParentLeft="true"
+  		android:layout_alignParentTop="true"
+  		android:layout_marginTop="50dp" 
+      	android:text="会 员" />
+     <Button
+        android:id="@+id/deal_button_agency"
         android:layout_width="70dp"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentTop="true"
-        android:layout_marginTop="50dp" >
-        <Button
-            android:id="@+id/button_user"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:text="会 员" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/dealLayout2"
+    	android:layout_alignParentTop="true"
+    	android:layout_marginTop="200dp" 
+        android:text="中 介" />
+     <Button
+        android:id="@+id/deal_button_deal"
         android:layout_width="70dp"
         android:layout_height="wrap_content"
+        android:background="#ff0000"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentTop="true"
-        android:layout_marginTop="200dp" >
+    	android:layout_alignParentTop="true"
+   		android:layout_marginTop="350dp"
+        android:text="帖 子" />
+     <Button
+         android:id="@+id/deal_button_mmp"
+         style="?android:attr/buttonStyleSmall"
+         android:layout_width="wrap_content"
+         android:layout_height="wrap_content"
+         android:layout_alignParentTop="true"
+         android:layout_marginLeft="24dp"
+         android:layout_toRightOf="@+id/dealLine"
+         android:text="买卖盘" />
+     <Button
+         android:id="@+id/deal_button_cjp"
+         style="?android:attr/buttonStyleSmall"
+         android:layout_width="wrap_content"
+         android:layout_height="wrap_content"
+         android:layout_alignParentRight="true"
+         android:layout_alignParentTop="true"
+         android:layout_marginRight="36dp"
+         android:text="成交盘" />
+     <SearchView
+         android:id="@+id/deal_search"
+         android:layout_width="fill_parent"
+         android:layout_height="wrap_content"
+         android:layout_alignTop="@+id/deal_button_user"
+         android:hint="用户昵称(限12字)"
+         android:layout_toRightOf="@+id/dealLine" >
+     </SearchView>
 
-        <Button
-            android:id="@+id/button_agency"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:text="中 介" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/dealLayout3"
-        android:layout_width="70dp"
-        android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentTop="true"
-        android:layout_marginTop="350dp" >
-        <Button
-            android:id="@+id/button_deal"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:background="#ff0000"
-            android:text="帖 子" />
-    </LinearLayout>
+     <Button
+         android:id="@+id/deal_button_lock"
+         style="?android:attr/buttonStyleSmall"
+         android:layout_width="fill_parent"
+         android:layout_height="wrap_content"
+         android:layout_alignLeft="@+id/deal_search"
+         android:layout_alignParentBottom="true"
+         android:text="锁定" />
 
 </RelativeLayout>

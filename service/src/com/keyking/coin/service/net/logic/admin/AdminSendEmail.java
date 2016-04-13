@@ -15,10 +15,10 @@ public class AdminSendEmail extends AbstractLogic {
 	@Override
 	public Object doLogic(DataBuffer buffer, String logicName) throws Exception {
 		AdminResp resp = new AdminResp(logicName);
-		long  sendId   = buffer.getLong();
-		String name    = buffer.getUTF();
-		String theme   = buffer.getUTF();
-		String content = buffer.getUTF();
+		long  sendId   = buffer.getLong();//发送这边编号
+		String name    = buffer.getUTF();//目标的昵称或者手机号
+		String theme   = buffer.getUTF();//主题
+		String content = buffer.getUTF();//内容
 		String time = TimeUtils.nowChStr();
 		if (StringUtil.isNull(theme)){
 			resp.setError("主题不能为空");

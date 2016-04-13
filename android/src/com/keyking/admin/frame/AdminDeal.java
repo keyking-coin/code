@@ -13,7 +13,7 @@ public class AdminDeal extends BaseActiivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.admin_deal);
-		Button button = (Button)findViewById(R.id.button_user);
+		Button button = (Button)findViewById(R.id.deal_button_user);
 		button.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -21,7 +21,7 @@ public class AdminDeal extends BaseActiivity {
 				startActivity(intent);
 			}
 		});
-		button = (Button)findViewById(R.id.button_agency);
+		button = (Button)findViewById(R.id.deal_button_agency);
 		button.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
