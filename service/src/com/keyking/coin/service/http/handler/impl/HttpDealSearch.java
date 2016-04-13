@@ -35,7 +35,8 @@ public class HttpDealSearch extends HttpHandler {
 		String buyer   = request.getParameter("buyer");
 		//null、xxx ---> 不限有效期、其他选择的字符串(到目前无效，到目前有效)
 		String valid   = request.getParameter("valid");
-		List<Deal> temp = CTRL.getWeekDeals();
+		//List<Deal> temp = CTRL.getWeekDeals();
+		List<Deal> temp = CTRL.getDeals();
 		SearchCondition condition = new SearchCondition();
 		if (!StringUtil.isNull(type)){
 			condition.setType(type);

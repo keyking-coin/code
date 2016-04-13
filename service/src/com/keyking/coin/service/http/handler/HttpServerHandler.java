@@ -32,7 +32,9 @@ public class HttpServerHandler extends IoHandlerAdapter implements Instances {
 			HttpHandler handler = clazz.newInstance();
 			handler.handle(request,response); 
 		}catch(Exception e){
-			ServerLog.error("http handler error",e);
+			if (!(e instanceof ClassNotFoundException)){
+				ServerLog.error("http handler error",e);
+			}
 		}
 		session.write(response).addListener(IoFutureListener.CLOSE);
     }  

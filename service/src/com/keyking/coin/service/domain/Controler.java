@@ -14,11 +14,14 @@ import com.keyking.coin.service.domain.condition.SearchCondition;
 import com.keyking.coin.service.domain.deal.Deal;
 import com.keyking.coin.service.domain.deal.DealOrder;
 import com.keyking.coin.service.domain.deal.SimpleOrderModule;
+import com.keyking.coin.service.domain.email.Email;
+import com.keyking.coin.service.domain.email.EmailModule;
 import com.keyking.coin.service.domain.user.RankEntity;
 import com.keyking.coin.service.domain.user.Seller;
 import com.keyking.coin.service.domain.user.UserCharacter;
 import com.keyking.coin.service.net.resp.impl.AdminResp;
 import com.keyking.coin.service.net.resp.impl.GeneralResp;
+import com.keyking.coin.service.net.resp.module.ModuleResp;
 import com.keyking.coin.service.tranform.TransformDealData;
 import com.keyking.coin.service.tranform.TransformTouristOrder;
 import com.keyking.coin.service.tranform.TransformUserData;
@@ -392,6 +395,16 @@ public class Controler implements Instances{
 		return result;
 	}
 	
+	public List<UserCharacter> getUsers() {
+		List<UserCharacter> result = new ArrayList<UserCharacter>();
+		for (UserCharacter user : characters.values()){
+			if (!user.getPermission().admin()){
+				result.add(user);
+			}
+		}
+		return result;
+	}
+	
 	public List<TransformUserData> getAllUser() {
 		List<TransformUserData> result = new ArrayList<TransformUserData>();
 		for (UserCharacter user : characters.values()){
@@ -475,6 +488,27 @@ public class Controler implements Instances{
 			return "ok";
 		}
 		return result;
+	}
+	
+	public boolean tryToSendEmailToUser(long sendId,String time,String theme,String content,UserCharacter user){
+		if (user == null){
+			return false;
+		}
+		Email email = new Email();
+		email.setSenderId(sendId);
+		email.setUserId(user.getId());
+		email.setTime(time);
+		email.setTheme(theme);
+		email.setContent(content);
+		long id = PK.key("email");
+		email.setId(id);
+		user.addEmail(email);
+		EmailModule module = new EmailModule();
+		module.add("eamil",email);
+		ModuleResp modules = new ModuleResp();
+		modules.addModule(module);
+		NET.sendMessageToClent(modules,user);
+		return true;
 	}
 }
  
