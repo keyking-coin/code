@@ -11,9 +11,9 @@ public class TransformSimpleUserData {
 	
 	public TransformSimpleUserData(UserCharacter user){
 		nikeName = user.getNikeName();
-		title = user.getTitle();
+		title     = user.getTitle();
 		perission = user.getPermission();
-		emailNum = user.getEmails().size();
+		emailNum  = user.getNewEmailNum();
 	}
 	
 	public String getNikeName() {

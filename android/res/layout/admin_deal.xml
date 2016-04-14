@@ -48,6 +48,7 @@
          android:layout_alignParentTop="true"
          android:layout_marginLeft="24dp"
          android:layout_toRightOf="@+id/dealLine"
+         android:background="#00ff00"
          android:text="买卖盘" />
      <Button
          android:id="@+id/deal_button_cjp"
@@ -63,7 +64,6 @@
          android:layout_width="fill_parent"
          android:layout_height="wrap_content"
          android:layout_alignTop="@+id/deal_button_user"
-         android:hint="用户昵称(限12字)"
          android:layout_toRightOf="@+id/dealLine" >
      </SearchView>
 
@@ -75,5 +75,252 @@
          android:layout_alignLeft="@+id/deal_search"
          android:layout_alignParentBottom="true"
          android:text="锁定" />
+
+     <RelativeLayout
+         android:id="@+id/deal_container"
+         android:layout_width="fill_parent"
+         android:layout_height="fill_parent"
+         android:layout_above="@+id/deal_button_lock"
+         android:layout_alignLeft="@+id/deal_search"
+         android:layout_below="@+id/deal_search" >
+         <ImageView
+             android:id="@+id/deal_role_icon"
+             android:layout_width="40dp"
+             android:layout_height="40dp"
+             android:layout_alignParentLeft="true"
+             android:layout_alignParentTop="true"
+             android:layout_marginLeft="11dp"
+             android:layout_marginTop="15dp"
+             android:src="@drawable/role" />
+        <TextView
+             android:id="@+id/deal_role_name"
+             android:layout_width="wrap_content"
+             android:layout_height="wrap_content"
+             android:layout_alignBottom="@+id/deal_role_icon"
+             android:layout_marginLeft="13dp"
+             android:layout_toRightOf="@+id/deal_role_icon"
+             android:text="张三" />
+         <TextView
+             android:id="@+id/label_time"
+             android:layout_width="wrap_content"
+             android:layout_height="wrap_content"
+             android:layout_alignBaseline="@+id/deal_role_name"
+             android:layout_alignBottom="@+id/deal_role_name"
+             android:layout_marginLeft="12dp"
+             android:layout_toRightOf="@+id/deal_role_name"
+             android:textColor="#888888"
+             android:text="2016-04-15 12:25:32"
+             android:textSize="16dp" />
+       <TextView
+             android:id="@+id/label_id"
+             android:layout_width="wrap_content"
+             android:layout_height="wrap_content"
+             android:layout_alignLeft="@+id/deal_role_icon"
+             android:layout_below="@+id/deal_role_name"
+             android:layout_marginTop="12dp"
+             android:textSize="16dp" 
+             android:textColor="#888888"
+             android:text="编        号  : " />
+         <TextView
+             android:id="@+id/value_id"
+             android:layout_width="wrap_content"
+             android:layout_height="wrap_content"
+             android:layout_alignBaseline="@+id/label_id"
+             android:layout_alignBottom="@+id/label_id"
+             android:layout_marginLeft="13dp"
+             android:layout_toRightOf="@+id/label_id"
+             android:textSize="18dp"
+             android:textStyle="bold"
+             android:text="25" />
+       <TextView
+             android:id="@+id/label_type"
+             android:layout_width="wrap_content"
+             android:layout_height="wrap_content"
+             android:layout_alignLeft="@+id/deal_role_icon"
+             android:layout_below="@+id/label_id"
+             android:layout_marginTop="12dp"
+             android:textSize="16dp" 
+             android:textColor="#888888"
+             android:text="类        型  : " />
+       <TextView
+             android:id="@+id/value_type"
+             android:layout_width="wrap_content"
+             android:layout_height="wrap_content"
+             android:layout_alignBaseline="@+id/label_type"
+             android:layout_alignBottom="@+id/label_type"
+             android:layout_toRightOf="@+id/label_type"
+             android:layout_marginLeft="13dp"
+             android:textSize="18dp"
+             android:textStyle="bold"
+             android:text="求购" />
+       <TextView
+             android:id="@+id/label_help"
+             android:layout_width="wrap_content"
+             android:layout_height="wrap_content"
+             android:layout_alignLeft="@+id/deal_role_icon"
+             android:layout_below="@+id/label_type"
+             android:layout_marginTop="12dp"
+             android:textSize="16dp" 
+             android:textColor="#888888"
+             android:text="交割方式  : " />
+       <TextView
+             android:id="@+id/value_help"
+             android:layout_width="wrap_content"
+             android:layout_height="wrap_content"
+             android:layout_alignBaseline="@+id/label_help"
+             android:layout_alignBottom="@+id/label_help"
+             android:layout_toRightOf="@+id/label_help"
+             android:layout_marginLeft="13dp"
+             android:textSize="18dp"
+             android:textStyle="bold"
+             android:text="买家先款" />
+      <TextView
+             android:id="@+id/label_issue"
+             android:layout_width="wrap_content"
+             android:layout_height="wrap_content"
+             android:layout_alignLeft="@+id/deal_role_icon"
+             android:layout_below="@+id/label_help"
+             android:layout_marginTop="12dp"
+             android:textSize="16dp" 
+             android:textColor="#888888"
+             android:text="方        式  : " />
+       <TextView
+             android:id="@+id/value_issue"
+             android:layout_width="wrap_content"
+             android:layout_height="wrap_content"
+             android:layout_alignBaseline="@+id/label_issue"
+             android:layout_alignBottom="@+id/label_issue"
+             android:layout_toRightOf="@+id/label_issue"
+             android:layout_marginLeft="13dp"
+             android:textSize="18dp"
+             android:textStyle="bold"
+             android:text="入库" />
+      <TextView
+             android:id="@+id/label_bourse"
+             android:layout_width="wrap_content"
+             android:layout_height="wrap_content"
+             android:layout_alignLeft="@+id/deal_role_icon"
+             android:layout_below="@+id/label_issue"
+             android:layout_marginTop="12dp"
+             android:textSize="16dp" 
+             android:textColor="#888888"
+             android:text="文  交  所  : " />
+       <TextView
+             android:id="@+id/value_bourse"
+             android:layout_width="wrap_content"
+             android:layout_height="wrap_content"
+             android:layout_alignBaseline="@+id/label_bourse"
+             android:layout_alignBottom="@+id/label_bourse"
+             android:layout_toRightOf="@+id/label_bourse"
+             android:layout_marginLeft="13dp"
+             android:textSize="18dp"
+             android:textStyle="bold"
+             android:text="南京文交所" />
+       <TextView
+             android:id="@+id/label_title"
+             android:layout_width="wrap_content"
+             android:layout_height="wrap_content"
+             android:layout_alignLeft="@+id/deal_role_icon"
+             android:layout_below="@+id/label_bourse"
+             android:layout_marginTop="12dp"
+             android:textSize="16dp" 
+             android:textColor="#888888"
+             android:text="藏品名称  : " />
+       <TextView
+             android:id="@+id/value_title"
+             android:layout_width="wrap_content"
+             android:layout_height="wrap_content"
+             android:layout_alignBaseline="@+id/label_title"
+             android:layout_alignBottom="@+id/label_title"
+             android:layout_toRightOf="@+id/label_title"
+             android:layout_marginLeft="13dp"
+             android:textSize="18dp"
+             android:textStyle="bold"
+             android:text="飞机小版" />
+       <TextView
+             android:id="@+id/label_price"
+             android:layout_width="wrap_content"
+             android:layout_height="wrap_content"
+             android:layout_alignLeft="@+id/deal_role_icon"
+             android:layout_below="@+id/label_title"
+             android:layout_marginTop="12dp"
+             android:textSize="16dp" 
+             android:textColor="#888888"
+             android:text="单 价(元)  : " />
+       <TextView
+             android:id="@+id/value_price"
+             android:layout_width="wrap_content"
+             android:layout_height="wrap_content"
+             android:layout_alignBaseline="@+id/label_price"
+             android:layout_alignBottom="@+id/label_price"
+             android:layout_toRightOf="@+id/label_price"
+             android:layout_marginLeft="13dp"
+             android:textSize="18dp"
+             android:textStyle="bold"
+             android:text="1.5" />
+       <TextView
+             android:id="@+id/label_monad"
+             android:layout_width="wrap_content"
+             android:layout_height="wrap_content"
+             android:layout_alignLeft="@+id/deal_role_icon"
+             android:layout_below="@+id/label_price"
+             android:layout_marginTop="12dp"
+             android:textSize="16dp" 
+             android:textColor="#888888"
+             android:text="单        位 : " />
+       <TextView
+             android:id="@+id/value_monad"
+             android:layout_width="wrap_content"
+             android:layout_height="wrap_content"
+             android:layout_alignBaseline="@+id/label_monad"
+             android:layout_alignBottom="@+id/label_monad"
+             android:layout_toRightOf="@+id/label_monad"
+             android:layout_marginLeft="13dp"
+             android:textSize="18dp"
+             android:textStyle="bold"
+             android:text="盒" />
+      <TextView
+             android:id="@+id/label_num"
+             android:layout_width="wrap_content"
+             android:layout_height="wrap_content"
+             android:layout_alignLeft="@+id/deal_role_icon"
+             android:layout_below="@+id/label_monad"
+             android:layout_marginTop="12dp"
+             android:textSize="16dp" 
+             android:textColor="#888888"
+             android:text="剩余数量 : " />
+       <TextView
+             android:id="@+id/value_num"
+             android:layout_width="wrap_content"
+             android:layout_height="wrap_content"
+             android:layout_alignBaseline="@+id/label_num"
+             android:layout_alignBottom="@+id/label_num"
+             android:layout_toRightOf="@+id/label_num"
+             android:layout_marginLeft="13dp"
+             android:textSize="18dp"
+             android:textStyle="bold"
+             android:text="25" />
+      <TextView
+             android:id="@+id/label_valid"
+             android:layout_width="wrap_content"
+             android:layout_height="wrap_content"
+             android:layout_alignLeft="@+id/deal_role_icon"
+             android:layout_below="@+id/label_num"
+             android:layout_marginTop="12dp"
+             android:textSize="16dp" 
+             android:textColor="#888888"
+             android:text="有效时间 : " />
+       <TextView
+             android:id="@+id/value_valid"
+             android:layout_width="wrap_content"
+             android:layout_height="wrap_content"
+             android:layout_alignBaseline="@+id/label_valid"
+             android:layout_alignBottom="@+id/label_valid"
+             android:layout_toRightOf="@+id/label_valid"
+             android:layout_marginLeft="13dp"
+             android:textSize="18dp"
+             android:textStyle="bold"
+             android:text="2016-04-15 12:25:32" />
+     </RelativeLayout>
 
 </RelativeLayout>

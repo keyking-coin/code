@@ -1,10 +1,14 @@
 package com.keyking.coin.service.http.handler.impl;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import com.keyking.coin.service.domain.email.Email;
 import com.keyking.coin.service.domain.user.UserCharacter;
 import com.keyking.coin.service.http.handler.HttpHandler;
 import com.keyking.coin.service.http.request.HttpRequestMessage;
 import com.keyking.coin.service.http.response.HttpResponseMessage;
+import com.keyking.coin.util.JsonUtil;
 
 public class HttpLookEmail extends HttpHandler {
 	//http://139.196.30.53:32104/HttpLookEmail?uid=1&pwd=x&eid=x
@@ -29,7 +33,11 @@ public class HttpLookEmail extends HttpHandler {
 		if (email != null){
 			email.setStatus((byte)1);
 			email.setNeedSave(true);
-			message(request,response,"ok");
+			Map<String,Object> datas = new HashMap<String,Object>();
+			datas.put("result","ok");
+			datas.put("enum",user.getNewEmailNum());
+			String result = formatJosn(request,JsonUtil.ObjectToJsonString(datas));
+			response.appendBody(result);
 		}else{
 			message(request,response,"找不到邮件");
 		}

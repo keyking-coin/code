@@ -2,5 +2,6 @@
     <!-- Application theme. -->
     <style name="AppTheme" parent="AppBaseTheme">
         <item name="android:windowNoTitle">true</item>
+        <item name="android:textSize">24sp</item>
     </style>
 </resources>

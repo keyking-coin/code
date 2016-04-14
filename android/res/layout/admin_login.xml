@@ -7,23 +7,12 @@
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context=".frame.AdminLogin" >
-    <EditText
-        android:id="@+id/login_account"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_above="@+id/login_pwd"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="30dp"
-        android:ems="10"
-        android:text="uu_admin"
-        android:hint="请输入账号" />
 
     <ImageView
         android:id="@+id/image_account"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignBottom="@+id/login_account"
-        android:layout_toLeftOf="@+id/login_pwd"
         android:src="@drawable/account" />
 
     <ImageView
@@ -31,7 +20,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignBottom="@+id/login_pwd"
-        android:layout_toLeftOf="@+id/login_pwd"
+        android:layout_alignRight="@+id/image_account"
         android:src="@drawable/pwd" />
 
     <EditText
@@ -39,22 +28,34 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_above="@+id/login_action"
-        android:layout_alignLeft="@+id/login_action"
-        android:layout_marginBottom="14dp"
+        android:layout_alignParentRight="true"
+        android:layout_marginBottom="18dp"
         android:ems="10"
-        android:text="admin@abc"
         android:hint="请输入密码"
-        android:inputType="textPassword" >
+        android:inputType="textPassword"
+        android:text="admin@abc" />
+
+    <EditText
+        android:id="@+id/login_account"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/login_pwd"
+        android:layout_alignParentRight="true"
+        android:layout_marginBottom="35dp"
+        android:ems="10"
+        android:hint="请输入账号"
+        android:text="uu_admin" >
 
         <requestFocus />
     </EditText>
 
     <Button
         android:id="@+id/login_action"
-        android:layout_width="200dp"
-        android:layout_height="40dp"
-        android:layout_alignLeft="@+id/login_account"
-        android:layout_centerVertical="true"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_marginBottom="202dp"
         android:text="登  录" />
 
 </RelativeLayout>

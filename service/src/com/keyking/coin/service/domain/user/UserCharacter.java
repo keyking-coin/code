@@ -649,5 +649,15 @@ public class UserCharacter extends EntitySaver{
 		}
 		needSave = true;
 	}
+
+	public int getNewEmailNum() {
+		int count = 0;
+		for (Email email : emails){
+			if (email.getStatus() == 0){
+				count ++;
+			}
+		}
+		return count;
+	}
 }
  
