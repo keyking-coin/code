@@ -75,14 +75,22 @@
          android:layout_alignLeft="@+id/deal_search"
          android:layout_alignParentBottom="true"
          android:text="锁定" />
-
+     <RelativeLayout
+         android:id="@+id/order_container"
+         android:layout_width="fill_parent"
+         android:layout_height="fill_parent"
+         android:layout_above="@+id/deal_button_lock"
+         android:layout_alignLeft="@+id/deal_search"
+         android:layout_below="@+id/deal_search" >
+     </RelativeLayout>
      <RelativeLayout
          android:id="@+id/deal_container"
          android:layout_width="fill_parent"
          android:layout_height="fill_parent"
          android:layout_above="@+id/deal_button_lock"
          android:layout_alignLeft="@+id/deal_search"
-         android:layout_below="@+id/deal_search" >
+         android:layout_below="@+id/deal_search"
+         android:visibility="invisible" >
          <ImageView
              android:id="@+id/deal_role_icon"
              android:layout_width="40dp"

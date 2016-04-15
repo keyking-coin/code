@@ -18,8 +18,8 @@ import com.keyking.admin.net.DataBuffer;
 import com.keyking.admin.net.resp.ResultCallBack;
 
 public class AdminUser extends BaseActiivity implements ResultCallBack {
-	static final String[] TITLE_NAME_BUY = {"买家会员","高级买家","其他"};
-	static final String[] TITLE_NAME_SELLER = {"普通卖家","知名邮商","金牌经纪人","其他"};
+	static final String[] TITLE_NAME_BUY = {"买家会员","高级买家","其他头衔"};
+	static final String[] TITLE_NAME_SELLER = {"普通卖家","知名邮商","金牌经纪人","其他头衔"};
 	static final String[] PERMISSION_NAMES = {"买家","卖家"};
     Spinner spinner_title;
     Spinner spinner_permission;

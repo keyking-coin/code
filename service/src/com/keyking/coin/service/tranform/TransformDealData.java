@@ -32,7 +32,6 @@ public class TransformDealData implements Instances,Comparable<TransformDealData
 	List<TransformRevertData> reverts    = new ArrayList<TransformRevertData>();//回复内容列表
 	List<TransformOrderData> orders      = new ArrayList<TransformOrderData>();//订单
 	String issueName;
-	String issueIcon;
 	
 	public long getId() {
 		return id;
@@ -162,14 +161,6 @@ public class TransformDealData implements Instances,Comparable<TransformDealData
 		this.issueName = issueName;
 	}
 
-	public String getIssueIcon() {
-		return issueIcon;
-	}
-
-	public void setIssueIcon(String issueIcon) {
-		this.issueIcon = issueIcon;
-	}
-
 	public boolean isRevoke() {
 		return revoke;
 	}
@@ -201,7 +192,6 @@ public class TransformDealData implements Instances,Comparable<TransformDealData
 		revoke     = deal.isRevoke();
 		UserCharacter user = CTRL.search(uid);
 		issueName  = user.getNikeName();
-		issueIcon  = user.getFace();
 		for (Revert revert : deal.getReverts()){
 			if (revert.isRevoke()){
 				continue;
@@ -237,7 +227,6 @@ public class TransformDealData implements Instances,Comparable<TransformDealData
 		revoke     = deal.isRevoke();
 		UserCharacter user = CTRL.search(uid);
 		issueName  = user.getNikeName();
-		issueIcon  = user.getFace();
 		for (Revert revert : deal.getReverts()){
 			if (revert.isRevoke()){
 				continue;
