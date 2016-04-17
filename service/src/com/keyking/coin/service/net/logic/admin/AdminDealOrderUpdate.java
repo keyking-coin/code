@@ -29,6 +29,7 @@ public class AdminDealOrderUpdate extends AbstractLogic {
 						NET.sendMessageToAllClent(order.clientMessage(Module.UPDATE_FLAG),null);
 						NET.sendMessageToAdmin(order.clientAdminMessage(Module.DEL_FLAG,new AdminModuleResp()));
 						resp.addKey("result","操作成功");
+						resp.setSucces();
 					}
 				}else{
 					resp.setError("错误的状态修改  : " + index);

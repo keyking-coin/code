@@ -35,7 +35,6 @@ public class AdminLogin extends BaseActiivity implements ResultCallBack{
 		button.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				/*
 				String str_account = account.getText().toString();
 				if (StringUtil.isNull(str_account)){
 					showTips(AdminLogin.this,account.getHint().toString());
@@ -51,16 +50,14 @@ public class AdminLogin extends BaseActiivity implements ResultCallBack{
 				request.add(str_pwd);
 				if (net.send(request,AdminLogin.this)){
 					showLoading(AdminLogin.this,"µÇÂ¼");
-				}*/
-				Intent intent = new Intent(AdminLogin.this,AdminUser.class);
-				startActivity(intent);
+				}
 			}
 		});
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public void succ(DataBuffer data) {
+	public void succ(String logicName,DataBuffer data) {
 		String str = data.getUTF();
 		Map<String,Object> temp = (Map<String,Object>)JSON.parse(str);
 		Object obj = temp.get("user");
@@ -69,18 +66,18 @@ public class AdminLogin extends BaseActiivity implements ResultCallBack{
 		obj = temp.get("deals");
 		List<Deal> deals = JsonUtil.JsonToObjectList(obj.toString(),Deal.class);
 		DataManager.getInstance().setDeals(deals);
+		/*
 		obj = temp.get("sellers");
 		List<UserData> sellers = JsonUtil.JsonToObjectList(obj.toString(),UserData.class);
 		DataManager.getInstance().setSellers(sellers);
+		*/
 		Intent intent = new Intent(this,AdminUser.class);
 		startActivity(intent);
 		dispearLoading();
 	}
 
 	@Override
-	public void fail(DataBuffer data) {
-		dispearLoading();
-		String tips = data.getUTF();
-		showTips(this,tips);
+	public void fail(String logicName,DataBuffer data) {
+		_fail(data);
 	}
 }

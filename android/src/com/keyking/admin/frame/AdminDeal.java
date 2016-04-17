@@ -7,8 +7,10 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 
 import com.keyking.admin.R;
+import com.keyking.admin.net.DataBuffer;
+import com.keyking.admin.net.resp.ResultCallBack;
 
-public class AdminDeal extends BaseActiivity {
+public class AdminDeal extends BaseActiivity implements ResultCallBack{
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -29,5 +31,15 @@ public class AdminDeal extends BaseActiivity {
 				startActivity(intent);
 			}
 		});
+	}
+
+	@Override
+	public void succ(String logicName, DataBuffer data) {
+		
+	}
+
+	@Override
+	public void fail(String logicName, DataBuffer data) {
+		_fail(data);
 	}
 }

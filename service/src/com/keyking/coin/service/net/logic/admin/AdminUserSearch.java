@@ -5,26 +5,20 @@ import com.keyking.coin.service.net.buffer.DataBuffer;
 import com.keyking.coin.service.net.logic.AbstractLogic;
 import com.keyking.coin.service.net.resp.impl.AdminResp;
 import com.keyking.coin.service.tranform.TransformUserData;
-import com.keyking.coin.util.JsonUtil;
 
-public class AdminUserCommit extends AbstractLogic {
+public class AdminUserSearch extends AbstractLogic {
 
 	@Override
 	public Object doLogic(DataBuffer buffer, String logicName) throws Exception {
 		AdminResp resp = new AdminResp(logicName);
-		String str = buffer.getUTF();
-		TransformUserData userData = JsonUtil.JsonToObject(str,TransformUserData.class);
-		UserCharacter user = CTRL.search(userData.getId());
+		String searchStr = buffer.getUTF();
+		UserCharacter user = CTRL.searchByAccountOrNickName(searchStr);
 		if (user != null){
-			if (!userData.getNikeName().equals(user.getNikeName()) && !CTRL.checkAccout(null,userData.getNikeName(),resp)){
-				return resp;
-			}
-			user.copy(userData);
-			userData = new TransformUserData(user);
-			resp.addKey("user",userData);
+			TransformUserData tud = new TransformUserData(user);
+			resp.addKey("user",tud);
 			resp.setSucces();
 		}else{
-			resp.setError("json数据有错误");
+			resp.setError("找不到用户" + searchStr);
 		}
 		return resp;
 	}

@@ -3,33 +3,48 @@ package com.keyking.admin.frame;
 import java.util.ArrayList;
 import java.util.List;
 
-import android.R;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 
+import com.keyking.admin.net.DataBuffer;
 import com.keyking.admin.net.NetUtil;
 
 public class BaseActiivity extends Activity {
 	NetUtil net = null;
 	static ProgressDialog loading;
 	static List<Activity> exitList  = new ArrayList<Activity>();
-	
+	Handler uiHandler;
+	Handler errorHandler;
+	@SuppressLint("HandlerLeak")
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		net = NetUtil.getInstance();
 		exitList.add(this);
+		errorHandler = new Handler(){
+			@Override
+            public void handleMessage(Message msg) {
+                switch(msg.what){
+	                case 0:
+	                	showTips(BaseActiivity.this,msg.obj.toString());
+	                	break;
+                }
+            }
+		};
 	}
 
 	public void showTips(Activity activity,String str){
 		new  AlertDialog.Builder(activity)    
 		.setTitle("错误") 
 		.setMessage(str)  
-		.setPositiveButton("确定" ,null )  
+		.setPositiveButton("确定",null )  
 		.show();  
 	}
 	
@@ -74,6 +89,7 @@ public class BaseActiivity extends Activity {
 	public static void dispearLoading(){
 		if (loading != null){
 			loading.dismiss();
+			loading = null;
 		}
 	}
 	
@@ -86,5 +102,11 @@ public class BaseActiivity extends Activity {
 		}
 	}
 	
-	
+	public void _fail(DataBuffer data){
+		String tips = data.getUTF();
+		Message message = new Message();
+        message.what = 0;
+        message.obj = tips;
+        errorHandler.sendMessage(message);
+	}
 }

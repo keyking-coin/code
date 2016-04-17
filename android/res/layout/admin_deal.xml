@@ -17,29 +17,29 @@
         android:background="#FF909090" />
     <Button
       	android:id="@+id/deal_button_user"
-      	android:layout_width="70dp"
+      	android:layout_width="wrap_content"
       	android:layout_height="wrap_content"
       	android:layout_alignParentLeft="true"
   		android:layout_alignParentTop="true"
   		android:layout_marginTop="50dp" 
-      	android:text="会 员" />
+      	android:text="会员" />
      <Button
         android:id="@+id/deal_button_agency"
-        android:layout_width="70dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
     	android:layout_alignParentTop="true"
     	android:layout_marginTop="200dp" 
-        android:text="中 介" />
+        android:text="中介" />
      <Button
         android:id="@+id/deal_button_deal"
-        android:layout_width="70dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="#ff0000"
         android:layout_alignParentLeft="true"
     	android:layout_alignParentTop="true"
    		android:layout_marginTop="350dp"
-        android:text="帖 子" />
+   		android:background="#ff0000"
+        android:text="帖子" />
      <Button
          android:id="@+id/deal_button_mmp"
          style="?android:attr/buttonStyleSmall"
@@ -75,14 +75,360 @@
          android:layout_alignLeft="@+id/deal_search"
          android:layout_alignParentBottom="true"
          android:text="锁定" />
-     <RelativeLayout
+
+     <ScrollView
          android:id="@+id/order_container"
          android:layout_width="fill_parent"
          android:layout_height="fill_parent"
          android:layout_above="@+id/deal_button_lock"
          android:layout_alignLeft="@+id/deal_search"
          android:layout_below="@+id/deal_search" >
-     </RelativeLayout>
+         <LinearLayout
+             android:layout_width="fill_parent"
+             android:layout_height="fill_parent"
+             android:orientation="vertical" >
+             <RelativeLayout
+                 android:layout_width="fill_parent"
+                 android:layout_height="fill_parent" >
+                 <ImageView
+                     android:id="@+id/order_issue_icon"
+                     android:layout_width="40dp"
+                     android:layout_height="40dp"
+                     android:layout_alignParentLeft="true"
+                     android:layout_alignParentTop="true"
+                     android:layout_marginLeft="20dp"
+                     android:layout_marginTop="5dp"
+                     android:src="@drawable/role" />
+                 <TextView
+                     android:id="@+id/order_issue_name"
+                     android:layout_width="wrap_content"
+                     android:layout_height="wrap_content"
+                     android:layout_centerVertical="true"
+                     android:layout_marginLeft="20dp"
+                     android:layout_toRightOf="@+id/order_issue_icon"
+                     android:text="张三" />
+                 <TextView
+                     android:id="@+id/order_issue_time"
+                     android:layout_width="wrap_content"
+                     android:layout_height="wrap_content"
+                     android:layout_centerVertical="true"
+                     android:layout_marginLeft="20dp"
+                     android:layout_toRightOf="@+id/order_issue_name"
+                     android:text="2016-04-17 10:15:35"
+                     android:textSize="18dp" />
+             </RelativeLayout>
+             <RelativeLayout
+                 android:layout_width="fill_parent"
+                 android:layout_height="fill_parent" >
+                 <TextView
+                     android:id="@+id/order_issue_id"
+                     android:layout_width="wrap_content"
+                     android:layout_height="wrap_content"
+                     android:layout_centerVertical="true"
+                     android:layout_marginLeft="20dp"
+                     android:layout_marginTop="10dp"
+                     android:text="编        号 :" />
+                 <TextView
+                     android:id="@+id/order_issue_id_value"
+                     android:layout_width="wrap_content"
+                     android:layout_height="wrap_content"
+                     android:layout_centerVertical="true"
+                     android:layout_marginLeft="20dp"
+                     android:layout_toRightOf="@+id/order_issue_id"
+                     android:textStyle="bold"
+                     android:text="250" />
+             </RelativeLayout>
+             <RelativeLayout
+                 android:layout_width="fill_parent"
+                 android:layout_height="fill_parent" >
+                 <TextView
+                     android:id="@+id/order_issue_sell"
+                     android:layout_width="wrap_content"
+                     android:layout_height="wrap_content"
+                     android:layout_centerVertical="true"
+                     android:layout_marginLeft="20dp"
+                     android:layout_marginTop="10dp"
+                     android:text="类        型 :" />
+                 <TextView
+                     android:id="@+id/order_issue_sell_value"
+                     android:layout_width="wrap_content"
+                     android:layout_height="wrap_content"
+                     android:layout_centerVertical="true"
+                     android:layout_marginLeft="20dp"
+                     android:layout_toRightOf="@+id/order_issue_sell"
+                     android:textStyle="bold"
+                     android:text="求购" />
+             </RelativeLayout>
+             <RelativeLayout
+                 android:layout_width="fill_parent"
+                 android:layout_height="fill_parent" >
+                 <TextView
+                     android:id="@+id/order_issue_help"
+                     android:layout_width="wrap_content"
+                     android:layout_height="wrap_content"
+                     android:layout_centerVertical="true"
+                     android:layout_marginLeft="20dp"
+                     android:layout_marginTop="10dp"
+                     android:text="交割类型  :" />
+                 <TextView
+                     android:id="@+id/order_issue_help_value"
+                     android:layout_width="wrap_content"
+                     android:layout_height="wrap_content"
+                     android:layout_centerVertical="true"
+                     android:layout_marginLeft="20dp"
+                     android:layout_toRightOf="@+id/order_issue_help"
+                     android:textStyle="bold"
+                     android:text="买家先款" />
+             </RelativeLayout>
+             <RelativeLayout
+                 android:layout_width="fill_parent"
+                 android:layout_height="fill_parent" >
+                 <TextView
+                     android:id="@+id/order_issue_type"
+                     android:layout_width="wrap_content"
+                     android:layout_height="wrap_content"
+                     android:layout_centerVertical="true"
+                     android:layout_marginLeft="20dp"
+                     android:layout_marginTop="10dp"
+                     android:text="方        式 :" />
+                 <TextView
+                     android:id="@+id/order_issue_type_value"
+                     android:layout_width="wrap_content"
+                     android:layout_height="wrap_content"
+                     android:layout_centerVertical="true"
+                     android:layout_marginLeft="20dp"
+                     android:layout_toRightOf="@+id/order_issue_type"
+                     android:textStyle="bold"
+                     android:text="入库" />
+             </RelativeLayout>
+             <RelativeLayout
+                 android:layout_width="fill_parent"
+                 android:layout_height="fill_parent" >
+                 <TextView
+                     android:id="@+id/order_issue_bourse"
+                     android:layout_width="wrap_content"
+                     android:layout_height="wrap_content"
+                     android:layout_centerVertical="true"
+                     android:layout_marginLeft="20dp"
+                     android:layout_marginTop="10dp"
+                     android:text="文  交  所 :" />
+                 <TextView
+                     android:id="@+id/order_issue_bourse_value"
+                     android:layout_width="wrap_content"
+                     android:layout_height="wrap_content"
+                     android:layout_centerVertical="true"
+                     android:layout_marginLeft="20dp"
+                     android:layout_toRightOf="@+id/order_issue_bourse"
+                     android:textStyle="bold"
+                     android:text="南京文交所" />
+             </RelativeLayout>
+             <RelativeLayout
+                 android:layout_width="fill_parent"
+                 android:layout_height="fill_parent" >
+                 <TextView
+                     android:id="@+id/order_issue_title"
+                     android:layout_width="wrap_content"
+                     android:layout_height="wrap_content"
+                     android:layout_centerVertical="true"
+                     android:layout_marginLeft="20dp"
+                     android:layout_marginTop="10dp"
+                     android:text="藏品名称:" />
+                 <TextView
+                     android:id="@+id/order_issue_title_value"
+                     android:layout_width="wrap_content"
+                     android:layout_height="wrap_content"
+                     android:layout_centerVertical="true"
+                     android:layout_marginLeft="20dp"
+                     android:layout_toRightOf="@+id/order_issue_title"
+                     android:textStyle="bold"
+                     android:text="测试" />
+             </RelativeLayout>
+             <RelativeLayout
+                 android:layout_width="fill_parent"
+                 android:layout_height="fill_parent" >
+                 <TextView
+                     android:id="@+id/order_issue_price"
+                     android:layout_width="wrap_content"
+                     android:layout_height="wrap_content"
+                     android:layout_centerVertical="true"
+                     android:layout_marginLeft="20dp"
+                     android:layout_marginTop="10dp"
+                     android:text="单 价 (元):" />
+                 <TextView
+                     android:id="@+id/order_issue_price_value"
+                     android:layout_width="wrap_content"
+                     android:layout_height="wrap_content"
+                     android:layout_centerVertical="true"
+                     android:layout_marginLeft="20dp"
+                     android:layout_toRightOf="@+id/order_issue_price"
+                     android:textStyle="bold"
+                     android:text="125" />
+             </RelativeLayout>
+             <RelativeLayout
+                 android:layout_width="fill_parent"
+                 android:layout_height="fill_parent" >
+                 <TextView
+                     android:id="@+id/order_issue_monad"
+                     android:layout_width="wrap_content"
+                     android:layout_height="wrap_content"
+                     android:layout_centerVertical="true"
+                     android:layout_marginLeft="20dp"
+                     android:layout_marginTop="10dp"
+                     android:text="单       位:" />
+                 <TextView
+                     android:id="@+id/order_issue_monad_value"
+                     android:layout_width="wrap_content"
+                     android:layout_height="wrap_content"
+                     android:layout_centerVertical="true"
+                     android:layout_marginLeft="20dp"
+                     android:layout_toRightOf="@+id/order_issue_monad"
+                     android:textStyle="bold"
+                     android:text="盒" />
+             </RelativeLayout>
+             <RelativeLayout
+                 android:layout_width="fill_parent"
+                 android:layout_height="fill_parent" >
+                 <TextView
+                     android:id="@+id/order_issue_lfet_num"
+                     android:layout_width="wrap_content"
+                     android:layout_height="wrap_content"
+                     android:layout_centerVertical="true"
+                     android:layout_marginLeft="20dp"
+                     android:layout_marginTop="10dp"
+                     android:text="剩余数量:" />
+                 <TextView
+                     android:id="@+id/order_issue_lfet_num_value"
+                     android:layout_width="wrap_content"
+                     android:layout_height="wrap_content"
+                     android:layout_centerVertical="true"
+                     android:layout_marginLeft="20dp"
+                     android:layout_toRightOf="@+id/order_issue_lfet_num"
+                     android:textStyle="bold"
+                     android:text="100" />
+             </RelativeLayout>
+             <RelativeLayout
+                 android:layout_width="fill_parent"
+                 android:layout_height="fill_parent" >
+                 <TextView
+                     android:id="@+id/order_issue_valid"
+                     android:layout_width="wrap_content"
+                     android:layout_height="wrap_content"
+                     android:layout_centerVertical="true"
+                     android:layout_marginLeft="20dp"
+                     android:layout_marginTop="10dp"
+                     android:text="有效时间:" />
+                 <TextView
+                     android:id="@+id/order_issue_valid_value"
+                     android:layout_width="wrap_content"
+                     android:layout_height="wrap_content"
+                     android:layout_centerVertical="true"
+                     android:layout_marginLeft="20dp"
+                     android:layout_toRightOf="@+id/order_issue_valid"
+                     android:textStyle="bold"
+                     android:text="2106-04-12 20:15:36" />
+             </RelativeLayout>
+             <TextView
+                 android:id="@+id/order_issue_other"
+                 android:layout_width="wrap_content"
+                 android:layout_height="wrap_content"
+                 android:layout_centerVertical="true"
+                 android:layout_marginLeft="20dp"
+                 android:layout_marginTop="10dp"
+                 android:text="试试是是是是是是是是是是是是是为什么啊啊啥啥啥我靠测试字符长度的" />
+             <View
+		         android:layout_width="fill_parent"
+		         android:layout_height="2dp"
+		         android:background="#FF0000e0" />
+             <RelativeLayout
+                 android:layout_width="fill_parent"
+                 android:layout_height="fill_parent" >
+                 <TextView
+                     android:id="@+id/order_grab_name"
+                     android:layout_width="wrap_content"
+                     android:layout_height="wrap_content"
+                     android:layout_centerVertical="true"
+                     android:layout_marginLeft="20dp"
+                     android:layout_marginTop="10dp"
+                     android:text="成  交  人:" />
+                 <TextView
+                     android:id="@+id/order_grab_name_value"
+                     android:layout_width="wrap_content"
+                     android:layout_height="wrap_content"
+                     android:layout_centerVertical="true"
+                     android:layout_marginLeft="20dp"
+                     android:layout_toRightOf="@+id/order_grab_name"
+                     android:textStyle="bold"
+                     android:text="李四" />
+             </RelativeLayout>
+             <RelativeLayout
+                 android:layout_width="fill_parent"
+                 android:layout_height="fill_parent" >
+                 <TextView
+                     android:id="@+id/order_grab_num"
+                     android:layout_width="wrap_content"
+                     android:layout_height="wrap_content"
+                     android:layout_centerVertical="true"
+                     android:layout_marginLeft="20dp"
+                     android:layout_marginTop="10dp"
+                     android:text="成交数量:" />
+                 <TextView
+                     android:id="@+id/order_grab_num_value"
+                     android:layout_width="wrap_content"
+                     android:layout_height="wrap_content"
+                     android:layout_centerVertical="true"
+                     android:layout_marginLeft="20dp"
+                     android:layout_toRightOf="@+id/order_grab_num"
+                     android:textStyle="bold"
+                     android:text="101" />
+             </RelativeLayout>
+             <RelativeLayout
+                 android:layout_width="fill_parent"
+                 android:layout_height="fill_parent" >
+                 <TextView
+                     android:id="@+id/order_grab_id"
+                     android:layout_width="wrap_content"
+                     android:layout_height="wrap_content"
+                     android:layout_centerVertical="true"
+                     android:layout_marginLeft="20dp"
+                     android:layout_marginTop="10dp"
+                     android:text="成交编号:" />
+                 <TextView
+                     android:id="@+id/order_grab_id_value"
+                     android:layout_width="wrap_content"
+                     android:layout_height="wrap_content"
+                     android:layout_centerVertical="true"
+                     android:layout_marginLeft="20dp"
+                     android:layout_toRightOf="@+id/order_grab_id"
+                     android:textStyle="bold"
+                     android:text="12" />
+             </RelativeLayout>
+             <RelativeLayout
+                 android:layout_width="fill_parent"
+                 android:layout_height="fill_parent" >
+                 <TextView
+                     android:id="@+id/order_grab_time"
+                     android:layout_width="wrap_content"
+                     android:layout_height="wrap_content"
+                     android:layout_centerVertical="true"
+                     android:layout_marginLeft="20dp"
+                     android:layout_marginTop="10dp"
+                     android:text="成交时间:" />
+                 <TextView
+                     android:id="@+id/order_grab_time_value"
+                     android:layout_width="wrap_content"
+                     android:layout_height="wrap_content"
+                     android:layout_centerVertical="true"
+                     android:layout_marginLeft="20dp"
+                     android:layout_toRightOf="@+id/order_grab_time"
+                     android:textStyle="bold"
+                     android:text="2016-04-17 20:19:25" />
+             </RelativeLayout>
+             <View
+		         android:layout_width="fill_parent"
+		         android:layout_height="2dp"
+		         android:background="#FF909090" />
+        </LinearLayout>
+     </ScrollView>
      <RelativeLayout
          android:id="@+id/deal_container"
          android:layout_width="fill_parent"
@@ -90,7 +436,7 @@
          android:layout_above="@+id/deal_button_lock"
          android:layout_alignLeft="@+id/deal_search"
          android:layout_below="@+id/deal_search"
-         android:visibility="invisible" >
+         android:visibility="gone" >
          <ImageView
              android:id="@+id/deal_role_icon"
              android:layout_width="40dp"

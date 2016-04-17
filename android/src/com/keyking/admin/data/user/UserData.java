@@ -19,11 +19,12 @@ public class UserData {
 	List<Account> banks = new ArrayList<Account>();//绑定银行账户
 	Credit credit = new Credit();//信用度
 	byte breach;//违约次数
-	UserPermission perission;//用户权限
+	UserPermission perission = new UserPermission();//用户权限
 	Seller seller;
 	Recharge recharge;
 	int completeDealNum;
 	Forbid forbid;//封号
+	
 	public long getId() {
 		return id;
 	}
@@ -143,5 +144,28 @@ public class UserData {
 	}
 	public void setForbid(Forbid forbid) {
 		this.forbid = forbid;
+	}
+	
+	public void copy(UserData target) {
+		id = target.id;
+		account = target.account;
+		face = target.face;
+		nikeName = new String(target.nikeName);
+		title = new String(target.title);
+		registTime = target.registTime;
+		addresses = target.addresses;
+		name = target.name;
+		age = target.age;
+		identity = target.identity;
+		push = target.push;
+		signature = target.signature;
+		banks = target.banks;
+		credit = target.credit;
+		breach = target.breach;
+		perission.copy(target.perission);
+		seller = target.seller;
+		recharge = target.recharge;
+		completeDealNum = target.completeDealNum;
+		forbid = target.forbid;
 	}
 }

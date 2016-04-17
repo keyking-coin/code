@@ -23,7 +23,7 @@
     </LinearLayout>
     <LinearLayout
         android:id="@+id/userLayout3"
-        android:layout_width="70dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true"
@@ -33,11 +33,11 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:background="#ff0000"
-            android:text="会 员" />
+            android:text="会员" />
     </LinearLayout>
     <LinearLayout
         android:id="@+id/userLayout1"
-        android:layout_width="70dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true"
@@ -46,10 +46,10 @@
             android:id="@+id/button_agency"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:text="中 介" />
+            android:text="中介" />
     </LinearLayout>
     <LinearLayout
-        android:layout_width="70dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true"
@@ -58,7 +58,7 @@
             android:id="@+id/button_deal"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:text="帖 子" />
+            android:text="帖子" />
     </LinearLayout>
     <LinearLayout
         android:id="@+id/userLayout4"
@@ -67,84 +67,99 @@
         android:layout_alignParentRight="true"
         android:layout_toRightOf="@+id/userLayout2" >
         <SearchView
-            android:id="@+id/searchView1"
+            android:id="@+id/user_search"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1" >
+            android:textSize="15dp">
         </SearchView>
     </LinearLayout>
     <LinearLayout
         android:id="@+id/userLayout5"
-        android:layout_width="200dp"
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/userLayout4"
         android:layout_alignLeft="@+id/userLayout3"
         android:layout_marginTop="5dp"
-        android:layout_marginLeft="110dp" >
+        android:layout_marginLeft="80dp"
+        android:orientation="horizontal">
+        <TextView
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:text="头衔:" />
+
         <Spinner
             android:id="@+id/spinner_title"
             android:layout_width="fill_parent"
-            android:layout_height="fill_parent" />
+            android:layout_height="wrap_content" />
+
     </LinearLayout>
     <LinearLayout
         android:id="@+id/userLayout6"
-        android:layout_width="200dp"
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_alignLeft="@+id/userLayout5"
         android:layout_below="@+id/userLayout5"
         android:layout_marginTop="5dp"
-        android:orientation="vertical" >
+        android:visibility="invisible"
+        android:orientation="horizontal" >
+        <TextView
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:text="其他头衔:" />
         <EditText
             android:id="@+id/editText_title"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:visibility="invisible"
             android:hint="用户头衔" >
             <requestFocus />
         </EditText>
     </LinearLayout>
+    
     <LinearLayout
         android:id="@+id/userLayout7"
-        android:layout_width="200dp"
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_alignLeft="@+id/userLayout6"
         android:layout_below="@+id/userLayout6"
         android:layout_marginTop="10dp"
         android:layout_centerVertical="true"
-        android:orientation="vertical" >
-        <Spinner
+        android:orientation="horizontal" >
+        <TextView
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:text="权限:" />                <Spinner
             android:id="@+id/spinner_permission"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
 
     </LinearLayout>
     <LinearLayout
         android:id="@+id/userLayout8"
-        android:layout_width="200dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignLeft="@+id/userLayout7"
         android:layout_below="@+id/userLayout7"
         android:layout_marginTop="20dp"
-        android:orientation="vertical" >
+        android:orientation="horizontal" >
+    	<TextView
+	        android:id="@+id/user_nike_label"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:text="昵称:" />
         <EditText
             android:id="@+id/editText_nike"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:maxLength="12" >
-        </EditText>
+            android:ems="10"
+            android:maxLength="12" />
     </LinearLayout>
-    <LinearLayout
-        android:id="@+id/userLayout9"
-        android:layout_width="200dp"
-        android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/userLayout8"
-        android:layout_below="@+id/userLayout8"
-        android:layout_marginTop="50dp"
-        android:orientation="vertical" >
-        <Button
-            android:id="@+id/button_user_update"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:text="修    改" />
-    </LinearLayout>
+    <Button
+	   android:id="@+id/button_user_update"
+	   android:layout_width="fill_parent"
+	   android:layout_height="wrap_content"
+	   android:layout_alignLeft="@+id/userLayout8"
+	   android:layout_below="@+id/userLayout8"
+	   android:layout_marginTop="50dp"
+	   android:text="修    改" />
+
 </RelativeLayout>
