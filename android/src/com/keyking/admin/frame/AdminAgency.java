@@ -70,7 +70,7 @@ public class AdminAgency extends BaseActiivity implements ResultCallBack{
 				}
 			}
 		});
-		button = (Button)findViewById(R.id.asvt2);
+		button = (Button)findViewById(R.id.asvt2_1);
 		button.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -114,11 +114,13 @@ public class AdminAgency extends BaseActiivity implements ResultCallBack{
 		refresh();
 	}
 	
-	private void refresh(){
+	public void refresh(){
 		if (DataManager.getInstance().getDeals().size() == 0){
 			container.setVisibility(View.INVISIBLE);
+			show_page.setVisibility(View.INVISIBLE);
 		}else{
 			container.setVisibility(View.VISIBLE);
+			show_page.setVisibility(View.VISIBLE);
 			Deal deal = null;
 			try {
 				deal = DataManager.getInstance().getDeals().get(cursor);
@@ -130,7 +132,8 @@ public class AdminAgency extends BaseActiivity implements ResultCallBack{
 			show_page.setText((cursor + 1) + "/" + DataManager.getInstance().getDeals().size());
 			if (order.getState() == 1){
 				findViewById(R.id.asvt1).setVisibility(View.VISIBLE);
-				findViewById(R.id.asvt2).setVisibility(View.VISIBLE);
+				findViewById(R.id.asvt2_1).setVisibility(View.VISIBLE);
+				findViewById(R.id.asvt2_2).setVisibility(View.GONE);
 				findViewById(R.id.agency_s_line2).setVisibility(View.INVISIBLE);
 				findViewById(R.id.asvt3).setVisibility(View.INVISIBLE);
 				findViewById(R.id.agency_s_line3).setVisibility(View.INVISIBLE);
@@ -139,7 +142,8 @@ public class AdminAgency extends BaseActiivity implements ResultCallBack{
 				findViewById(R.id.asvt5).setVisibility(View.INVISIBLE);
 			}else{
 				findViewById(R.id.asvt1).setVisibility(View.VISIBLE);
-				findViewById(R.id.asvt2).setVisibility(View.VISIBLE);
+				findViewById(R.id.asvt2_1).setVisibility(View.GONE);
+				findViewById(R.id.asvt2_2).setVisibility(View.VISIBLE);
 				findViewById(R.id.agency_s_line2).setVisibility(View.VISIBLE);
 				findViewById(R.id.asvt3).setVisibility(View.VISIBLE);
 				findViewById(R.id.agency_s_line3).setVisibility(View.VISIBLE);

@@ -69,10 +69,16 @@
 	        android:layout_marginLeft="15dp"
 	        android:background="#FF909090" />
        	<Button
-       	    android:id="@+id/asvt2"
+       	    android:id="@+id/asvt2_1"
        	    android:layout_width="match_parent"
        	    android:layout_height="wrap_content"
+       	    android:visibility="gone" 
        	    android:text="中介已确认收款" />
+       	 <TextView
+           android:id="@+id/asvt2_2"
+           android:layout_width="wrap_content"
+           android:layout_height="wrap_content"
+           android:text="中介已确认收款" />
 		<View
        	    android:id="@+id/agency_s_line2"
 	        android:layout_width="2dp"

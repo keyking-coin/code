@@ -38,7 +38,6 @@ public class AdminUser extends BaseActiivity implements ResultCallBack {
     Spinner spinner_permission;
     EditText edit_title;
     EditText editText_nike;
-    SearchView user_search;
     UserData target;
     LinearLayout other_title;
 	@SuppressLint("HandlerLeak")
@@ -46,7 +45,7 @@ public class AdminUser extends BaseActiivity implements ResultCallBack {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.admin_user);
-		user_search  = (SearchView)findViewById(R.id.user_search);
+		SearchView user_search  = (SearchView)findViewById(R.id.user_search);
 		spinner_title = (Spinner)findViewById(R.id.spinner_title);
 		edit_title  = (EditText)findViewById(R.id.editText_title);
 		editText_nike = (EditText)findViewById(R.id.editText_nike);

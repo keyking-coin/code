@@ -12,36 +12,50 @@ import android.content.DialogInterface.OnClickListener;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.widget.Toast;
 
 import com.keyking.admin.net.DataBuffer;
 import com.keyking.admin.net.NetUtil;
 
 public class BaseActiivity extends Activity {
 	NetUtil net = null;
-	static ProgressDialog loading;
+	ProgressDialog loading;
 	static List<Activity> exitList  = new ArrayList<Activity>();
 	Handler uiHandler;
-	Handler errorHandler;
+	Handler handler;
 	@SuppressLint("HandlerLeak")
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		net = NetUtil.getInstance();
 		exitList.add(this);
-		errorHandler = new Handler(){
+		handler = new Handler(){
 			@Override
             public void handleMessage(Message msg) {
                 switch(msg.what){
 	                case 0:
 	                	showTips(BaseActiivity.this,msg.obj.toString());
 	                	break;
+	                case 1:
+	                	Toast.makeText(BaseActiivity.this,msg.obj.toString(),Toast.LENGTH_SHORT).show();
+	                	break;
+	                case 2:
+	                	AdminAgency agency = (AdminAgency)BaseActiivity.this;
+	                	agency.refresh();
+	                	break;
                 }
             }
 		};
+		net = NetUtil.getInstance();
+		net.setActivity(this);
+	}
+
+	
+	public Handler getHandler() {
+		return handler;
 	}
 
 	public void showTips(Activity activity,String str){
-		new  AlertDialog.Builder(activity)    
+		new AlertDialog.Builder(activity)    
 		.setTitle("错误") 
 		.setMessage(str)  
 		.setPositiveButton("确定",null )  
@@ -54,7 +68,8 @@ public class BaseActiivity extends Activity {
                 if (activity != null){
                 	activity.finish();
                 }   
-            } 
+            }
+            System.exit(0);
         } catch (Exception e) { 
             e.printStackTrace(); 
         } finally { 
@@ -69,16 +84,12 @@ public class BaseActiivity extends Activity {
 		.setNegativeButton("确定",new OnClickListener() {
 			@Override
 			public void onClick(DialogInterface dialog,int which) {
-				//activity.finish();
-				//System.exit(0);
-				//android.os.Process.killProcess(android.os.Process.myPid());s
 				over();
 			}
-		}).setPositiveButton("取消",null)
-		.show();
+		}).setPositiveButton("取消",null).show();
 	}
 	
-	public static void showLoading(Activity activity,String title){
+	public void showLoading(Activity activity,String title){
 		if (loading == null){
 			loading = ProgressDialog.show(activity,title,"通讯中,请稍候...",true,true); 
 		}else{
@@ -86,7 +97,7 @@ public class BaseActiivity extends Activity {
 		}
 	}
 	
-	public static void dispearLoading(){
+	public void dispearLoading(){
 		if (loading != null){
 			loading.dismiss();
 			loading = null;
@@ -107,6 +118,13 @@ public class BaseActiivity extends Activity {
 		Message message = new Message();
         message.what = 0;
         message.obj = tips;
-        errorHandler.sendMessage(message);
+        handler.sendMessage(message);
+	}
+	
+	public void showToast(String str){
+		Message message = new Message();
+        message.what = 1;
+        message.obj  = str;
+        handler.sendMessage(message);
 	}
 }
