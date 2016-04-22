@@ -73,6 +73,7 @@ public class HttpBuy extends HttpHandler {
 				deal.setLastIssue(TimeUtils.nowChStr());
 				NET.sendMessageToAllClent(deal.pushMessage(),user.getSessionAddress());
 			}
+			deal.save();
 			NET.sendMessageToAllClent(deal.clientMessage(Module.ADD_FLAG),null);
 			message(request,response,"ok");
 			ServerLog.info(user.getAccount() + " deployed deal-buy ok ----> id is " + deal.getId());

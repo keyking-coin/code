@@ -228,6 +228,7 @@ public class DealOrder extends EntitySaver implements Comparable<DealOrder>{
 				Credit credit = buyer.getCredit();
 				credit.addDealVale(total_value);
 				buyer.setNeedSave(true);
+				buyer.save();
 			}
 			Deal deal = CTRL.tryToSearch(dealId);
 			if (deal != null){
@@ -236,6 +237,7 @@ public class DealOrder extends EntitySaver implements Comparable<DealOrder>{
 					Credit credit = seller.getCredit();
 					credit.addDealVale(total_value);
 					seller.setNeedSave(true);
+					seller.save();
 				}
 			}
 		}

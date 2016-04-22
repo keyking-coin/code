@@ -30,6 +30,7 @@ public class HttpDelEmail extends HttpHandler {
 		}
 		synchronized (user) {
 			if (user.removeEmail(ids)){
+				user.save();
 				Map<String,Object> datas = new HashMap<String,Object>();
 				datas.put("result","ok");
 				datas.put("num",user.getEmails().size());

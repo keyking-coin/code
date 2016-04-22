@@ -32,12 +32,14 @@ public class AdminSendEmail extends AbstractLogic {
 			List<UserCharacter> users = CTRL.getUsers();
 			for (UserCharacter user : users){
 				CTRL.tryToSendEmailToUser(sendId,time,theme,content,user);
+				user.save();
 			}
 			resp.setSucces();
 			ServerLog.info("admin send eamil to all user");
 		}else{
 			UserCharacter target = CTRL.searchByAccountOrNickName(name);
 			if (CTRL.tryToSendEmailToUser(sendId,time,theme,content,target)){
+				target.save();
 				resp.setSucces();
 				ServerLog.info("admin send eamil to " + target.getAccount());
 			}else{

@@ -40,6 +40,7 @@ public class HttpDealOrderRevoke extends HttpHandler {
 						if (!order.checkRevoke(flag)){//撤销成功
 							order.addRevoke(flag);
 							order.setNeedSave(true);
+							order.save();
 							ModuleResp modules = new ModuleResp();
 							order.clientMessage(Module.UPDATE_FLAG,modules);
 							NET.sendMessageToAllClent(modules,null);

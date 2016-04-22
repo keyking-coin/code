@@ -44,6 +44,7 @@ public class HttpAddressChange extends HttpHandler {
 						return;
 					}
 					if (!user.removeAddress(address)){
+						user.save();
 						message(request,response,"在列表中找不到要删除的地址");
 					}else{
 						message(request,response,"ok");

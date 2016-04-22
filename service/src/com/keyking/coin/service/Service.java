@@ -75,25 +75,6 @@ public class Service implements Instances{
 			CONSOLE   = Integer.parseInt(XmlUtils.getAttribute(service,"console"));
 		}
 	}
-	
-	public static void stop(){
-		looper.isRunning = false;
-		ServerLog.info("service start closing");
-		new Thread(){
-			@Override
-			public void run() {
-				CTRL.save();
-				try {
-					Thread.sleep(10000);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-				ServerLog.info("service closed");
-				System.exit(0);
-			}
-		}.start();
-		
-	}
 }
  
  

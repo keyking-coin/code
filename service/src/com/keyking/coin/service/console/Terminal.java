@@ -8,7 +8,6 @@ import java.net.Socket;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import com.keyking.coin.service.Service;
 import com.keyking.coin.service.domain.Controler;
 import com.keyking.coin.util.ServerLog;
 
@@ -64,14 +63,13 @@ public class Terminal {
 					Timer timer = new Timer();
 			        timer.schedule(new TimerTask(){
 			            public void run() {
-			            	Service.stop();
+			            	//Service.stop();
 			            }
 			        },time*1000);
 			        writer.println("server will be closed in " + time + " second");
 			        writer.flush();
 					break;
 				case "save":
-					Controler.getInstance().save();
 					writer.println("save ok");
 					writer.flush();
 					break;

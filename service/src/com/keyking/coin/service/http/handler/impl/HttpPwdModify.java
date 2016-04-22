@@ -21,6 +21,7 @@ public class HttpPwdModify extends HttpHandler {
 			}else{
 				user.setPwd(newPwd);
 				user.setNeedSave(true);
+				user.save();
 				message(request,response,"ok");
 			}
 		}else{

@@ -31,6 +31,7 @@ public class AdminSellerOpration extends AbstractLogic {
 				user.getPermission().setType(PermissionType.buyer);
 			}
 			user.setNeedSave(true);
+			user.save();
 			NET.sendMessageToAdmin(user.clientAdminMessage(Module.DEL_FLAG));
 			NET.sendMessageToClent(user.clientMessage(Module.UPDATE_FLAG),user.getSessionAddress());
 			resp.setSucces();

@@ -72,6 +72,7 @@ public class HttpGrab extends HttpHandler{
 			long orderId = PK.key("deal_order");
 			order.setId(orderId);
 			deal.addOrder(order);
+			deal.save();
 			SimpleOrderModule module = new SimpleOrderModule();
 			order.simpleDes(module);
 			ModuleResp modules = new ModuleResp();

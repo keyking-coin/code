@@ -45,6 +45,7 @@ public class HttpRegist extends HttpHandler {
 			CTRL.tryToSendEmailToUser(1,registTime,"欢迎注册邮游包入库交易平台",content,user);
 			user.setRegistTime(registTime);
 			CTRL.register(user);
+			user.save();
 			message(request,response,"ok");
 			ServerLog.info(account + " regist at " + registTime);
 		}else{

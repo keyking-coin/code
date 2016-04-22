@@ -62,6 +62,7 @@ public class HttpSell extends HttpHandler {
 			deal.setOther(other);
 		}
 		deal.setHelpFlag(helpFlag);
+		deal.save();
 		boolean sendFlag = sendType.equals("1");
 		if (!user.getPermission().seller()){
 			Seller seller = user.getSeller();

@@ -206,15 +206,7 @@ public class Controler implements Instances{
 			user.tick();
 		}
 	}
-	
-	public void save(){
-		for (UserCharacter user : characters.values()){
-			user.save();
-		}
-		for (Deal deal : deals){
-			deal.save();
-		}
-	}
+
 	
 	public void haveUserOutNet(IoSession session){
 		for (UserCharacter user : characters.values()){

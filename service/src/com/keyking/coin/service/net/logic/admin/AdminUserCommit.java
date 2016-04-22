@@ -20,6 +20,7 @@ public class AdminUserCommit extends AbstractLogic {
 				return resp;
 			}
 			user.copy(userData);
+			user.save();
 			userData = new TransformUserData(user);
 			resp.addKey("user",userData);
 			resp.setSucces();

@@ -17,6 +17,8 @@ public class TransformOrderListInfo implements Instances ,Comparable<TransformOr
 	long grabId;//抢单人编号
 	String grabName;//抢单人姓名
 	byte sellFlag;//出售帖还是求购帖
+	byte helpFlag;//可以使用中介服务;0未开启，1开启。
+	int revoke;//状态
 	String bourse;//文交所名称
 	String name;//藏品名称
 	float price;//藏品单价
@@ -29,6 +31,8 @@ public class TransformOrderListInfo implements Instances ,Comparable<TransformOr
 		id         = order.getId();
 		issueId    = deal.getUid();
 		type       = deal.getType();
+		helpFlag   = deal.getHelpFlag();
+		revoke     = order.getRevoke();
 		UserCharacter user = CTRL.search(issueId);
 		issueName  = user.getNikeName();
 		grabId     = order.getBuyId();
@@ -180,6 +184,22 @@ public class TransformOrderListInfo implements Instances ,Comparable<TransformOr
 		this.state = state;
 	}
 
+
+	public byte getHelpFlag() {
+		return helpFlag;
+	}
+
+	public void setHelpFlag(byte helpFlag) {
+		this.helpFlag = helpFlag;
+	}
+
+	public int getRevoke() {
+		return revoke;
+	}
+
+	public void setRevoke(int revoke) {
+		this.revoke = revoke;
+	}
 
 	@Override
 	public int compareTo(TransformOrderListInfo o) {

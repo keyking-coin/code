@@ -53,6 +53,7 @@ public class HttpSendEmail extends HttpHandler {
 				long id = PK.key("email");
 				email.setId(id);
 				target.addEmail(email);
+				target.save();
 				EmailModule module = new EmailModule();
 				module.add("eamil",email);
 				ModuleResp modules = new ModuleResp();

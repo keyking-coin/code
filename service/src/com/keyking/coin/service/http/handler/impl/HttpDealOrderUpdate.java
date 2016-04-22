@@ -66,6 +66,7 @@ public class HttpDealOrderUpdate extends HttpHandler {
 					if (couldUpdate) {
 						byte pre = order.getState();
 						order.addTimes(state);
+						order.save();
 						NET.sendMessageToAllClent(order.clientMessage(Module.UPDATE_FLAG), null);
 						if (order.getHelpFlag() == 1) {
 							if (order.getState() == 1 || order.getState() == 4){

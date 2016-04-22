@@ -617,6 +617,7 @@ public class UserCharacter extends EntitySaver{
 		if (!addresses.contains(address)){
 			return false;
 		}
+		needSave = true;
 		addresses.remove(address);
 		return true;
 	}

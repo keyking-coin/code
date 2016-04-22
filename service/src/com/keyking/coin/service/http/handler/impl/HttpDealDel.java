@@ -34,6 +34,7 @@ public class HttpDealDel extends HttpHandler {
 					deal.setNum(0);
 					deal.setRevoke(true);
 					deal.setNeedSave(true);
+					deal.save();
 					message(request,response,"ok");
 					NET.sendMessageToAllClent(deal.clientMessage(Module.DEL_FLAG),null);
 					ServerLog.info(user.getAccount() + " revoke deal ----> id is " + dealId);
