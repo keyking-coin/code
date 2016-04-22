@@ -7,6 +7,7 @@ import com.keyking.coin.util.Instances;
 public class TransformDealListInfo implements Instances{
 	long id;//编号
 	long uid;//用户编号
+	byte type;//类型0入库，1现货
 	String issueName;//发布人昵称
 	byte sellFlag;//出售帖还是求购帖
 	byte helpFlag;//可以使用中介服务;0未开启，1开启。
@@ -22,6 +23,7 @@ public class TransformDealListInfo implements Instances{
 	public void copy(Deal deal) {
 		id         = deal.getId();
 		uid        = deal.getUid();
+		type       = deal.getType();
 		sellFlag   = deal.getSellFlag();
 		helpFlag   = deal.getHelpFlag();
 		bourse     = deal.getBourse();
@@ -60,6 +62,14 @@ public class TransformDealListInfo implements Instances{
 		this.issueName = issueName;
 	}
 	
+	public byte getType() {
+		return type;
+	}
+
+	public void setType(byte type) {
+		this.type = type;
+	}
+
 	public byte getSellFlag() {
 		return sellFlag;
 	}

@@ -12,6 +12,7 @@ public class TransformOrderListInfo implements Instances ,Comparable<TransformOr
 	
 	long id;//订单编号
 	long issueId;//发布人编号
+	byte type;//类型0入库，1现货
 	String issueName;//发布人昵称
 	long grabId;//抢单人编号
 	String grabName;//抢单人姓名
@@ -27,6 +28,7 @@ public class TransformOrderListInfo implements Instances ,Comparable<TransformOr
 	public void copy(Deal deal,DealOrder order){
 		id         = order.getId();
 		issueId    = deal.getUid();
+		type       = deal.getType();
 		UserCharacter user = CTRL.search(issueId);
 		issueName  = user.getNikeName();
 		grabId     = order.getBuyId();
@@ -69,6 +71,14 @@ public class TransformOrderListInfo implements Instances ,Comparable<TransformOr
 
 	public void setIssueName(String issueName) {
 		this.issueName = issueName;
+	}
+
+	public byte getType() {
+		return type;
+	}
+
+	public void setType(byte type) {
+		this.type = type;
 	}
 
 	public long getGrabId() {
