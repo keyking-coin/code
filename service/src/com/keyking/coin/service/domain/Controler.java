@@ -326,7 +326,7 @@ public class Controler implements Instances{
 				}
 			}
 		}
-		int count = 1 ;
+		int count = 1;
 		while (orders.size() < 20 && count < 8){
 			long pre = time.getMillis() - count * 24 * 3600 * 1000;
 			time = TimeUtils.getTime(pre);

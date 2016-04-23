@@ -19,15 +19,14 @@ public class TransformEmail implements Instances,Comparable<TransformEmail>{
 	String content = "";// 内容
 	byte status;//状态 0新邮件 1已查看
 	
-	public TransformEmail(Email email){
+	public TransformEmail(Email email,UserCharacter me){
 		type = email.getType();
 		id = email.getId();
 		senderId = email.getSenderId();
 		UserCharacter sender = CTRL.search(senderId);
-		senderName = sender.getNikeName();
-		receiverId = email.getUserId();
-		UserCharacter receiver = CTRL.search(receiverId);
-		receiverName = receiver.getNikeName();
+		senderName   = sender.getNikeName();
+		receiverId   = me.getId();
+		receiverName = me.getNikeName();
 		time = email.getTime();
 		theme = email.getTheme();
 		content = email.getContent();

@@ -35,7 +35,7 @@ public class HttpLoadEmail extends HttpHandler {
 		if (emails.size() > 0){
 			List<TransformEmail> tfes = new ArrayList<TransformEmail>();
 			for (Email email : emails){
-				tfes.add(new TransformEmail(email));
+				tfes.add(new TransformEmail(email,user));
 			}
 			Collections.sort(tfes);
 			str = formatJosn(request,JsonUtil.ObjectToJsonString(tfes));
