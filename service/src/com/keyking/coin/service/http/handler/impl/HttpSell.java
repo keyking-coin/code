@@ -62,7 +62,6 @@ public class HttpSell extends HttpHandler {
 			deal.setOther(other);
 		}
 		deal.setHelpFlag(helpFlag);
-		deal.save();
 		boolean sendFlag = sendType.equals("1");
 		if (!user.getPermission().seller()){
 			Seller seller = user.getSeller();
@@ -85,6 +84,7 @@ public class HttpSell extends HttpHandler {
 				deal.setLastIssue(TimeUtils.nowChStr());
 				NET.sendMessageToAllClent(deal.pushMessage(),user.getSessionAddress());
 			}
+			deal.save();
 			NET.sendMessageToAllClent(deal.clientMessage(Module.ADD_FLAG),null);
 			ServerLog.info(user.getAccount() + " deployed deal-sell ok ----> id is " + deal.getId());
 			message(request,response,"ok");

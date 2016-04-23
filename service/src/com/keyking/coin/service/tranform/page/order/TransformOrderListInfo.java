@@ -26,7 +26,9 @@ public class TransformOrderListInfo implements Instances ,Comparable<TransformOr
 	String time;//抢单时间
 	int num;//抢单数量
 	byte state;//订单状态
-
+    boolean sellerAppraise;
+    boolean buyerAppraise;
+    
 	public void copy(Deal deal,DealOrder order){
 		id         = order.getId();
 		issueId    = deal.getUid();
@@ -46,6 +48,8 @@ public class TransformOrderListInfo implements Instances ,Comparable<TransformOr
 		num        = order.getNum();
 		state      = order.getState();
 		time       = order.getTimes().get(0);
+		sellerAppraise  = order.getSellerAppraise().isCompleted();
+		buyerAppraise  = order.getBuyerAppraise().isCompleted();
 	}
 	
 	public long getId() {
