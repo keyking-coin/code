@@ -204,4 +204,6 @@ public class TransformOrderDetail implements Instances{
 	public void setOther(String other) {
 		this.other = other;
 	}
+	
+	
 }

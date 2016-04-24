@@ -9,8 +9,8 @@ import com.keyking.coin.util.Instances;
 import com.keyking.coin.util.TimeUtils;
 
 public class TransformOrderListInfo implements Instances ,Comparable<TransformOrderListInfo>{
-	
-	long id;//订单编号
+	long dealId;//买卖盘编号
+	long orderId;//订单编号
 	long issueId;//发布人编号
 	byte type;//类型0入库，1现货
 	String issueName;//发布人昵称
@@ -30,7 +30,8 @@ public class TransformOrderListInfo implements Instances ,Comparable<TransformOr
     boolean buyerAppraise;
     
 	public void copy(Deal deal,DealOrder order){
-		id         = order.getId();
+		dealId     = deal.getId();
+		orderId    = order.getId();
 		issueId    = deal.getUid();
 		type       = deal.getType();
 		helpFlag   = deal.getHelpFlag();
@@ -51,31 +52,34 @@ public class TransformOrderListInfo implements Instances ,Comparable<TransformOr
 		sellerAppraise  = order.getSellerAppraise().isCompleted();
 		buyerAppraise  = order.getBuyerAppraise().isCompleted();
 	}
-	
-	public long getId() {
-		return id;
+
+	public long getDealId() {
+		return dealId;
 	}
 
-
-	public void setId(long id) {
-		this.id = id;
+	public void setDealId(long dealId) {
+		this.dealId = dealId;
 	}
 
+	public long getOrderId() {
+		return orderId;
+	}
+
+	public void setOrderId(long orderId) {
+		this.orderId = orderId;
+	}
 
 	public long getIssueId() {
 		return issueId;
 	}
 
-
 	public void setIssueId(long issueId) {
 		this.issueId = issueId;
 	}
 
-
 	public String getIssueName() {
 		return issueName;
 	}
-
 
 	public void setIssueName(String issueName) {
 		this.issueName = issueName;
@@ -203,6 +207,22 @@ public class TransformOrderListInfo implements Instances ,Comparable<TransformOr
 
 	public void setRevoke(int revoke) {
 		this.revoke = revoke;
+	}
+
+	public boolean isSellerAppraise() {
+		return sellerAppraise;
+	}
+
+	public void setSellerAppraise(boolean sellerAppraise) {
+		this.sellerAppraise = sellerAppraise;
+	}
+
+	public boolean isBuyerAppraise() {
+		return buyerAppraise;
+	}
+
+	public void setBuyerAppraise(boolean buyerAppraise) {
+		this.buyerAppraise = buyerAppraise;
 	}
 
 	@Override
