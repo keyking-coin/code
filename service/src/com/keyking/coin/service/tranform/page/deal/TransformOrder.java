@@ -25,6 +25,7 @@ public class TransformOrder implements Instances , Comparable<TransformOrder>{
 		num                = order.getNum();
 		price              = order.getPrice();
 		state              = order.getState();
+		time               = order.getTimes().get(0);
 	}
 	
 	public long getGrabId() {

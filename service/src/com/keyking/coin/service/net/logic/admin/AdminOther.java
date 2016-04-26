@@ -14,7 +14,6 @@ public class AdminOther extends AbstractLogic {
 		String str = buffer.getUTF();
 		TransformOther other = JsonUtil.JsonToObject(str,TransformOther.class);
 		if (other != null){
-			
 			resp.setSucces();
 		}
 		return resp;
