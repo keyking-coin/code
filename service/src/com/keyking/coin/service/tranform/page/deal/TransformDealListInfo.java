@@ -17,6 +17,7 @@ public class TransformDealListInfo implements Instances{
 	float price;//藏品单价
 	String monad;//单位
 	int num;//藏品数量
+	int orderNums;//已抢单的数量
 	String validTime = "永久";//有效时间
 	String createTime;//创建时间
 	
@@ -31,6 +32,7 @@ public class TransformDealListInfo implements Instances{
 		price      = deal.getPrice();
 		monad      = deal.getMonad();
 		num        = deal.getLeftNum();
+		orderNums  = deal.orderNum();
 		validTime  = deal.getValidTime();
 		createTime = deal.getCreateTime();
 		revoke     = deal.isRevoke();
@@ -134,6 +136,15 @@ public class TransformDealListInfo implements Instances{
 		this.num = num;
 	}
 	
+	
+	public int getOrderNums() {
+		return orderNums;
+	}
+
+	public void setOrderNums(int orderNums) {
+		this.orderNums = orderNums;
+	}
+
 	public String getValidTime() {
 		return validTime;
 	}
