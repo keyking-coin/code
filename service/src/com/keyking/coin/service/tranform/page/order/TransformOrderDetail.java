@@ -9,11 +9,13 @@ import com.keyking.coin.service.domain.user.UserCharacter;
 import com.keyking.coin.util.Instances;
 
 public class TransformOrderDetail implements Instances{
-	long id;//订单编号
+	long dealId;
+	long orderId;//订单编号
 	long issueId;//发布人编号
 	String issueName;//发布人昵称
 	long grabId;//抢单人编号
 	String grabName;//抢单人姓名
+	byte type;
 	byte sellFlag;//出售帖还是求购帖
 	byte helpFlag;//是否中介
 	String bourse;//文交所名称
@@ -30,13 +32,15 @@ public class TransformOrderDetail implements Instances{
 	DealAppraise sellerAppraise;//卖家评价
 	
 	public void copy(Deal deal,DealOrder order){
-		id         = order.getId();
+		dealId     = deal.getId();
+		orderId    = order.getId();
 		issueId    = deal.getUid();
 		UserCharacter user = CTRL.search(issueId);
 		issueName  = user.getNikeName();
 		grabId     = order.getBuyId();
 		user       = CTRL.search(grabId);
 		grabName   = user.getNikeName();
+		type       = deal.getType();
 		sellFlag   = deal.getSellFlag();
 		bourse     = deal.getBourse();
 		name       = deal.getName();
@@ -53,14 +57,30 @@ public class TransformOrderDetail implements Instances{
 		sellerAppraise = order.getSellerAppraise();
 	}
 	
-	public long getId() {
-		return id;
+	public long getDealId() {
+		return dealId;
+	}
+
+	public void setDealId(long dealId) {
+		this.dealId = dealId;
+	}
+
+	public long getOrderId() {
+		return orderId;
+	}
+
+	public void setOrderId(long orderId) {
+		this.orderId = orderId;
 	}
 	
-	public void setId(long id) {
-		this.id = id;
+	public byte getType() {
+		return type;
 	}
-	
+
+	public void setType(byte type) {
+		this.type = type;
+	}
+
 	public long getIssueId() {
 		return issueId;
 	}

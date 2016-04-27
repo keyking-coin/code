@@ -9,6 +9,7 @@ import com.keyking.coin.util.TimeUtils;
 
 
 public class TransformOrder implements Instances , Comparable<TransformOrder>{
+	long orderId;
 	long grabId;//抢单人编号
 	String grabName;//抢单人姓名
 	int num;//抢单数量
@@ -18,6 +19,7 @@ public class TransformOrder implements Instances , Comparable<TransformOrder>{
 	String time;//订单状态的时间
 	
 	public void copy(DealOrder order) {
+		orderId            = order.getId();
 		grabId             = order.getBuyId();
 		UserCharacter user = CTRL.search(grabId);
 		grabName           = user.getNikeName();
@@ -28,6 +30,14 @@ public class TransformOrder implements Instances , Comparable<TransformOrder>{
 		time               = order.getTimes().get(0);
 	}
 	
+	public long getOrderId() {
+		return orderId;
+	}
+
+	public void setOrderId(long orderId) {
+		this.orderId = orderId;
+	}
+
 	public long getGrabId() {
 		return grabId;
 	}

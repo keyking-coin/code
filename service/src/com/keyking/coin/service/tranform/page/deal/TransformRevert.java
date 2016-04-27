@@ -8,6 +8,7 @@ import com.keyking.coin.util.Instances;
 import com.keyking.coin.util.TimeUtils;
 
 public class TransformRevert implements Instances , Comparable<TransformRevert>{
+	long   dealId;//
 	long   sayerId;//回复人编号
 	String sayerName;//回复人名称
 	String time;//回复时间
@@ -16,6 +17,7 @@ public class TransformRevert implements Instances , Comparable<TransformRevert>{
 	String context;//内容
 	
 	public void copy(Revert revert){
+		dealId             = revert.getDependentId();
 		sayerId            = revert.getUid();
 		UserCharacter user = CTRL.search(sayerId);
 		sayerName          = user.getNikeName();
@@ -26,6 +28,14 @@ public class TransformRevert implements Instances , Comparable<TransformRevert>{
 		time               = revert.getCreateTime();
 	}
 	
+	public long getDealId() {
+		return dealId;
+	}
+
+	public void setDealId(long dealId) {
+		this.dealId = dealId;
+	}
+
 	public long getSayerId() {
 		return sayerId;
 	}

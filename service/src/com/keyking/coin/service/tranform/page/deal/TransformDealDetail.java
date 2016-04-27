@@ -10,7 +10,6 @@ import com.keyking.coin.service.domain.user.UserCharacter;
 import com.keyking.coin.util.Instances;
 
 public class TransformDealDetail implements Instances{
-	
 	long id;//编号
 	long uid;//用户编号
 	String issueName;//发布人昵称
