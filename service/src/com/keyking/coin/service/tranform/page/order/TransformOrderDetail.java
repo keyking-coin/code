@@ -26,7 +26,10 @@ public class TransformOrderDetail implements Instances{
 	String validTime;//有效时间
 	String other;//描述
 	int num;//抢单数量
+	int buyerNum;//买家确认数量
+	int sellerNum;//买家发货数量或者入库数量
 	byte state;//订单状态
+	int revoke;
 	List<String> times;//订单状态时间
 	DealAppraise buyerAppraise;//买家评价
 	DealAppraise sellerAppraise;//卖家评价
@@ -47,12 +50,15 @@ public class TransformOrderDetail implements Instances{
 		price      = deal.getPrice();
 		monad      = deal.getMonad();
 		num        = order.getNum();
+		buyerNum   = order.getBuyerNum();
+		sellerNum  = order.getSellerNum();
 		state      = order.getState();
 		issueTime  = deal.getCreateTime();
 		validTime  = deal.getValidTime();
 		other      = deal.getOther();
 		helpFlag   = deal.getHelpFlag();
 		times      = order.getTimes();
+		revoke     = order.getRevoke();
 		buyerAppraise  = order.getBuyerAppraise();
 		sellerAppraise = order.getSellerAppraise();
 	}
@@ -184,7 +190,23 @@ public class TransformOrderDetail implements Instances{
 	public void setNum(int num) {
 		this.num = num;
 	}
-	
+
+	public int getBuyerNum() {
+		return buyerNum;
+	}
+
+	public void setBuyerNum(int buyerNum) {
+		this.buyerNum = buyerNum;
+	}
+
+	public int getSellerNum() {
+		return sellerNum;
+	}
+
+	public void setSellerNum(int sellerNum) {
+		this.sellerNum = sellerNum;
+	}
+
 	public byte getState() {
 		return state;
 	}
@@ -224,6 +246,12 @@ public class TransformOrderDetail implements Instances{
 	public void setOther(String other) {
 		this.other = other;
 	}
-	
-	
+
+	public int getRevoke() {
+		return revoke;
+	}
+
+	public void setRevoke(int revoke) {
+		this.revoke = revoke;
+	}
 }

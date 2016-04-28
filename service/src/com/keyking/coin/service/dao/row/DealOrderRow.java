@@ -18,6 +18,8 @@ public class DealOrderRow implements RowMapper<DealOrder> {
 		order.setBuyId(rs.getLong("buyId"));
 		order.strToTimes(rs.getString("times"));
 		order.setNum(rs.getInt("num"));
+		order.setBuyerNum(rs.getInt("buyerNum"));
+		order.setSellerNum(rs.getInt("sellerNum"));
 		order.setPrice(rs.getFloat("price"));
 		order.appraiseDeserialize(rs.getString("appraise"));
 		order.setState(rs.getByte("state"));

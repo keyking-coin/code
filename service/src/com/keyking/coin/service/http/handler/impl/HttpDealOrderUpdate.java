@@ -14,9 +14,10 @@ import com.keyking.coin.service.net.resp.module.Module;
 import com.keyking.coin.service.tranform.TransformOrderData;
 import com.keyking.coin.util.JsonUtil;
 import com.keyking.coin.util.ServerLog;
+import com.keyking.coin.util.StringUtil;
 
 public class HttpDealOrderUpdate extends HttpHandler {
-	//http://139.196.30.53:32104/HttpDealOrderUpdate?uid=x&pwd=x&did=x&oid=x&state=x
+	//http://139.196.30.53:32104/HttpDealOrderUpdate?uid=x&pwd=x&did=x&oid=x&state=x&num=x
 	@Override
 	public void handle(HttpRequestMessage request, HttpResponseMessage response) {
 		response.setContentType("text/plain");
@@ -26,6 +27,7 @@ public class HttpDealOrderUpdate extends HttpHandler {
 		long dealId = Long.parseLong(request.getParameter("did"));//交易编号
 		long orderId = Long.parseLong(request.getParameter("oid"));//订单编号
 		byte state = Byte.parseByte(request.getParameter("state"));//状态
+		String numStr = request.getParameter("num");//实际数量
 		UserCharacter user = CTRL.search(uid);
 		if (!user.getPwd().equals(pwd)) {
 			message(request, response, "非法的请求");
@@ -64,6 +66,15 @@ public class HttpDealOrderUpdate extends HttpHandler {
 					    }
 					}
 					if (couldUpdate) {
+						int num = order.getNum();
+						if (!StringUtil.isNull(numStr)){
+							num = Integer.parseInt(numStr);
+						}
+						if ((order.getHelpFlag() == 0 && state == 2) || (order.getHelpFlag() == 1 && state == 3)) {
+							order.setSellerNum(num);
+						}else if ((order.getHelpFlag() == 0 && state == 3) || (order.getHelpFlag() == 1 && state == 4)) {
+							order.setBuyerNum(num);
+						}
 						byte pre = order.getState();
 						order.addTimes(state);
 						order.save();

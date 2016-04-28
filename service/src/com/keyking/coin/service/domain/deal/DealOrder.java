@@ -35,6 +35,10 @@ public class DealOrder extends EntitySaver implements Comparable<DealOrder>{
 
 	int num;
 	
+	int sellerNum;
+	
+	int buyerNum;
+	
 	float price;
 
 	byte helpFlag;//0未使用,1使用
@@ -101,6 +105,22 @@ public class DealOrder extends EntitySaver implements Comparable<DealOrder>{
 
 	public void setNum(int num) {
 		this.num = num;
+	}
+	
+	public int getSellerNum() {
+		return sellerNum;
+	}
+
+	public void setSellerNum(int sellerNum) {
+		this.sellerNum = sellerNum;
+	}
+
+	public int getBuyerNum() {
+		return buyerNum;
+	}
+
+	public void setBuyerNum(int buyerNum) {
+		this.buyerNum = buyerNum;
 	}
 
 	public float getPrice() {
