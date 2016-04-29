@@ -88,7 +88,7 @@ public class HttpDealOrderUpdate extends HttpHandler {
 						}
 						Map<String,Object> datas = new HashMap<String,Object>();
 						TransformOrderData hd = new TransformOrderData();
-						hd.copy(order);
+						hd.copy(deal,order);
 						datas.put("result","ok");
 						datas.put("order",hd);
 						String str = JsonUtil.ObjectToJsonString(datas);

@@ -3,6 +3,7 @@ package com.keyking.coin.service.tranform;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.keyking.coin.service.domain.deal.Deal;
 import com.keyking.coin.service.domain.deal.DealAppraise;
 import com.keyking.coin.service.domain.deal.DealOrder;
 import com.keyking.coin.service.domain.user.UserCharacter;
@@ -14,7 +15,10 @@ public class TransformOrderData implements Instances,SerializeEntity{
 	long id;//订单编号
 	long dealId;//关联交易编号
 	long buyId;//抢单人编号
+	byte type;
 	int num;//抢单数量
+	int buyerNum;
+	int sellerNum;
 	float price;//抢单价钱
 	byte helpFlag;//0普通模式，1中介模式
 	String buyerName;//抢单人姓名
@@ -49,6 +53,14 @@ public class TransformOrderData implements Instances,SerializeEntity{
 		this.buyId = buyId;
 	}
 	
+	public byte getType() {
+		return type;
+	}
+
+	public void setType(byte type) {
+		this.type = type;
+	}
+
 	public int getNum() {
 		return num;
 	}
@@ -129,15 +141,34 @@ public class TransformOrderData implements Instances,SerializeEntity{
 		this.revoke = revoke;
 	}
 
-	public void copy(DealOrder order) {
+	public int getBuyerNum() {
+		return buyerNum;
+	}
+
+	public void setBuyerNum(int buyerNum) {
+		this.buyerNum = buyerNum;
+	}
+
+	public int getSellerNum() {
+		return sellerNum;
+	}
+
+	public void setSellerNum(int sellerNum) {
+		this.sellerNum = sellerNum;
+	}
+
+	public void copy(Deal deal,DealOrder order) {
 		id                 = order.getId();
 		dealId             = order.getDealId();
 		buyId              = order.getBuyId();
+		type               = deal.getType();
 		UserCharacter user = CTRL.search(buyId);
 		buyerName          = user.getNikeName();
 		buyerIcon          = user.getFace();
 		helpFlag           = order.getHelpFlag();
 		num                = order.getNum();
+		buyerNum           = order.getBuyerNum();
+		sellerNum          = order.getSellerNum();
 		price              = order.getPrice();
 		sellerAppraise     = order.getSellerAppraise();
 		buyerAppraise      = order.getBuyerAppraise();

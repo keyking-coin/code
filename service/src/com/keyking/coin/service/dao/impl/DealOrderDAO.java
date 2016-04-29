@@ -18,7 +18,7 @@ public class DealOrderDAO extends JdbcDaoSupport {
 	
 	private static String INSERT_SQL_STR = "insert into deal_order (id,dealId,buyId,times,num,price,appraise,state,helpFlag,_revoke)values(?,?,?,?,?,?,?,?,?,?)";
 	
-	private static String UPDATE_SQL_STR = "update deal_order set dealId=?,buyId=?,times=?,num=?,buyerNum=?,sellerNum=?price=?,appraise=?,state=?,helpFlag=?,_revoke=? where id=?";
+	private static String UPDATE_SQL_STR = "update deal_order set dealId=?,buyId=?,times=?,num=?,buyerNum=?,sellerNum=?,price=?,appraise=?,state=?,helpFlag=?,_revoke=? where id=?";
 	
 	private static String SELECT_SQL_STR = "select * from deal_order where dealId=?";
 	

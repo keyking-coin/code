@@ -85,7 +85,7 @@ public class HttpGrab extends HttpHandler{
 			List<TransformOrderData> hds = new ArrayList<TransformOrderData>();
 			for (DealOrder o : deal.getOrders()){
 				TransformOrderData hd = new TransformOrderData();
-				hd.copy(o);
+				hd.copy(deal,o);
 				hds.add(hd);
 			}
 			datas.put("orders",hds);

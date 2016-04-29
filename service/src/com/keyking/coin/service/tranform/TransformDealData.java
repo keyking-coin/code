@@ -169,12 +169,6 @@ public class TransformDealData implements Instances,Comparable<TransformDealData
 		this.revoke = revoke;
 	}
 
-	public void add(DealOrder order){
-		TransformOrderData ho = new TransformOrderData();
-		ho.copy(order);
-		orders.add(ho);
-	}
-	
 	public void copy(Deal deal) {
 		id         = deal.getId();
 		uid        = deal.getUid();
@@ -205,7 +199,7 @@ public class TransformDealData implements Instances,Comparable<TransformDealData
 				continue;
 			}
 			TransformOrderData ho = new TransformOrderData();
-			ho.copy(order);
+			ho.copy(deal,order);
 			orders.add(ho);
 		}
 	}
@@ -236,7 +230,7 @@ public class TransformDealData implements Instances,Comparable<TransformDealData
 			reverts.add(hr);
 		}
 		TransformOrderData ho = new TransformOrderData();
-		ho.copy(order);
+		ho.copy(deal,order);
 		orders.add(ho);
 	}
 	
