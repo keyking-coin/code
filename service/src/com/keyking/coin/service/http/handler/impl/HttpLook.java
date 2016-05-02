@@ -35,6 +35,7 @@ public class HttpLook extends HttpHandler {
 			data.setRegistTime(user.getRegistTime());
 			data.setTel(look ? user.getAccount() : "仅对交易方可见");
 			data.setName(look ? user.getName() : "仅对交易方可见");
+			data.setCouldLook(look);
 			if (look){
 				data.getAddresses().addAll(user.getAddresses());
 			}

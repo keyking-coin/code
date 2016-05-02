@@ -23,6 +23,7 @@ public class HttpAgencyPage extends HttpDealPage {
 		//每一页数量
 		int num  = Integer.parseInt(request.getParameter("num"));
 		SearchCondition condition = getCondition(request);
+		condition.setAgency(true);
 		Map<String,Object> datas = new HashMap<String,Object>();
 		List<Deal> temp = getList(condition);
 		if (temp.size() > 0){

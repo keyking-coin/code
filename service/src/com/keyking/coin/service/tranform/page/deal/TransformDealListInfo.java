@@ -1,10 +1,13 @@
 package com.keyking.coin.service.tranform.page.deal;
 
+import org.joda.time.DateTime;
+
 import com.keyking.coin.service.domain.deal.Deal;
 import com.keyking.coin.service.domain.user.UserCharacter;
 import com.keyking.coin.util.Instances;
+import com.keyking.coin.util.TimeUtils;
 
-public class TransformDealListInfo implements Instances{
+public class TransformDealListInfo implements Instances,Comparable<TransformDealListInfo>{
 	long id;//编号
 	long uid;//用户编号
 	byte type;//类型0入库，1现货
@@ -159,5 +162,16 @@ public class TransformDealListInfo implements Instances{
 	
 	public void setCreateTime(String createTime) {
 		this.createTime = createTime;
+	}
+
+	@Override
+	public int compareTo(TransformDealListInfo o) {
+		DateTime time1 = TimeUtils.getTime(createTime);
+		DateTime time2 = TimeUtils.getTime(o.createTime);
+		if (time1.isBefore(time2)){
+			return 1;
+		}else{
+			return -1;
+		}
 	}
 }
