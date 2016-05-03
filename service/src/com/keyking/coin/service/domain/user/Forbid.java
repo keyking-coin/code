@@ -5,9 +5,7 @@ import com.keyking.coin.util.StringUtil;
 import com.keyking.coin.util.TimeUtils;
 
 public class Forbid {
-	
 	String reason;//null未被封号，不为null就是原因
-	
 	long endTime = 0;//-1永久封号，0正常状态,>0表示封号截止时间。
 	
 	public String getReason() {

@@ -19,6 +19,7 @@ import com.keyking.coin.service.domain.email.EmailModule;
 import com.keyking.coin.service.domain.user.RankEntity;
 import com.keyking.coin.service.domain.user.Seller;
 import com.keyking.coin.service.domain.user.UserCharacter;
+import com.keyking.coin.service.net.data.RecentDeal;
 import com.keyking.coin.service.net.resp.impl.AdminResp;
 import com.keyking.coin.service.net.resp.impl.GeneralResp;
 import com.keyking.coin.service.net.resp.module.ModuleResp;
@@ -431,7 +432,41 @@ public class Controler implements Instances{
 	public List<Deal> getDeals() {
 		return deals;
 	}
-
+	
+	public List<RecentDeal> getRecentOrders() {
+		List<RecentDeal> result = new ArrayList<RecentDeal>();
+		DateTime time = TimeUtils.now();
+		for (Deal deal : deals){
+			for (DealOrder order : deal.getOrders()){
+				DateTime otime = TimeUtils.getTime(order.getTimes().get(0));
+				if (TimeUtils.isSameDay(time,otime)){
+					RecentDeal rd = new RecentDeal(deal,order);
+					result.add(rd);
+				}
+			}
+		}
+		if (result.size() < 20){
+			long pre = time.getMillis() - 24 * 3600 * 1000;
+			time = TimeUtils.getTime(pre);
+			for (Deal deal : deals){
+				for (DealOrder order : deal.getOrders()){
+					DateTime otime = TimeUtils.getTime(order.getTimes().get(0));
+					if (TimeUtils.isSameDay(time,otime)){
+						RecentDeal rd = new RecentDeal(deal,order);
+						result.add(rd);
+					}
+					if (result.size() >= 20){
+						break;
+					}
+				}
+				if (result.size() >= 20){
+					break;
+				}
+			}
+		}
+		return result;
+	}
+	
 	public List<SimpleOrderModule> trySearchRecentOrder() {
 		List<SimpleOrderModule> result = new ArrayList<SimpleOrderModule>();
 		DateTime time = TimeUtils.now();

@@ -281,6 +281,14 @@ public class UserCharacter extends EntitySaver{
 		this.emails = emails;
 	}
 
+	public List<Friend> getFriends() {
+		return friends;
+	}
+
+	public void setFriends(List<Friend> friends) {
+		this.friends = friends;
+	}
+
 	public void deserializeFavorites(String str){
 		if (StringUtil.isNull(str)){
 			return;

@@ -46,6 +46,7 @@ public class AdminLogin extends BaseActiivity implements ResultCallBack{
 					return;
 				}
 				Request request = new Request(NetLogicName.admin_login.getKey());
+				//Request request = new Request(NetLogicName.app_login.getKey());
 				request.add(str_account);
 				request.add(str_pwd);
 				if (net.send(request,AdminLogin.this)){

@@ -11,6 +11,7 @@ public enum NetLogicName {
 	order_search("AdminOrderSearch"),
 	deal_lock("AdminLockDeal"),
 	order_lock("AdminLockOrder"),
+	app_login("AppLogin")
 	;
 	private String key;
 	private NetLogicName(String key){

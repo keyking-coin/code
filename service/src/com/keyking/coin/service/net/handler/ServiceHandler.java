@@ -20,6 +20,8 @@ public class ServiceHandler extends IoHandlerAdapter implements Instances {
 	
 	private static final String LOGIC_PACKAGE_NAME_ADMIN = "com.keyking.coin.service.net.logic.admin.";
 	
+	private static final String LOGIC_PACKAGE_NAME_APP = "com.keyking.coin.service.net.logic.app.";
+	
 	private static ServiceHandler instance = new ServiceHandler();
 	
 	Map<String,IoSession> sessions = new ConcurrentHashMap<String,IoSession>();
@@ -39,6 +41,8 @@ public class ServiceHandler extends IoHandlerAdapter implements Instances {
 			try {
 				if (logicName.contains("Admin")){
 					clazz = Class.forName(LOGIC_PACKAGE_NAME_ADMIN + logicName);
+				}else if (logicName.contains("App")){
+					clazz = Class.forName(LOGIC_PACKAGE_NAME_APP + logicName);
 				}else{
 					clazz = Class.forName(LOGIC_PACKAGE_NAME_USER + logicName);
 				}
