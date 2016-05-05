@@ -62,6 +62,10 @@ public class HttpGrab extends HttpHandler{
 				message(request,response,"剩余数量不足，抢单失败。");
 				return;
 			}
+			if (uid == deal.getUid()){
+				message(request,response,"自己的交易不能抢单");
+				return;
+			}
 			DealOrder order = new DealOrder();
 			order.setDealId(id);
 			order.setBuyId(uid);
