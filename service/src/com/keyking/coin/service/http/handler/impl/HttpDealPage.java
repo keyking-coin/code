@@ -157,6 +157,7 @@ public class HttpDealPage extends HttpHandler {
 				count ++;
 			}
 		}
-		return count / num;
+		int left = count / num;
+		return count % num == 0 ? left : left + 1;
 	}
 }

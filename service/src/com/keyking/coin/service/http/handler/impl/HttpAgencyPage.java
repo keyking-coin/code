@@ -1,19 +1,21 @@
 package com.keyking.coin.service.http.handler.impl;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import com.keyking.coin.service.domain.condition.SearchCondition;
 import com.keyking.coin.service.domain.deal.Deal;
+import com.keyking.coin.service.domain.deal.DealOrder;
 import com.keyking.coin.service.http.request.HttpRequestMessage;
 import com.keyking.coin.service.http.response.HttpResponseMessage;
-import com.keyking.coin.service.tranform.page.deal.TransformDealListInfo;
+import com.keyking.coin.service.tranform.page.order.TransformOrderListInfo;
 import com.keyking.coin.util.JsonUtil;
 
 public class HttpAgencyPage extends HttpDealPage {
-	//http://139.196.30.53:32104/HttpAgencyPage?type=x&bourse=x&title=x&seller=x&buyer=x&valid=x&page=x&num=x
+	//http://127.0.0.1:32104/HttpAgencyPage?page=2&num=30
 	@Override
 	public void handle(HttpRequestMessage request, HttpResponseMessage response) {
 		response.setContentType("text/plain");
@@ -27,13 +29,19 @@ public class HttpAgencyPage extends HttpDealPage {
 		Map<String,Object> datas = new HashMap<String,Object>();
 		List<Deal> temp = getList(condition);
 		if (temp.size() > 0){
-			List<TransformDealListInfo> src = new ArrayList<TransformDealListInfo>();
-			List<TransformDealListInfo> dst = new ArrayList<TransformDealListInfo>();
+			List<TransformOrderListInfo> src = new ArrayList<TransformOrderListInfo>();
+			List<TransformOrderListInfo> dst = new ArrayList<TransformOrderListInfo>();
 			for (Deal deal : temp){
-				TransformDealListInfo tdl = new TransformDealListInfo();
-				tdl.copy(deal);
-				src.add(tdl);
+				for (DealOrder order : deal.getOrders()){
+					if (order.checkRevoke()){
+						continue;
+					}
+					TransformOrderListInfo tol = new TransformOrderListInfo();
+					tol.copy(deal,order);
+					src.add(tol);
+				}
 			}
+			Collections.sort(src);
 			int left = compute(src,dst,page,num);
 			datas.put("result","ok");
 			datas.put("list",dst);
