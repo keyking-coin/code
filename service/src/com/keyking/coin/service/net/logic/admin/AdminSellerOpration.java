@@ -28,6 +28,7 @@ public class AdminSellerOpration extends AbstractLogic {
 				}
 			}else{
 				seller.setPass(false);
+				user.setSeller(null);
 				user.getPermission().setType(PermissionType.buyer);
 			}
 			user.setNeedSave(true);

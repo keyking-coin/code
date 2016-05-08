@@ -2,6 +2,7 @@ package com.keyking.coin.service.domain;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -222,12 +223,73 @@ public class Controler implements Instances{
 	
 	public List<Deal> getSearchDeals(SearchCondition condition) {
 		List<Deal> result = new ArrayList<Deal>();
+		List<Deal> issues    = new ArrayList<Deal>();
+		List<Deal> valides   = new ArrayList<Deal>();
+		List<Deal> normals   = new ArrayList<Deal>();
+		List<Deal> tails     = new ArrayList<Deal>();
 		for (Deal deal : deals){
 			if (condition.legal(deal)){
+				if (deal.getLeftNum() == 0){
+					tails.add(deal);
+					continue;
+				}
+				if (deal.isIssueRecently()){
+					issues.add(deal);
+				}else if (deal.checkValidTime()){
+					valides.add(deal);
+				}else{
+					normals.add(deal);
+				}
 				result.add(deal);
 			}
 		}
+		if (issues.size() > 0){
+			Collections.sort(issues,new Comparator<Deal>(){
+				@Override
+				public int compare(Deal o1, Deal o2) {
+					DateTime time1 = TimeUtils.getTime(o1.getLastIssue());
+					DateTime time2 = TimeUtils.getTime(o2.getLastIssue());
+					if (time1.isBefore(time2)){
+						return 1;
+					}else{
+						return -1;
+					}
+				}
+			});
+			result.addAll(issues);
+		}
+		if (valides.size() > 0){
+			Collections.sort(valides);
+			result.addAll(valides);
+		}
+		if (normals.size() > 0){
+			Collections.sort(normals);
+			result.addAll(normals);
+		}
+		if (tails.size() > 0){
+			Collections.sort(tails);
+			result.addAll(tails);
+		}
 		return result;
+	}
+	
+	public <T> int compute(List<T> src , List<T> dst , int page , int num){
+		if (num <= 0){
+			return 0;
+		}
+		int start = (page -1) * num;
+		int end   = start + num;
+		int count = 0;
+		for (int i = start ; i < src.size() ; i++){
+			T info = src.get(i);
+			if (i < end){
+				dst.add(info);
+			}else{
+				count ++;
+			}
+		}
+		int left = count / num;
+		return count % num == 0 ? left : left + 1;
 	}
 	
 	public List<Deal> getWeekDeals() {

@@ -1,13 +1,9 @@
 package com.keyking.coin.service.http.handler.impl;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import org.joda.time.DateTime;
 
 import com.keyking.coin.service.domain.condition.SearchCondition;
 import com.keyking.coin.service.domain.deal.Deal;
@@ -17,7 +13,6 @@ import com.keyking.coin.service.http.response.HttpResponseMessage;
 import com.keyking.coin.service.tranform.page.deal.TransformDealListInfo;
 import com.keyking.coin.util.JsonUtil;
 import com.keyking.coin.util.StringUtil;
-import com.keyking.coin.util.TimeUtils;
 
 public class HttpDealPage extends HttpHandler {
 	//http://139.196.30.53:32104/HttpDealPage?type=x&bourse=x&title=x&seller=x&buyer=x&valid=x&page=x&num=x
@@ -31,7 +26,7 @@ public class HttpDealPage extends HttpHandler {
 		int num  = Integer.parseInt(request.getParameter("num"));
 		SearchCondition condition = getCondition(request);
 		Map<String,Object> datas = new HashMap<String,Object>();
-		List<Deal> temp = getList(condition);
+		List<Deal> temp = CTRL.getSearchDeals(condition);
 		if (temp.size() > 0){
 			List<TransformDealListInfo> src = new ArrayList<TransformDealListInfo>();
 			List<TransformDealListInfo> dst = new ArrayList<TransformDealListInfo>();
@@ -40,7 +35,7 @@ public class HttpDealPage extends HttpHandler {
 				tdl.copy(deal);
 				src.add(tdl);
 			}
-			int left = compute(src,dst,page,num);
+			int left = CTRL.compute(src,dst,page,num);
 			datas.put("result","ok");
 			datas.put("list",dst);
 			datas.put("page",page);
@@ -88,76 +83,5 @@ public class HttpDealPage extends HttpHandler {
 			condition.setValid(valid);
 		}
 		return condition;
-	}
-	
-	public List<Deal> getList(SearchCondition condition){
-		List<Deal> result = CTRL.getSearchDeals(condition);
-		List<Deal> deals = new ArrayList<Deal>();
-		if (result.size() > 0){
-			List<Deal> issues    = new ArrayList<Deal>();
-			List<Deal> valides   = new ArrayList<Deal>();
-			List<Deal> normals   = new ArrayList<Deal>();
-			List<Deal> tails     = new ArrayList<Deal>();
-			for (Deal deal : result){
-				if (deal.getLeftNum() == 0){
-					tails.add(deal);
-					continue;
-				}
-				if (deal.isIssueRecently()){
-					issues.add(deal);
-				}else if (deal.checkValidTime()){
-					valides.add(deal);
-				}else{
-					normals.add(deal);
-				}
-			}
-			if (issues.size() > 0){
-				Collections.sort(issues,new Comparator<Deal>(){
-					@Override
-					public int compare(Deal o1, Deal o2) {
-						DateTime time1 = TimeUtils.getTime(o1.getLastIssue());
-						DateTime time2 = TimeUtils.getTime(o2.getLastIssue());
-						if (time1.isBefore(time2)){
-							return 1;
-						}else{
-							return -1;
-						}
-					}
-				});
-			}
-			if (valides.size() > 0){
-				Collections.sort(valides);
-			}
-			if (normals.size() > 0){
-				Collections.sort(normals);
-			}
-			if (tails.size() > 0){
-				Collections.sort(tails);
-			}
-			deals.addAll(issues);
-			deals.addAll(valides);
-			deals.addAll(normals);
-			deals.addAll(tails);
-		}
-		return deals;
-	}
-	
-	protected <T> int compute(List<T> src , List<T> dst , int page , int num){
-		if (num <= 0){
-			return 0;
-		}
-		int start = (page -1) * num;
-		int end   = start + num;
-		int count = 0;
-		for (int i = start ; i < src.size() ; i++){
-			T info = src.get(i);
-			if (i < end){
-				dst.add(info);
-			}else{
-				count ++;
-			}
-		}
-		int left = count / num;
-		return count % num == 0 ? left : left + 1;
 	}
 }

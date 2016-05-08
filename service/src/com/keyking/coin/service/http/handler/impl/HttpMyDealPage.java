@@ -36,7 +36,7 @@ public class HttpMyDealPage extends HttpDealPage {
 			List<TransformDealListInfo> src = searchSells(uid);//等待交易 我所发的所有在有效期的帖子
 			if (src != null && src.size() > 0){
 				List<TransformDealListInfo> dst = new ArrayList<TransformDealListInfo>();
-				int left = compute(src,dst,page,num);
+				int left = CTRL.compute(src,dst,page,num);
 				datas.put("result","ok");
 				datas.put("list",dst);
 				datas.put("page",page);
@@ -69,7 +69,7 @@ public class HttpMyDealPage extends HttpDealPage {
 			}
 			if (src != null && src.size() > 0){
 				List<TransformOrderListInfo> dst = new ArrayList<TransformOrderListInfo>();
-				int left = compute(src,dst,page,num);
+				int left = CTRL.compute(src,dst,page,num);
 				datas.put("result","ok");
 				datas.put("list",dst);
 				datas.put("page",page);

@@ -26,7 +26,7 @@ public class HttpOrderPage extends HttpDealPage {
 		int num  = Integer.parseInt(request.getParameter("num"));
 		SearchCondition condition = getCondition(request);
 		Map<String,Object> datas = new HashMap<String,Object>();
-		List<Deal> temp = getList(condition);
+		List<Deal> temp = CTRL.getSearchDeals(condition);
 		if (temp.size() > 0){
 			List<TransformOrderListInfo> src = new ArrayList<TransformOrderListInfo>();
 			List<TransformOrderListInfo> dst = new ArrayList<TransformOrderListInfo>();
@@ -41,7 +41,7 @@ public class HttpOrderPage extends HttpDealPage {
 				}
 			}
 			Collections.sort(src);
-			int left = compute(src,dst,page,num);
+			int left = CTRL.compute(src,dst,page,num);
 			datas.put("result","ok");
 			datas.put("list",dst);
 			datas.put("page",page);
