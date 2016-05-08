@@ -240,7 +240,6 @@ public class Controler implements Instances{
 				}else{
 					normals.add(deal);
 				}
-				result.add(deal);
 			}
 		}
 		if (issues.size() > 0){
