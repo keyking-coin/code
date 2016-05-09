@@ -15,6 +15,8 @@ import com.keyking.coin.service.domain.user.UserCharacter;
 import com.keyking.coin.service.net.buffer.DataBuffer;
 import com.keyking.coin.service.net.resp.module.Module;
 import com.keyking.coin.service.net.resp.module.ModuleResp;
+import com.keyking.coin.service.tranform.page.deal.TransformDealDetail;
+import com.keyking.coin.service.tranform.page.deal.TransformDealListInfo;
 import com.keyking.coin.util.StringUtil;
 import com.keyking.coin.util.TimeUtils;
 
@@ -525,6 +527,17 @@ public class Deal extends EntitySaver implements Comparable<Deal>{
 		return resp;
 	}
 	
+	public ModuleResp clientMessageDetail(byte type,ModuleResp resp){
+		Module module = new Module();
+		module.setCode(Module.MODULE_CODE_DEAL);
+		module.setFlag(type);
+		TransformDealDetail tdd = new TransformDealDetail();
+		tdd.copy(this);
+		module.add("deal",tdd);
+		resp.addModule(module);
+		return resp;
+	}
+	
 	public ModuleResp pushMessage(){
 		PushDealModule module = new PushDealModule();
 		//TransformDealData rdd = new TransformDealData();
@@ -535,7 +548,17 @@ public class Deal extends EntitySaver implements Comparable<Deal>{
 		modules.addModule(module);
 		return modules;
 	}
-
+	
+	public ModuleResp pushMessageList(){
+		PushDealModule module = new PushDealModule();
+		TransformDealListInfo tdli = new TransformDealListInfo();
+		tdli.copy(this);
+		module.add("push",tdli);
+		ModuleResp modules = new ModuleResp();
+		modules.addModule(module);
+		return modules;
+	}
+	
 	public boolean isIssueRecently() {
 		if (!StringUtil.isNull(lastIssue)){
 			long time = TimeUtils.getTime(lastIssue).getMillis() / 1000 + Service.IUSSUE_TIME * 3600;

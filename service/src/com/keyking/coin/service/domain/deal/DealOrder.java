@@ -13,6 +13,7 @@ import com.keyking.coin.service.net.resp.module.AdminModuleResp;
 import com.keyking.coin.service.net.resp.module.Module;
 import com.keyking.coin.service.net.resp.module.ModuleResp;
 import com.keyking.coin.service.tranform.TransformDealData;
+import com.keyking.coin.service.tranform.page.order.TransformOrderDetail;
 import com.keyking.coin.util.JsonUtil;
 import com.keyking.coin.util.StringUtil;
 import com.keyking.coin.util.TimeUtils;
@@ -305,13 +306,19 @@ public class DealOrder extends EntitySaver implements Comparable<DealOrder>{
 		Module module = new Module();
 		module.setCode(Module.MODULE_CODE_ORDER);
 		module.setFlag(type);
-		//TransformOrderData tod = new TransformOrderData();
-		//tod.copy(this);
-		//module.add("order",tod);
 		module.add("order",this);
 		modules.addModule(module);
 	}
 	
+	public void clientMessage(byte type,ModuleResp modules,Deal deal){
+		Module module = new Module();
+		module.setCode(Module.MODULE_CODE_ORDER);
+		module.setFlag(type);
+		TransformOrderDetail tod = new TransformOrderDetail();
+		tod.copy(deal,this);
+		module.add("order",tod);
+		modules.addModule(module);
+	}
 	
 	public ModuleResp clientAdminMessage(byte type,AdminModuleResp modules){
 		Module module = new Module();

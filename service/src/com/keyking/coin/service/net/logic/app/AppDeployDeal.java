@@ -31,6 +31,10 @@ public class AppDeployDeal extends AbstractLogic{
 		String other = buffer.getUTF();//有效时间
 		byte helpFlag = buffer.get();//帮组标志
 		UserCharacter user = CTRL.search(uid);
+		if (user == null){//不存在账号是account
+			resp.setError("找不到用户");
+			return resp;
+		}
 		String forbidStr = user.getForbid().getReason();
 		if (forbidStr != null){
 			resp.setError("您已经被封号原因是:" + forbidStr);
