@@ -70,7 +70,9 @@ public class AppDealOrderCommite extends AbstractLogic {
 					byte pre = order.getState();
 					order.addTimes(state);
 					order.save();
-					NET.sendMessageToAllClent(order.clientMessage(Module.UPDATE_FLAG), null);
+					TransformOrderDetail tod = new TransformOrderDetail();
+					tod.copy(deal,order);
+					NET.sendMessageToAllClent(tod.clientMessage(Module.UPDATE_FLAG), null);
 					if (order.getHelpFlag() == 1) {
 						if (order.getState() == 1 || order.getState() == 4){
 							NET.sendMessageToAdmin(order.clientAdminMessage(Module.ADD_FLAG,new AdminModuleResp()));
@@ -78,7 +80,6 @@ public class AppDealOrderCommite extends AbstractLogic {
 							NET.sendMessageToAdmin(order.clientAdminMessage(Module.DEL_FLAG,new AdminModuleResp()));
 						}
 					}
-					TransformOrderDetail tod = new TransformOrderDetail();
 					tod.copy(deal,order);
 					resp.put("order",tod);
 					resp.setSucces();

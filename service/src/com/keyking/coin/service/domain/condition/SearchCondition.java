@@ -128,25 +128,24 @@ public class SearchCondition implements Instances{
 			}
 		}
 		if (!bourse.equals("null") && !bourse.equals("全部文交所")){
-			String[] ss = deal.getBourse().split(",");
 			if (deal.getType() == 0 && type.equals("入库")){
 				if (bourse.equals("其他文交所")){
 					for (int i = 0; i < OTHER_BOURSE_NAMES.length ; i++){
-						if (ss[1].equals(OTHER_BOURSE_NAMES[i])){
+						if (deal.getBourse().contains(OTHER_BOURSE_NAMES[i])){
 							return false;
 						}
 					}
-				}else if (!ss[1].contains(bourse)){
+				}else if (!deal.getBourse().contains(bourse)){
 					return false;
 				}
 			}else{
 				if (bourse.equals("其他城市")){
 					for (int i = 0; i < OTHER_CITY_NAMES.length ; i++){
-						if (ss[1].equals(OTHER_BOURSE_NAMES[i])){
+						if (deal.getBourse().contains(OTHER_BOURSE_NAMES[i])){
 							return false;
 						}
 					}
-				}else if (!ss[1].contains(bourse)){
+				}else if (!deal.getBourse().contains(bourse)){
 					return false;
 				}
 			}

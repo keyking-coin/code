@@ -78,7 +78,7 @@ public class HttpDealOrderUpdate extends HttpHandler {
 						byte pre = order.getState();
 						order.addTimes(state);
 						order.save();
-						NET.sendMessageToAllClent(order.clientMessage(Module.UPDATE_FLAG), null);
+						NET.sendMessageToAllClent(order.clientMessage(Module.UPDATE_FLAG,deal), null);
 						if (order.getHelpFlag() == 1) {
 							if (order.getState() == 1 || order.getState() == 4){
 								NET.sendMessageToAdmin(order.clientAdminMessage(Module.ADD_FLAG,new AdminModuleResp()));

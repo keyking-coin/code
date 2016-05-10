@@ -27,7 +27,7 @@ public class AdminDealOrderUpdate extends AbstractLogic {
 					synchronized (order) {
 						order.addTimes(index);
 						order.save();
-						NET.sendMessageToAllClent(order.clientMessage(Module.UPDATE_FLAG),null);
+						NET.sendMessageToAllClent(order.clientMessage(Module.UPDATE_FLAG,deal),null);
 						NET.sendMessageToAdmin(order.clientAdminMessage(Module.DEL_FLAG,new AdminModuleResp()));
 						resp.addKey("result","操作成功");
 						resp.setSucces();

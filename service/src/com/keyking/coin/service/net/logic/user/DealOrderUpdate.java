@@ -49,7 +49,7 @@ public class DealOrderUpdate extends AbstractLogic {
 					if (couldUpdate){
 						byte pre = order.getState();
 						order.addTimes(index);
-						NET.sendMessageToAllClent(order.clientMessage(Module.UPDATE_FLAG),null);
+						NET.sendMessageToAllClent(order.clientMessage(Module.UPDATE_FLAG,deal),null);
 						resp.setSucces();
 						if (order.getHelpFlag() == 1){
 							if (order.getState() == 1 || order.getState() == 4){

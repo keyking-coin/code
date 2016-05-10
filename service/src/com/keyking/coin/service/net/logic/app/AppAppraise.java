@@ -65,7 +65,7 @@ public class AppAppraise extends AbstractLogic {
 							tod.copy(deal,order);
 							resp.setSucces();
 							resp.put("order",tod);
-							NET.sendMessageToAllClent(order.clientMessage(Module.UPDATE_FLAG),null);
+							NET.sendMessageToAllClent(order.clientMessage(Module.UPDATE_FLAG,deal),null);
 							ServerLog.info(user.getAccount()+ " appraised : star = " + star + " context = "+ context);
 						}else{
 							resp.setError("您已评价过了");

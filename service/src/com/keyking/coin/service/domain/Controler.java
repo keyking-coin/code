@@ -21,6 +21,7 @@ import com.keyking.coin.service.domain.user.RankEntity;
 import com.keyking.coin.service.domain.user.Seller;
 import com.keyking.coin.service.domain.user.UserCharacter;
 import com.keyking.coin.service.net.data.RecentDeal;
+import com.keyking.coin.service.net.resp.RespEntity;
 import com.keyking.coin.service.net.resp.impl.AdminResp;
 import com.keyking.coin.service.net.resp.impl.GeneralResp;
 import com.keyking.coin.service.net.resp.module.ModuleResp;
@@ -152,7 +153,7 @@ public class Controler implements Instances{
 		return null;
 	}
 	
-	public boolean checkAccout(String account,String nickName,GeneralResp resp){
+	public boolean checkAccout(String account,String nickName,RespEntity resp){
 		for (UserCharacter user : characters.values()){
 			if (account != null && user.getAccount().equals(account)){
 				if (resp != null){

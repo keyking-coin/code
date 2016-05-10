@@ -80,7 +80,7 @@ public class AppDealGrab extends AbstractLogic {
 			ModuleResp modules = new ModuleResp();
 			modules.addModule(module);
 			order.clientMessage(Module.ADD_FLAG,modules,deal);
-			deal.clientMessageDetail(Module.UPDATE_FLAG,modules);
+			deal.clientMessage(Module.UPDATE_FLAG,modules);
 			NET.sendMessageToAllClent(modules,null);
 			List<TransformOrder> tos = new ArrayList<TransformOrder>();
 			for (DealOrder o : deal.getOrders()){

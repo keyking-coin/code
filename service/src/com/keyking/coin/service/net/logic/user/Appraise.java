@@ -59,7 +59,7 @@ public class Appraise extends AbstractLogic {
 							if (other != null){
 								other.getCredit().addNum(star);
 							}
-							NET.sendMessageToAllClent(order.clientMessage(Module.UPDATE_FLAG),null);
+							NET.sendMessageToAllClent(order.clientMessage(Module.UPDATE_FLAG,deal),null);
 							ServerLog.info(user.getAccount() + " appraised : star = " + star + " context = " + value);
 							resp.setSucces();
 						}else{

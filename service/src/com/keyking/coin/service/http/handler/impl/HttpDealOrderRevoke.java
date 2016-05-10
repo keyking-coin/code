@@ -42,7 +42,7 @@ public class HttpDealOrderRevoke extends HttpHandler {
 							order.setNeedSave(true);
 							order.save();
 							ModuleResp modules = new ModuleResp();
-							order.clientMessage(Module.UPDATE_FLAG,modules);
+							order.clientMessage(Module.UPDATE_FLAG,modules,deal);
 							NET.sendMessageToAllClent(modules,null);
 							if (order.checkRevoke()){//双方都同意了
 								NET.sendMessageToAdmin(order.clientAdminMessage(Module.DEL_FLAG,new AdminModuleResp()));

@@ -296,18 +296,10 @@ public class DealOrder extends EntitySaver implements Comparable<DealOrder>{
 		return sellerAppraise.isCompleted() && buyerAppraise.isCompleted();
 	}
 	
-	public ModuleResp clientMessage(byte type){
+	public ModuleResp clientMessage(byte type,Deal deal){
 		ModuleResp modules = new ModuleResp();
-		clientMessage(type,modules);
+		clientMessage(type,modules,deal);
 		return modules;
-	}
-	
-	public void clientMessage(byte type,ModuleResp modules){
-		Module module = new Module();
-		module.setCode(Module.MODULE_CODE_ORDER);
-		module.setFlag(type);
-		module.add("order",this);
-		modules.addModule(module);
 	}
 	
 	public void clientMessage(byte type,ModuleResp modules,Deal deal){

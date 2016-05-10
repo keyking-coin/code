@@ -6,6 +6,8 @@ import com.keyking.coin.service.domain.deal.Deal;
 import com.keyking.coin.service.domain.deal.DealAppraise;
 import com.keyking.coin.service.domain.deal.DealOrder;
 import com.keyking.coin.service.domain.user.UserCharacter;
+import com.keyking.coin.service.net.resp.module.Module;
+import com.keyking.coin.service.net.resp.module.ModuleResp;
 import com.keyking.coin.util.Instances;
 
 public class TransformOrderDetail implements Instances{
@@ -253,5 +255,15 @@ public class TransformOrderDetail implements Instances{
 
 	public void setRevoke(int revoke) {
 		this.revoke = revoke;
+	}
+	
+	public ModuleResp clientMessage(byte type){
+		ModuleResp modules = new ModuleResp();
+		Module module = new Module();
+		module.setCode(Module.MODULE_CODE_ORDER);
+		module.setFlag(type);
+		module.add("order",this);
+		modules.addModule(module);
+		return modules;
 	}
 }

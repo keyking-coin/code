@@ -72,7 +72,7 @@ public class HttpAppraise extends HttpHandler {
 							hd.copy(deal,order);
 							datas.put("result","ok");
 							datas.put("order",hd);
-							NET.sendMessageToAllClent(order.clientMessage(Module.UPDATE_FLAG),null);
+							NET.sendMessageToAllClent(order.clientMessage(Module.UPDATE_FLAG,deal),null);
 							ServerLog.info(user.getAccount()+ " appraised : star = " + star + " context = "+ context);
 							String result = formatJosn(request,JsonUtil.ObjectToJsonString(datas));
 							response.appendBody(result);

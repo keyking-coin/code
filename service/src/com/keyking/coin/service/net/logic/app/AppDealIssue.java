@@ -38,7 +38,7 @@ public class AppDealIssue extends AbstractLogic {
 			resp.setError("您的邮游币不足请先去充值");
 		}else{
 			deal.setLastIssue(TimeUtils.nowChStr());
-			NET.sendMessageToAllClent(deal.pushMessageList(),user.getSessionAddress());
+			NET.sendMessageToAllClent(deal.pushMessage(),user.getSessionAddress());
 			resp.setSucces("推送成功");
 			resp.setSucces();
 			ServerLog.info(user.getAccount() + " issue deal ok ----> id is " + id);

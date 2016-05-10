@@ -519,37 +519,14 @@ public class Deal extends EntitySaver implements Comparable<Deal>{
 		Module module = new Module();
 		module.setCode(Module.MODULE_CODE_DEAL);
 		module.setFlag(type);
-		//TransformDealData rdd = new TransformDealData();
-		//rdd.copy(this);
-		//module.add("deal",rdd);
-		module.add("deal",this);
-		resp.addModule(module);
-		return resp;
-	}
-	
-	public ModuleResp clientMessageDetail(byte type,ModuleResp resp){
-		Module module = new Module();
-		module.setCode(Module.MODULE_CODE_DEAL);
-		module.setFlag(type);
 		TransformDealDetail tdd = new TransformDealDetail();
 		tdd.copy(this);
 		module.add("deal",tdd);
 		resp.addModule(module);
 		return resp;
 	}
-	
+
 	public ModuleResp pushMessage(){
-		PushDealModule module = new PushDealModule();
-		//TransformDealData rdd = new TransformDealData();
-		//rdd.copy(this);
-		//module.add("deal",rdd);
-		module.add("deal",this);
-		ModuleResp modules = new ModuleResp();
-		modules.addModule(module);
-		return modules;
-	}
-	
-	public ModuleResp pushMessageList(){
 		PushDealModule module = new PushDealModule();
 		TransformDealListInfo tdli = new TransformDealListInfo();
 		tdli.copy(this);
