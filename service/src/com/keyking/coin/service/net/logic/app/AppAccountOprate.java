@@ -12,8 +12,8 @@ public class AppAccountOprate extends AbstractLogic {
 	@Override
 	public Object doLogic(DataBuffer buffer, String logicName) throws Exception {
 		AppResp resp = new AppResp(logicName);
-		long uid = buffer.getLong();
 		byte type = buffer.get();
+		long uid = buffer.getLong();
 		String name = null;
 		String value = null;
 		String openName = null;

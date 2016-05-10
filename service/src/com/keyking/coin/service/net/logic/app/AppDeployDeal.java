@@ -6,7 +6,7 @@ import com.keyking.coin.service.domain.user.UserCharacter;
 import com.keyking.coin.service.net.buffer.DataBuffer;
 import com.keyking.coin.service.net.logic.AbstractLogic;
 import com.keyking.coin.service.net.resp.impl.AppResp;
-import com.keyking.coin.service.net.resp.module.Module;
+import com.keyking.coin.service.tranform.page.deal.TransformDealDetail;
 import com.keyking.coin.util.ServerLog;
 import com.keyking.coin.util.StringUtil;
 import com.keyking.coin.util.TimeUtils;
@@ -73,7 +73,7 @@ public class AppDeployDeal extends AbstractLogic{
 		long dealId = PK.key("deal");
 		deal.setId(dealId);
 		deal.save();
-		if (deployType == 1){//墙纸推送
+		if (deployType == 1){//推送
 			if (user.getRecharge().getCurMoney() < 10){//强制推送
 				resp.setError("您的邮游币不足请先去充值");
 				return resp;
@@ -82,7 +82,10 @@ public class AppDeployDeal extends AbstractLogic{
 			deal.setLastIssue(TimeUtils.nowChStr());
 			NET.sendMessageToAllClent(deal.pushMessage(),user.getSessionAddress());
 		}
-		NET.sendMessageToAllClent(deal.clientMessage(Module.ADD_FLAG),null);
+		TransformDealDetail tdd = new TransformDealDetail();
+		tdd.copy(deal);
+		resp.put("deal",tdd);
+		//NET.sendMessageToAllClent(deal.clientMessage(Module.ADD_FLAG),null);
 		resp.setSucces();
 		ServerLog.info(user.getAccount() + " deployed deal ok ----> id is " + deal.getId());
 		return resp;
