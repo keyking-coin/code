@@ -35,6 +35,7 @@ public class AppRegist extends AbstractLogic {
 					resp.setSucces();
 					resp.put("result","注册成功");
 				}
+				user.save();
 				ServerLog.info(user.getAccount() + " regist ok at " + registTime);
 			}else if (result == 2){
 				resp.setError("验证码已失效");

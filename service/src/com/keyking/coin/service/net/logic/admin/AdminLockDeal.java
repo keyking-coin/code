@@ -15,8 +15,6 @@ public class AdminLockDeal extends AbstractLogic {
 		Deal deal = CTRL.tryToSearch(dealId);
 		if (deal != null){
 			deal.setNum(0);
-			deal.setRevoke(true);
-			deal.setNeedSave(true);
 			deal.save();
 			TransformDealData tdd = new TransformDealData();
 			tdd.copy(deal);

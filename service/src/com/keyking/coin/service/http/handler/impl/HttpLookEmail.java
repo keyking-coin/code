@@ -32,7 +32,7 @@ public class HttpLookEmail extends HttpHandler {
 		Email email = user.searchEmail(eid);
 		if (email != null){
 			email.setStatus((byte)1);
-			email.setNeedSave(true);
+			email.save();
 			Map<String,Object> datas = new HashMap<String,Object>();
 			datas.put("result","ok");
 			datas.put("enum",user.getNewEmailNum());

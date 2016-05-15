@@ -29,7 +29,6 @@ public class UserUpdate extends AbstractLogic {
 			if (!StringUtil.isNull(identity)){
 				user.setIdentity(identity);
 			}
-			user.setNeedSave(true);
 			resp.setSucces();
 			resp.add(user);
 			ServerLog.info(user.getAccount() + " update userInfo ");

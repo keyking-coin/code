@@ -43,7 +43,6 @@ public class HttpSellerCommit extends HttpHandler {
 				seller.setKey(keyCode);
 				seller.setPic(pic);
 				user.setSeller(seller);
-				user.setNeedSave(true);
 				user.save();
 				message(request,response,"申请成功");
 				NET.sendMessageToAdmin(user.clientAdminMessage(Module.ADD_FLAG));

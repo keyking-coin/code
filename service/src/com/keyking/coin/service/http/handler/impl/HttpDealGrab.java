@@ -76,11 +76,11 @@ public class HttpDealGrab extends HttpHandler {
 			long orderId = PK.key("deal_order");
 			order.setId(orderId);
 			deal.addOrder(order);
-			deal.save();
 			SimpleOrderModule module = new SimpleOrderModule();
 			order.simpleDes(module);
 			ModuleResp modules = new ModuleResp();
 			modules.addModule(module);
+			order.save();
 			order.clientMessage(Module.ADD_FLAG,modules,deal);
 			deal.clientMessage(Module.UPDATE_FLAG,modules);
 			NET.sendMessageToAllClent(modules,null);

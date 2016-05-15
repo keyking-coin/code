@@ -1,15 +1,27 @@
-package com.keyking.coin.service.net.logic.user;
+package com.keyking.coin.service.net.logic.app;
 
 import com.keyking.coin.service.domain.user.AccountApply;
+import com.keyking.coin.service.domain.user.UserCharacter;
 import com.keyking.coin.service.net.buffer.DataBuffer;
 import com.keyking.coin.service.net.logic.AbstractLogic;
-import com.keyking.coin.service.net.resp.impl.GeneralResp;
+import com.keyking.coin.service.net.resp.impl.AppResp;
 
-public class OpenAccountApply extends AbstractLogic {
+public class AppOpenAccount extends AbstractLogic {
 
 	@Override
 	public Object doLogic(DataBuffer buffer, String logicName) throws Exception {
-		GeneralResp resp  = new GeneralResp(logicName);
+		AppResp resp = new AppResp(logicName);
+		long uid = buffer.getLong();
+		UserCharacter user = CTRL.search(uid);
+		if (user == null){
+			resp.setError("系统错误");
+			return resp;
+		}
+		String forbidStr = user.getForbid().getReason();
+		if (forbidStr != null){
+			resp.setError("您已经被封号原因是:" + forbidStr);
+			return resp;
+		}
 		String bourse = buffer.getUTF();
 		String bankName = buffer.getUTF();
 		String tel = buffer.getUTF();

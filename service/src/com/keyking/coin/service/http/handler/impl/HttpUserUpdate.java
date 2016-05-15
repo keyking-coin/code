@@ -47,7 +47,6 @@ public class HttpUserUpdate extends HttpHandler {
 			if (!StringUtil.isNull(identity)){
 				user.setIdentity(identity);
 			}
-			user.setNeedSave(true);
 			user.save();
 			message(request,response,"ok");
 			ServerLog.info(user.getAccount() + " update userInfo ");

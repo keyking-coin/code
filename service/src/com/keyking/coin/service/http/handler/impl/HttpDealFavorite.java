@@ -35,7 +35,6 @@ public class HttpDealFavorite extends HttpHandler {
 						user.getFavorites().remove(dealId);
 					}
 				}
-				user.setNeedSave(true);
 				user.save();
 				message(request,response,"ok");
 			}

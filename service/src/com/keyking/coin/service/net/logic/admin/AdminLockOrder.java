@@ -25,7 +25,6 @@ public class AdminLockOrder extends AbstractLogic {
 				if (order.getState() == 1 || order.getState() == 4){
 					NET.sendMessageToAdmin(order.clientAdminMessage(Module.DEL_FLAG,new AdminModuleResp()));
 				}
-				order.setNeedSave(true);
 				order.save();
 				TransformDealData tdd = new TransformDealData();
 				tdd.copy(deal,order);

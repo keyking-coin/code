@@ -118,7 +118,8 @@ public class SearchCondition implements Instances{
 
 	public boolean legal(Deal deal){
 		if (!type.equals("null")){
-			if ((type.equals("入库") && deal.getType() == 1) || (type.equals("现货") && deal.getType() == 0)){
+			if ((type.equals("入库") && deal.getType() == 1) || (type.equals("现货") && deal.getType() == 0) ||
+				(type.equals("过户") && deal.getType() == 0)){
 				return false;
 			}
 		}

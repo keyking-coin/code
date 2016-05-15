@@ -2,14 +2,15 @@ package com.keyking.coin.service.domain.friend;
 
 import org.joda.time.DateTime;
 
-import com.keyking.coin.service.domain.data.EntitySaver;
 import com.keyking.coin.service.domain.user.UserCharacter;
+import com.keyking.coin.service.net.SerializeEntity;
 import com.keyking.coin.service.net.buffer.DataBuffer;
 import com.keyking.coin.service.net.resp.module.Module;
 import com.keyking.coin.service.net.resp.module.ModuleResp;
+import com.keyking.coin.util.Instances;
 import com.keyking.coin.util.TimeUtils;
 
-public class Message extends EntitySaver implements Comparable<Message>{
+public class Message implements Instances,SerializeEntity,Comparable<Message>{
 	long id;//主键
 	String actors;//参与者
 	long sendId;//发送者编号
@@ -117,10 +118,7 @@ public class Message extends EntitySaver implements Comparable<Message>{
 	}
 	
 	public void save() {
-		if (needSave){
-			DB.getMessageDao().save(this);
-			needSave = false;
-		}
+		DB.getMessageDao().save(this);
 	}
 	
 	public void del() {

@@ -13,7 +13,6 @@ public class UserRow implements RowMapper<UserCharacter>{
 	@Override
 	public UserCharacter mapRow(ResultSet rs, int i) throws SQLException {
 		UserCharacter user = new UserCharacter();
-		user.setNeedSave(false);
 		user.setId(rs.getLong("id"));
 		user.setAccount(rs.getString("account"));
 		user.setPwd(rs.getString("pwd"));

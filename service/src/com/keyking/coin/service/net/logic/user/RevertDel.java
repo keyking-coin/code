@@ -28,7 +28,6 @@ public class RevertDel extends AbstractLogic{
 			Revert revert = deal.searchRevert(id);
 			if (revert != null && revert.getUid() == uid){
 				revert.setRevoke(true);
-				revert.setNeedSave(true);
 				NET.sendMessageToAllClent(deal.clientMessage(Module.UPDATE_FLAG),null);
 				resp.setSucces();
 				ServerLog.info("rovke deal ok ----> id is " + deal.getId());

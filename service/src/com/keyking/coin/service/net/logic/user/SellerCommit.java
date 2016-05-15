@@ -33,7 +33,6 @@ public class SellerCommit extends AbstractLogic {
 					seller.setKey(keyCode);
 					seller.setPic(pic);
 					user.setSeller(seller);
-					user.setNeedSave(true);
 					resp.setSucces();
 					resp.add(seller);
 					NET.sendMessageToAdmin(user.clientAdminMessage(Module.ADD_FLAG));

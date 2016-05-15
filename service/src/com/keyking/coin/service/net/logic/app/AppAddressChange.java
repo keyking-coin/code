@@ -41,7 +41,6 @@ public class AppAddressChange extends AbstractLogic {
 						return resp;
 					}
 				}
-				user.setNeedSave(true);
 				user.save();
 				resp.put("addresses",user.getAddresses());
 				resp.setSucces();

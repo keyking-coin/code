@@ -12,7 +12,6 @@ public class DealOrderRow implements RowMapper<DealOrder> {
 	@Override
 	public DealOrder mapRow(ResultSet rs, int arg1) throws SQLException {
 		DealOrder order = new DealOrder();
-		order.setNeedSave(false);
 		order.setId(rs.getLong("id"));
 		order.setDealId(rs.getLong("dealId"));
 		order.setBuyId(rs.getLong("buyId"));

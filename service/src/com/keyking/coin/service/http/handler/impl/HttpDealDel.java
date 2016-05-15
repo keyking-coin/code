@@ -33,7 +33,6 @@ public class HttpDealDel extends HttpHandler {
 				if (deal.getUid() == uid){
 					deal.setNum(0);
 					deal.setRevoke(true);
-					deal.setNeedSave(true);
 					deal.save();
 					message(request,response,"ok");
 					NET.sendMessageToAllClent(deal.clientMessage(Module.DEL_FLAG),null);

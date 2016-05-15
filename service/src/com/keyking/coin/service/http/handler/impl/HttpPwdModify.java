@@ -20,7 +20,6 @@ public class HttpPwdModify extends HttpHandler {
 				message(request,response,"旧密码错误");
 			}else{
 				user.setPwd(newPwd);
-				user.setNeedSave(true);
 				user.save();
 				message(request,response,"ok");
 			}

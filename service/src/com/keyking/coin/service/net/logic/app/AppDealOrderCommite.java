@@ -72,7 +72,6 @@ public class AppDealOrderCommite extends AbstractLogic {
 					order.save();
 					TransformOrderDetail tod = new TransformOrderDetail();
 					tod.copy(deal,order);
-					NET.sendMessageToAllClent(tod.clientMessage(Module.UPDATE_FLAG), null);
 					if (order.getHelpFlag() == 1) {
 						if (order.getState() == 1 || order.getState() == 4){
 							NET.sendMessageToAdmin(order.clientAdminMessage(Module.ADD_FLAG,new AdminModuleResp()));

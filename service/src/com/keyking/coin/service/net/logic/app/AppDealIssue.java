@@ -39,7 +39,6 @@ public class AppDealIssue extends AbstractLogic {
 		}else{
 			deal.setLastIssue(TimeUtils.nowChStr());
 			NET.sendMessageToAllClent(deal.pushMessage(),user.getSessionAddress());
-			resp.setSucces("推送成功");
 			resp.setSucces();
 			ServerLog.info(user.getAccount() + " issue deal ok ----> id is " + id);
 		}

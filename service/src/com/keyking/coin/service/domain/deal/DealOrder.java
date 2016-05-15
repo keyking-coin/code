@@ -5,20 +5,21 @@ import java.util.List;
 
 import org.joda.time.DateTime;
 
-import com.keyking.coin.service.domain.data.EntitySaver;
 import com.keyking.coin.service.domain.user.Credit;
 import com.keyking.coin.service.domain.user.UserCharacter;
+import com.keyking.coin.service.net.SerializeEntity;
 import com.keyking.coin.service.net.buffer.DataBuffer;
 import com.keyking.coin.service.net.resp.module.AdminModuleResp;
 import com.keyking.coin.service.net.resp.module.Module;
 import com.keyking.coin.service.net.resp.module.ModuleResp;
 import com.keyking.coin.service.tranform.TransformDealData;
 import com.keyking.coin.service.tranform.page.order.TransformOrderDetail;
+import com.keyking.coin.util.Instances;
 import com.keyking.coin.util.JsonUtil;
 import com.keyking.coin.util.StringUtil;
 import com.keyking.coin.util.TimeUtils;
 
-public class DealOrder extends EntitySaver implements Comparable<DealOrder>{
+public class DealOrder implements Instances,SerializeEntity,Comparable<DealOrder>{
 	
 	public static final byte ORDER_FINISH_NORMAL    = 3;
 	
@@ -231,10 +232,7 @@ public class DealOrder extends EntitySaver implements Comparable<DealOrder>{
 	}
 
 	public void save() {
-		if (needSave){
-			DB.getDealOrderDao().save(this);
-			needSave = false;
-		}
+		DB.getDealOrderDao().save(this);
 	}
 	
 	public void addTimes(byte state){
@@ -248,7 +246,6 @@ public class DealOrder extends EntitySaver implements Comparable<DealOrder>{
 			if (buyer != null){
 				Credit credit = buyer.getCredit();
 				credit.addDealVale(total_value);
-				buyer.setNeedSave(true);
 				buyer.save();
 			}
 			Deal deal = CTRL.tryToSearch(dealId);
@@ -257,12 +254,10 @@ public class DealOrder extends EntitySaver implements Comparable<DealOrder>{
 				if (seller != null){
 					Credit credit = seller.getCredit();
 					credit.addDealVale(total_value);
-					seller.setNeedSave(true);
 					seller.save();
 				}
 			}
 		}
-		needSave = true;
 	}
 	
 	public boolean over(){

@@ -1,12 +1,11 @@
 package com.keyking.coin.service.domain.friend;
 
-import com.keyking.coin.service.domain.data.EntitySaver;
 import com.keyking.coin.service.domain.user.UserCharacter;
+import com.keyking.coin.service.net.SerializeEntity;
 import com.keyking.coin.service.net.buffer.DataBuffer;
-import com.keyking.coin.service.net.resp.module.Module;
-import com.keyking.coin.service.net.resp.module.ModuleResp;
+import com.keyking.coin.util.Instances;
 
-public class Friend extends EntitySaver{
+public class Friend implements Instances,SerializeEntity{
 	long uid;//我的编号
 	long fid;//朋友编号
 	byte pass;//是否通过 0 申请,1通过。
@@ -65,31 +64,9 @@ public class Friend extends EntitySaver{
 		out.putUTF(time == null ? "" : time);
 		out.putUTF(other == null ? "" : other);
 	}
-	
-	public ModuleResp clientMessage(byte type){
-		Module module = new Module();
-		module.setCode(Module.MODULE_CODE_FRIEND);
-		module.setFlag(type);
-		module.add("friend",this);
-		ModuleResp modules = new ModuleResp();
-		modules.addModule(module);
-		return modules;
-	}
-	
-	public ModuleResp clientMessage(ModuleResp modules , byte type){
-		Module module = new Module();
-		module.setCode(Module.MODULE_CODE_FRIEND);
-		module.setFlag(type);
-		module.add("friend",this);
-		modules.addModule(module);
-		return modules;
-	}
 
 	public void save() {
-		if (needSave){
-			DB.getFriendDao().save(this);
-			needSave = false;
-		}
+		DB.getFriendDao().save(this);
 	}
 
 	public void del() {

@@ -47,7 +47,6 @@ public class HttpBankAccountChange extends HttpHandler {
 						message(request,response,"ok");
 					}
 				}
-				user.setNeedSave(true);
 				user.save();
 			}
 		}

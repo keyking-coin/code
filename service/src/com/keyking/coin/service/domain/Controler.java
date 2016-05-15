@@ -49,14 +49,12 @@ public class Controler implements Instances{
 		List<Deal> lis = DB.getDealDao().loadAll();
 		for (Deal deal : lis){
 			deal.read();
-			deal.setNeedSave(false);
 			deals.add(deal);
 		}
 		ServerLog.info("load all users");
 		List<UserCharacter> users = DB.getUserDao().loadAll();
 		for (UserCharacter user : users){
 			user.load();
-			user.setNeedSave(false);
 			characters.put(user.getAccount(),user);
 		}
 	}
@@ -204,12 +202,6 @@ public class Controler implements Instances{
 		return true;
 	}
 	
-	public void tick() {
-		for (UserCharacter user : characters.values()){
-			user.tick();
-		}
-	}
-
 	
 	public void haveUserOutNet(IoSession session){
 		for (UserCharacter user : characters.values()){
@@ -583,21 +575,24 @@ public class Controler implements Instances{
 		if (user == null){
 			return false;
 		}
-		Email email = new Email();
-		email.setSenderId(sendId);
-		email.setUserId(user.getId());
-		email.setTime(time);
-		email.setTheme(theme);
-		email.setContent(content);
-		long id = PK.key("email");
-		email.setId(id);
-		user.addEmail(email);
-		EmailModule module = new EmailModule();
-		module.add("eamil",email);
-		ModuleResp modules = new ModuleResp();
-		modules.addModule(module);
-		NET.sendMessageToClent(modules,user);
-		return true;
+		synchronized (user) {
+			Email email = new Email();
+			email.setSenderId(sendId);
+			email.setUserId(user.getId());
+			email.setTime(time);
+			email.setTheme(theme);
+			email.setContent(content);
+			long id = PK.key("email");
+			email.setId(id);
+			user.addEmail(email);
+			email.save();
+			EmailModule module = new EmailModule();
+			module.add("num",user.getNewEmailNum());
+			ModuleResp modules = new ModuleResp();
+			modules.addModule(module);
+			NET.sendMessageToClent(modules,user);
+			return true;
+		}
 	}
 }
  

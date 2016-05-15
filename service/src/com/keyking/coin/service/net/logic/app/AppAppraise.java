@@ -53,12 +53,10 @@ public class AppAppraise extends AbstractLogic {
 					if (appraise != null){
 						if (!appraise.isCompleted()) {
 							appraise.appraise(star,context);
-							order.setNeedSave(true);
 							order.save();
 							UserCharacter other = CTRL.search(uid == deal.getUid() ? order.getBuyId() : deal.getUid());
 							if (other != null) {
 								other.getCredit().addNum(star);
-								other.setNeedSave(true);
 								other.save();
 							}
 							TransformOrderDetail tod = new TransformOrderDetail();

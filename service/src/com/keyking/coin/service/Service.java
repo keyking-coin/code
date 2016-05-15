@@ -29,8 +29,6 @@ public class Service implements Instances{
 	
 	private static int CONSOLE;
 	
-	private static MainLoop looper = null;
-	
 	public static int IUSSUE_TIME = 6;
 	
 	public static void main(String[] args) {
@@ -53,8 +51,6 @@ public class Service implements Instances{
 			acceptor.bind(new InetSocketAddress(address,PORT));
 			HTTP.run(HTTP_PORT);
 			ConsoleService.addConsole(CONSOLE);
-        	looper = new MainLoop();
-        	looper.start();
 		} catch (Exception e) {
 			e.printStackTrace();
 			ServerLog.error("start fail besause of " + e.getMessage());

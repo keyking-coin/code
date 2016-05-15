@@ -2,13 +2,14 @@ package com.keyking.coin.service.domain.deal;
 
 import org.joda.time.DateTime;
 
-import com.keyking.coin.service.domain.data.EntitySaver;
 import com.keyking.coin.service.domain.user.UserCharacter;
+import com.keyking.coin.service.net.SerializeEntity;
 import com.keyking.coin.service.net.buffer.DataBuffer;
+import com.keyking.coin.util.Instances;
 import com.keyking.coin.util.TimeUtils;
 
 
-public class Revert extends EntitySaver implements Comparable<Revert>{
+public class Revert implements Instances , SerializeEntity ,Comparable<Revert>{
 	
 	long id;
 	
@@ -109,9 +110,6 @@ public class Revert extends EntitySaver implements Comparable<Revert>{
 	}
 
 	public void save() {
-		if (needSave){
-			DB.getRevertDao().save(this);
-			needSave = false;
-		}
+		DB.getRevertDao().save(this);
 	}
 }

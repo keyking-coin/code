@@ -2,12 +2,11 @@ package com.keyking.coin.service.domain.user;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 
-import com.keyking.coin.service.domain.data.EntitySaver;
 import com.keyking.coin.service.domain.deal.Deal;
 import com.keyking.coin.service.domain.email.Email;
-import com.keyking.coin.service.domain.email.EmailModule;
 import com.keyking.coin.service.domain.friend.Friend;
 import com.keyking.coin.service.domain.friend.Message;
 import com.keyking.coin.service.net.buffer.DataBuffer;
@@ -15,12 +14,13 @@ import com.keyking.coin.service.net.resp.module.AdminModuleResp;
 import com.keyking.coin.service.net.resp.module.Module;
 import com.keyking.coin.service.net.resp.module.ModuleResp;
 import com.keyking.coin.service.tranform.TransformUserData;
+import com.keyking.coin.util.Instances;
 import com.keyking.coin.util.JsonUtil;
 import com.keyking.coin.util.StringUtil;
 import com.keyking.coin.util.TimeUtils;
 
 
-public class UserCharacter extends EntitySaver{
+public class UserCharacter implements Instances{
 	
 	long id;
 	
@@ -67,19 +67,13 @@ public class UserCharacter extends EntitySaver{
 	UserPermission permission = new UserPermission();
 	
 	List<Email> emails = new ArrayList<Email>();//邮件列表
-	
-	List<Email> delEmails = new ArrayList<Email>();//邮件列表
-	
+		
 	List<Long> favorites = new ArrayList<Long>();//收藏夹
 	
 	List<Friend> friends = new ArrayList<Friend>();//好友列表
-	
-	List<Friend> delFriends = new ArrayList<Friend>();//需要删除的列表
-	
+		
 	List<Message> messages = new ArrayList<Message>();//好友发我的消息
 	
-	List<Message> delMessages = new ArrayList<Message>();//需要删除聊天记录
-
 	String other = "";//备注信息
 	
 	public long getId() {
@@ -302,10 +296,6 @@ public class UserCharacter extends EntitySaver{
 		}
 		return null;
 	}
-	
-	public void tick(){
-		forbid.tick();
-	}
 
 	public void deserializeUser(String str){
 		if (StringUtil.isNull(str)){
@@ -382,28 +372,7 @@ public class UserCharacter extends EntitySaver{
 	}
 
 	public void save() {
-		if (needSave){
-			DB.getUserDao().save(this);
-			needSave = false;
-		}
-		for (Email email : emails){
-			email.save();
-		}
-		for (Email email : delEmails){
-			email.delete();
-		}
-		for (Friend friend : friends){
-			friend.save();
-		}
-		for (Friend friend : delFriends){
-			friend.del();
-		}
-		for (Message message : messages){
-			message.save();
-		}
-		for (Message message : delMessages){
-			message.del();
-		}
+		DB.getUserDao().save(this);
 	}
 
 	public void addEmail(Email email) {
@@ -419,27 +388,22 @@ public class UserCharacter extends EntitySaver{
 		return null;
 	}
 	
-	public boolean removeEmail(String ids) {
+	public synchronized boolean removeEmail(String ids) {
 		String[] ss = ids.split(",");
 		if (ss.length > 0){
-			ModuleResp modules = new ModuleResp();
 			for (String s : ss){
 				long id = Long.parseLong(s);
 				for (Email email : emails){
 					if (email.getId() == id){
-						EmailModule module = new EmailModule();
-						module.add("email",email);
-						module.setFlag(Module.DEL_FLAG);
-						modules.addModule(module);
 						emails.remove(email);
-						delEmails.add(email);
+						email.delete();
 						break;
 					}
 				}
 			}
-			NET.sendMessageToClent(modules,sessionAddress);
+			return true;
 		}
-		return true;
+		return false;
 	}
 	
 	public void loadFriends(){
@@ -500,42 +464,51 @@ public class UserCharacter extends EntitySaver{
 		return result;
 	}
 	
-	public Friend removeFriend(UserCharacter user_friend){
+	public synchronized void removeFriend(UserCharacter user_friend){
 		for (Friend friend : friends){
 			if (friend.getFid() == user_friend.id){
 				String str1 = "[" + id + "," + user_friend.id + "]";
 				String str2 = "[" + user_friend.id + "," + id + "]";
-				ModuleResp modules = new ModuleResp();
-				for (int i = 0 ; i < messages.size() ;) {//删除聊天记录
-					Message message = messages.get(i);
+				Iterator<Message> iter = messages.iterator();
+				while (iter.hasNext()){
+					Message message = iter.next();
 					if (message.getActors().equals(str1) || message.getActors().equals(str2)){
-						delMessages.add(message);
-						messages.remove(i);
-						message.clientMessage(modules,Module.DEL_FLAG);
-					}else{
-						i++;
+						message.del();
+						iter.remove();
 					}
 				}
 				friends.remove(friend);
-				delFriends.add(friend);
-				NET.sendMessageToClent(modules,this);
-				return friend;
+				friend.del();
+				sendFriendChange();
+				return;
 			}
 		}
-		return null;
 	}
 	
-	public void applyFriend(long fid){
+	public synchronized void applyFriend(long fid){
 		Friend friend = new Friend();
 		String createTime = TimeUtils.nowChStr();
 		friend.setTime(createTime);
 		friend.setFid(fid);
 		friend.setUid(id);
 		friends.add(friend);
-		NET.sendMessageToClent(friend.clientMessage(Module.ADD_FLAG),sessionAddress);
+		sendFriendChange();
 	}
 	
-	public void addFriend(long fid){
+	
+	/**
+	 * 我的好友有变化
+	 */
+	public void sendFriendChange(){
+		Module module = new Module();
+		module.setCode(Module.MODULE_CODE_FRIEND);
+		module.add("num",friends.size());
+		ModuleResp modules = new ModuleResp();
+		modules.addModule(module);
+		NET.sendMessageToClent(modules,sessionAddress);
+	}
+	
+	public synchronized void addFriend(long fid){
 		Friend friend = findFriend(fid);
 		if (friend == null){
 			friend = new Friend();
@@ -546,7 +519,8 @@ public class UserCharacter extends EntitySaver{
 		friend.setFid(fid);
 		friend.setUid(id);
 		friend.setPass((byte)1);
-		NET.sendMessageToClent(friend.clientMessage(Module.ADD_FLAG),sessionAddress);
+		friend.save();
+		sendFriendChange();
 	}
 	
 	public Friend findFriend(long fid){
@@ -563,8 +537,6 @@ public class UserCharacter extends EntitySaver{
 		Module module = new Module();
 		module.setCode(Module.MODULE_CODE_USER);
 		module.setFlag(type);
-		//TransformUserData tud = new TransformUserData(this);
-		//module.add("user",tud);
 		module.add("user",this);
 		modules.addModule(module);
 		return modules;
@@ -625,7 +597,6 @@ public class UserCharacter extends EntitySaver{
 		if (!addresses.contains(address)){
 			return false;
 		}
-		needSave = true;
 		addresses.remove(address);
 		return true;
 	}
@@ -656,7 +627,6 @@ public class UserCharacter extends EntitySaver{
 			accounts.clear();
 			accounts.addAll(userData.getBanks());
 		}
-		needSave = true;
 	}
 
 	public int getNewEmailNum() {

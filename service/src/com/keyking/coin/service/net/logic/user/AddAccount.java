@@ -31,7 +31,6 @@ public class AddAccount extends AbstractLogic {
 			}
 			resp.add(bankAccount);
 			resp.setSucces();
-			user.setNeedSave(true);
 			ServerLog.info(user.getAccount() + " add  BankAccount ----> name is " + name);
 		}
 		return resp;

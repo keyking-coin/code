@@ -5,10 +5,9 @@ import com.keyking.coin.service.domain.user.UserCharacter;
 import com.keyking.coin.service.net.buffer.DataBuffer;
 import com.keyking.coin.service.net.logic.AbstractLogic;
 import com.keyking.coin.service.net.resp.impl.AppResp;
-import com.keyking.coin.service.net.resp.module.Module;
 import com.keyking.coin.util.ServerLog;
 
-public class AppDealDel extends AbstractLogic {
+public class AppDealRevoke extends AbstractLogic {
 
 	@Override
 	public Object doLogic(DataBuffer buffer, String logicName) throws Exception {
@@ -35,9 +34,7 @@ public class AppDealDel extends AbstractLogic {
 				deal.setNum(deal.orderNum());
 				deal.setRevoke(true);
 				resp.setSucces();
-				deal.setNeedSave(true);
 				deal.save();
-				NET.sendMessageToAllClent(deal.clientMessage(Module.DEL_FLAG),null);
 				ServerLog.info(user.getAccount() + " revoke deal ----> id is " + id);
 			}else{
 				resp.setError("你没有权限这样做");

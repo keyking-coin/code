@@ -12,7 +12,6 @@ import com.keyking.coin.service.net.buffer.DataBuffer;
 import com.keyking.coin.service.net.data.RecentDeal;
 import com.keyking.coin.service.net.logic.AbstractLogic;
 import com.keyking.coin.service.net.resp.impl.AppResp;
-import com.keyking.coin.service.net.resp.module.Module;
 import com.keyking.coin.service.net.resp.module.ModuleResp;
 import com.keyking.coin.service.tranform.page.deal.TransformOrder;
 import com.keyking.coin.util.ServerLog;
@@ -72,15 +71,15 @@ public class AppDealGrab extends AbstractLogic {
 			long orderId = PK.key("deal_order");
 			order.setId(orderId);
 			deal.addOrder(order);
-			deal.save();
+			order.save();
 			RecentDeal rd = new RecentDeal(deal,order);
 			SimpleOrderModule module = new SimpleOrderModule();
 			order.simpleDes(module);
 			module.add("rd",rd);
 			ModuleResp modules = new ModuleResp();
 			modules.addModule(module);
-			order.clientMessage(Module.ADD_FLAG,modules,deal);
-			deal.clientMessage(Module.UPDATE_FLAG,modules);
+			//order.clientMessage(Module.ADD_FLAG,modules,deal);
+			//deal.clientMessage(Module.UPDATE_FLAG,modules);
 			NET.sendMessageToAllClent(modules,null);
 			List<TransformOrder> tos = new ArrayList<TransformOrder>();
 			for (DealOrder o : deal.getOrders()){
@@ -89,10 +88,9 @@ public class AppDealGrab extends AbstractLogic {
 				tos.add(to);
 			}
 			resp.setSucces();
-			resp.put("dealId", id);
 			resp.put("num",deal.getLeftNum());
 			resp.put("monad",deal.getMonad());
-			resp.put("orders", tos);
+			resp.put("orders",tos);
 			ServerLog.info(user.getAccount() + " grab deal ok ----> id is " + id);
 		}
 		return resp;

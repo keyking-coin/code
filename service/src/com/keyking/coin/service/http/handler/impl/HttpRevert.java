@@ -9,12 +9,10 @@ import com.keyking.coin.service.domain.user.UserCharacter;
 import com.keyking.coin.service.http.handler.HttpHandler;
 import com.keyking.coin.service.http.request.HttpRequestMessage;
 import com.keyking.coin.service.http.response.HttpResponseMessage;
-import com.keyking.coin.service.net.resp.module.Module;
 import com.keyking.coin.service.tranform.TransformRevertData;
 import com.keyking.coin.util.JsonUtil;
 import com.keyking.coin.util.ServerLog;
 import com.keyking.coin.util.StringUtil;
-import com.keyking.coin.util.TimeUtils;
 
 public class HttpRevert extends HttpHandler {
 	//http://139.196.30.53:32104/HttpRevert?uid=xxx&tid=xxx&did=xxx&content=xxx
@@ -49,20 +47,9 @@ public class HttpRevert extends HttpHandler {
 			message(request,response,"不能回复空的内容");
 			return;
 		}
-		synchronized (deal) {
-			Revert revrt = new Revert();
-			revrt.setUid(uid);
-			revrt.setTar(target);
-			revrt.setDependentId(dealId);
-			revrt.setContext(content);
-			revrt.setCreateTime(TimeUtils.formatYear(TimeUtils.now()));
-			long rid = PK.key("deal_revert");
-			revrt.setId(rid);
-			deal.addRevert(revrt);
-			deal.save();
-			ServerLog.info(user.getAccount() + " revert deal ok ----> deal-id is " + deal.getId() + " revert-id is " + revrt.getId() + "revert-context is " + content);
+		if (deal.tryToRevert(target,content)){
+			ServerLog.info(user.getAccount() + " revert deal id = " + deal.getId() + " context = " + content);
 		}
-		NET.sendMessageToAllClent(deal.clientMessage(Module.UPDATE_FLAG),null);
 		List<TransformRevertData> reverts = new ArrayList<TransformRevertData>();
 		for (Revert revert : deal.getReverts()){
 			TransformRevertData hr = new TransformRevertData();

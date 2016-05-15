@@ -49,7 +49,6 @@ public class AppAccountOprate extends AbstractLogic {
 			}
 			resp.put("account",bankAccount.getAccounts());
 			resp.setSucces();
-			user.setNeedSave(true);
 			user.save();
 			ServerLog.info(user.getAccount() + " add  BankAccount ----> name is " + name);
 		}

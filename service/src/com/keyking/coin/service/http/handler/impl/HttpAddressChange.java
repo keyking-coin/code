@@ -50,7 +50,7 @@ public class HttpAddressChange extends HttpHandler {
 						message(request,response,"ok");
 					}
 				}
-				user.setNeedSave(true);
+				user.save();
 			}
 		}
 	}

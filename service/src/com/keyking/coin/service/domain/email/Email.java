@@ -2,12 +2,13 @@ package com.keyking.coin.service.domain.email;
 
 import org.joda.time.DateTime;
 
-import com.keyking.coin.service.domain.data.EntitySaver;
 import com.keyking.coin.service.domain.user.UserCharacter;
+import com.keyking.coin.service.net.SerializeEntity;
 import com.keyking.coin.service.net.buffer.DataBuffer;
+import com.keyking.coin.util.Instances;
 import com.keyking.coin.util.TimeUtils;
 
-public class Email extends EntitySaver implements Comparable<Email>{
+public class Email implements Instances,SerializeEntity,Comparable<Email>{
 	byte type = 1;//邮件类型 0系统邮件 1用户邮件
 	byte status;//状态 0新邮件 1已查看
 	long id;//邮件编号
@@ -82,10 +83,7 @@ public class Email extends EntitySaver implements Comparable<Email>{
 	}
 	
 	public void save() {
-		if (needSave){
-			DB.getEmailDao().save(this);
-			needSave = false;
-		}
+		DB.getEmailDao().save(this);
 	}
 
 	public void serialize(DataBuffer buffer) {

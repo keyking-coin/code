@@ -38,7 +38,7 @@ public class AppUserLook extends AbstractLogic {
 				data.getBanks().addAll(user.getBankAccount().getAccounts());
 			}
 			data.getCredit().copy(user.getCredit());
-			resp.put("tar", data);
+			resp.put("info", data);
 			resp.setSucces();
 		}else{
 			resp.setError("找不到用户");

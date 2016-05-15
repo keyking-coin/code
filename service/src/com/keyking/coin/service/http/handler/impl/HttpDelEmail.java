@@ -28,15 +28,12 @@ public class HttpDelEmail extends HttpHandler {
 			message(request,response,"您已经被封号原因是:" + forbidStr);
 			return;
 		}
-		synchronized (user) {
-			if (user.removeEmail(ids)){
-				user.save();
-				Map<String,Object> datas = new HashMap<String,Object>();
-				datas.put("result","ok");
-				datas.put("num",user.getEmails().size());
-				String str = formatJosn(request,JsonUtil.ObjectToJsonString(datas));
-				response.appendBody(str);
-			}
+		if (user.removeEmail(ids)){
+			Map<String,Object> datas = new HashMap<String,Object>();
+			datas.put("result","ok");
+			datas.put("num",user.getNewEmailNum());
+			String str = formatJosn(request,JsonUtil.ObjectToJsonString(datas));
+			response.appendBody(str);
 		}
 	}
 

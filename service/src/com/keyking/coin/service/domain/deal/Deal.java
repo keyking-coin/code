@@ -9,18 +9,19 @@ import java.util.Map;
 import org.joda.time.DateTime;
 
 import com.keyking.coin.service.Service;
-import com.keyking.coin.service.domain.data.EntitySaver;
 import com.keyking.coin.service.domain.user.RankEntity;
 import com.keyking.coin.service.domain.user.UserCharacter;
+import com.keyking.coin.service.net.SerializeEntity;
 import com.keyking.coin.service.net.buffer.DataBuffer;
 import com.keyking.coin.service.net.resp.module.Module;
 import com.keyking.coin.service.net.resp.module.ModuleResp;
 import com.keyking.coin.service.tranform.page.deal.TransformDealDetail;
 import com.keyking.coin.service.tranform.page.deal.TransformDealListInfo;
+import com.keyking.coin.util.Instances;
 import com.keyking.coin.util.StringUtil;
 import com.keyking.coin.util.TimeUtils;
 
-public class Deal extends EntitySaver implements Comparable<Deal>{
+public class Deal implements Instances,SerializeEntity,Comparable<Deal>{
 	public static final byte DEAL_TYPE_BUY  = 0;
 	public static final byte DEAL_TYPE_SELL = 1;
 	long id;//编号
@@ -305,20 +306,10 @@ public class Deal extends EntitySaver implements Comparable<Deal>{
 	
 	public void delete(){
 		revoke = true;
-		needSave = true;
 	}
 	
 	public void save(){
-		for (Revert revert : reverts){
-			revert.save();
-		}
-		for (DealOrder order : orders){
-			order.save();
-		}
-		if (needSave){
-			DB.getDealDao().save(this);
-			needSave = false;
-		}
+		DB.getDealDao().save(this);
 	}
 	
 
@@ -545,5 +536,20 @@ public class Deal extends EntitySaver implements Comparable<Deal>{
 			}
 		}
 		return false;
+	}
+
+	public synchronized boolean tryToRevert(long tid, String content) {
+		Revert revrt = new Revert();
+		revrt.setUid(uid);
+		revrt.setTar(tid);
+		revrt.setDependentId(id);
+		revrt.setContext(content);
+		revrt.setCreateTime(TimeUtils.formatYear(TimeUtils.now()));
+		long rid = PK.key("deal_revert");
+		revrt.setId(rid);
+		addRevert(revrt);
+		revrt.save();
+		//NET.sendMessageToAllClent(clientMessage(Module.UPDATE_FLAG),null);
+		return true;
 	}
 }

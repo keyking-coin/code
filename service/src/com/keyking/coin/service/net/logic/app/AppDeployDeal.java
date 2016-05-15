@@ -85,7 +85,6 @@ public class AppDeployDeal extends AbstractLogic{
 		TransformDealDetail tdd = new TransformDealDetail();
 		tdd.copy(deal);
 		resp.put("deal",tdd);
-		//NET.sendMessageToAllClent(deal.clientMessage(Module.ADD_FLAG),null);
 		resp.setSucces();
 		ServerLog.info(user.getAccount() + " deployed deal ok ----> id is " + deal.getId());
 		return resp;

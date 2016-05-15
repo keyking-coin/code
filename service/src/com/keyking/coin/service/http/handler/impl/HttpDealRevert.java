@@ -61,7 +61,7 @@ public class HttpDealRevert extends HttpHandler {
 			long rid = PK.key("deal_revert");
 			revrt.setId(rid);
 			deal.addRevert(revrt);
-			deal.save();
+			revrt.save();
 			ServerLog.info(user.getAccount() + " revert deal ok ----> deal-id is " + deal.getId() + " revert-id is " + revrt.getId() + "revert-context is " + content);
 		}
 		NET.sendMessageToAllClent(deal.clientMessage(Module.UPDATE_FLAG),null);

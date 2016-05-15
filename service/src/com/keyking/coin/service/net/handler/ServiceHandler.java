@@ -39,9 +39,9 @@ public class ServiceHandler extends IoHandlerAdapter implements Instances {
 			String logicName = data.getUTF();
 			Class<?> clazz = null;
 			try {
-				if (logicName.contains("Admin")){
+				if (logicName.startsWith("Admin")){
 					clazz = Class.forName(LOGIC_PACKAGE_NAME_ADMIN + logicName);
-				}else if (logicName.contains("App")){
+				}else if (logicName.startsWith("App")){
 					clazz = Class.forName(LOGIC_PACKAGE_NAME_APP + logicName);
 				}else{
 					clazz = Class.forName(LOGIC_PACKAGE_NAME_USER + logicName);

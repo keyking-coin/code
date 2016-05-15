@@ -9,6 +9,7 @@ public class Forbid {
 	long endTime = 0;//-1永久封号，0正常状态,>0表示封号截止时间。
 	
 	public String getReason() {
+		tick();
 		return StringUtil.isNull(reason) ? null : reason;
 	}
 

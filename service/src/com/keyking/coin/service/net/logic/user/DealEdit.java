@@ -33,7 +33,6 @@ public class DealEdit extends AbstractLogic {
 			deal.setNum(num);
 			deal.setValidTime(validTime);
 			deal.setOther(other);
-			deal.setNeedSave(true);
 			resp.add(Module.UPDATE_FLAG);
 			resp.add(deal);
 			//Module module = new Module();

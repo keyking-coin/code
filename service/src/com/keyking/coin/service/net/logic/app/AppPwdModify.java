@@ -19,9 +19,8 @@ public class AppPwdModify extends AbstractLogic {
 				resp.setError("旧密码错误");
 			}else{
 				user.setPwd(newPwd);
-				user.setNeedSave(true);
 				user.save();
-				resp.put("result","ok");
+				resp.setSucces();
 			}
 		}else{
 			resp.setError("账号不存在");

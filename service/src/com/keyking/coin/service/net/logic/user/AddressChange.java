@@ -41,7 +41,6 @@ public class AddressChange extends AbstractLogic {
 						return resp;
 					}
 				}
-				user.setNeedSave(true);
 				resp.add(type);
 				resp.add(user);
 				resp.setSucces();
