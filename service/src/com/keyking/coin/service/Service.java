@@ -40,6 +40,7 @@ public class Service implements Instances{
         	PK.load();
         	ServerLog.info("SMS init");
         	SMS.init();
+        	CTRL.load();
         	SocketAcceptor acceptor = new NioSocketAcceptor();  
             SocketSessionConfig config = acceptor.getSessionConfig();  
             config.setReadBufferSize(1024*1024*100);//100M

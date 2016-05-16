@@ -9,7 +9,6 @@ import com.keyking.coin.service.tranform.TransformTouristOrder;
 import com.keyking.coin.util.JsonUtil;
 
 public class HttpTourist extends HttpHandler {
-	//http://139.196.30.53:32104/HttpTourist
 	//http://127.0.0.1:32104/HttpTourist
 	@Override
 	public void handle(HttpRequestMessage request, HttpResponseMessage response) {

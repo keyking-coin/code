@@ -28,7 +28,7 @@ public class TransformTouristOrder implements Comparable<TransformTouristOrder>,
 		orderId = order.getId();
 		String[] ss = deal.getBourse().split(",");
 		bourse = ss[1];
-		type = deal.getType() == 0 ? "入库" : "现货";
+		type = deal.getType() == 0 ? "入库" : "过户";
 		name = deal.getName();
 		price = order.getPrice();
 		num = order.getNum();
