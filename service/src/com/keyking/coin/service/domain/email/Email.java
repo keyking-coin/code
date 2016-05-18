@@ -97,6 +97,7 @@ public class Email implements Instances,SerializeEntity,Comparable<Email>{
 		buffer.putUTF(content);
 		buffer.putUTF(sender.getNikeName());
 		buffer.putUTF(sender.getFace());
+		
 	}
 
 	@Override

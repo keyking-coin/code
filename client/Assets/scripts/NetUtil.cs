@@ -36,10 +36,8 @@ public class NetUtil{
     //string URL = "keyking-ty.xicp.net";
     //int port = 12213;
 #else
-    //string URL = "139.196.30.53";
-    //int port = 32105;
-    string URL = "keyking-ty.xicp.net";
-    int port = 12213;
+    string URL = "139.196.30.53";
+    int port = 32105;
 #endif
 
     public static NetUtil getInstance

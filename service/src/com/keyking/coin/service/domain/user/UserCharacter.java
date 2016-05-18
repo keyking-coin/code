@@ -9,6 +9,7 @@ import com.keyking.coin.service.domain.deal.Deal;
 import com.keyking.coin.service.domain.email.Email;
 import com.keyking.coin.service.domain.friend.Friend;
 import com.keyking.coin.service.domain.friend.Message;
+import com.keyking.coin.service.net.SerializeEntity;
 import com.keyking.coin.service.net.buffer.DataBuffer;
 import com.keyking.coin.service.net.resp.module.AdminModuleResp;
 import com.keyking.coin.service.net.resp.module.Module;
@@ -20,7 +21,7 @@ import com.keyking.coin.util.StringUtil;
 import com.keyking.coin.util.TimeUtils;
 
 
-public class UserCharacter implements Instances{
+public class UserCharacter implements Instances,SerializeEntity{
 	
 	long id;
 	

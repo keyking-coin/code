@@ -186,7 +186,7 @@ public class MainData{
             content = buffer.ReadString();
             senderName = buffer.ReadString();
             senderIcon = buffer.ReadString();
-            isNew = buffer.ReadByte();
+			isNew = status;
         }
     }
 

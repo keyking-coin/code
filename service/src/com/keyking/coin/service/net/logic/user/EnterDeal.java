@@ -94,6 +94,13 @@ public class EnterDeal extends AbstractLogic{
 					deals.add(deal);
 				}
 			}
+			for (int i = 0 ; i < deals.size();){
+				if (i < 20){
+					i++;
+				}else{
+					deals.remove(i);
+				}
+			}
 		}
 		resp.add(deals);
 		return resp;
