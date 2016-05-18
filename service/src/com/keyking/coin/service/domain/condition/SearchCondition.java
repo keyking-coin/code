@@ -185,11 +185,11 @@ public class SearchCondition implements Instances{
 			DateTime now = TimeUtils.now();
 			DateTime dealTime = TimeUtils.getTime(deal.getValidTime());
 			if (valid.equals("到目前有效")){
-				if (now.isBefore(dealTime)){
+				if (dealTime.isBefore(now)){
 					return false;
 				}
 			}else if (valid.equals("到目前无效")){
-				if (dealTime.isBefore(now)){
+				if (now.isBefore(dealTime)){
 					return false;
 				}
 			}
