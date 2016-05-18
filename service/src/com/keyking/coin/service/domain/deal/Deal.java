@@ -16,7 +16,6 @@ import com.keyking.coin.service.net.buffer.DataBuffer;
 import com.keyking.coin.service.net.resp.module.Module;
 import com.keyking.coin.service.net.resp.module.ModuleResp;
 import com.keyking.coin.service.tranform.page.deal.TransformDealDetail;
-import com.keyking.coin.service.tranform.page.deal.TransformDealListInfo;
 import com.keyking.coin.util.Instances;
 import com.keyking.coin.util.StringUtil;
 import com.keyking.coin.util.TimeUtils;
@@ -519,9 +518,10 @@ public class Deal implements Instances,SerializeEntity,Comparable<Deal>{
 
 	public ModuleResp pushMessage(){
 		PushDealModule module = new PushDealModule();
-		TransformDealListInfo tdli = new TransformDealListInfo();
-		tdli.copy(this);
-		module.add("push",tdli);
+		//TransformDealListInfo tdli = new TransformDealListInfo();
+		//tdli.copy(this);
+		//module.add("push",tdli);
+		module.add("push",this);
 		ModuleResp modules = new ModuleResp();
 		modules.addModule(module);
 		return modules;
