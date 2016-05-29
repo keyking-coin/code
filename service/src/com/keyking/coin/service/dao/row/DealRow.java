@@ -3,9 +3,7 @@ package com.keyking.coin.service.dao.row;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
-
 import org.springframework.jdbc.core.RowMapper;
-
 import com.keyking.coin.service.domain.deal.Deal;
 
 public class DealRow implements RowMapper<Deal> {
