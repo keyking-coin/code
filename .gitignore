@@ -12,3 +12,6 @@
 /client/Library/
 /client/admin_Data/
 /client/admin.exe
+/UserManager/bin/
+/UserManager/logs/
+/UserManager/dist/
