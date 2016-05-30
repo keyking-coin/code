@@ -8,13 +8,12 @@ import java.util.List;
 
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.PreparedStatementCreator;
-import org.springframework.jdbc.core.support.JdbcDaoSupport;
 
 import com.keyking.coin.service.dao.row.DealOrderRow;
 import com.keyking.coin.service.domain.deal.DealOrder;
 import com.keyking.coin.util.ServerLog;
 
-public class DealOrderDAO extends JdbcDaoSupport {
+public class DealOrderDAO extends BaseDAO{
 	
 	private static String INSERT_SQL_STR = "insert into deal_order (id,dealId,buyId,times,num,price,appraise,state,helpFlag,_revoke)values(?,?,?,?,?,?,?,?,?,?)";
 	
@@ -68,7 +67,7 @@ public class DealOrderDAO extends JdbcDaoSupport {
 	}
 	
 	public synchronized boolean save(DealOrder order) {
-		if (check(order.getId())){
+		if (check("",order.getId())){
 			return update(order);
 		}else{
 			return insert(order);
@@ -83,16 +82,5 @@ public class DealOrderDAO extends JdbcDaoSupport {
 			
 		}
 		return orders;
-	}
-	
-	private static String CHECK_COUNT_SQL = "select count(*) from deal_order where id=?";
-	private synchronized boolean check(long uid){
-		int count = 0 ;
-		try {
-			count = getJdbcTemplate().queryForInt(CHECK_COUNT_SQL,uid);
-		} catch (DataAccessException e) {
-			
-		}
-		return count > 0;
 	}
 }

@@ -8,22 +8,16 @@ import java.util.List;
 
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.PreparedStatementCreator;
-import org.springframework.jdbc.core.support.JdbcDaoSupport;
 
 import com.keyking.coin.service.dao.row.MessageRow;
 import com.keyking.coin.service.domain.friend.Message;
 import com.keyking.coin.util.ServerLog;
 
-public class MessageDAO extends JdbcDaoSupport {
+public class MessageDAO extends BaseDAO {
 	MessageRow row = new MessageRow();
-	
 	private static String INSERT_SQL_STR = "insert into message (id,actors,sendId,time,content,type,look,showTime)values(?,?,?,?,?,?,?,?)";
-	
 	private static String SELECT_SQL_STR = "select * from message where actors in (";
-	
 	private static String UPDATE_SQL_STR = "update message set look=? where id=?";
-	
-	private static String DELETE_SQL_STR = "delete from message where id=?";
 	
 	public synchronized boolean insert(final Message message) {
 		try {
@@ -61,7 +55,7 @@ public class MessageDAO extends JdbcDaoSupport {
 	}
 	
 	public synchronized boolean save(Message message) {
-		if (check(message.getId())){
+		if (check("message",message.getId())){
 			return update(message);
 		}else{
 			return insert(message);
@@ -80,22 +74,10 @@ public class MessageDAO extends JdbcDaoSupport {
 	
 	public synchronized boolean delete(Message message) {
 		try {
-			getJdbcTemplate().update(DELETE_SQL_STR,message.getId());
-			return true;
+			return delete("message",message.getId());
 		} catch (DataAccessException e) {
 			ServerLog.error("delete message error",e);
 			return false;
 		}
-	}
-	
-	private static String CHECK_COUNT_SQL = "select count(*) from message where id=?";
-	private synchronized boolean check(long uid){
-		int count = 0;
-		try {
-			count = getJdbcTemplate().queryForInt(CHECK_COUNT_SQL,uid);
-		} catch (DataAccessException e) {
-			
-		}
-		return count > 0;
 	}
 }

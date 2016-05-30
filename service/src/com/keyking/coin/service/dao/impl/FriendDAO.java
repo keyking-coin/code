@@ -5,27 +5,19 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.List;
-
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.PreparedStatementCreator;
-import org.springframework.jdbc.core.support.JdbcDaoSupport;
-
 import com.keyking.coin.service.dao.row.FriendRow;
 import com.keyking.coin.service.domain.friend.Friend;
 import com.keyking.coin.util.ServerLog;
 
-public class FriendDAO extends JdbcDaoSupport {
+public class FriendDAO extends BaseDAO {
 	
 	FriendRow row = new FriendRow();
-	
 	private static String INSERT_SQL_STR = "insert into friend (uid,fid,pass,time,other)values(?,?,?,?,?)";
-	
 	private static final String SQL_COUNT_FRIEND = "select count(*) from friend where uid=? and fid=?";
-	
 	private static String DELETE_SQL_STR = "delete from friend where uid=? and fid=?";
-	
 	private static String SELECT_SQL_STR = "select * from friend where uid=?";
-	
 	private static String UPDATE_SQL_STR = "update friend set pass=? where uid=? and fid=?";
 	
 	public synchronized boolean insert(final Friend friend) {

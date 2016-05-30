@@ -8,17 +8,16 @@ import java.util.List;
 
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.PreparedStatementCreator;
-import org.springframework.jdbc.core.support.JdbcDaoSupport;
 
 import com.keyking.coin.service.dao.row.UserRow;
 import com.keyking.coin.service.domain.user.UserCharacter;
 import com.keyking.coin.util.ServerLog;
 
-public class UserDAO extends JdbcDaoSupport {
+public class UserDAO extends BaseDAO {
 	
-	private static String INSERT_SQL_STR = "insert into users (id,account,pwd,face,nikeName,title,registTime,name,address,signature,recharge,bankAccount,credit,forbid,breach,favorites,use_permission,other,deposit)values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+	private static String INSERT_SQL_STR = "insert into users (id,account,pwd,face,nikeName,title,registTime,name,address,signature,recharge,bankAccount,credit,forbid,breach,favorites,use_permission,other,deposit,father)values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 	
-	private static String UPDATE_SQL_STR = "update users set pwd=?,face=?,nikeName=?,title=?,registTime=?,name=?,address=?,age=?,identity=?,signature=?,recharge=?,bankAccount=?,seller=?,push=?,credit=?,forbid=?,breach=?,favorites=?,use_permission=?,other=?,deposit=? where id=?";
+	private static String UPDATE_SQL_STR = "update users set pwd=?,face=?,nikeName=?,title=?,registTime=?,name=?,address=?,age=?,identity=?,signature=?,recharge=?,bankAccount=?,seller=?,push=?,credit=?,forbid=?,breach=?,favorites=?,use_permission=?,other=?,deposit=?,father=? where id=?";
 
 	private static String LOGIN_SQL_STR  = "select * from users where account=? and pwd=?";
 
@@ -98,6 +97,7 @@ public class UserDAO extends JdbcDaoSupport {
 					ps.setString(cursor++,user.getPermission().serialize());
 					ps.setString(cursor++,user.getOther());
 					ps.setFloat(cursor++,user.getDeposit());
+					ps.setLong(cursor++,user.getFather());
 					return ps;
 				}
 			});
@@ -120,7 +120,8 @@ public class UserDAO extends JdbcDaoSupport {
 					          user.getPush(),user.getCredit().serialize(),
 					          user.getForbid().serialize(),user.getBreach(),
 					          user.serializeFavorites(),user.getPermission().serialize(),
-					          user.getOther(),user.getDeposit(),user.getId());
+					          user.getOther(),user.getDeposit(),
+					          user.getFather(),user.getId());
 		} catch (DataAccessException e) {
 			ServerLog.error("save user error",e);
 			return false;
@@ -129,24 +130,13 @@ public class UserDAO extends JdbcDaoSupport {
 	}
 	
 	public synchronized boolean save(UserCharacter user) {
-		if (check(user.getId())){
+		if (check("users",user.getId())){
 			return update(user);
 		}else{
 			return insert(user);
 		}
 	}
 	
-	private static String CHECK_COUNT_SQL = "select count(*) from users where id=?";
-	private synchronized boolean check(long uid){
-		int count = 0 ;
-		try {
-			count = getJdbcTemplate().queryForInt(CHECK_COUNT_SQL,uid);
-		} catch (DataAccessException e) {
-			
-		}
-		return count > 0;
-	}
-
 	public void searchFuzzy(String key, List<UserCharacter> users) {
 		StringBuffer sb = new StringBuffer();
 		sb.append("select * from users where ");

@@ -58,6 +58,11 @@
     <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
 		<property name="dataSource" ref="DAOS" />
 	</bean>
-
+	<bean id="brokerDao" class="com.keyking.coin.service.dao.impl.BrokerDAO">
+	    <property name="dataSource" ref="DAOS" />
+	</bean>
+	<bean id="userBrokerDao" class="com.keyking.coin.service.dao.impl.UserBrokerDAO">
+	    <property name="dataSource" ref="DAOS" />
+	</bean>
 	<tx:annotation-driven transaction-manager="transactionManager" proxy-target-class="true" />
  </beans>

@@ -6,25 +6,19 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
 import java.util.List;
-
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.PreparedStatementCreator;
-import org.springframework.jdbc.core.support.JdbcDaoSupport;
-
 import com.keyking.coin.service.dao.row.NoticeRow;
 import com.keyking.coin.service.domain.other.NoticeEntity;
 import com.keyking.coin.util.ServerLog;
 
-public class OtherDAO extends JdbcDaoSupport {
+public class OtherDAO extends BaseDAO {
 	
 	NoticeRow noticeRow = new NoticeRow();
 	
 	private static String INSERT_SQL_STR = "insert into notice (_time,title,body,type)values(?,?,?,?)";
-	
 	private static String DELETE_SQL_STR = "delete from notice where _time=?";
-	
 	private static String SELECT_SQL_STR_MORE = "select * from notice where _time>=? and _time<=?";
-	
 	private static String SAVE_SQL_STR = "update notice set title=?,body=?,type=? where _time=?";
 	
 	public boolean insert(final NoticeEntity notice) {

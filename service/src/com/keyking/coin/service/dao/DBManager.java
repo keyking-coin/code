@@ -4,6 +4,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.FileSystemXmlApplicationContext;
 
 import com.keyking.coin.service.dao.impl.AccountApplyDAO;
+import com.keyking.coin.service.dao.impl.BrokerDAO;
 import com.keyking.coin.service.dao.impl.DealDAO;
 import com.keyking.coin.service.dao.impl.DealOrderDAO;
 import com.keyking.coin.service.dao.impl.EmailDAO;
@@ -12,40 +13,30 @@ import com.keyking.coin.service.dao.impl.MessageDAO;
 import com.keyking.coin.service.dao.impl.OtherDAO;
 import com.keyking.coin.service.dao.impl.RevertDAO;
 import com.keyking.coin.service.dao.impl.TimeLineDAO;
+import com.keyking.coin.service.dao.impl.UserBrokerDAO;
 import com.keyking.coin.service.dao.impl.UserDAO;
 
 public class DBManager {
+	UserDAO userDao = null;
+	DealDAO dealDao = null;
+	RevertDAO revertDao = null;
+	DealOrderDAO dealOrderDao = null;
+	AccountApplyDAO accountApplyDao = null;
+	EmailDAO emailDao = null;
+	TimeLineDAO timeDao = null;
+	FriendDAO friendDao = null;
+	MessageDAO messageDao = null;
+	OtherDAO otherDao = null;
+	BrokerDAO brokerDao = null;
+	UserBrokerDAO userBrokerDao = null;
 	
 	private static DBManager instance = new DBManager();
-	
 	public static DBManager getInstance(){
 		return instance;
 	}
-	
-	ApplicationContext context = null;
-	
-	UserDAO userDao = null;
-	
-	DealDAO dealDao = null;
-	
-	RevertDAO revertDao = null;
-	
-	DealOrderDAO dealOrderDao = null;
-	
-	AccountApplyDAO accountApplyDao = null;
-	
-	EmailDAO emailDao = null;
-	
-	TimeLineDAO timeDao = null;
-	
-	FriendDAO friendDao = null;
-	
-	MessageDAO messageDao = null;
-	
-	OtherDAO otherDao = null;
-	
+
 	public void init() {
-		context         = new FileSystemXmlApplicationContext("conf/DB.xml");
+		ApplicationContext context = new FileSystemXmlApplicationContext("conf/DB.xml");
 		userDao         = (UserDAO)context.getBean("userDao");
 		dealDao         = (DealDAO)context.getBean("dealDao");
 		revertDao       = (RevertDAO)context.getBean("revertDao");
@@ -55,7 +46,9 @@ public class DBManager {
 		timeDao         = (TimeLineDAO)context.getBean("timeDao");
 		friendDao       = (FriendDAO)context.getBean("friendDao");
 		messageDao      = (MessageDAO)context.getBean("messageDao");
-		otherDao      = (OtherDAO)context.getBean("otherDao");
+		otherDao        = (OtherDAO)context.getBean("otherDao");
+		brokerDao       = (BrokerDAO)context.getBean("brokerDao");
+		userBrokerDao   = (UserBrokerDAO)context.getBean("userBrokerDao");
 	}
 	
 	public UserDAO getUserDao() {
@@ -96,6 +89,14 @@ public class DBManager {
 
 	public OtherDAO getOtherDao() {
 		return otherDao;
+	}
+
+	public BrokerDAO getBrokerDao() {
+		return brokerDao;
+	}
+
+	public UserBrokerDAO getUserBrokerDao() {
+		return userBrokerDao;
 	}
 }
  

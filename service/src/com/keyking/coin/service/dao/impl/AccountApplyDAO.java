@@ -7,7 +7,6 @@ import java.sql.Statement;
 
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.PreparedStatementCreator;
-import org.springframework.jdbc.core.support.JdbcDaoSupport;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 
@@ -15,14 +14,10 @@ import com.keyking.coin.service.dao.row.AccountApplyRow;
 import com.keyking.coin.service.domain.user.AccountApply;
 import com.keyking.coin.util.ServerLog;
 
-public class AccountApplyDAO extends JdbcDaoSupport {
+public class AccountApplyDAO extends BaseDAO {
 	
 	AccountApplyRow row = new AccountApplyRow();
-	
 	private static String INSERT_SQL_STR = "insert into accountApply (bourse,bankName,tel,email,indentFront,indentBack,bankFront,state,reason)values(?,?,?,?,?,?,?,?,?)";
-	
-	private static String DELETE_SQL_STR = "delete from accountApply where 1=1 and id=?";
-	
 	private static String SELECT_SQL_STR_ONE = "select * from accountApply where id=?";
 	
 	public synchronized boolean insert(final AccountApply apply) {
@@ -53,15 +48,6 @@ public class AccountApplyDAO extends JdbcDaoSupport {
 		}
 	}
 	
-	public synchronized boolean delete(long id) {
-		try {
-			getJdbcTemplate().update(DELETE_SQL_STR,id);
-			return true;
-		} catch (DataAccessException e) {
-			ServerLog.error("delete accountApply error",e);
-			return false;
-		}
-	}
 	
 	public AccountApply search(long id) {
 		AccountApply apply = null;

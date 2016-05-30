@@ -7,10 +7,12 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.apache.mina.core.session.IoSession;
 import org.joda.time.DateTime;
 
+import com.keyking.coin.service.domain.broker.Broker;
 import com.keyking.coin.service.domain.condition.SearchCondition;
 import com.keyking.coin.service.domain.deal.Deal;
 import com.keyking.coin.service.domain.deal.DealOrder;
@@ -37,8 +39,8 @@ public class Controler implements Instances{
 	private static Controler instance = new Controler();
 	
 	Map<String,UserCharacter> characters = new ConcurrentHashMap<String,UserCharacter>();
-	
-	List<Deal> deals = new ArrayList<Deal>();
+	List<Deal> deals = new CopyOnWriteArrayList<Deal>();
+	List<Broker> brokers = new CopyOnWriteArrayList<Broker>();
 	
 	public static Controler getInstance() {
 		return instance;
@@ -46,8 +48,8 @@ public class Controler implements Instances{
 	
 	public void load(){
 		ServerLog.info("load all deals");
-		List<Deal> lis = DB.getDealDao().loadAll();
-		for (Deal deal : lis){
+		List<Deal> ds = DB.getDealDao().loadAll();
+		for (Deal deal : ds){
 			deal.read();
 			deals.add(deal);
 		}
@@ -56,6 +58,11 @@ public class Controler implements Instances{
 		for (UserCharacter user : users){
 			user.load();
 			characters.put(user.getAccount(),user);
+		}
+		ServerLog.info("load all brokers");
+		List<Broker> bs = DB.getBrokerDao().loadAll();
+		for (Broker broker : bs){
+			brokers.add(broker);
 		}
 	}
 	

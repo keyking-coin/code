@@ -24,58 +24,33 @@ import com.keyking.coin.util.TimeUtils;
 public class UserCharacter implements Instances,SerializeEntity{
 	
 	long id;
-	
 	String account;
-	
 	String pwd ="666666";
-	
 	String face = "face1";
-	
 	String nikeName="";//昵称
-	
 	String title = "买家会员";//称号
-	
 	String registTime = "";//注册时间
-	
 	List<String> addresses = new ArrayList<String>();//地址
-	
 	String name ="";//姓名
-	
 	int age = 18;//年龄
-	
 	String sessionAddress;//回话
-	
 	String identity = "";//身份验证
-	
 	byte push = 1;//推送设置
-	
 	String signature = "大家好";//签名
-	
 	Recharge recharge = new Recharge();//充值系统
-	
 	BankAccount bankAccount = new BankAccount();//绑定银行账户
-	
 	Credit credit = new Credit();//信用度
-	
 	Seller seller = null;
-	
 	Forbid forbid = new Forbid();
-	
 	byte breach;//违约次数
-	
 	float deposit;//保证金
-	
 	UserPermission permission = new UserPermission();
-	
 	List<Email> emails = new ArrayList<Email>();//邮件列表
-		
 	List<Long> favorites = new ArrayList<Long>();//收藏夹
-	
 	List<Friend> friends = new ArrayList<Friend>();//好友列表
-		
 	List<Message> messages = new ArrayList<Message>();//好友发我的消息
-	
 	String other = "";//备注信息
+	long father = 0;//隶属那个
 	
 	public long getId() {
 		return id;
@@ -267,7 +242,14 @@ public class UserCharacter implements Instances,SerializeEntity{
 		this.deposit = deposit;
 	}
 
-	
+	public long getFather() {
+		return father;
+	}
+
+	public void setFather(long father) {
+		this.father = father;
+	}
+
 	public List<Email> getEmails() {
 		return emails;
 	}

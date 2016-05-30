@@ -1,5 +1,8 @@
 package com.keyking.coin.service.http.handler;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
 import org.apache.mina.core.future.IoFutureListener;
 import org.apache.mina.core.service.IoHandlerAdapter;
 import org.apache.mina.core.session.IdleStatus;
@@ -13,30 +16,42 @@ import com.keyking.coin.util.ServerLog;
 public class HttpServerHandler extends IoHandlerAdapter implements Instances {
 	
 	static final String HTTP_BASE_LOGIC_PACKAGE = "com.keyking.coin.service.http.handler.impl";
+	Map<String,HttpHandler> handlers = new ConcurrentHashMap<String,HttpHandler>();
 	
     @Override  
     public void sessionOpened(IoSession session) {  
-        // set idle time to 60 seconds  
         session.getConfig().setIdleTime(IdleStatus.BOTH_IDLE, 60);  
     }  
   
-    @SuppressWarnings("unchecked")
 	@Override  
     public void messageReceived(IoSession session, Object message) {  
         HttpRequestMessage request = (HttpRequestMessage) message;
         String logicName = request.getContext();
-        Class<? extends HttpHandler> clazz = null;
+        String base = getClass().getPackage().getName();
+		String path = logicName.replaceAll("/",".");
+        HttpHandler handler = handlers.get(path);
         HttpResponseMessage response = new HttpResponseMessage();
-		try {
-			clazz = (Class<? extends HttpHandler>)Class.forName(HTTP_BASE_LOGIC_PACKAGE + "." + logicName);
-			HttpHandler handler = clazz.newInstance();
-			handler.handle(request,response); 
-		}catch(Exception e){
+        try {
+	        if (handler == null){
+	        	String allPath = null;
+	        	if (path.contains("um.")){
+	        		allPath = base + ".um." + path;
+	        	}else{
+	        		allPath = base + ".impl." + path;
+	        	}
+	        	Class<?> clazz = Class.forName(allPath);
+				handler = (HttpHandler)clazz.newInstance();
+				handlers.put(logicName,handler);
+	        }
+        	synchronized (handler) {
+     			handler.handle(request,response);
+     		}
+        }catch(Exception e){
 			if (!(e instanceof ClassNotFoundException)){
 				ServerLog.error("http handler error",e);
 			}
 		}
-		session.write(response).addListener(IoFutureListener.CLOSE);
+        session.write(response).addListener(IoFutureListener.CLOSE);
     }  
   
     @Override  

@@ -8,24 +8,17 @@ import java.util.List;
 
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.PreparedStatementCreator;
-import org.springframework.jdbc.core.support.JdbcDaoSupport;
 
 import com.keyking.coin.service.dao.row.EmailRow;
 import com.keyking.coin.service.domain.email.Email;
 import com.keyking.coin.util.ServerLog;
 
-public class EmailDAO extends JdbcDaoSupport {
+public class EmailDAO extends BaseDAO {
 	
 	EmailRow row = new EmailRow();
 	
 	private static String INSERT_SQL_STR = "insert into email (id,type,status,senderId,userId,time,theme,content)values(?,?,?,?,?,?,?,?)";
-	
 	private static String UPDATE_SQL_STR = "update email set status=? where id=?";
-	
-	private static String DELETE_SQL_STR = "delete from email where id=?";
-	
-	private static final String SQL_COUNT_EMAIL = "select count(*) from email where id=?";
-	
 	private static String SELECT_SQL_STR_MORE = "select * from email where userId=?";
 	
 	public synchronized boolean insert(final Email email) {
@@ -64,7 +57,7 @@ public class EmailDAO extends JdbcDaoSupport {
 	}
 	
 	public synchronized boolean save(Email email) {
-		if (check(email.getId())){
+		if (check("email",email.getId())){
 			return update(email);
 		}else{
 			return insert(email);
@@ -73,22 +66,11 @@ public class EmailDAO extends JdbcDaoSupport {
 	
 	public synchronized boolean delete(Email email) {
 		try {
-			getJdbcTemplate().update(DELETE_SQL_STR,email.getId());
+			return delete("email",email.getId());
 		} catch (DataAccessException e) {
 			ServerLog.error("delete email error",e);
 			return false;
 		}
-		return true;
-	}
-	
-	public boolean check(long id) {
-		int num = 0;
-		try {
-			num = getJdbcTemplate().queryForInt(SQL_COUNT_EMAIL, id);
-		} catch (Exception e) {
-			
-		}
-		return num > 0;
 	}
 	
 	public List<Email> load(long uid){

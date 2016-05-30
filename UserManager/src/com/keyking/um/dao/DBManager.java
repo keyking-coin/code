@@ -22,7 +22,7 @@ public class DBManager {
 	UserBrokerDAO userBrokerDao = null;
 	
 	public void init() {
-		context         = new FileSystemXmlApplicationContext("conf/DB.xml");
+		context         = new FileSystemXmlApplicationContext("./conf/DB.xml");
 		userDao         = (UserDAO)context.getBean("userDao");
 		brokerDao       = (BrokerDAO)context.getBean("brokerDao");
 		userBrokerDao   = (UserBrokerDAO)context.getBean("userBrokerDao");

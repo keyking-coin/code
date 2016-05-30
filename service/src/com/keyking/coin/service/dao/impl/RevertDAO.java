@@ -8,18 +8,15 @@ import java.util.List;
 
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.PreparedStatementCreator;
-import org.springframework.jdbc.core.support.JdbcDaoSupport;
 
 import com.keyking.coin.service.dao.row.RevertRow;
 import com.keyking.coin.service.domain.deal.Revert;
 import com.keyking.coin.util.ServerLog;
 
-public class RevertDAO extends JdbcDaoSupport {
+public class RevertDAO extends BaseDAO {
 	
 	private static String INSERT_SQL_STR = "insert into deal_revert (id,dependentId,uid,tar,context,createTime,_revoke)values(?,?,?,?,?,?,?)";
-	
 	private static String SELECT_SQL_STR = "select * from deal_revert where _revoke=0 and dependentId=?";
-	
 	private static String UPDATE_SQL_STR = "update deal_revert set _revoke=? where id=?";
 	
 	RevertRow row = new RevertRow();
@@ -69,21 +66,10 @@ public class RevertDAO extends JdbcDaoSupport {
 	}
 	
 	public synchronized boolean save(Revert revert) {
-		if (check(revert.getId())){
+		if (check("deal_revert",revert.getId())){
 			return update(revert);
 		}else{
 			return insert(revert);
 		}
-	}
-	
-	private static String CHECK_COUNT_SQL = "select count(*) from deal_revert where id=?";
-	private synchronized boolean check(long uid){
-		int count = 0 ;
-		try {
-			count = getJdbcTemplate().queryForInt(CHECK_COUNT_SQL,uid);
-		} catch (DataAccessException e) {
-			
-		}
-		return count > 0;
 	}
 }
