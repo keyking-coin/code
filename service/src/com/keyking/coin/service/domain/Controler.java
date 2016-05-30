@@ -290,8 +290,7 @@ public class Controler implements Instances{
 		int minue    = now.getMinuteOfHour();
 		int second   = now.getSecondOfMinute();
 		int off = hour * 3600 + minue * 60 + second;
-		long start = now.getMillis() - (7 * 24 * 3600 + off) * 1000;
-		//ServerLog.info("start : " + TimeUtils.formatYear(TimeUtils.getTime(start)));
+		long start = now.getMillis() - (1 * 24 * 3600 + off) * 1000;
 		List<Deal> result = new ArrayList<Deal>();
 		for (Deal deal : deals){
 			long dealTime = TimeUtils.getTime(deal.getCreateTime()).getMillis();
