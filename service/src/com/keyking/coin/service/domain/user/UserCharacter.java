@@ -51,6 +51,7 @@ public class UserCharacter implements Instances,SerializeEntity{
 	List<Message> messages = new ArrayList<Message>();//好友发我的消息
 	String other = "";//备注信息
 	long father = 0;//隶属那个
+	long broker = 0;//二级管理员关联的券商编号
 	
 	public long getId() {
 		return id;
@@ -264,6 +265,14 @@ public class UserCharacter implements Instances,SerializeEntity{
 
 	public void setFriends(List<Friend> friends) {
 		this.friends = friends;
+	}
+
+	public long getBroker() {
+		return broker;
+	}
+
+	public void setBroker(long broker) {
+		this.broker = broker;
 	}
 
 	public void deserializeFavorites(String str){

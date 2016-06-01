@@ -8,11 +8,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
-
 import org.apache.mina.core.session.IoSession;
 import org.joda.time.DateTime;
-
 import com.keyking.coin.service.domain.broker.Broker;
+import com.keyking.coin.service.domain.broker.UserBroker;
 import com.keyking.coin.service.domain.condition.SearchCondition;
 import com.keyking.coin.service.domain.deal.Deal;
 import com.keyking.coin.service.domain.deal.DealOrder;
@@ -37,10 +36,10 @@ import com.keyking.coin.util.TimeUtils;
 public class Controler implements Instances{
 	
 	private static Controler instance = new Controler();
-	
 	Map<String,UserCharacter> characters = new ConcurrentHashMap<String,UserCharacter>();
 	List<Deal> deals = new CopyOnWriteArrayList<Deal>();
 	List<Broker> brokers = new CopyOnWriteArrayList<Broker>();
+	List<UserBroker> userBrokers = new CopyOnWriteArrayList<UserBroker>();
 	
 	public static Controler getInstance() {
 		return instance;
@@ -63,6 +62,11 @@ public class Controler implements Instances{
 		List<Broker> bs = DB.getBrokerDao().loadAll();
 		for (Broker broker : bs){
 			brokers.add(broker);
+		}
+		ServerLog.info("load all userBrokers");
+		List<UserBroker> ubs = DB.getUserBrokerDao().loadAll();
+		for (UserBroker ub : ubs){
+			userBrokers.add(ub);
 		}
 	}
 	
@@ -458,10 +462,10 @@ public class Controler implements Instances{
 		return result;
 	}
 	
-	public List<TransformUserData> getAllUser() {
+	public List<TransformUserData> getCoinUsers() {
 		List<TransformUserData> result = new ArrayList<TransformUserData>();
 		for (UserCharacter user : characters.values()){
-			if (!user.getPermission().admin()){
+			if (user.getPermission().buyer() || user.getPermission().seller()){
 				TransformUserData tud = new TransformUserData(user);
 				result.add(tud);
 			}
@@ -599,6 +603,50 @@ public class Controler implements Instances{
 			NET.sendMessageToClent(modules,user);
 			return true;
 		}
+	}
+
+	public boolean checkBroker(String name) {
+		for (Broker broker : brokers){
+			if (broker.getName().equals(name)){
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	public synchronized void addBroker(Broker broker){
+		if (!brokers.contains(broker)){
+			brokers.add(broker);
+		}
+	}
+
+	public List<UserBroker> searchUserBrokers(UserCharacter user) {
+		List<UserBroker> result = new ArrayList<UserBroker>();
+		for (UserBroker ub : userBrokers){
+			if (ub.getBid() == user.getBroker()){
+				result.add(ub);
+			}
+		}
+		return result;
+	}
+	
+	public List<Broker> searchBrokers(UserCharacter user) {
+		List<Broker> result = new ArrayList<Broker>();
+		for (UserBroker ub : userBrokers){
+			if (ub.getUid() == user.getId()){
+				result.add(searchBroker(ub.getBid()));
+			}
+		}
+		return result;
+	}
+	
+	public Broker searchBroker(long brokerId) {
+		for (Broker broker : brokers){
+			if (broker.getId() == brokerId){
+				return broker;
+			}
+		}
+		return null;
 	}
 }
  

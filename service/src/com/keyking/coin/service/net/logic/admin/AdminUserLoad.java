@@ -11,7 +11,7 @@ public class AdminUserLoad extends AbstractLogic {
 	@Override
 	public Object doLogic(DataBuffer buffer, String logicName) throws Exception {
 		AdminResp resp = new AdminResp(logicName);
-		List<TransformUserData> users = CTRL.getAllUser();
+		List<TransformUserData> users = CTRL.getCoinUsers();
 		resp.addKey("users",users);
 		resp.setSucces();
 		return resp;

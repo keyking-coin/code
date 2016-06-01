@@ -30,5 +30,9 @@ public class Broker implements Instances{
 	public void setDes(String des) {
 		this.des = des;
 	}
+
+	public void save() {
+		DB.getBrokerDao().save(this);
+	}
 	
 }

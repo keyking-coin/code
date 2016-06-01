@@ -5,7 +5,7 @@ import com.keyking.coin.service.http.request.HttpRequestMessage;
 import com.keyking.coin.service.http.response.HttpResponseMessage;
 
 public class HttpToken extends HttpHandler {
-	//http://139.196.30.53:32104/um/HttpToken?account=x&pwd=x&code=x
+	//http://139.196.30.53:32104/um/HttpToken?tel=x
 	@Override
 	public void handle(HttpRequestMessage request, HttpResponseMessage response) {
 		response.setContentType("text/plain");
