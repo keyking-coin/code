@@ -58,7 +58,7 @@ public class TokenUtil {
 			if (time + 5 * 60 * 1000 < TimeUtils.nowLong()){
 				return null;
 			}
-			return code;
+			return ss[1];
 		}
 		return null;
 	}

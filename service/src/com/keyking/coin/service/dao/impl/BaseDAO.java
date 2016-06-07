@@ -16,7 +16,7 @@ public class BaseDAO extends JdbcDaoSupport{
 		return count > 0;
 	}
 	
-	protected synchronized boolean delete(String tableName,long id){
+	public synchronized boolean delete(String tableName,long id){
 		String sql = "delete from " + tableName + " where id=?";
 		try {
 			int count = getJdbcTemplate().update(sql,id);

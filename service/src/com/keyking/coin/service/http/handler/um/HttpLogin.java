@@ -15,7 +15,7 @@ import com.keyking.coin.util.JsonUtil;
 import com.keyking.coin.util.ServerLog;
 
 public class HttpLogin extends HttpHandler {
-	//http://139.196.30.53:32104/um/HttpLogin?account=x&pwd=x
+	//http://127.0.0.1:32104/um/HttpLogin?account=x&pwd=x
 	@Override
 	public void handle(HttpRequestMessage request, HttpResponseMessage response) {
 		response.setContentType("text/plain");

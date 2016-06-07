@@ -8,8 +8,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
+
 import org.apache.mina.core.session.IoSession;
 import org.joda.time.DateTime;
+
 import com.keyking.coin.service.domain.broker.Broker;
 import com.keyking.coin.service.domain.broker.UserBroker;
 import com.keyking.coin.service.domain.condition.SearchCondition;
@@ -48,25 +50,33 @@ public class Controler implements Instances{
 	public void load(){
 		ServerLog.info("load all deals");
 		List<Deal> ds = DB.getDealDao().loadAll();
-		for (Deal deal : ds){
-			deal.read();
-			deals.add(deal);
+		if (ds != null){
+			for (Deal deal : ds){
+				deal.read();
+				deals.add(deal);
+			}
 		}
 		ServerLog.info("load all users");
 		List<UserCharacter> users = DB.getUserDao().loadAll();
-		for (UserCharacter user : users){
-			user.load();
-			characters.put(user.getAccount(),user);
+		if (users != null){
+			for (UserCharacter user : users){
+				user.load();
+				characters.put(user.getAccount(),user);
+			}
 		}
 		ServerLog.info("load all brokers");
 		List<Broker> bs = DB.getBrokerDao().loadAll();
-		for (Broker broker : bs){
-			brokers.add(broker);
+		if (bs != null){
+			for (Broker broker : bs){
+				brokers.add(broker);
+			}
 		}
 		ServerLog.info("load all userBrokers");
 		List<UserBroker> ubs = DB.getUserBrokerDao().loadAll();
-		for (UserBroker ub : ubs){
-			userBrokers.add(ub);
+		if (ubs != null){
+			for (UserBroker ub : ubs){
+				userBrokers.add(ub);
+			}
 		}
 	}
 	
@@ -357,7 +367,7 @@ public class Controler implements Instances{
 			for (RankEntity re : map.values()){
 				RankEntity target = null;
 				for (RankEntity entity : temp){
-					if (entity.getUid() == re.getUid()){
+					if (entity.equals(re)){
 						target = entity;
 					}
 				}
@@ -647,6 +657,16 @@ public class Controler implements Instances{
 			}
 		}
 		return null;
+	}
+
+	public boolean removeUser(String account) {
+		UserCharacter user = characters.get(account);
+		if (user != null){
+			DB.getUserDao().delete("user",user.getId());
+			characters.remove(account);
+			return true;
+		}
+		return false;
 	}
 }
  

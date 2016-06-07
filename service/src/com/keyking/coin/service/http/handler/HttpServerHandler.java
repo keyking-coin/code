@@ -35,7 +35,7 @@ public class HttpServerHandler extends IoHandlerAdapter implements Instances {
 	        if (handler == null){
 	        	String allPath = null;
 	        	if (path.contains("um.")){
-	        		allPath = base + ".um." + path;
+	        		allPath = base + "." + path;
 	        	}else{
 	        		allPath = base + ".impl." + path;
 	        	}
