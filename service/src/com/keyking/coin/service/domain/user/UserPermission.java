@@ -53,6 +53,10 @@ public class UserPermission {
 		return type.ordinal() == PermissionType.buyer.ordinal();
 	}
 	
+	public boolean coin_user(){
+		return type.ordinal() >= PermissionType.buyer.ordinal();
+	}
+	
 	public String serialize(){
 		return lastPayTime + "," + endTime + "," + type.toString();
 	}

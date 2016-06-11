@@ -6,10 +6,9 @@ import com.keyking.coin.util.Instances;
 
 public class RankEntity implements Comparable<RankEntity> , Instances , SerializeEntity{
 	long uid;
-	String name;
-	String face;
-	int count;
-	float worth;//价值
+	String name;//昵称
+	String face;//头像名称
+	int num;//额度/数量/好评
 	
 	public RankEntity(){
 		
@@ -17,6 +16,9 @@ public class RankEntity implements Comparable<RankEntity> , Instances , Serializ
 	
 	public RankEntity(long uid){
 		this.uid = uid;
+		UserCharacter user = CTRL.search(uid);
+		name = user.getNikeName();
+		face = user.getFace();
 	}
 
 	public String getName() {
@@ -35,28 +37,16 @@ public class RankEntity implements Comparable<RankEntity> , Instances , Serializ
 		this.face = face;
 	}
 
-	public int getCount() {
-		return count;
+	public int getNum() {
+		return num;
 	}
 
-	public void setCount(int count) {
-		this.count = count;
+	public void setNum(int num) {
+		this.num = num;
 	}
 	
-	public void addCount(int count) {
-		this.count += count;
-	}
-	
-	public float getWorth() {
-		return worth;
-	}
-
-	public void setWorth(float worth) {
-		this.worth = worth;
-	}
-
-	public void addWorth(float worth) {
-		this.worth += worth;
+	public void addNum(int num) {
+		this.num += num;
 	}
 	
 	public boolean equals(RankEntity re) {
@@ -69,12 +59,12 @@ public class RankEntity implements Comparable<RankEntity> , Instances , Serializ
 		UserCharacter user = CTRL.search(uid);
 		buffer.putUTF(user.getNikeName());
 		buffer.putUTF(user.getFace());
-		buffer.putInt(count);
-		buffer.putUTF(String.valueOf(worth));
+		buffer.putInt(num);
+		buffer.putUTF(String.valueOf(num));
 	}
 
 	@Override
 	public int compareTo(RankEntity arg0) {
-		return worth > arg0.worth ? -1 : 1;
+		return num > arg0.num ? -1 : 1;
 	}
 }

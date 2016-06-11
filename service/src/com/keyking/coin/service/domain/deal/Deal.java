@@ -423,25 +423,26 @@ public class Deal implements Instances,SerializeEntity,Comparable<Deal>{
 		compare_o();
 	}
 	
-	public Map<Long,RankEntity> compute(){
+	public Map<Long,RankEntity> compute(int type){
 		Map<Long,RankEntity> result = new HashMap<Long, RankEntity>();
 		for (DealOrder order : orders){
 			if (order.over()){//已完成交易
-				float worth = order.getPrice() * order.getNum();
+				int worth = type == 0 ? (int)order.getPrice() * order.getNum() : order.getNum();
 				RankEntity entity = result.get(uid);
 				if (entity == null){
 					entity = new RankEntity(uid);
 					result.put(uid,entity);
 				}
-				entity.addCount(1);
-				entity.addWorth(worth);
+				if (type == 1){
+					
+				}
+				entity.addNum(worth);
 				entity = result.get(order.getBuyId());
 				if (entity == null){
 					entity = new RankEntity(order.getBuyId());
 					result.put(order.getBuyId(),entity);
 				}
-				entity.addCount(1);
-				entity.addWorth(worth);
+				entity.addNum(worth);
 			}
 		}
 		return result;

@@ -13,7 +13,7 @@ public class RankEvent extends AbstractLogic {
 	@Override
 	public Object doLogic(DataBuffer buffer, String logicName) throws Exception {
 		GeneralResp resp = new GeneralResp(logicName);
-		List<RankEntity> ranks = CTRL.rankDeal();
+		List<RankEntity> ranks = CTRL.rankDeal(0);
 		resp.add(ranks);
 		resp.setSucces();
 		ServerLog.info("ranks size " + ranks.size());

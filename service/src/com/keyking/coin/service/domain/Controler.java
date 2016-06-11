@@ -359,25 +359,38 @@ public class Controler implements Instances{
 		return result;
 	}
 	
-	public List<RankEntity> rankDeal(){
+	public List<RankEntity> rankDeal(int type){
 		List<RankEntity> result = new ArrayList<RankEntity>();
 		List<RankEntity> temp = new ArrayList<RankEntity>();
-		for (Deal deal : deals){//未撤销的
-			Map<Long,RankEntity> map = deal.compute();
-			for (RankEntity re : map.values()){
-				RankEntity target = null;
-				for (RankEntity entity : temp){
-					if (entity.equals(re)){
-						target = entity;
+		if (type <= 1){
+			for (Deal deal : deals){//未撤销的
+				Map<Long,RankEntity> map = deal.compute(type);
+				for (RankEntity re : map.values()){
+					RankEntity target = null;
+					for (RankEntity entity : temp){
+						if (entity.equals(re)){
+							target = entity;
+						}
+					}
+					if (target != null){
+						target.addNum(re.getNum());
+					}else{
+						temp.add(re);
 					}
 				}
-				if (target != null){
-					target.addCount(re.getCount());
-				}else{
+			}
+		}else if (type == 2){
+			for (UserCharacter user : characters.values()){//未撤销的
+				if (user.getPermission().coin_user()){
+					RankEntity re = new RankEntity();
+					re.setName(user.getNikeName());
+					re.setName(user.getFace());
+					re.addNum(user.getCredit().getHp());
 					temp.add(re);
 				}
 			}
 		}
+		
 		Collections.sort(temp);
 		int max = Math.min(100,temp.size());
 		for (int i = 0 ; i < max ; i++){
