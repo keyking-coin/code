@@ -26,7 +26,7 @@ public class UserCharacter implements Instances,SerializeEntity{
 	long id;
 	String account;
 	String pwd ="666666";
-	String face = "face1";
+	String face = "null";
 	String nikeName="";//昵称
 	String title = "买家会员";//称号
 	String registTime = "";//注册时间

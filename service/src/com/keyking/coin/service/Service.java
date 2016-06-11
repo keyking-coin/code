@@ -35,10 +35,8 @@ public class Service implements Instances{
         try {
         	ServerLog.init();
         	load();
-        	//ServerLog.info("DB init");
         	DB.init();
         	PK.load();
-        	//ServerLog.info("SMS init");
         	SMS.init();
         	CTRL.load();
         	SocketAcceptor acceptor = new NioSocketAcceptor();  
