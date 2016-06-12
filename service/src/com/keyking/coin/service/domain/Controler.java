@@ -382,15 +382,15 @@ public class Controler implements Instances{
 		}else if (type == 2){
 			for (UserCharacter user : characters.values()){//未撤销的
 				if (user.getPermission().coin_user()){
-					RankEntity re = new RankEntity();
-					re.setName(user.getNikeName());
-					re.setName(user.getFace());
-					re.addNum(user.getCredit().getHp());
-					temp.add(re);
+					int num = user.getCredit().getHp();
+					if (num > 0){
+						RankEntity re = new RankEntity(user);
+						re.addNum(num);
+						temp.add(re);
+					}
 				}
 			}
 		}
-		
 		Collections.sort(temp);
 		int max = Math.min(100,temp.size());
 		for (int i = 0 ; i < max ; i++){

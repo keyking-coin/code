@@ -57,7 +57,6 @@ public class ServiceHandler extends IoHandlerAdapter implements Instances {
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
-				ServerLog.error("Logic",e);
 			}
 		}
 	}

@@ -433,9 +433,6 @@ public class Deal implements Instances,SerializeEntity,Comparable<Deal>{
 					entity = new RankEntity(uid);
 					result.put(uid,entity);
 				}
-				if (type == 1){
-					
-				}
 				entity.addNum(worth);
 				entity = result.get(order.getBuyId());
 				if (entity == null){

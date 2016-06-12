@@ -5,24 +5,30 @@ import com.keyking.coin.service.net.buffer.DataBuffer;
 import com.keyking.coin.util.Instances;
 
 public class RankEntity implements Comparable<RankEntity> , Instances , SerializeEntity{
+	
 	long uid;
 	String name;//昵称
 	String face;//头像名称
 	String title;//头衔
 	int num;//额度/数量/好评
 	
-	public RankEntity(){
-		
+
+	public RankEntity(long uid){
+		UserCharacter user = CTRL.search(uid);
+		init(user);
 	}
 	
-	public RankEntity(long uid){
-		this.uid = uid;
-		UserCharacter user = CTRL.search(uid);
-		name = user.getNikeName();
-		face = user.getFace();
+	public RankEntity(UserCharacter user){
+		init(user);
+	}
+	
+	public void init(UserCharacter user){
+		uid   = user.getId();
+		name  = user.getNikeName();
+		face  = user.getFace();
 		title = user.getTitle();
 	}
-
+	
 	public String getName() {
 		return name;
 	}
@@ -75,7 +81,7 @@ public class RankEntity implements Comparable<RankEntity> , Instances , Serializ
 	}
 
 	@Override
-	public int compareTo(RankEntity arg0) {
-		return num > arg0.num ? -1 : 1;
+	public int compareTo(RankEntity re) {
+		return re.num - num;
 	}
 }
