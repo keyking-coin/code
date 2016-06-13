@@ -15,21 +15,23 @@ public class AppDeployDeal extends AbstractLogic{
 
 	@Override
 	public Object doLogic(DataBuffer buffer, String logicName) throws Exception {
-		AppResp resp = new AppResp(logicName);
-		long uid   = buffer.getLong();//发布者编号
-		byte sellFlag = buffer.get();//发布卖贴还是买帖
-		byte deployType = buffer.get();//发布方式 0普通发送,1 推送发送
-		String typeSTr = buffer.getUTF();
-		byte type = (byte)(typeSTr.equals("入库") ? 0 : 1);//交割类型
-		String bourse = buffer.getUTF();//文交所
-		String title  = buffer.getUTF();//名称
-		float price = Float.parseFloat(buffer.getUTF());
-		int num = buffer.getInt();
-		String monad = buffer.getUTF();//单位
+		AppResp resp     = new AppResp(logicName);
+		long uid         = buffer.getLong();//发布者编号
+		byte sellFlag    = buffer.get();//发布卖贴还是买帖
+		byte deployType  = buffer.get();//发布方式 0普通发送,1 推送发送
+		String typeSTr   = buffer.getUTF();//交割类型
+		String bourse    = buffer.getUTF();//文交所
+		String title     = buffer.getUTF();//名称
+		String priceStr  = buffer.getUTF();//价格
+		int num          = buffer.getInt();//出售数量
+		String monad     = buffer.getUTF();//单位
 		String validTime = buffer.getUTF();//有效时间
+		String other     = buffer.getUTF();//其他备注信息
+		byte helpFlag    = buffer.get();//中介标志
+		
 		String createTime = TimeUtils.nowChStr();
-		String other = buffer.getUTF();//有效时间
-		byte helpFlag = buffer.get();//帮组标志
+		byte type = (byte)(typeSTr.equals("入库") ? 0 : 1);
+		float price = Float.parseFloat(priceStr);
 		UserCharacter user = CTRL.search(uid);
 		if (user == null){//不存在账号是account
 			resp.setError("找不到用户");
@@ -89,5 +91,4 @@ public class AppDeployDeal extends AbstractLogic{
 		ServerLog.info(user.getAccount() + " deployed deal ok ----> id is " + deal.getId());
 		return resp;
 	}
-	
 }
