@@ -18,7 +18,10 @@ public class AppUserLook extends AbstractLogic {
 		UserCharacter user = CTRL.search(uid);
 		if (user != null){
 			Deal deal = CTRL.tryToSearch(dealId);
-			boolean look = (deal.getUid() == uid && deal.checkBuyerId(mid)) || (deal.getUid() == mid && deal.checkBuyerId(uid));
+			boolean look  = false;
+			if (deal != null){
+				look = (deal.getUid() == uid && deal.checkBuyerId(mid)) || (deal.getUid() == mid && deal.checkBuyerId(uid));
+			}
 			if (uid == mid || mid <= 2){
 				look = true;
 			}
@@ -38,7 +41,7 @@ public class AppUserLook extends AbstractLogic {
 				data.getBanks().addAll(user.getBankAccount().getAccounts());
 			}
 			data.getCredit().copy(user.getCredit());
-			resp.put("info", data);
+			resp.put("info",data);
 			resp.setSucces();
 		}else{
 			resp.setError("找不到用户");
