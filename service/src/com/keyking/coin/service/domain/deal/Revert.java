@@ -112,4 +112,11 @@ public class Revert implements Instances , SerializeEntity ,Comparable<Revert>{
 	public void save() {
 		DB.getRevertDao().save(this);
 	}
+	
+	public boolean couldInsert() {
+		if (tar > 0 && CTRL.search(tar) == null){
+			return false;
+		}
+		return CTRL.search(uid) != null;
+	}
 }

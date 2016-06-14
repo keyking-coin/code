@@ -412,13 +412,19 @@ public class Deal implements Instances,SerializeEntity,Comparable<Deal>{
 		List<Revert> lis = DB.getRevertDao().search(id);
 		if (lis != null){
 			for (Revert revert : lis){
-				reverts.add(revert);
+				if (revert.couldInsert()){
+					reverts.add(revert);
+				}
 			}
 		}
 		compare_r();
 		List<DealOrder> temps = DB.getDealOrderDao().search(id);
 		if (temps != null){
-			orders.addAll(temps);
+			for (DealOrder order : temps){
+				if (order.couldInsert()){
+					orders.add(order);
+				}
+			}
 		}
 		compare_o();
 	}
@@ -549,5 +555,9 @@ public class Deal implements Instances,SerializeEntity,Comparable<Deal>{
 		revrt.save();
 		//NET.sendMessageToAllClent(clientMessage(Module.UPDATE_FLAG),null);
 		return true;
+	}
+
+	public boolean couldInsert() {
+		return CTRL.search(uid) != null;
 	}
 }

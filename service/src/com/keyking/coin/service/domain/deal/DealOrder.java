@@ -350,4 +350,8 @@ public class DealOrder implements Instances,SerializeEntity,Comparable<DealOrder
 	public boolean checkBuyer(Deal deal, long uid) {
 	    return deal.getSellFlag() == 1 && buyId == uid;
 	}
+	
+	public boolean couldInsert() {
+		return CTRL.search(buyId) != null;
+	}
 }

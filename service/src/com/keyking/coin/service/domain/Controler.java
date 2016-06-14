@@ -48,20 +48,22 @@ public class Controler implements Instances{
 	}
 	
 	public void load(){
-		ServerLog.info("load all deals");
-		List<Deal> ds = DB.getDealDao().loadAll();
-		if (ds != null){
-			for (Deal deal : ds){
-				deal.read();
-				deals.add(deal);
-			}
-		}
 		ServerLog.info("load all users");
 		List<UserCharacter> users = DB.getUserDao().loadAll();
 		if (users != null){
 			for (UserCharacter user : users){
 				user.load();
 				characters.put(user.getAccount(),user);
+			}
+		}
+		ServerLog.info("load all deals");
+		List<Deal> ds = DB.getDealDao().loadAll();
+		if (ds != null){
+			for (Deal deal : ds){
+				deal.read();
+				if (deal.couldInsert()){
+					deals.add(deal);
+				}
 			}
 		}
 		ServerLog.info("load all brokers");
