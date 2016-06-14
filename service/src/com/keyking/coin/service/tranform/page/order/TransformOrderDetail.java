@@ -11,13 +11,13 @@ import com.keyking.coin.service.net.resp.module.ModuleResp;
 import com.keyking.coin.util.Instances;
 
 public class TransformOrderDetail implements Instances{
-	long dealId;
-	long orderId;//订单编号
+	long dealId;//买卖盘编号
+	long orderId;//成交盘编号
 	long issueId;//发布人编号
 	String issueName;//发布人昵称
 	long grabId;//抢单人编号
 	String grabName;//抢单人姓名
-	byte type;
+	byte type;//类型0入库;1过户
 	byte sellFlag;//出售帖还是求购帖
 	byte helpFlag;//是否中介
 	String bourse;//文交所名称
@@ -31,7 +31,7 @@ public class TransformOrderDetail implements Instances{
 	int buyerNum;//买家确认数量
 	int sellerNum;//买家发货数量或者入库数量
 	byte state;//订单状态
-	int revoke;
+	int revoke;//撤销
 	List<String> times;//订单状态时间
 	DealAppraise buyerAppraise;//买家评价
 	DealAppraise sellerAppraise;//卖家评价

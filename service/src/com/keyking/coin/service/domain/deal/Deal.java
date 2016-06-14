@@ -26,7 +26,7 @@ public class Deal implements Instances,SerializeEntity,Comparable<Deal>{
 	long id;//编号
 	long uid;//用户编号
 	byte sellFlag = DEAL_TYPE_BUY;//出售帖还是求购帖
-	byte type;//类型0入库，1现货
+	byte type;//类型0入库;1过户
 	byte helpFlag;//可以使用中介服务;0未开启，1开启。
 	String bourse;//文交所名称
 	String name;//藏品名称
