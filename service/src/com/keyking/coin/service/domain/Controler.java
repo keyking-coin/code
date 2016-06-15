@@ -32,6 +32,7 @@ import com.keyking.coin.service.tranform.TransformDealData;
 import com.keyking.coin.service.tranform.TransformTouristOrder;
 import com.keyking.coin.service.tranform.TransformUserData;
 import com.keyking.coin.util.Instances;
+import com.keyking.coin.util.MathUtils;
 import com.keyking.coin.util.ServerLog;
 import com.keyking.coin.util.TimeUtils;
 
@@ -52,8 +53,10 @@ public class Controler implements Instances{
 		List<UserCharacter> users = DB.getUserDao().loadAll();
 		if (users != null){
 			for (UserCharacter user : users){
-				user.load();
 				characters.put(user.getAccount(),user);
+			}
+			for (UserCharacter user : users){
+				user.load();
 			}
 		}
 		ServerLog.info("load all deals");
@@ -121,8 +124,8 @@ public class Controler implements Instances{
 		if (user == null){
 			user = DB.getUserDao().search(accout);
 			if (user != null){
-				user.load();
 				characters.put(accout,user);
+				user.load();
 			}
 		}
 		return user;
@@ -136,14 +139,6 @@ public class Controler implements Instances{
 			if (user.getNikeName().equals(value)){
 				return user;
 			}
-		}
-		UserCharacter user = DB.getUserDao().search(value);
-		if (user != null){
-			return user;
-		}
-		user = DB.getUserDao().checkNikeName(value);
-		if (user != null){
-			return user;
 		}
 		return null;
 	}
@@ -160,16 +155,6 @@ public class Controler implements Instances{
 			if (nickName != null && user.getNikeName().equals(nickName)){
 				return nickName + "已被使用";
 			}
-		}
-		if (account != null){
-			if (DB.getUserDao().search(account) != null){
-				return account + "已被注册";
-			}else if(account.length() < 11){
-				return account + "少于11位";
-			}
-		}
-		if (nickName != null && DB.getUserDao().checkNikeName(nickName) != null){
-			return nickName + "已被使用";
 		}
 		return null;
 	}
@@ -189,18 +174,6 @@ public class Controler implements Instances{
 				return false;
 			}
 		}
-		if (account != null && DB.getUserDao().search(account) != null){
-			if (resp != null){
-				resp.setError(account + "已被注册");
-			}
-			return false;
-		}
-		if (nickName != null && DB.getUserDao().checkNikeName(nickName) != null){
-			if (resp != null){
-				resp.setError(nickName + "已被使用");
-			}
-			return false;
-		}
 		return true;
 	}
 	
@@ -210,12 +183,7 @@ public class Controler implements Instances{
 				return user;
 			}
 		}
-		UserCharacter user = DB.getUserDao().search(id);
-		if (user != null){
-			user.load();
-			characters.put(user.getAccount(),user);
-		}
-		return user;
+		return null;
 	}
 	
 	public synchronized boolean register(UserCharacter user){
@@ -682,6 +650,28 @@ public class Controler implements Instances{
 			return true;
 		}
 		return false;
+	}
+
+	public List<UserCharacter> getNotFriends(UserCharacter src, int num) {
+		List<UserCharacter> temp = new ArrayList<UserCharacter>();
+		List<UserCharacter> result = new ArrayList<UserCharacter>();
+		for (UserCharacter user : characters.values()){
+			if (user.getId() == src.getId()){
+				continue;
+			}
+			if (!src.checkFriend(user)){
+				temp.add(user);
+			}
+		}
+		int count = Math.max(0,temp.size());
+		while (count > 0 && result.size() < num && temp.size() > 0){
+			int index = MathUtils.random(temp.size());
+			UserCharacter user = temp.get(index);
+			result.add(user);
+			temp.remove(index);
+			count--;
+		}
+		return result;
 	}
 }
  

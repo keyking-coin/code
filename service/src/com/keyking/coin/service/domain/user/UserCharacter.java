@@ -311,7 +311,11 @@ public class UserCharacter implements Instances,SerializeEntity{
 	public void loadEmails(){
 		List<Email> temp = DB.getEmailDao().load(id);
 		if (temp != null && temp.size() > 0){
-			emails.addAll(temp);
+			for (Email email : temp){
+				if (CTRL.search(email.getSenderId()) != null){
+					emails.add(email);
+				}
+			}
 			Collections.sort(emails);
 		}
 	}
@@ -403,6 +407,9 @@ public class UserCharacter implements Instances,SerializeEntity{
 		if (lis != null && lis.size() > 0){
 			StringBuffer sb = new StringBuffer();
 			for (Friend friend : lis){
+				if (CTRL.search(friend.getFid()) == null){
+					continue;
+				}
 				sb.append("\'[" + friend.getFid() + "," + id + "]\',\'[" + id + "," + friend.getFid() + "]\',");
 				friends.add(friend);
 			}
@@ -629,6 +636,20 @@ public class UserCharacter implements Instances,SerializeEntity{
 			}
 		}
 		return count;
+	}
+
+	public boolean checkFriend(UserCharacter user) {
+		for (Friend friend : friends){
+			if (friend.getFid() == user.id){
+				return true;
+			}
+		}
+		for (Friend friend : user.friends){
+			if (friend.getFid() == id){
+				return true;
+			}
+		}
+		return false;
 	}
 }
  
