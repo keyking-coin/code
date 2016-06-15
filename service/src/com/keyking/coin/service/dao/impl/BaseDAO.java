@@ -5,7 +5,7 @@ import org.springframework.jdbc.core.support.JdbcDaoSupport;
 
 public class BaseDAO extends JdbcDaoSupport{
 		
-	protected synchronized boolean check(String tableName,long id){
+	protected synchronized boolean check(String tableName,Object id){
 		String sql = "select count(*) from " + tableName + " where id=?";
 		int count = 0 ;
 		try {
@@ -16,7 +16,7 @@ public class BaseDAO extends JdbcDaoSupport{
 		return count > 0;
 	}
 	
-	public synchronized boolean delete(String tableName,long id){
+	public synchronized boolean delete(String tableName,Object id){
 		String sql = "delete from " + tableName + " where id=?";
 		try {
 			int count = getJdbcTemplate().update(sql,id);

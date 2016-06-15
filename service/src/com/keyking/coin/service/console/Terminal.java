@@ -5,11 +5,9 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import com.keyking.coin.service.domain.Controler;
-import com.keyking.coin.util.ServerLog;
+import com.keyking.coin.service.http.HttpServer;
 
 public class Terminal {
 	public boolean logic(Socket socket){
@@ -53,21 +51,8 @@ public class Terminal {
 					reader.close();
 					return true;
 				case "close":
-					if (cmds.length < 1){
-						writer.println("please input close time");
-						writer.flush();
-						return false;
-					}
-					long time = Long.parseLong(cmds[1]);
-					ServerLog.info("server will be closed in " + time + " second");
-					Timer timer = new Timer();
-			        timer.schedule(new TimerTask(){
-			            public void run() {
-			            	//Service.stop();
-			            }
-			        },time*1000);
-			        writer.println("server will be closed in " + time + " second");
-			        writer.flush();
+					HttpServer.getInstance().stop();
+					System.exit(0);
 					break;
 				case "save":
 					writer.println("save ok");

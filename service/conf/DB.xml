@@ -64,5 +64,8 @@
 	<bean id="userBrokerDao" class="com.keyking.coin.service.dao.impl.UserBrokerDAO">
 	    <property name="dataSource" ref="DAOS" />
 	</bean>
+	<bean id="feedBackDao" class="com.keyking.coin.service.dao.impl.FeedBackDAO">
+	    <property name="dataSource" ref="DAOS" />
+	</bean>
 	<tx:annotation-driven transaction-manager="transactionManager" proxy-target-class="true" />
  </beans>

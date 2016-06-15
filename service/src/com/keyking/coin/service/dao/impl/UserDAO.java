@@ -34,7 +34,6 @@ public class UserDAO extends BaseDAO {
 		try {
 			user = getJdbcTemplate().queryForObject(CHECK_SQL_STR1,userRow,str);
 		} catch (DataAccessException e) {
-			//e.printStackTrace();
 			return null;
 		}
 		return user;

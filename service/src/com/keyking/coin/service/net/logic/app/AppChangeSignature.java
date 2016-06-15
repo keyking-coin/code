@@ -6,15 +6,15 @@ import com.keyking.coin.service.net.logic.AbstractLogic;
 import com.keyking.coin.service.net.resp.impl.AppResp;
 import com.keyking.coin.util.StringUtil;
 
-public class AppChangeIcon extends AbstractLogic {
+public class AppChangeSignature extends AbstractLogic{
 
 	@Override
 	public Object doLogic(DataBuffer buffer, String logicName) throws Exception {
 		AppResp resp = new AppResp(logicName);
 		long uid = buffer.getLong();//用户编号
-		String faceName = buffer.getUTF();//调用php上传图片时候的图片名称的字符串
-		if (StringUtil.isNull(faceName)){
-			resp.setError("非法的头像文件名称");
+		String signature = buffer.getUTF();//签名内容
+		if (StringUtil.isNull(signature)){
+			resp.setError("签名内容不能未空");
 			return resp;
 		}
 		UserCharacter user = CTRL.search(uid);
@@ -27,10 +27,9 @@ public class AppChangeIcon extends AbstractLogic {
 			resp.setError("您已经被封号原因是:" + forbidStr);
 			return resp;
 		}
-		user.setFace(faceName);
+		user.setSignature(signature);
 		user.save();
 		resp.setSucces();
-		resp.put("result","ok");
 		return resp;
 	}
 
