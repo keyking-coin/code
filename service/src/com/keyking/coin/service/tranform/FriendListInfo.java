@@ -8,6 +8,7 @@ public class FriendListInfo implements Instances{
 	long fid;//好友编号
 	String nikeName;//好友昵称
 	String faceIcon;//头像
+	String tel;//电话
 	byte pass;//0等待通过的好友申请,1已通过的好友。
 	String time;//申请时间或者是通过时间
 	String other;//验证信息
@@ -20,6 +21,14 @@ public class FriendListInfo implements Instances{
 		this.fid = fid;
 	}
 	
+	public String getTel() {
+		return tel;
+	}
+
+	public void setTel(String tel) {
+		this.tel = tel;
+	}
+
 	public String getNikeName() {
 		return nikeName;
 	}
@@ -66,6 +75,7 @@ public class FriendListInfo implements Instances{
 		if (user != null){
 			nikeName = user.getNikeName();
 			faceIcon = user.getFace();
+			tel      = user.getAccount();
 		}
 		pass  = friend.getPass();
 		time  = friend.getTime();

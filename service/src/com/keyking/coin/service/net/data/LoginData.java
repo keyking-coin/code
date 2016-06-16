@@ -3,6 +3,7 @@ package com.keyking.coin.service.net.data;
 import java.util.List;
 
 import com.keyking.coin.service.domain.user.Account;
+import com.keyking.coin.service.domain.user.Credit;
 import com.keyking.coin.service.domain.user.UserCharacter;
 
 public class LoginData {
@@ -18,10 +19,10 @@ public class LoginData {
 	byte push = 1;//推送设置
 	String signature;//签名
 	List<Account> accounts;//绑定银行账户
-	AppraiseRecord ar = new AppraiseRecord();//评价次数记录
 	byte breach;//违约次数
 	String other = "";//备注信息
 	MyselfNum mn = new MyselfNum();//和有有关的数据
+	Credit credit;//信用度
 	
 	public LoginData (UserCharacter user){
 		userId = user.getId();
@@ -36,11 +37,9 @@ public class LoginData {
 		push = user.getPush();
 		signature = user.getSignature();
 		accounts = user.getBankAccount().getAccounts();
-		ar.setGood(user.getCredit().getHp());
-		ar.setNormal(user.getCredit().getZp());
-		ar.setBad(user.getCredit().getCp());
 		breach = user.getBreach();
 		other = user.getOther();
+		credit = user.getCredit();
 		mn.setEmailNum(user.getNewEmailNum());
 		mn.setFriendNum(user.getFriends().size());
 	}
@@ -121,12 +120,6 @@ public class LoginData {
 	public void setAccounts(List<Account> accounts) {
 		this.accounts = accounts;
 	}
-	public AppraiseRecord getAr() {
-		return ar;
-	}
-	public void setAr(AppraiseRecord ar) {
-		this.ar = ar;
-	}
 	public byte getBreach() {
 		return breach;
 	}
@@ -145,4 +138,13 @@ public class LoginData {
 	public void setMn(MyselfNum mn) {
 		this.mn = mn;
 	}
+
+	public Credit getCredit() {
+		return credit;
+	}
+
+	public void setCredit(Credit credit) {
+		this.credit = credit;
+	}
+	
 }
