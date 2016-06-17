@@ -19,10 +19,10 @@ public class AppAccountOprate extends AbstractLogic {
 		String openName = null;
 		String peopleName = null;
 		if (type == 0){//0添加
-			name = buffer.getUTF();
-			value = buffer.getUTF();
-			openName = buffer.getUTF();
-			peopleName = buffer.getUTF();
+			name = buffer.getUTF();//银行名称
+			value = buffer.getUTF();//银行账号
+			openName = buffer.getUTF();//开户行地址
+			peopleName = buffer.getUTF();//开户人姓名
 		}else{//1删除
 			name = buffer.getUTF();
 		}
