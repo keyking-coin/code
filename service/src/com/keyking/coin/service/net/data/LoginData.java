@@ -13,12 +13,12 @@ public class LoginData {
 	String nikeName;//昵称
 	String title;//称号
 	String registTime;//注册时间
-	List<String> addresses;//地址
+	List<String> w_accouts;//文交所账号列表，格式是 :"华夏　1018300098"
 	String name;//姓名
 	String identity;//身份验证
 	byte push = 1;//推送设置
 	String signature;//签名
-	List<Account> accounts;//绑定银行账户
+	List<Account> b_accounts;//银行账户列表
 	byte breach;//违约次数
 	String other = "";//备注信息
 	MyselfNum mn = new MyselfNum();//和有有关的数据
@@ -31,12 +31,12 @@ public class LoginData {
 		nikeName = user.getNikeName();
 		title = user.getTitle();
 		registTime = user.getRegistTime();
-		addresses = user.getAddresses();
+		w_accouts = user.getAddresses();
 		name = user.getName();
 		identity = user.getIdentity();
 		push = user.getPush();
 		signature = user.getSignature();
-		accounts = user.getBankAccount().getAccounts();
+		b_accounts = user.getBankAccount().getAccounts();
 		breach = user.getBreach();
 		other = user.getOther();
 		credit = user.getCredit();
@@ -84,12 +84,23 @@ public class LoginData {
 	public void setRegistTime(String registTime) {
 		this.registTime = registTime;
 	}
-	public List<String> getAddresses() {
-		return addresses;
+	
+	public List<String> getW_accouts() {
+		return w_accouts;
 	}
-	public void setAddresses(List<String> addresses) {
-		this.addresses = addresses;
+
+	public void setW_accouts(List<String> w_accouts) {
+		this.w_accouts = w_accouts;
 	}
+
+	public List<Account> getB_accounts() {
+		return b_accounts;
+	}
+
+	public void setB_accounts(List<Account> b_accounts) {
+		this.b_accounts = b_accounts;
+	}
+
 	public String getName() {
 		return name;
 	}
@@ -113,12 +124,6 @@ public class LoginData {
 	}
 	public void setSignature(String signature) {
 		this.signature = signature;
-	}
-	public List<Account> getAccounts() {
-		return accounts;
-	}
-	public void setAccounts(List<Account> accounts) {
-		this.accounts = accounts;
 	}
 	public byte getBreach() {
 		return breach;
