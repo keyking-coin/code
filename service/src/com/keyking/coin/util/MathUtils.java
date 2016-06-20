@@ -759,15 +759,6 @@ public class MathUtils {
 		for (int i = 0; i < num; i++) {
 			idx[i] = randomOneDif(probs);
 			probs[idx[i]] = 0;
-
-			// int[] probsTmp = new int[probs.length-1];
-			// int k = 0;
-			// for (int j = 0; j < probs.length; j++) {
-			// if (j != idx[i]) {
-			// probsTmp[k++] = probs[j];
-			// }
-			// }
-			// probs = probsTmp;
 		}
 		return idx;
 	}
@@ -789,7 +780,7 @@ public class MathUtils {
 
 		@Override
 		public int compareTo(IntegerComparator o) {
-			return rate - o.rate;
+			return Integer.compare(rate,o.rate);
 		}
 	};
 	
