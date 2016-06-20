@@ -17,9 +17,12 @@ import com.keyking.coin.service.domain.broker.UserBroker;
 import com.keyking.coin.service.domain.condition.SearchCondition;
 import com.keyking.coin.service.domain.deal.Deal;
 import com.keyking.coin.service.domain.deal.DealOrder;
+import com.keyking.coin.service.domain.deal.Revert;
 import com.keyking.coin.service.domain.deal.SimpleOrderModule;
 import com.keyking.coin.service.domain.email.Email;
 import com.keyking.coin.service.domain.email.EmailModule;
+import com.keyking.coin.service.domain.friend.Friend;
+import com.keyking.coin.service.domain.friend.Message;
 import com.keyking.coin.service.domain.user.RankEntity;
 import com.keyking.coin.service.domain.user.Seller;
 import com.keyking.coin.service.domain.user.UserCharacter;
@@ -82,6 +85,36 @@ public class Controler implements Instances{
 			for (UserBroker ub : ubs){
 				userBrokers.add(ub);
 			}
+		}
+	}
+	
+	public void save(){
+		for (Deal deal : deals){
+			deal.save();
+			for (Revert revert : deal.getReverts()){
+				revert.save();
+			}
+			for (DealOrder order : deal.getOrders()){
+				order.save();
+			}
+		}
+		for (UserCharacter user : characters.values()){
+			user.save();
+			for (Email email : user.getEmails()){
+				email.save();
+			}
+			for (Friend friend : user.getFriends()){
+				friend.save();
+			}
+			for (Message message : user.getMessages()){
+				message.save();
+			}
+		}
+		for (Broker broker : brokers){
+			broker.save();
+		}
+		for (UserBroker ub : userBrokers){
+			ub.save();
 		}
 	}
 	
@@ -672,6 +705,17 @@ public class Controler implements Instances{
 			count--;
 		}
 		return result;
+	}
+
+	public DealOrder searchOrder(long orderId) {
+		for (Deal deal : deals){
+			for (DealOrder order : deal.getOrders()){
+				if (order.getId() == orderId){
+					return order;
+				}
+			}
+		}
+		return null;
 	}
 }
  

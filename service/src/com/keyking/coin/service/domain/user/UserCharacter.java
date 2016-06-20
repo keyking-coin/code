@@ -275,6 +275,10 @@ public class UserCharacter implements Instances,SerializeEntity{
 		this.broker = broker;
 	}
 
+	public List<Message> getMessages() {
+		return messages;
+	}
+
 	public void deserializeFavorites(String str){
 		if (StringUtil.isNull(str)){
 			return;

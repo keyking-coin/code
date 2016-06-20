@@ -354,4 +354,14 @@ public class DealOrder implements Instances,SerializeEntity,Comparable<DealOrder
 	public boolean couldInsert() {
 		return CTRL.search(buyId) != null;
 	}
+
+
+	public void fixState(byte nn , String time) {
+		state = nn;
+		if (times.size() > nn){
+			times.set(nn,time);
+		}else{
+			times.add(time);
+		}
+	}
 }

@@ -1,6 +1,8 @@
 package com.keyking.coin.service.domain.broker;
 
-public class UserBroker {
+import com.keyking.coin.util.Instances;
+
+public class UserBroker implements Instances{
 	long uid;
 	long bid;
 	String account;
@@ -36,5 +38,9 @@ public class UserBroker {
 	
 	public void setTel(String tel) {
 		this.tel = tel;
+	}
+
+	public void save() {
+		DB.getUserBrokerDao().save(this);
 	}
 }
