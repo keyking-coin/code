@@ -49,13 +49,20 @@ public class DealAppraise implements SerializeEntity{
 		this.time = time;
 	}
 
+	//0#0#null#null|0#0#null#null
+	//0,0,null,null|0,0,null,null
 	public String serialize(){
-		return (isCompleted ? "1" : "0") + "," + star + "," + detail + "," + time;
+		return (isCompleted ? "1" : "0") + "#" + star + "#" + detail + "#" + time;
 	}
 	
 	public void deserialize(String str) {
 		if (!StringUtil.isNull(str)){
-			String[] ss = str.split(",");
+			String[] ss = null;
+			if (str.contains(",")){
+				ss = str.split(",");
+			}else{
+				ss = str.split("#");
+			}
 			isCompleted = ss[0].equals("1");
 			star       = Byte.parseByte(ss[1]);
 			detail      = ss[2];

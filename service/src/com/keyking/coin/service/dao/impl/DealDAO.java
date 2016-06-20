@@ -77,7 +77,7 @@ public class DealDAO extends BaseDAO {
 	}
 	
 	public synchronized boolean save(Deal deal) {
-		if (check("deal_order",deal.getId())){
+		if (check("deal",deal.getId())){
 			return update(deal);
 		}else{
 			return insert(deal);

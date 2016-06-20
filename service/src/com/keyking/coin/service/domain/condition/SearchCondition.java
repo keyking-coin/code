@@ -23,7 +23,8 @@ public class SearchCondition implements Instances{
 		"南方钱币邮票","上海邮币卡","湖北华中",
 		"北文中心", "中艺邮币卡","汉唐邮币卡",
 		"华夏文交所","上文申江","东北商品",
-		"乾元文交所","安贵艺术品","北京邮票"
+		"乾元文交所","安贵艺术品","北京邮票",
+		"天津邮币卡","上海沙丘","中京邮币"
 	};
 	
 	public static final String[] OTHER_CITY_NAMES = {"北京","上海","广州"};
