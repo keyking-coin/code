@@ -29,7 +29,7 @@ public class AppSendEmail extends AbstractLogic {
 		}
 		String time = TimeUtils.nowChStr();
 		UserCharacter target = CTRL.searchByAccountOrNickName(name);
-		if (sender != null && CTRL.tryToSendEmailToUser(sendId,time,theme,content,target)){
+		if (sender != null && CTRL.tryToSendEmailToUser(sender,time,theme,content,target)){
 			resp.setSucces();
 			ServerLog.info(sender.getAccount() + " send eamil to " + target.getAccount());
 		}else{

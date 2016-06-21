@@ -23,7 +23,7 @@ public class AppLookEmail extends AbstractLogic {
 		if (email != null){
 			email.setStatus((byte)1);
 			email.save();
-			resp.put("num",user.getNewEmailNum());
+			resp.put("state",email.getStatus());
 			resp.setSucces();
 		}else{
 			resp.setError("找不到邮件");

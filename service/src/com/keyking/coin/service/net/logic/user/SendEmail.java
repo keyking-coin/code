@@ -17,7 +17,8 @@ public class SendEmail extends AbstractLogic {
 		String content = buffer.getUTF();
 		String time = TimeUtils.nowChStr();
 		UserCharacter target = CTRL.searchByAccountOrNickName(name);
-		if (CTRL.tryToSendEmailToUser(sendId,time,theme,content,target)){
+		UserCharacter sender = CTRL.search(sendId);
+		if (CTRL.tryToSendEmailToUser(sender,time,theme,content,target)){
 			resp.setSucces();
 			ServerLog.info(CTRL.search(sendId).getAccount() + " send eamil to " + target.getAccount());
 		}else{

@@ -11,9 +11,11 @@ public class TransformRevert implements Instances , Comparable<TransformRevert>{
 	long   dealId;//
 	long   sayerId;//回复人编号
 	String sayerName;//回复人名称
+	String sayerFace;//回复人头像
 	String time;//回复时间
 	long   sayToId;//表示回复目标的比编号
 	String sayToName;//表示回复目标的名称
+	String sayToFace;//表示回复目标的头像
 	String context;//内容
 	
 	public void copy(Revert revert){
@@ -21,9 +23,11 @@ public class TransformRevert implements Instances , Comparable<TransformRevert>{
 		sayerId            = revert.getUid();
 		UserCharacter user = CTRL.search(sayerId);
 		sayerName          = user.getNikeName();
+		sayerFace          = user.getFace();
 		sayToId            = revert.getTar();
 		user               = CTRL.search(revert.getTar());
 		sayToName          = user.getNikeName();
+		sayToFace          = user.getFace();
 		context            = revert.getContext();
 		time               = revert.getCreateTime();
 	}
@@ -90,6 +94,21 @@ public class TransformRevert implements Instances , Comparable<TransformRevert>{
 		this.context = context;
 	}
 
+	public String getSayerFace() {
+		return sayerFace;
+	}
+
+	public void setSayerFace(String sayerFace) {
+		this.sayerFace = sayerFace;
+	}
+
+	public String getSayToFace() {
+		return sayToFace;
+	}
+
+	public void setSayToFace(String sayToFace) {
+		this.sayToFace = sayToFace;
+	}
 
 	@Override
 	public int compareTo(TransformRevert o) {

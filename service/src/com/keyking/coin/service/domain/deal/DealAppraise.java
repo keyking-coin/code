@@ -57,14 +57,9 @@ public class DealAppraise implements SerializeEntity{
 	
 	public void deserialize(String str) {
 		if (!StringUtil.isNull(str)){
-			String[] ss = null;
-			if (str.contains(",")){
-				ss = str.split(",");
-			}else{
-				ss = str.split("#");
-			}
+			String[] ss = str.split("#");
 			isCompleted = ss[0].equals("1");
-			star       = Byte.parseByte(ss[1]);
+			star        = Byte.parseByte(ss[1]);
 			detail      = ss[2];
 			time        = ss[3];
 		}

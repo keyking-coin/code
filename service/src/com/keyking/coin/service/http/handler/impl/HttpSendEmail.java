@@ -39,7 +39,7 @@ public class HttpSendEmail extends HttpHandler {
 		}
 		String time = TimeUtils.nowChStr();
 		UserCharacter target = CTRL.searchByAccountOrNickName(name);
-		if (user != null && CTRL.tryToSendEmailToUser(uid,time,theme,content,target)){
+		if (user != null && CTRL.tryToSendEmailToUser(user,time,theme,content,target)){
 			ServerLog.info(user.getAccount() + " send eamil to " + target.getAccount());
 			Map<String,Object> datas = new HashMap<String,Object>();
 			datas.put("result","ok");

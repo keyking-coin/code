@@ -28,17 +28,18 @@ public class AdminSendEmail extends AbstractLogic {
 			resp.setError("内容不能为空");
 			return resp;
 		}
+		UserCharacter sender = CTRL.search(sendId);
 		if (name.equals("@#all")){
 			List<UserCharacter> users = CTRL.getUsers();
 			for (UserCharacter user : users){
-				CTRL.tryToSendEmailToUser(sendId,time,theme,content,user);
+				CTRL.tryToSendEmailToUser(sender,time,theme,content,user);
 				user.save();
 			}
 			resp.setSucces();
 			ServerLog.info("admin send eamil to all user");
 		}else{
 			UserCharacter target = CTRL.searchByAccountOrNickName(name);
-			if (CTRL.tryToSendEmailToUser(sendId,time,theme,content,target)){
+			if (CTRL.tryToSendEmailToUser(sender,time,theme,content,target)){
 				target.save();
 				resp.setSucces();
 				ServerLog.info("admin send eamil to " + target.getAccount());

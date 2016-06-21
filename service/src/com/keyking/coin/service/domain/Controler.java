@@ -20,7 +20,6 @@ import com.keyking.coin.service.domain.deal.DealOrder;
 import com.keyking.coin.service.domain.deal.Revert;
 import com.keyking.coin.service.domain.deal.SimpleOrderModule;
 import com.keyking.coin.service.domain.email.Email;
-import com.keyking.coin.service.domain.email.EmailModule;
 import com.keyking.coin.service.domain.friend.Friend;
 import com.keyking.coin.service.domain.friend.Message;
 import com.keyking.coin.service.domain.user.RankEntity;
@@ -30,7 +29,6 @@ import com.keyking.coin.service.net.data.RecentDeal;
 import com.keyking.coin.service.net.resp.RespEntity;
 import com.keyking.coin.service.net.resp.impl.AdminResp;
 import com.keyking.coin.service.net.resp.impl.GeneralResp;
-import com.keyking.coin.service.net.resp.module.ModuleResp;
 import com.keyking.coin.service.tranform.TransformDealData;
 import com.keyking.coin.service.tranform.TransformTouristOrder;
 import com.keyking.coin.service.tranform.TransformUserData;
@@ -607,26 +605,29 @@ public class Controler implements Instances{
 		return result;
 	}
 	
-	public boolean tryToSendEmailToUser(long sendId,String time,String theme,String content,UserCharacter user){
-		if (user == null){
+	public boolean tryToSendEmailToUser(UserCharacter sender,String time,String theme,String content,UserCharacter target){
+		if (target == null || sender.equals(target)){
 			return false;
 		}
-		synchronized (user) {
+		synchronized (target) {
 			Email email = new Email();
-			email.setSenderId(sendId);
-			email.setUserId(user.getId());
+			email.setSenderId(sender.getId());
+			email.setUserId(target.getId());
+			email.setType((byte)(sender.getPermission().admin() ? 0 : 1));
 			email.setTime(time);
 			email.setTheme(theme);
 			email.setContent(content);
 			long id = PK.key("email");
 			email.setId(id);
-			user.addEmail(email);
+			target.addEmail(email);
 			email.save();
+			/*
 			EmailModule module = new EmailModule();
 			module.add("num",user.getNewEmailNum());
 			ModuleResp modules = new ModuleResp();
 			modules.addModule(module);
-			NET.sendMessageToClent(modules,user);
+			NET.sendMessageToClent(modules,target);
+			*/
 			return true;
 		}
 	}
