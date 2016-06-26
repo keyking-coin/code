@@ -15,8 +15,10 @@ public class AppLogin extends AbstractLogic {
 	@Override
 	public Object doLogic(DataBuffer buffer, String logicName) throws Exception {
 		AppResp resp = new AppResp(logicName);
-		String account  = buffer.getUTF();
-		String pwd      = buffer.getUTF();
+		String account  = buffer.getUTF();//登录账号
+		String pwd      = buffer.getUTF();//登录密码
+		String pushId   = buffer.getUTF();//单独推送编号
+		String platform = buffer.getUTF();//平台编号android或者ios
 		UserCharacter user = CTRL.search(account);
 		if (user == null){//不存在账号是account
 			resp.setError("账号:" + account + "不存在");
@@ -31,6 +33,8 @@ public class AppLogin extends AbstractLogic {
 				}
 				resp.put("user",new LoginData(user));
 				resp.put("deals",CTRL.getRecentOrders());
+				user.setPlatform(platform);
+				user.setPushId(pushId);
 				resp.setSucces();
 				user.setSessionAddress(session.getRemoteAddress().toString());
 				ServerLog.info(account + " login from " + session.getRemoteAddress());
