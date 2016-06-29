@@ -47,7 +47,7 @@ public class HttpRevert extends HttpHandler {
 			message(request,response,"不能回复空的内容");
 			return;
 		}
-		if (deal.tryToRevert(target,content)){
+		if (deal.tryToRevert(uid,target,content)){
 			ServerLog.info(user.getAccount() + " revert deal id = " + deal.getId() + " context = " + content);
 		}
 		List<TransformRevertData> reverts = new ArrayList<TransformRevertData>();

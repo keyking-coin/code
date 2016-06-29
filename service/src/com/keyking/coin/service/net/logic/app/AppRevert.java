@@ -41,7 +41,7 @@ public class AppRevert extends AbstractLogic {
 			resp.setError("不能回复空的内容");
 			return resp;
 		}
-		if (deal.tryToRevert(tid,content)){
+		if (deal.tryToRevert(uid,tid,content)){
 			resp.setSucces();
 			List<TransformRevert> trs = new ArrayList<TransformRevert>();
 			for (Revert revert : deal.getReverts()){
@@ -57,5 +57,4 @@ public class AppRevert extends AbstractLogic {
 		}
 		return resp;
 	}
-
 }

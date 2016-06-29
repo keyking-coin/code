@@ -1,7 +1,6 @@
 package com.keyking.coin.service.net.logic.app;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import com.keyking.coin.service.domain.condition.SearchCondition;
@@ -53,7 +52,6 @@ public class AppDealPage extends AbstractLogic {
 				tdi.copy(deal);
 				src.add(tdi);
 			}
-			Collections.sort(src);
 			int left = CTRL.compute(src,dst,page,num);
 			resp.put("list",dst);
 			resp.put("page",page);

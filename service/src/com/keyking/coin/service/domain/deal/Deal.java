@@ -542,7 +542,7 @@ public class Deal implements Instances,SerializeEntity,Comparable<Deal>{
 		return false;
 	}
 
-	public synchronized boolean tryToRevert(long tid, String content) {
+	public synchronized boolean tryToRevert(long uid,long tid, String content) {
 		Revert revrt = new Revert();
 		revrt.setUid(uid);
 		revrt.setTar(tid);
