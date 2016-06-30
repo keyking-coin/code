@@ -20,4 +20,8 @@ public abstract class HttpHandler implements Instances{
 		response.appendBody(formatJosn(request,"{\"result\":\"" + tips + "\"}"));
 	}
 	
+	public void data(HttpRequestMessage request,HttpResponseMessage response,String tips){
+		response.appendBody(formatJosn(request,tips));
+	}
+	
 }
