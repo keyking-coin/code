@@ -29,6 +29,14 @@ public class RankEntity implements Comparable<RankEntity> , Instances , Serializ
 		title = user.getTitle();
 	}
 	
+	public long getUid() {
+		return uid;
+	}
+
+	public void setUid(long uid) {
+		this.uid = uid;
+	}
+
 	public String getName() {
 		return name;
 	}
