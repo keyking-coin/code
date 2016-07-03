@@ -52,8 +52,8 @@ public class UserCharacter implements Instances,SerializeEntity{
 	String other = "";//备注信息
 	long father = 0;//隶属那个
 	long broker = 0;//二级管理员关联的券商编号
-	String pushId = "";//单独推送编号
-	String platform = "";//平台编号android或者ios
+	String pushId;//单独推送编号
+	String platform;//平台编号android或者ios
 	
 	public long getId() {
 		return id;

@@ -1,5 +1,8 @@
 package com.keyking.coin.service.http.handler.impl;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import com.keyking.coin.service.domain.deal.Deal;
 import com.keyking.coin.service.domain.user.Seller;
 import com.keyking.coin.service.domain.user.UserCharacter;
@@ -7,6 +10,7 @@ import com.keyking.coin.service.http.handler.HttpHandler;
 import com.keyking.coin.service.http.request.HttpRequestMessage;
 import com.keyking.coin.service.http.response.HttpResponseMessage;
 import com.keyking.coin.service.net.resp.module.Module;
+import com.keyking.coin.util.JsonUtil;
 import com.keyking.coin.util.ServerLog;
 import com.keyking.coin.util.StringUtil;
 import com.keyking.coin.util.TimeUtils;
@@ -87,7 +91,11 @@ public class HttpSell extends HttpHandler {
 			deal.save();
 			NET.sendMessageToAllClent(deal.clientMessage(Module.ADD_FLAG),null);
 			ServerLog.info(user.getAccount() + " deployed deal-sell ok ----> id is " + deal.getId());
-			message(request,response,"ok");
+			Map<String,Object> data = new HashMap<String,Object>();
+			data.put("result","ok");
+			data.put("dealId",dealId);
+			String str = JsonUtil.ObjectToJsonString(data);
+			data(request,response,str);
 		}
 	}
 }

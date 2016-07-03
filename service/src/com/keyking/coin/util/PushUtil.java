@@ -12,8 +12,10 @@ public class PushUtil implements Instances{
 	}
 	
 	public void init(){
-		pushClient = new JPushClient(" fe714706cb46fc30db0c4757 ", "8c6c63ca61aa276290efbbf5");
+		pushClient = new JPushClient("fe714706cb46fc30db0c4757", "8c6c63ca61aa276290efbbf5");
 	}
-	
-	
+
+	public JPushClient getPushClient() {
+		return pushClient;
+	}
 }

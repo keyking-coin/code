@@ -24,5 +24,8 @@ public interface Instances {
 	public static final HttpServer HTTP = HttpServer.getInstance();
 	
 	public static final SystemContext SYS_CONTEXT = SystemContext.getInstance();
+	
+	public static final PushUtil PUSH = PushUtil.getInstance();
+	
 }
  

@@ -416,7 +416,7 @@ public class Controler implements Instances{
 			}
 		}
 		int count = 1;
-		while (orders.size() < 20 && count < 8){
+		while (orders.size() < 50 && count < 8){
 			long pre = time.getMillis() - count * 24 * 3600 * 1000;
 			time = TimeUtils.getTime(pre);
 			for (Deal deal : deals){
@@ -431,7 +431,7 @@ public class Controler implements Instances{
 				}
 			}
 			count ++;
-			if (orders.size() >= 20){
+			if (orders.size() >= 50){
 				break;
 			}
 		}
@@ -441,7 +441,7 @@ public class Controler implements Instances{
 			Iterator<TransformTouristOrder> iter = orders.iterator();
 			while (iter.hasNext()){
 				iter.next();
-				if (count >= 20){
+				if (count >= 50){
 					iter.remove();
 				}
 				count++;

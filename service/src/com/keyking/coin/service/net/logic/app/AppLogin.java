@@ -1,13 +1,16 @@
 package com.keyking.coin.service.net.logic.app;
 
-import org.apache.mina.core.session.IoSession;
+import java.util.HashMap;
+import java.util.Map;
+
+import cn.jpush.api.common.DeviceType;
 
 import com.keyking.coin.service.domain.user.UserCharacter;
 import com.keyking.coin.service.net.buffer.DataBuffer;
 import com.keyking.coin.service.net.data.LoginData;
 import com.keyking.coin.service.net.logic.AbstractLogic;
 import com.keyking.coin.service.net.resp.impl.AppResp;
-import com.keyking.coin.service.net.resp.sys.MustLoginAgain;
+import com.keyking.coin.service.push.PushType;
 import com.keyking.coin.util.ServerLog;
 
 public class AppLogin extends AbstractLogic {
@@ -24,11 +27,18 @@ public class AppLogin extends AbstractLogic {
 			resp.setError("账号:" + account + "不存在");
 		}else{
 			if (user.getPwd().equals(pwd)){
-				String saveKey = user.getSessionAddress();
-				if (saveKey != null && !saveKey.equals(session.getRemoteAddress().toString())){
-					IoSession save = NET.search(saveKey);
-					if (save != null){
-						save.write(new MustLoginAgain());
+				String preId = user.getPushId();
+				if (preId != null && !preId.equals(pushId)){
+					Map<String, String> temp = new HashMap<String, String>();
+					temp.put("type",PushType.PUSH_TYPE_KICK.toString());
+					temp.put("tip","您的账号在别处登录,如果不是你本人操作请立即修改你的密码。");
+					String prePlatform = user.getPlatform();
+					if (prePlatform != null){
+						if (prePlatform.equals(DeviceType.Android.value())){
+							PUSH.getPushClient().sendAndroidNotificationWithRegistrationID("异端登录","您的账号在别处登录",temp,preId);
+						}else if (prePlatform.equals(DeviceType.IOS.value())){
+							PUSH.getPushClient().sendIosNotificationWithRegistrationID("您的账号在别处登录",temp,preId);
+						}
 					}
 				}
 				resp.put("user",new LoginData(user));

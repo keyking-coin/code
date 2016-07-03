@@ -49,6 +49,7 @@ public class Service implements Instances{
             InetAddress address = InetAddress.getByName(URL);
 			acceptor.bind(new InetSocketAddress(address,PORT));
 			HTTP.run(HTTP_PORT);
+			PUSH.init();
 			ConsoleService.addConsole(CONSOLE);
 		} catch (Exception e) {
 			e.printStackTrace();
