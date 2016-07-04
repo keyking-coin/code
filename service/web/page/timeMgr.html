@@ -6,16 +6,85 @@
 		<meta name="renderer" content="webkit" />
 		<title>邮游管理后台</title>
 		<style type="text/css">
+			
 		</style>
-		<link href="../bootstrap.min.css" rel="stylesheet">
+		<link rel="stylesheet" href="../bootstrap.min.css">
+		<link rel="stylesheet" href="../Date.css">
+		<link rel="stylesheet" href="../bb.css">
+		<link rel="stylesheet" href="../steel.css">
+		<link rel="stylesheet" href="../en.css">
 		<script type="text/javascript" src="../jquery-2.1.1.min.js"></script>
 		<script type="text/javascript" src="../bootstrap.min.js"></script>
 	  	<script type="text/javascript" src="../Aid.js"></script>
+	  	<script type="text/javascript" src="../Date.js"></script>
 		<script type="text/javascript">
-			
+			$(document).ready(function(){
+				var cal = Calendar.setup({
+			        onSelect:function(cal) { cal.hide() },
+			        showTime:true
+      			});
+			    cal.manageFields("s_btn1", "s_date1", "%Y-%m-%d %I:%M %p");
+			});
 		</script>
 	</head>
 	<body>
-		时间轴管理页面
+		<div style="margin-left:2px;">
+	       	<span class="input-group-btn">
+		    	<button class="btn btn-default" type="button" onclick ="Jump_Url('dealSum.html')">添加</button>
+		    </span>
+	    </div>
+	    <div id="h_col" style="float:left;width:240px;height:500px;border:1px solid #000;background-color:#FFFF93;overflow:auto;">
+	        <li style="margin-left:5px;" id="1" onclick ="show(id)" ><a href="#" >申购配售</a></li>
+	        <li style="margin-left:5px;" id="1" onclick ="show(id)" ><a href="#" >申购配售</a></li>
+	        <li style="margin-left:5px;" id="1" onclick ="show(id)" ><a href="#" >申购配售</a></li>
+	        <li style="margin-left:5px;" id="1" onclick ="show(id)" ><a href="#" >申购配售</a></li>
+	        <li style="margin-left:5px;" id="1" onclick ="show(id)" ><a href="#" >申购配售</a></li>
+	        <li style="margin-left:5px;" id="1" onclick ="show(id)" ><a href="#" >申购配售</a></li>
+	        <li style="margin-left:5px;" id="1" onclick ="show(id)" ><a href="#" >申购配售</a></li>
+	        <li style="margin-left:5px;" id="1" onclick ="show(id)" ><a href="#" >申购配售</a></li>
+	        <li style="margin-left:5px;" id="1" onclick ="show(id)" ><a href="#" >申购配售</a></li>
+	        <li style="margin-left:5px;" id="1" onclick ="show(id)" ><a href="#" >申购配售</a></li>
+	        <li style="margin-left:5px;" id="1" onclick ="show(id)" ><a href="#" >申购配售</a></li>
+	        <li style="margin-left:5px;" id="1" onclick ="show(id)" ><a href="#" >申购配售</a></li>
+	        <li style="margin-left:5px;" id="1" onclick ="show(id)" ><a href="#" >申购配售</a></li>
+	        <li style="margin-left:5px;" id="1" onclick ="show(id)" ><a href="#" >申购配售</a></li>
+	        <li style="margin-left:5px;" id="1" onclick ="show(id)" ><a href="#" >申购配售</a></li>
+	        <li style="margin-left:5px;" id="1" onclick ="show(id)" ><a href="#" >申购配售</a></li>
+	        <li style="margin-left:5px;" id="1" onclick ="show(id)" ><a href="#" >申购配售</a></li>
+	        <li style="margin-left:5px;" id="1" onclick ="show(id)" ><a href="#" >申购配售</a></li>
+	        <li style="margin-left:5px;" id="1" onclick ="show(id)" ><a href="#" >申购配售</a></li>
+	        <li style="margin-left:5px;" id="1" onclick ="show(id)" ><a href="#" >申购配售</a></li>
+	        <li style="margin-left:5px;" id="1" onclick ="show(id)" ><a href="#" >申购配售</a></li>
+	        <li style="margin-left:5px;" id="1" onclick ="show(id)" ><a href="#" >申购配售</a></li>
+	        <li style="margin-left:5px;" id="1" onclick ="show(id)" ><a href="#" >申购配售</a></li>
+	        <li style="margin-left:5px;" id="1" onclick ="show(id)" ><a href="#" >申购配售</a></li>
+	        <li style="margin-left:5px;" id="1" onclick ="show(id)" ><a href="#" >申购配售</a></li>
+	        <li style="margin-left:5px;" id="1" onclick ="show(id)" ><a href="#" >申购配售</a></li>
+	        <li style="margin-left:5px;" id="1" onclick ="show(id)" ><a href="#" >申购配售</a></li>
+	        <li style="margin-left:5px;" id="1" onclick ="show(id)" ><a href="#" >申购配售</a></li>
+	        <li style="margin-left:5px;" id="1" onclick ="show(id)" ><a href="#" >申购配售</a></li>
+	        <li style="margin-left:5px;" id="1" onclick ="show(id)" ><a href="#" >申购配售</a></li>
+	    </div>
+	    <div style="float:left;width:600px;height:500px;border:1px solid #000;background-color:#81C0C0;">
+	        <div id="sub_add" style="margin-left:20px;">
+	        	<span style="color:#ff3333">类型</span>
+		    	<select id="s_type" style="width:150px;margin-top:9px;margin-left:5px;border:1px;background-color:'0F0F0F';">
+				    <option value="1">申购配售</option>
+				    <option value="2">托管入库预约</option>
+				    <option value="3">托管入库</option>
+				    <option value="4">重要提示</option>
+				</select>
+				<br>
+				<br>
+				<span style="color:#ff3333">开始时间  : </span>
+				<input size="30" id="s_date1" />
+				<button id="s_btn1">...</button>
+				<!--input id="startTime" onclick="showDateTimeBar(this, '', '08/25/2004 08:14:45', test, 'hello world')" name="startTime" onchange="alert('change')" /--> 
+	        	<br>
+				<br>
+				<span style="color:#ff3333">结束时间  : </span>
+	        </div>
+	    </div>
+	    <br>
 	</body>
 </html>

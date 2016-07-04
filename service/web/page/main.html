@@ -6,11 +6,7 @@
 		<meta name="renderer" content="webkit" />
 		<title>邮游管理后台</title>
 		<style type="text/css">
-			.div{
-				width:940px;
-				margin: 0 auto
-			}
-			.div1{
+			.col{
 				width:960px;
 				height:38px;
 				margin:0 auto;
@@ -22,11 +18,9 @@
 		<script type="text/javascript" src="../bootstrap.min.js"></script>
 	  	<script type="text/javascript" src="../Aid.js"></script>
 		<script type="text/javascript">
-		
 			function Jump_Url(url){
 				window.frames["frame_sub"].location.href = url;
 			}
-			
 			var showFlag = false;
 			$(document).ready(function(){
 				$("#testPic").click(function (){
@@ -38,12 +32,6 @@
 					showFlag = !showFlag;
 				});
 			});
-			function GetQueryString(name)
-			{
-			    var reg = new RegExp("(^|&)"+ name +"=([^&]*)(&|$)");
-			    var r = window.location.search.substr(1).match(reg);
-			    if(r!=null)return  unescape(r[2]); return null;
-			}
 		</script>
 	</head>
 	<body>
@@ -53,7 +41,7 @@
 		<img src="../pic/123-01.jpg" width="100%">
 		<br>
 		<br>
-		<div class="div1">
+		<div class="col">
 	    	<span class="input-group-btn">
 		    	<button class="btn btn-default" type="button" onclick ="Jump_Url('dealSum.html')">成交查询</button>
 		    </span>
@@ -79,8 +67,8 @@
 		    	<button class="btn btn-default" type="button" onclick ="Jump_Url('adMgr.html')">广告管理</button>
 		    </span>
 		</div>
-		<div class="div">
-			<iframe src="" name="frame_sub" onLoad="iFrameHeight()" width="960px" height="800" frameborder="0" scrolling="auto" style="overflow-x:hidden;" ></iframe>
-	    </div>
+		<iframe src="" name="frame_sub" frameborder="0" style="position:relative;width:960px;height:800px;left:500px;top:20px;">
+			
+		</iframe>
 	</body>
 </html>
