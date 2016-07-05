@@ -30,6 +30,7 @@ public class AppMyDealingPage extends AbstractLogic{
 			resp.put("list",dst);
 			resp.put("page",page);
 			resp.put("left",left);
+			resp.setSucces();
 		}
 		return resp;
 	}
