@@ -15,6 +15,7 @@
 	  	<script type="text/javascript" src="../js/WdatePicker.js"></script>
 	  	<script type="text/javascript" src="../js/bourse.js"></script>
 		<script type="text/javascript">
+		    var typeCount = 0;
 		    function bourseChange(data){
 		    	if (data == "其他文交所"){
 		    		$("#bourse_input").show();
@@ -22,6 +23,30 @@
 		    		$("#bourse_input").hide();
 		    	}
 		    };
+		    
+		    function addType(){
+		    	typeCount++;
+		    	var html = "<div id='typeItem"+ typeCount + "'>" +
+		    	"<span style='color:#ff3333'>类型" + typeCount + ": </span>" +
+		    	"<select id='t_type" + typeCount + "' style='width:250px;margin-top:9px;margin-left:5px;border:1px'>" +
+	    		"<option value='1'>申购配售</option>" +
+	    		"<option value='2'>托管入库预约</option>" +
+	    		"<option value='3'>托管入库</option>" +
+	    		"<option value='4'>重要提示</option>" +
+		    	"</select>" +
+		    	"<span style='color:#ff3333'>开始时间  : </span>" + 
+		    	"<input readonly='readonly' type='text' class='Wdate' id='timeStart" + typeCount + "' onfocus='WdatePicker({dateFmt:\"yyyy-MM-dd\"})' />" + 
+		    	"<span style='color:#ff3333'>结束时间  : </span>" + 
+		    	"<input readonly='readonly' type='text' class='Wdate' id='timeEnd" + typeCount + "' onfocus='WdatePicker({dateFmt:\"yyyy-MM-dd\"})' />" + 
+		    	"</div>";
+		    	$("#typeLists").append(html);
+		    };
+		    
+		    function clearType(){
+		    	$("#typeLists").empty();
+		    	typeCount = 0;
+		    };
+		    
 			$(document).ready(function(){
 				for (var i = 0 ; i < bourseDatas.length ; i++){
 					$("#b_type").append(bourseDatas[i]);	
@@ -69,14 +94,23 @@
 	    </div>
 	    <div style="float:left;width:1280px;height:900px;border:1px solid #000;background-color:#81C0C0;">
 	        <div id="sub_add" style="margin-left:20px;">
-	        	<span style="color:#ff3333">类型  : </span>
-		    	<select id="t_type" style="width:250px;margin-top:9px;margin-left:5px;border:1px;background-color:'0F0F0F';">
-				    <option value="1">申购配售</option>
-				    <option value="2">托管入库预约</option>
-				    <option value="3">托管入库</option>
-				    <option value="4">重要提示</option>
-				</select>
-				<br>
+	        	<button class="btn btn-default" type="button" onclick ="addType()">添加类型</button>
+	        	<button class="btn btn-default" type="button" onclick ="clearType()">清除类型</button>
+	        	<div id="typeLists">
+	        	    <!--div id="typeItem1">
+		        		<span style="color:#ff3333">类型 1: </span>
+		        		<select id="t_type1" style="width:250px;margin-top:9px;margin-left:5px;border:1px;background-color:'0F0F0F';">
+						    <option value="1">申购配售</option>
+						    <option value="2">托管入库预约</option>
+						    <option value="3">托管入库</option>
+						    <option value="4">重要提示</option>
+						</select>
+						<span style="color:#ff3333">开始时间  : </span>
+						<input readonly="readonly" type="text" class="Wdate" id="timeStart1" onfocus="WdatePicker({dateFmt:'yyyy-MM-dd'})" />
+						<span style="color:#ff3333">结束时间  : </span>
+						<input readonly="readonly" type="text" class="Wdate" id="timeEnd1" onfocus="WdatePicker({dateFmt:'yyyy-MM-dd'})" />
+	        	    </div-->
+	        	</div>
 				<br>
 				<span style="color:#ff3333">文交所  : </span>
 		    	<select id="b_type" style="width:250px;margin-top:9px;margin-left:5px;border:1px;background-color:'0F0F0F';" onchange="bourseChange(this.options[selectedIndex ].value)">
@@ -84,24 +118,15 @@
 				<input id="bourse_input" type="text" style="width:250px;margin-top:9px;margin-left:5px;border:0px;display:none;" placeholder="请手动输入文交所"/>
 				<br>
 				<br>
-				<span style="color:#ff3333">开始时间  : </span>
-				<input readonly="readonly" type="text" class="Wdate" id="timeStart" onfocus="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})" />
-	        	<br>
-				<br>
-				<span style="color:#ff3333">结束时间  : </span>
-				<input readonly="readonly" type="text" class="Wdate" id="timeEnd" onfocus="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})" />
-				<br>
-				<br>
 				<span style="color:#ff3333">公告地址 : </span>
 				<input type="text" id="url_address" style="width:650px;" />
 				<br>
-				<span style="color:#ff3333">内容: </span>
 				<br>
-				<textarea name="yj" cols="200" rows="25">
-				</textarea>
+				<span style="color:#ff3333">标题:</span>
+				<input id="timeTitle" type="text" style="width:550px;" placeholder="请输入标题" />
 				<br>
 				<br>
-		       	<button id="sub_add_logic" class="btn btn-default" style="margin-left:550px;" type="button">确认添加</button>
+		       	<button id="sub_add_logic" class="btn btn-default" style="margin-left:300px;" type="button">确认添加</button>
 	        </div>
 	    </div>
 	    <br>
