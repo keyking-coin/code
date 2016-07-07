@@ -11,7 +11,6 @@
 		<link rel="stylesheet" href="../js/bootstrap.min.css" >
 		<script type="text/javascript" src="../js/jquery-2.1.1.min.js"></script>
 		<script type="text/javascript" src="../js/bootstrap.min.js"></script>
-	  	<script type="text/javascript" src="../js/Aid.js"></script>
 	  	<script type="text/javascript" src="../js/WdatePicker.js"></script>
 	  	<script type="text/javascript" src="../js/bourse.js"></script>
 		<script type="text/javascript">
@@ -51,6 +50,7 @@
 				for (var i = 0 ; i < bourseDatas.length ; i++){
 					$("#b_type").append(bourseDatas[i]);	
 				}
+				
 			});
 		</script>
 	</head>
@@ -60,7 +60,7 @@
 		    	<button class="btn btn-default" type="button" onclick ="Jump_Url('dealSum.html')">添加</button>
 		    </span>
 	    </div>
-	    <div id="h_col" style="float:left;width:480px;height:900px;border:1px solid #000;background-color:#FFFF93;overflow:auto;">
+	    <div id="h_col" style="float:left;width:480px;height:700px;border:1px solid #000;background-color:#FFFF93;overflow:auto;">
 	        <li style="margin-left:5px;" id="1" onclick ="show(id)" ><a href="#" >申购配售</a></li>
 	        <li style="margin-left:5px;" id="1" onclick ="show(id)" ><a href="#" >申购配售</a></li>
 	        <li style="margin-left:5px;" id="1" onclick ="show(id)" ><a href="#" >申购配售</a></li>
@@ -92,24 +92,12 @@
 	        <li style="margin-left:5px;" id="1" onclick ="show(id)" ><a href="#" >申购配售</a></li>
 	        <li style="margin-left:5px;" id="1" onclick ="show(id)" ><a href="#" >申购配售</a></li>
 	    </div>
-	    <div style="float:left;width:1280px;height:900px;border:1px solid #000;background-color:#81C0C0;">
+	    <div style="float:left;width:1280px;height:700px;border:1px solid #000;background-color:#81C0C0;">
 	        <div id="sub_add" style="margin-left:20px;">
 	        	<button class="btn btn-default" type="button" onclick ="addType()">添加类型</button>
 	        	<button class="btn btn-default" type="button" onclick ="clearType()">清除类型</button>
 	        	<div id="typeLists">
-	        	    <!--div id="typeItem1">
-		        		<span style="color:#ff3333">类型 1: </span>
-		        		<select id="t_type1" style="width:250px;margin-top:9px;margin-left:5px;border:1px;background-color:'0F0F0F';">
-						    <option value="1">申购配售</option>
-						    <option value="2">托管入库预约</option>
-						    <option value="3">托管入库</option>
-						    <option value="4">重要提示</option>
-						</select>
-						<span style="color:#ff3333">开始时间  : </span>
-						<input readonly="readonly" type="text" class="Wdate" id="timeStart1" onfocus="WdatePicker({dateFmt:'yyyy-MM-dd'})" />
-						<span style="color:#ff3333">结束时间  : </span>
-						<input readonly="readonly" type="text" class="Wdate" id="timeEnd1" onfocus="WdatePicker({dateFmt:'yyyy-MM-dd'})" />
-	        	    </div-->
+	        	   
 	        	</div>
 				<br>
 				<span style="color:#ff3333">文交所  : </span>

@@ -5,6 +5,7 @@ import com.keyking.coin.service.http.response.HttpResponseMessage;
 import com.keyking.coin.util.Instances;
 
 public abstract class HttpHandler implements Instances{
+	
 	public abstract void handle(HttpRequestMessage request,HttpResponseMessage response); 
 	
 	public String formatJosn(HttpRequestMessage request,String src){

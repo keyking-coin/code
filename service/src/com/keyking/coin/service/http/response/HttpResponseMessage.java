@@ -9,6 +9,8 @@ import java.util.Map;
 
 import org.apache.mina.core.buffer.IoBuffer;
 
+import com.keyking.coin.util.JsonUtil;
+
 public class HttpResponseMessage {
 	/** HTTP response codes */
 	public static final int HTTP_STATUS_SUCCESS = 200;
@@ -82,5 +84,16 @@ public class HttpResponseMessage {
 
 	public int getBodyLength() {
 		return body.size();
+	}
+	
+	public void put(String key,Object obj){
+		datas.put(key,obj);
+	}
+	
+	public void tranform(){
+		if (datas.size() > 0){
+			String str = JsonUtil.ObjectToJsonString(datas);
+			appendBody(str);
+		}
 	}
 }

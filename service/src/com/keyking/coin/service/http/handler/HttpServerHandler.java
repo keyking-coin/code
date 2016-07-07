@@ -1,5 +1,6 @@
 package com.keyking.coin.service.http.handler;
 
+import java.io.FileInputStream;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -27,29 +28,34 @@ public class HttpServerHandler extends IoHandlerAdapter implements Instances {
     public void messageReceived(IoSession session, Object message) {  
         HttpRequestMessage request = (HttpRequestMessage) message;
         String logicName = request.getContext();
-        String base = getClass().getPackage().getName();
-		String path = logicName.replaceAll("/",".");
-        HttpHandler handler = handlers.get(path);
         HttpResponseMessage response = new HttpResponseMessage();
         try {
-	        if (handler == null){
-	        	String allPath = null;
-	        	if (path.contains("um.")){
-	        		allPath = base + "." + path;
+        	if (logicName.endsWith(".js") || logicName.endsWith(".html") || logicName.endsWith(".png") || 
+        		logicName.endsWith(".jpg") || logicName.endsWith(".css") || logicName.endsWith(".bmp") ||
+        		logicName.endsWith(".gif") || logicName.endsWith(".ico")){
+        		loadFile("./web/" + logicName,response);
+        	}else {
+        		String allPath = null;
+        		String path = logicName.replaceAll("/",".");
+        		HttpHandler handler = handlers.get(path);
+        		String base = getClass().getPackage().getName();
+        		if (path.contains("um.") || path.contains("gm.")){
+        			allPath = base + "." + path;
 	        	}else{
 	        		allPath = base + ".impl." + path;
 	        	}
-	        	Class<?> clazz = Class.forName(allPath);
-				handler = (HttpHandler)clazz.newInstance();
-				handlers.put(logicName,handler);
-	        }
-        	synchronized (handler) {
-     			handler.handle(request,response);
-     		}
+        		if (handler == null){
+        			Class<?> clazz = Class.forName(allPath);
+    				handler = (HttpHandler)clazz.newInstance();
+    				handlers.put(logicName,handler);
+        		}
+				synchronized (handler) {
+	     			handler.handle(request,response);
+	     			response.tranform();
+	     		}
+        	}
         }catch(Exception e){
-			if (!(e instanceof ClassNotFoundException)){
-				ServerLog.error("http handler error",e);
-			}
+        	ServerLog.error("http handler error",e);
 		}
         session.write(response).addListener(IoFutureListener.CLOSE);
     }  
@@ -62,5 +68,24 @@ public class HttpServerHandler extends IoHandlerAdapter implements Instances {
     @Override  
     public void exceptionCaught(IoSession session, Throwable cause) {  
         session.close(false);  
-    }  
+    }
+    
+    public void loadFile(String filePath,HttpResponseMessage response){
+    	try {
+			FileInputStream fis = new FileInputStream(filePath);
+			byte[] buffer = new byte[1024];
+			do{
+				int len = fis.read(buffer);
+				if (len == -1){
+					break;
+				}
+				response.appendBody(buffer,0,len);
+			}while(true);
+			//response.setContentType("text/plain");
+			response.setResponseCode(HttpResponseMessage.HTTP_STATUS_SUCCESS);
+			fis.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+    }
 }

@@ -17,11 +17,38 @@
 		<link rel="stylesheet" href="./js/bootstrap.min.css" >
 		<script type="text/javascript" src="./js/jquery-2.1.1.min.js"></script>
 		<script type="text/javascript" src="./js/bootstrap.min.js"></script>
-		<script type="text/javascript" src="./js/Aid.js"></script>
 		<script type="text/javascript">
 			$(document).ready(function(){
 				$("#login").click( function () {
-					window.location.href='./page/main.html';
+					
+					var accountStr = $("#account").val();
+					if (accountStr == ""){
+						alert("请输入您的账号");
+						return;
+					}
+					var pwdStr =  $("#pwd").val();
+					if (pwdStr == ""){
+						alert("请输入您的密码");
+						return;
+					}
+					var dataStr = "account=" + accountStr + "&pwd=" + pwdStr;
+					$.ajax({
+					    type:"get",
+				        url : "./gm/HttpLogin",
+				        data: dataStr,
+				        contentType: "application/json; charset=utf-8",
+				        dataType : "json",
+				        success  : function(data) {
+				        	if(data.result == "ok"){
+				        		window.location.href='./page/main.html';
+				        	}else{
+				        		alert(data.result);
+				        	}
+				        },
+				        error: function (msg) {
+			                alert(msg);
+			            }
+				     });
 				});
 			});
 		</script>
@@ -36,9 +63,11 @@
 		<br>
 		<br>
 		<div class="div">
-			<input type="text" class="form-control" placeholder="账号">
+			<span style="color:#ff3333">账 号: </span>
+			<input id="account" type="text" class="form-control" placeholder="请输入您的账号">
 			<br>
-		    <input type="password" class="form-control" placeholder="密码">
+			<span style="color:#ff3333">密 码: </span>
+		    <input id="pwd" type="password" class="form-control" placeholder="请输入您的密码">
 		    <br>
 		    <span class="input-group-btn">
 		    	<button class="btn btn-default" type="button" id="login">登录</button>

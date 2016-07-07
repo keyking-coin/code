@@ -1,19 +1,13 @@
 package com.keyking.coin.service.domain.time;
 
-import java.util.ArrayList;
-import java.util.List;
 
-import com.keyking.coin.service.net.SerializeEntity;
-import com.keyking.coin.service.net.buffer.DataBuffer;
-import com.keyking.coin.util.JsonUtil;
-import com.keyking.coin.util.StringUtil;
-
-public class TimeLine implements SerializeEntity{
+public class TimeLine {
 	long id;
 	byte type;//1 申购;2托管预约;3托管入库;4重要提示
 	String title;//标题
-	String time;//发生时间
-	List<TimeContent> contents = new ArrayList<TimeContent>();
+	String startTime;//开始时间
+	String endTime;//结束时间
+	String url;//地址
 	
 	public long getId() {
 		return id;
@@ -39,41 +33,27 @@ public class TimeLine implements SerializeEntity{
 		this.title = title;
 	}
 	
-	public String getTime() {
-		return time;
+	public String getStartTime() {
+		return startTime;
 	}
-	
-	public void setTime(String time) {
-		this.time = time;
+
+	public void setStartTime(String startTime) {
+		this.startTime = startTime;
 	}
-	
-	public List<TimeContent> getContents() {
-		return contents;
+
+	public String getEndTime() {
+		return endTime;
 	}
-	
-	public void setContents(List<TimeContent> content) {
-		this.contents = content;
+
+	public void setEndTime(String endTime) {
+		this.endTime = endTime;
 	}
-	
-	public String contentToStr(){
-		return JsonUtil.ObjectToJsonString(contents);
+
+	public String getUrl() {
+		return url;
 	}
-	
-	public void strToContents(String str){
-		if (StringUtil.isNull(str)){
-			return;
-		}
-		contents = JsonUtil.JsonToObjectList(str,TimeContent.class);
-	}
-	
-	public void serialize(DataBuffer buffer) {
-		buffer.putLong(id);
-		buffer.put(type);
-		buffer.putUTF(title);
-		buffer.putUTF(time);
-		buffer.put((byte) contents.size());
-		for (TimeContent content : contents){
-			content.serialize(buffer);
-		}
+
+	public void setUrl(String url) {
+		this.url = url;
 	}
 }
