@@ -9,6 +9,7 @@ import java.util.List;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.PreparedStatementCreator;
 
+import com.keyking.coin.service.dao.TableName;
 import com.keyking.coin.service.dao.row.EmailRow;
 import com.keyking.coin.service.domain.email.Email;
 import com.keyking.coin.util.ServerLog;
@@ -57,7 +58,7 @@ public class EmailDAO extends BaseDAO {
 	}
 	
 	public synchronized boolean save(Email email) {
-		if (check("email",email.getId())){
+		if (check(TableName.TABLE_NAME_EMAIL.getTable(),email.getId())){
 			return update(email);
 		}else{
 			return insert(email);
@@ -66,7 +67,7 @@ public class EmailDAO extends BaseDAO {
 	
 	public synchronized boolean delete(Email email) {
 		try {
-			return delete("email",email.getId());
+			return delete(TableName.TABLE_NAME_EMAIL.getTable(),email.getId());
 		} catch (DataAccessException e) {
 			ServerLog.error("delete email error",e);
 			return false;

@@ -81,8 +81,6 @@ public class HttpSell extends HttpHandler {
 			return;
 		}
 		if (CTRL.tryToInsert(deal)){
-			long dealId = PK.key("deal");
-			deal.setId(dealId);
 			if (sendFlag){//强制推送
 				user.getRecharge().changeMoney(-10);
 				deal.setLastIssue(TimeUtils.nowChStr());
@@ -93,7 +91,7 @@ public class HttpSell extends HttpHandler {
 			ServerLog.info(user.getAccount() + " deployed deal-sell ok ----> id is " + deal.getId());
 			Map<String,Object> data = new HashMap<String,Object>();
 			data.put("result","ok");
-			data.put("dealId",dealId);
+			data.put("dealId",deal.getId());
 			String str = JsonUtil.ObjectToJsonString(data);
 			data(request,response,str);
 		}

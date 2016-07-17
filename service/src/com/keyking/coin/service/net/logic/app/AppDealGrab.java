@@ -3,6 +3,7 @@ package com.keyking.coin.service.net.logic.app;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.keyking.coin.service.dao.TableName;
 import com.keyking.coin.service.domain.deal.Deal;
 import com.keyking.coin.service.domain.deal.DealOrder;
 import com.keyking.coin.service.domain.deal.SimpleOrderModule;
@@ -68,7 +69,7 @@ public class AppDealGrab extends AbstractLogic {
 			order.setPrice(deal.getPrice());
 			order.setNum(num);
 			order.setHelpFlag(deal.getHelpFlag());
-			long orderId = PK.key("deal_order");
+			long orderId = PK.key(TableName.TABLE_NAME_ORDER);
 			order.setId(orderId);
 			deal.addOrder(order);
 			order.save();

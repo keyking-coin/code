@@ -70,8 +70,6 @@ public class HttpBuy extends HttpHandler {
 			return;
 		}
 		if (CTRL.tryToInsert(deal)){
-			long dealId = PK.key("deal");
-			deal.setId(dealId);
 			if (sendFlag){//强制推送
 				user.getRecharge().changeMoney(-10);
 				deal.setLastIssue(TimeUtils.nowChStr());
@@ -81,7 +79,7 @@ public class HttpBuy extends HttpHandler {
 			NET.sendMessageToAllClent(deal.clientMessage(Module.ADD_FLAG),null);
 			Map<String,Object> data = new HashMap<String,Object>();
 			data.put("result","ok");
-			data.put("dealId",dealId);
+			data.put("dealId",deal.getId());
 			String str = JsonUtil.ObjectToJsonString(data);
 			data(request,response,str);
 			ServerLog.info(user.getAccount() + " deployed deal-buy ok ----> id is " + deal.getId());

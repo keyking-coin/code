@@ -1,9 +1,9 @@
 package com.keyking.coin.service.domain.other;
 
 public class NoticeEntity {
-	String time;
-	String title;
-	String body;
+	String time;//时间
+	String title;//标题
+	String body;//html内容
 	byte type;//0公告,1规则,2其他
 	
 	public String getTime() {

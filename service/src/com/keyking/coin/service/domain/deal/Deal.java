@@ -9,6 +9,7 @@ import java.util.Map;
 import org.joda.time.DateTime;
 
 import com.keyking.coin.service.Service;
+import com.keyking.coin.service.dao.TableName;
 import com.keyking.coin.service.domain.user.RankEntity;
 import com.keyking.coin.service.domain.user.UserCharacter;
 import com.keyking.coin.service.net.SerializeEntity;
@@ -549,7 +550,7 @@ public class Deal implements Instances,SerializeEntity,Comparable<Deal>{
 		revrt.setDependentId(id);
 		revrt.setContext(content);
 		revrt.setCreateTime(TimeUtils.formatYear(TimeUtils.now()));
-		long rid = PK.key("deal_revert");
+		long rid = PK.key(TableName.TABLE_NAME_REVERT);
 		revrt.setId(rid);
 		addRevert(revrt);
 		revrt.save();

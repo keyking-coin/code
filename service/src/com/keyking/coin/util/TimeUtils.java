@@ -13,15 +13,15 @@ public class TimeUtils {
 
 	public static final DateTimeZone tz = DateTimeZone.forTimeZone(TimeZone.getTimeZone("Asia/Shanghai"));//设置时区为北京
 	
-	private static final DateTimeFormatter FORMAT_MONTH   = DateTimeFormat.forPattern("yyyyMM");
+	public static final DateTimeFormatter FORMAT_MONTH   = DateTimeFormat.forPattern("yyyyMM");
 	
-	private static final DateTimeFormatter FORMAT_YEAR    = DateTimeFormat.forPattern("yyyy");
+	public static final DateTimeFormatter FORMAT_YEAR    = DateTimeFormat.forPattern("yyyy");
 	
-	private static final DateTimeFormatter FORMAT_DAY     = DateTimeFormat.forPattern("yyyy-MM-dd");
+	public static final DateTimeFormatter FORMAT_DAY     = DateTimeFormat.forPattern("yyyy-MM-dd");
 	
-	private static final DateTimeFormatter FORMAT_CH_YEAR = DateTimeFormat .forPattern("yyyy-MM-dd HH:mm:ss");  
+	public static final DateTimeFormatter FORMAT_CH_YEAR = DateTimeFormat .forPattern("yyyy-MM-dd HH:mm:ss");  
 	
-	private static final DateTimeFormatter FORMAT_EN_YEAR = DateTimeFormat.forPattern("HH:mm:ss yyyy-MM-dd");//自定义日期格式
+	public static final DateTimeFormatter FORMAT_EN_YEAR = DateTimeFormat.forPattern("HH:mm:ss yyyy-MM-dd");//自定义日期格式
 	
 	public static String formatDay(DateTime dt){
 		return dt.toString(FORMAT_DAY);

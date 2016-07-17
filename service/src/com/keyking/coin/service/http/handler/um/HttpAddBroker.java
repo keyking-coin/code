@@ -1,5 +1,6 @@
 package com.keyking.coin.service.http.handler.um;
 
+import com.keyking.coin.service.dao.TableName;
 import com.keyking.coin.service.domain.broker.Broker;
 import com.keyking.coin.service.domain.user.UserCharacter;
 import com.keyking.coin.service.http.handler.HttpHandler;
@@ -42,7 +43,7 @@ public class HttpAddBroker extends HttpHandler {
 			return;
 		}
 		Broker broker = new Broker();
-		long bid = PK.key("broker");
+		long bid = PK.key(TableName.TABLE_NAME_BROKER);
 		broker.setId(bid);
 		broker.setName(name);
 		if (!StringUtil.isNull(des)){

@@ -9,6 +9,7 @@ import java.util.List;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.PreparedStatementCreator;
 
+import com.keyking.coin.service.dao.TableName;
 import com.keyking.coin.service.dao.row.DealOrderRow;
 import com.keyking.coin.service.domain.deal.DealOrder;
 import com.keyking.coin.util.ServerLog;
@@ -67,7 +68,7 @@ public class DealOrderDAO extends BaseDAO{
 	}
 	
 	public synchronized boolean save(DealOrder order) {
-		if (check("deal_order",order.getId())){
+		if (check(TableName.TABLE_NAME_ORDER.getTable(),order.getId())){
 			return update(order);
 		}else{
 			return insert(order);

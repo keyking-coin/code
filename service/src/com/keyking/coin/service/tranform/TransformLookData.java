@@ -20,6 +20,7 @@ public class TransformLookData implements SerializeEntity{
 	List<Account> banks = new ArrayList<Account>();//绑定银行账户
 	Credit credit = new Credit();//信用度
 	boolean couldLook = true;
+	boolean isFriend;//目标是不是我的好友
 	
 	public String getFace() {
 		return face;
@@ -107,6 +108,14 @@ public class TransformLookData implements SerializeEntity{
 
 	public void setCouldLook(boolean couldLook) {
 		this.couldLook = couldLook;
+	}
+
+	public boolean isFriend() {
+		return isFriend;
+	}
+
+	public void setFriend(boolean isFriend) {
+		this.isFriend = isFriend;
 	}
 
 	@Override

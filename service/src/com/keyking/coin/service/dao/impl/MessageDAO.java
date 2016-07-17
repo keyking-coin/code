@@ -9,6 +9,7 @@ import java.util.List;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.PreparedStatementCreator;
 
+import com.keyking.coin.service.dao.TableName;
 import com.keyking.coin.service.dao.row.MessageRow;
 import com.keyking.coin.service.domain.friend.Message;
 import com.keyking.coin.util.ServerLog;
@@ -55,7 +56,7 @@ public class MessageDAO extends BaseDAO {
 	}
 	
 	public synchronized boolean save(Message message) {
-		if (check("message",message.getId())){
+		if (check(TableName.TABLE_NAME_MESSAGE.getTable(),message.getId())){
 			return update(message);
 		}else{
 			return insert(message);
@@ -74,7 +75,7 @@ public class MessageDAO extends BaseDAO {
 	
 	public synchronized boolean delete(Message message) {
 		try {
-			return delete("message",message.getId());
+			return delete(TableName.TABLE_NAME_MESSAGE.getTable(),message.getId());
 		} catch (DataAccessException e) {
 			ServerLog.error("delete message error",e);
 			return false;

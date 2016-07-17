@@ -9,6 +9,7 @@ import java.util.List;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.PreparedStatementCreator;
 
+import com.keyking.coin.service.dao.TableName;
 import com.keyking.coin.service.dao.row.BrokerRow;
 import com.keyking.coin.service.domain.broker.Broker;
 
@@ -59,7 +60,7 @@ public class BrokerDAO extends BaseDAO {
 	}
 	
 	public synchronized boolean save(Broker broker) {
-		if (check("brokers",broker.getId())){
+		if (check(TableName.TABLE_NAME_BROKER.getTable(),broker.getId())){
 			return update(broker);
 		}else{
 			return insert(broker);

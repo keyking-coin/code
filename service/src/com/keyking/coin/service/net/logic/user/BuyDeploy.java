@@ -51,8 +51,6 @@ public class BuyDeploy extends AbstractLogic {
 			return resp;
 		}
 		if (CTRL.tryToInsert(deal)){
-			long dealId = PK.key("deal");
-			deal.setId(dealId);
 			if (flag == 1){//强制推送
 				user.getRecharge().changeMoney(-10);
 				deal.setLastIssue(TimeUtils.nowChStr());

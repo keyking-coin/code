@@ -9,6 +9,7 @@ import java.util.List;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.PreparedStatementCreator;
 
+import com.keyking.coin.service.dao.TableName;
 import com.keyking.coin.service.dao.row.DealRow;
 import com.keyking.coin.service.domain.deal.Deal;
 import com.keyking.coin.util.ServerLog;
@@ -21,7 +22,7 @@ public class DealDAO extends BaseDAO {
 	
 	private static String SELECT_SQL_STR_ONE = "select * from deal where id=?";
 	
-	private static String SELECT_SQL_STR_MORE = "select * from deal where 1=1";
+	private static String LOAD_ALL_STR = "select * from deal where 1=1";
 	
 	DealRow row = new DealRow();
 	
@@ -77,7 +78,7 @@ public class DealDAO extends BaseDAO {
 	}
 	
 	public synchronized boolean save(Deal deal) {
-		if (check("deal",deal.getId())){
+		if (check(TableName.TABLE_NAME_DEAL.getTable(),deal.getId())){
 			return update(deal);
 		}else{
 			return insert(deal);
@@ -97,7 +98,7 @@ public class DealDAO extends BaseDAO {
 	public List<Deal> loadAll() {
 		List<Deal> deals = null;
 		try {
-			deals = getJdbcTemplate().query(SELECT_SQL_STR_MORE,row);
+			deals = getJdbcTemplate().query(LOAD_ALL_STR,row);
 		} catch (DataAccessException e) {
 			e.printStackTrace();
 		}

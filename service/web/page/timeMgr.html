@@ -15,17 +15,92 @@
 	  	<script type="text/javascript" src="../js/bourse.js"></script>
 		<script type="text/javascript">
 		    var typeCount = 0;
-		    function bourseChange(data){
+		    var selectId = 0;
+		    function lookDetail(tid){
+		    	$("#sub_add").hide();
+		    	selectId = tid;
+		    	$.ajax({
+				    type:"get",
+			        url : "../gm/HttpGetTimeLine",
+			        data: "id=" + tid,
+			        contentType: "application/json; charset=utf-8",
+			        dataType : "json",
+			        success  : function(data) {
+			        	if(data.result == "ok"){
+			        		$("#sub_show").show();
+			        		$("#show_type").val(data.time.type);
+			        		$("#show_time_start").val(data.time.startTime);
+			        		$("#show_time_end").val(data.time.endTime);
+			        		if (data.time.bourseFlag == 1){
+			        			$("#show_bourse_select").val("其他文交所");
+			        			$("#show_bourse_input").val(data.time.bourse);
+			        			$("#show_bourse_input").show();
+			        		}else{
+			        			$("#show_bourse_select").val(data.time.bourse);
+			        			$("#show_bourse_input").hide();
+			        		}
+			        		$("#show_url_address").val(data.time.url);
+			        		$("#show_time_title").val(data.time.title);
+			        	}else{
+			        		alert(data.result);
+			        	}
+			        },
+			        error: function (msg) {
+		                alert(msg);
+		            }
+			    });
+		    }
+		    
+		    function refreshList(){
+		        var startTime = $("#refresh_start").val();
+		        if (startTime==""){
+		        	alert("请设置刷新开始时间");
+					return;
+		        }
+		        var endTime = $("#refresh_end").val();
+		        if (endTime==""){
+		        	alert("请设置刷新结束时间");
+					return;
+		        }
+		        var params = "start=" + startTime + "&end=" + endTime;
+	    		$.ajax({
+				    type:"get",
+			        url : "../gm/HttpTimeList",
+			        data: params,
+			        contentType: "application/json; charset=utf-8",
+			        dataType : "json",
+			        success  : function(data) {
+			        	if(data.result == "ok"){
+			        		$("#sub_add").hide();
+			    			$("#sub_show").hide();
+			        		$("#h_col").empty();
+			        		var html = "";
+			        		for(var i = 0 ; i < data.list.length; i++){
+			        			var showTitle = data.list[i].title + "(" + data.list[i].bourse + ")";
+			        			html += "<li style='margin-left:5px;' onclick ='lookDetail(" + data.list[i].id + ")' ><a href='#' >" + showTitle + "</a></li>";
+			        		}
+			        		$("#h_col").append(html);
+			        	}else{
+			        		alert(data.result);
+			        	}
+			        },
+			        error: function (msg) {
+		                alert(msg);
+		            }
+			    });
+		    };
+		    
+		    function bourseChange(data,key){
 		    	if (data == "其他文交所"){
-		    		$("#bourse_input").show();
+		    		$("#" + key).show();
 		    	}else{
-		    		$("#bourse_input").hide();
+		    		$("#" + key).hide();
 		    	}
 		    };
 		    
 		    function addType(){
 		    	typeCount++;
-		    	var html = "<div id='typeItem"+ typeCount + "'>" +
+		    	var html = "<div id='typeItem" + typeCount + "'>" +
 		    	"<span style='color:#ff3333'>类型" + typeCount + ": </span>" +
 		    	"<select id='t_type" + typeCount + "' style='width:250px;margin-top:9px;margin-left:5px;border:1px'>" +
 	    		"<option value='1'>申购配售</option>" +
@@ -48,19 +123,159 @@
 		    
 			$(document).ready(function(){
 				for (var i = 0 ; i < bourseDatas.length ; i++){
-					$("#b_type").append(bourseDatas[i]);	
+					$("#bourse_select").append(bourseDatas[i]);
+					$("#show_bourse_select").append(bourseDatas[i]);		
 				}
-				
+				$("#operate_list").click(function(){
+					refreshList();
+				});
+				$("#operate_add").click(function(){
+					$("#sub_add").show();
+			    	$("#sub_show").hide();
+				});
+				$("#sub_add_logic").click(function(){
+					var params = "typeCount=" + typeCount + "&";
+					if (typeCount == 0){
+						alert("请添加至少一种类型");
+						return;
+					}
+					for (var i = 1 ; i <= typeCount ; i++){
+						var tk  = "t_type" + i;
+						var stk = "timeStart" + i;
+						var etk = "timeEnd" + i;
+						var stv = $("#" + stk).val();
+						var etv = $("#" + etk).val();
+						if (stv == ""){
+							alert("请配置第" + i + "类型的开始时间");
+							return;
+						}
+						if (etv == ""){
+							alert("请配置第" + i + "类型的结束时间");
+							return;
+						}
+						params += tk + "=" + $("#" + tk).val() + "&" + stk + "=" + stv + "&" + etk + "=" + etv + "&";
+					}
+					var bourse = $("#bourse_select").val();
+					var flag  = 0;
+					if (bourse == "其他文交所"){
+						var bourse_input = $("#bourse_input").val();
+						if (bourse_input == ""){
+							alert("请输入其他的文交所");
+							return;
+						}
+						bourse = bourse_input;
+						flag   = 1;
+					}
+					var _url = $("#url_address").val();
+					if (_url == ""){
+						alert("请配置url地址");
+						return;
+					}
+					var title = $("#timeTitle").val();
+					if (title == ""){
+						alert("请输入标题");
+						return;
+					}
+					params += "flag=" + flag + "&bourse=" + bourse + "&_url=" +  _url + "&timeTitle=" + title;
+					$.ajax({
+					    type:"get",
+				        url : "../gm/HttpAddTime",
+				        data: params,
+				        contentType: "application/json; charset=utf-8",
+				        dataType : "json",
+				        success  : function(data) {
+				        	if(data.result == "ok"){
+				        		alert("添加成功");
+				        	}else{
+				        		alert(data.result);
+				        	}
+				        },
+				        error: function (msg) {
+			                alert(msg);
+			            }
+				    });
+				});
+				$("#sub_show_update").click(function(){
+					var params = "id=" + selectId;
+					params += "&type=" +  $("#show_type").val();
+					params += "&start=" + $("#show_time_start").val();
+					params += "&end=" + $("#show_time_end").val();
+					var bourse = $("#show_bourse_select").val();
+					var flag  = 0;
+					if (bourse == "其他文交所"){
+						var bourse_input = $("#show_bourse_input").val();
+						if (bourse_input == ""){
+							alert("请输入其他的文交所");
+							return;
+						}
+						bourse = bourse_input;
+						flag   = 1;
+					}
+					var _url = $("#show_url_address").val();
+					if (_url == ""){
+						alert("请配置url地址");
+						return;
+					}
+					var title = $("#show_time_title").val();
+					if (title == ""){
+						alert("请输入标题");
+						return;
+					}
+					params += "&flag=" + flag + "&bourse=" + bourse + "&_url=" +  _url + "&title=" + title;
+					//alert(params);
+					$.ajax({
+					    type:"get",
+				        url : "../gm/HttpUpdateTimeLine",
+				        data: params,
+				        contentType: "application/json; charset=utf-8",
+				        dataType : "json",
+				        success  : function(data) {
+				        	if(data.result == "ok"){
+				        		refreshList();
+				        		lookDetail(selectId);
+				        	}else{
+				        		alert(data.result);
+				        	}
+				        },
+				        error: function (msg) {
+			                alert(msg);
+			            }
+				    });
+				});
+				$("#sub_show_del").click(function(){
+					var params = "id=" + selectId;
+					$.ajax({
+					    type:"get",
+				        url : "../gm/HttpDelTimeLine",
+				        data: params,
+				        contentType: "application/json; charset=utf-8",
+				        dataType : "json",
+				        success  : function(data) {
+				        	if(data.result == "ok"){
+				        		refreshList();
+				        	}else{
+				        		alert(data.result);
+				        	}
+				        },
+				        error: function (msg) {
+			                alert(msg);
+			            }
+				    });
+				});
 			});
 		</script>
 	</head>
 	<body>
 		<div style="margin-left:2px;">
-	       	<span class="input-group-btn">
-		    	<button class="btn btn-default" type="button" onclick ="Jump_Url('dealSum.html')">添加</button>
-		    </span>
+		    <button id="operate_add" class="btn btn-default" type="button" >添加</button>
+		            开始:
+		    <input id="refresh_start" readonly="readonly" type="text" class="Wdate"  onfocus="WdatePicker({dateFmt:'yyyy-MM-dd'})" />
+		            结束:
+		    <input id="refresh_end" readonly="readonly" type="text" class="Wdate"  onfocus="WdatePicker({dateFmt:'yyyy-MM-dd'})" />
+		    <button id="operate_list" class="btn btn-default" type="button" >刷新</button>
 	    </div>
-	    <div id="h_col" style="float:left;width:480px;height:700px;border:1px solid #000;background-color:#FFFF93;overflow:auto;">
+	    <div id="h_col" style="float:left;width:550px;height:700px;border:1px solid #000;background-color:#FFFF93;overflow:auto;">
+	        <!--
 	        <li style="margin-left:5px;" id="1" onclick ="show(id)" ><a href="#" >申购配售</a></li>
 	        <li style="margin-left:5px;" id="1" onclick ="show(id)" ><a href="#" >申购配售</a></li>
 	        <li style="margin-left:5px;" id="1" onclick ="show(id)" ><a href="#" >申购配售</a></li>
@@ -91,9 +306,10 @@
 	        <li style="margin-left:5px;" id="1" onclick ="show(id)" ><a href="#" >申购配售</a></li>
 	        <li style="margin-left:5px;" id="1" onclick ="show(id)" ><a href="#" >申购配售</a></li>
 	        <li style="margin-left:5px;" id="1" onclick ="show(id)" ><a href="#" >申购配售</a></li>
+	        -->
 	    </div>
-	    <div style="float:left;width:1280px;height:700px;border:1px solid #000;background-color:#81C0C0;">
-	        <div id="sub_add" style="margin-left:20px;">
+	    <div style="float:left;width:800px;height:700px;border:1px solid #000;background-color:#81C0C0;">
+	        <div id="sub_add" style="margin-left:20px;display:none;">
 	        	<button class="btn btn-default" type="button" onclick ="addType()">添加类型</button>
 	        	<button class="btn btn-default" type="button" onclick ="clearType()">清除类型</button>
 	        	<div id="typeLists">
@@ -101,7 +317,7 @@
 	        	</div>
 				<br>
 				<span style="color:#ff3333">文交所  : </span>
-		    	<select id="b_type" style="width:250px;margin-top:9px;margin-left:5px;border:1px;background-color:'0F0F0F';" onchange="bourseChange(this.options[selectedIndex ].value)">
+		    	<select id="bourse_select" style="width:250px;margin-top:9px;margin-left:5px;border:1px;background-color:'0F0F0F';" onchange="bourseChange(this.options[this.selectedIndex ].value,'bourse_input')">
 				</select>
 				<input id="bourse_input" type="text" style="width:250px;margin-top:9px;margin-left:5px;border:0px;display:none;" placeholder="请手动输入文交所"/>
 				<br>
@@ -115,6 +331,41 @@
 				<br>
 				<br>
 		       	<button id="sub_add_logic" class="btn btn-default" style="margin-left:300px;" type="button">确认添加</button>
+	        </div>
+	        <div id="sub_show" style="margin-left:20px;display:none;">
+	        	<span style="color:#ff3333">类型 (最好不要修改): </span>
+	        	<select id="show_type" style="width:250px;margin-top:9px;margin-left:5px;border:1px">
+		    		<option value="1">申购配售</option>
+		    		<option value="2">托管入库预约</option>
+		    		<option value="3">托管入库</option>
+		    		<option value="4">重要提示</option>
+		    	</select>
+		    	<br>
+		    	<br>
+		    	<span style="color:#ff3333">开始时间: </span>
+		    	<input readonly="readonly" type="text" class="Wdate" id="show_time_start" onfocus="WdatePicker({dateFmt:'yyyy-MM-dd'})" />
+		    	<br>
+		    	<br>
+		    	<span style="color:#ff3333">结束时间: </span>
+		    	<input readonly="readonly" type="text" class="Wdate" id="show_time_end" onfocus="WdatePicker({dateFmt:'yyyy-MM-dd'})" />
+		    	<br>
+		    	<br>
+		    	<span style="color:#ff3333">文交所  : </span>
+		    	<select id="show_bourse_select" style="width:250px;margin-top:9px;margin-left:5px;border:1px;background-color:'0F0F0F';" onchange="bourseChange(this.options[this.selectedIndex ].value,'show_bourse_input')">
+				</select>
+				<input id="show_bourse_input" type="text" style="width:250px;margin-top:9px;margin-left:5px;border:0px;display:none;" placeholder="请手动输入文交所"/>
+				<br>
+				<br>
+				<span style="color:#ff3333">公告地址 : </span>
+				<input type="text" id="show_url_address" style="width:650px;" />
+				<br>
+				<br>
+				<span style="color:#ff3333">标题:</span>
+				<input id="show_time_title" type="text" style="width:550px;" placeholder="请输入标题" />
+				<br>
+				<br>
+		       	<button id="sub_show_update" class="btn btn-default" style="margin-left:200px;" type="button">修改</button>
+		       	<button id="sub_show_del" class="btn btn-default" style="margin-left:200px;" type="button">删除</button>
 	        </div>
 	    </div>
 	    <br>

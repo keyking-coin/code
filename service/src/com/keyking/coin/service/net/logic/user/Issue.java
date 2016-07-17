@@ -69,8 +69,6 @@ public class Issue extends AbstractLogic{
 				}
 				deal.setNeedDeposit(total_value);
 				if (CTRL.tryToInsert(deal)){
-					long dealId = PK.key("deal");
-					deal.setId(dealId);
 					if (sendType == 1){//强制推送
 						user.getRecharge().changeMoney(-10);
 						deal.setLastIssue(TimeUtils.nowChStr());

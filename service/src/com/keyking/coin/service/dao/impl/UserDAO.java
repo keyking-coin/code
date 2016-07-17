@@ -9,6 +9,7 @@ import java.util.List;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.PreparedStatementCreator;
 
+import com.keyking.coin.service.dao.TableName;
 import com.keyking.coin.service.dao.row.UserRow;
 import com.keyking.coin.service.domain.user.UserCharacter;
 import com.keyking.coin.util.ServerLog;
@@ -26,6 +27,8 @@ public class UserDAO extends BaseDAO {
 	private static String CHECK_SQL_STR2 = "select * from users where nikeName=?";
 	
 	private static String CHECK_SQL_STR3 = "select * from users where id=?";
+	
+	private static String LOAD_ALL_STR = "select * from users where 1=1";
 	
 	private UserRow userRow = new UserRow();
 	
@@ -129,7 +132,7 @@ public class UserDAO extends BaseDAO {
 	}
 	
 	public synchronized boolean save(UserCharacter user) {
-		if (check("users",user.getId())){
+		if (check(TableName.TABLE_NAME_USER.getTable(),user.getId())){
 			return update(user);
 		}else{
 			return insert(user);
@@ -176,7 +179,7 @@ public class UserDAO extends BaseDAO {
 	public List<UserCharacter> loadAll() {
 		List<UserCharacter> users = null;
 		try {
-			users = getJdbcTemplate().query("select * from users where 1=1",userRow);
+			users = getJdbcTemplate().query(LOAD_ALL_STR,userRow);
 		} catch (DataAccessException e) {
 			e.printStackTrace();
 		}

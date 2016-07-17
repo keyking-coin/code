@@ -1,5 +1,6 @@
 package com.keyking.coin.service.net.logic.app;
 
+import com.keyking.coin.service.dao.TableName;
 import com.keyking.coin.service.domain.deal.Deal;
 import com.keyking.coin.service.domain.user.Seller;
 import com.keyking.coin.service.domain.user.UserCharacter;
@@ -72,23 +73,25 @@ public class AppDeployDeal extends AbstractLogic{
 		}
 		deal.setHelpFlag(helpFlag);
 		deal.setSellFlag(sellFlag);
-		long dealId = PK.key("deal");
-		deal.setId(dealId);
-		deal.save();
-		if (deployType == 1){//推送
-			if (user.getRecharge().getCurMoney() < 10){//强制推送
-				resp.setError("您的邮游币不足请先去充值");
-				return resp;
+		if (CTRL.tryToInsert(deal)){
+			long dealId = PK.key(TableName.TABLE_NAME_DEAL);
+			deal.setId(dealId);
+			deal.save();
+			if (deployType == 1){//推送
+				if (user.getRecharge().getCurMoney() < 10){//强制推送
+					resp.setError("您的邮游币不足请先去充值");
+					return resp;
+				}
+				user.getRecharge().changeMoney(-10);
+				deal.setLastIssue(TimeUtils.nowChStr());
+				NET.sendMessageToAllClent(deal.pushMessage(),user.getSessionAddress());
 			}
-			user.getRecharge().changeMoney(-10);
-			deal.setLastIssue(TimeUtils.nowChStr());
-			NET.sendMessageToAllClent(deal.pushMessage(),user.getSessionAddress());
+			TransformDealDetail tdd = new TransformDealDetail();
+			tdd.copy(deal);
+			resp.put("deal",tdd);
+			resp.setSucces();
+			ServerLog.info(user.getAccount() + " deployed deal ok ----> id is " + deal.getId());
 		}
-		TransformDealDetail tdd = new TransformDealDetail();
-		tdd.copy(deal);
-		resp.put("deal",tdd);
-		resp.setSucces();
-		ServerLog.info(user.getAccount() + " deployed deal ok ----> id is " + deal.getId());
 		return resp;
 	}
 }

@@ -13,6 +13,8 @@ public class TimelineRow implements RowMapper<TimeLine> {
 		time.setId(rs.getLong("id"));
 		time.setType(rs.getByte("type"));
 		time.setTitle(rs.getString("title"));
+		time.setBourseFlag(rs.getByte("flag"));
+		time.setBourse(rs.getString("bourse"));
 		time.setUrl(rs.getString("url"));
 		Date date = rs.getDate("startTime");
 		time.setStartTime(date.toString());

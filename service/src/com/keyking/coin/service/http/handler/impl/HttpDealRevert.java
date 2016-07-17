@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.keyking.coin.service.dao.TableName;
 import com.keyking.coin.service.domain.deal.Deal;
 import com.keyking.coin.service.domain.deal.Revert;
 import com.keyking.coin.service.domain.user.UserCharacter;
@@ -58,7 +59,7 @@ public class HttpDealRevert extends HttpHandler {
 			revrt.setDependentId(dealId);
 			revrt.setContext(content);
 			revrt.setCreateTime(TimeUtils.formatYear(TimeUtils.now()));
-			long rid = PK.key("deal_revert");
+			long rid = PK.key(TableName.TABLE_NAME_REVERT);
 			revrt.setId(rid);
 			deal.addRevert(revrt);
 			revrt.save();

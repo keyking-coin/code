@@ -2,6 +2,7 @@ package com.keyking.coin.service.net.logic.user;
 
 import java.util.List;
 
+import com.keyking.coin.service.dao.TableName;
 import com.keyking.coin.service.domain.friend.Message;
 import com.keyking.coin.service.domain.user.UserCharacter;
 import com.keyking.coin.service.net.buffer.DataBuffer;
@@ -23,7 +24,7 @@ public class FriendMessage extends AbstractLogic {
 		if (user_me != null && user_friend != null){
 			Message message = new Message();
 			message.setActors("[" + uid + "," + fid + "]");
-			long id = PK.key("message");
+			long id = PK.key(TableName.TABLE_NAME_MESSAGE);
 			message.setId(id);
 			message.setSendId(uid);
 			message.setTime(TimeUtils.nowChStr());

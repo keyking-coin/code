@@ -13,6 +13,7 @@ public class TransformDealDetail implements Instances{
 	long id;//编号
 	long uid;//用户编号
 	String issueName;//发布人昵称
+	String issueFace;//发布人头像
 	byte sellFlag;//出售帖还是求购帖
 	byte type;//类型0入库，1现货
 	byte helpFlag;//可以使用中介服务;0未开启，1开启。
@@ -45,6 +46,7 @@ public class TransformDealDetail implements Instances{
 		other      = deal.getOther();
 		UserCharacter user = CTRL.search(uid);
 		issueName  = user.getNikeName();
+		issueFace  = user.getFace();
 		for (Revert revert : deal.getReverts()){
 			if (revert.isRevoke()){
 				continue;
@@ -197,5 +199,13 @@ public class TransformDealDetail implements Instances{
 
 	public void setIssueName(String issueName) {
 		this.issueName = issueName;
+	}
+
+	public String getIssueFace() {
+		return issueFace;
+	}
+
+	public void setIssueFace(String issueFace) {
+		this.issueFace = issueFace;
 	}
 }

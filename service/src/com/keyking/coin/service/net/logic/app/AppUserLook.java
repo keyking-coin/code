@@ -34,6 +34,8 @@ public class AppUserLook extends AbstractLogic {
 			data.setTel(look ? user.getAccount() : "仅对交易方可见");
 			data.setName(look ? user.getName() : "仅对交易方可见");
 			data.setCouldLook(look);
+			UserCharacter me = CTRL.search(mid);
+			data.setFriend(me.checkFriend(user));
 			if (look){
 				data.getAddresses().addAll(user.getAddresses());
 			}

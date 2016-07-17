@@ -12,6 +12,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import org.apache.mina.core.session.IoSession;
 import org.joda.time.DateTime;
 
+import com.keyking.coin.service.dao.TableName;
 import com.keyking.coin.service.domain.broker.Broker;
 import com.keyking.coin.service.domain.broker.UserBroker;
 import com.keyking.coin.service.domain.condition.SearchCondition;
@@ -41,7 +42,8 @@ public class Controler implements Instances{
 	
 	private static Controler instance = new Controler();
 	Map<String,UserCharacter> characters = new ConcurrentHashMap<String,UserCharacter>();
-	List<Deal> deals = new CopyOnWriteArrayList<Deal>();
+	Map<Long,Deal> deals = new ConcurrentHashMap<Long,Deal>();
+	
 	List<Broker> brokers = new CopyOnWriteArrayList<Broker>();
 	List<UserBroker> userBrokers = new CopyOnWriteArrayList<UserBroker>();
 	
@@ -66,7 +68,7 @@ public class Controler implements Instances{
 			for (Deal deal : ds){
 				deal.read();
 				if (deal.couldInsert()){
-					deals.add(deal);
+					deals.put(deal.getId(),deal);
 				}
 			}
 		}
@@ -87,7 +89,7 @@ public class Controler implements Instances{
 	}
 	
 	public void save(){
-		for (Deal deal : deals){
+		for (Deal deal : deals.values()){
 			deal.save();
 			for (Revert revert : deal.getReverts()){
 				revert.save();
@@ -218,7 +220,7 @@ public class Controler implements Instances{
 	}
 	
 	public synchronized boolean register(UserCharacter user){
-		long id = PK.key("users");
+		long id = PK.key(TableName.TABLE_NAME_USER);
 		user.setId(id);
 		characters.put(user.getAccount(),user);
 		return true;
@@ -242,7 +244,7 @@ public class Controler implements Instances{
 		List<Deal> valides   = new ArrayList<Deal>();
 		List<Deal> normals   = new ArrayList<Deal>();
 		List<Deal> tails     = new ArrayList<Deal>();
-		for (Deal deal : deals){
+		for (Deal deal : deals.values()){
 			if (condition.legal(deal)){
 				if (deal.getLeftNum() == 0){
 					tails.add(deal);
@@ -314,7 +316,7 @@ public class Controler implements Instances{
 		int off = hour * 3600 + minue * 60 + second;
 		long start = now.getMillis() - (1 * 24 * 3600 + off) * 1000;
 		List<Deal> result = new ArrayList<Deal>();
-		for (Deal deal : deals){
+		for (Deal deal : deals.values()){
 			long dealTime = TimeUtils.getTime(deal.getCreateTime()).getMillis();
 			if (dealTime >= start){
 				result.add(deal);
@@ -324,16 +326,11 @@ public class Controler implements Instances{
 	}
 	
 	public Deal tryToSearch(long id) {
-		for (Deal deal : deals){
-			if (deal.getId() == id){
-				return deal;
-			}
-		}
-		return DB.getDealDao().search(id);
+		return deals.get(id);
 	}
 	
 	public TransformDealData tryToSearchOrder(long id) {
-		for (Deal deal : deals){
+		for (Deal deal : deals.values()){
 			for (DealOrder order : deal.getOrders()){
 				if (order.getId() == id){
 					TransformDealData tdd = new TransformDealData();
@@ -345,14 +342,16 @@ public class Controler implements Instances{
 		return null;
 	}
 	
-	public synchronized boolean tryToInsert(Deal deal) {
-		deals.add(0,deal);
+	public boolean tryToInsert(Deal deal) {
+		long dealId = PK.key(TableName.TABLE_NAME_DEAL);
+		deal.setId(dealId);
+		deals.put(dealId,deal);
 		return true;
 	}
 
 	public List<Deal> tryToSearchDeals(long uid){
 		List<Deal> result = new ArrayList<Deal>();
-		for (Deal deal : deals){//未撤销的
+		for (Deal deal : deals.values()){//未撤销的
 			if (deal.getUid() == uid || deal.checkBuyerId(uid)){//是卖家或者有购买
 				result.add(deal);
 			}
@@ -364,7 +363,7 @@ public class Controler implements Instances{
 		List<RankEntity> result = new ArrayList<RankEntity>();
 		List<RankEntity> temp = new ArrayList<RankEntity>();
 		if (type <= 1){
-			for (Deal deal : deals){//未撤销的
+			for (Deal deal : deals.values()){//未撤销的
 				Map<Long,RankEntity> map = deal.compute(type);
 				for (RankEntity re : map.values()){
 					RankEntity target = null;
@@ -404,7 +403,7 @@ public class Controler implements Instances{
 	public List<TransformTouristOrder> trySearchHttpRecentOrder(){
 		List<TransformTouristOrder> orders = new ArrayList<TransformTouristOrder>();
 		DateTime time = TimeUtils.now();
-		for (Deal deal : deals){
+		for (Deal deal : deals.values()){
 			for (DealOrder order : deal.getOrders()){
 				if (order.checkRevoke()){
 					continue;
@@ -419,7 +418,7 @@ public class Controler implements Instances{
 		while (orders.size() < 50 && count < 8){
 			long pre = time.getMillis() - count * 24 * 3600 * 1000;
 			time = TimeUtils.getTime(pre);
-			for (Deal deal : deals){
+			for (Deal deal : deals.values()){
 				for (DealOrder order : deal.getOrders()){
 					if (order.checkRevoke()){
 						continue;
@@ -499,7 +498,7 @@ public class Controler implements Instances{
 	
 	public int computeOkOrderNum(long id) {
 		int count = 0 ;
-		for (Deal deal : deals){
+		for (Deal deal : deals.values()){
 			if (deal.getUid() == id){
 				for (DealOrder order : deal.getOrders()){
 					if (order.over()){
@@ -518,13 +517,15 @@ public class Controler implements Instances{
 	}
 
 	public List<Deal> getDeals() {
-		return deals;
+		List<Deal> result = new ArrayList<Deal>();
+		result.addAll(deals.values());
+		return result;
 	}
 	
 	public List<RecentDeal> getRecentOrders() {
 		List<RecentDeal> result = new ArrayList<RecentDeal>();
 		DateTime time = TimeUtils.now();
-		for (Deal deal : deals){
+		for (Deal deal : deals.values()){
 			for (DealOrder order : deal.getOrders()){
 				DateTime otime = TimeUtils.getTime(order.getTimes().get(0));
 				if (TimeUtils.isSameDay(time,otime)){
@@ -536,7 +537,7 @@ public class Controler implements Instances{
 		if (result.size() < 20){
 			long pre = time.getMillis() - 24 * 3600 * 1000;
 			time = TimeUtils.getTime(pre);
-			for (Deal deal : deals){
+			for (Deal deal : deals.values()){
 				for (DealOrder order : deal.getOrders()){
 					DateTime otime = TimeUtils.getTime(order.getTimes().get(0));
 					if (TimeUtils.isSameDay(time,otime)){
@@ -558,7 +559,7 @@ public class Controler implements Instances{
 	public List<SimpleOrderModule> trySearchRecentOrder() {
 		List<SimpleOrderModule> result = new ArrayList<SimpleOrderModule>();
 		DateTime time = TimeUtils.now();
-		for (Deal deal : deals){
+		for (Deal deal : deals.values()){
 			for (DealOrder order : deal.getOrders()){
 				DateTime otime = TimeUtils.getTime(order.getTimes().get(0));
 				if (TimeUtils.isSameDay(time,otime)){
@@ -571,7 +572,7 @@ public class Controler implements Instances{
 		if (result.size() < 20){
 			long pre = time.getMillis() - 24 * 3600 * 1000;
 			time = TimeUtils.getTime(pre);
-			for (Deal deal : deals){
+			for (Deal deal : deals.values()){
 				for (DealOrder order : deal.getOrders()){
 					DateTime otime = TimeUtils.getTime(order.getTimes().get(0));
 					if (TimeUtils.isSameDay(time,otime)){
@@ -617,7 +618,7 @@ public class Controler implements Instances{
 			email.setTime(time);
 			email.setTheme(theme);
 			email.setContent(content);
-			long id = PK.key("email");
+			long id = PK.key(TableName.TABLE_NAME_EMAIL);
 			email.setId(id);
 			target.addEmail(email);
 			email.save();
@@ -709,7 +710,7 @@ public class Controler implements Instances{
 	}
 
 	public DealOrder searchOrder(long orderId) {
-		for (Deal deal : deals){
+		for (Deal deal : deals.values()){
 			for (DealOrder order : deal.getOrders()){
 				if (order.getId() == orderId){
 					return order;

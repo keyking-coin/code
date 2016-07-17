@@ -9,6 +9,7 @@ import java.util.List;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.PreparedStatementCreator;
 
+import com.keyking.coin.service.dao.TableName;
 import com.keyking.coin.service.dao.row.RevertRow;
 import com.keyking.coin.service.domain.deal.Revert;
 import com.keyking.coin.util.ServerLog;
@@ -66,7 +67,7 @@ public class RevertDAO extends BaseDAO {
 	}
 	
 	public synchronized boolean save(Revert revert) {
-		if (check("deal_revert",revert.getId())){
+		if (check(TableName.TABLE_NAME_REVERT.getTable(),revert.getId())){
 			return update(revert);
 		}else{
 			return insert(revert);

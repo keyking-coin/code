@@ -35,14 +35,14 @@ public class PrimaryKey implements Instances{
 		}
 	}
 	
-	public long key(String table){
+	public long key(TableName tableName){
 		synchronized (keys) {
 			long value = 0;
-			if (keys.containsKey(table)){
-				value = keys.get(table).longValue();
+			if (keys.containsKey(tableName.getTable())){
+				value = keys.get(tableName.getTable()).longValue();
 			}
 			value ++;
-			keys.put(table,value);
+			keys.put(tableName.getTable(),value);
 			return value;
 		}
 	}

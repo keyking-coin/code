@@ -55,8 +55,8 @@
 	<bean id="otherDao" class="com.keyking.coin.service.dao.impl.OtherDAO">
 	    <property name="dataSource" ref="DAOS" />
 	</bean>
-    <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
-		<property name="dataSource" ref="DAOS" />
+	<bean id="noticeDao" class="com.keyking.coin.service.dao.impl.NoticeDAO">
+	    <property name="dataSource" ref="DAOS" />
 	</bean>
 	<bean id="brokerDao" class="com.keyking.coin.service.dao.impl.BrokerDAO">
 	    <property name="dataSource" ref="DAOS" />
@@ -66,6 +66,9 @@
 	</bean>
 	<bean id="feedBackDao" class="com.keyking.coin.service.dao.impl.FeedBackDAO">
 	    <property name="dataSource" ref="DAOS" />
+	</bean>
+	<bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="DAOS" />
 	</bean>
 	<tx:annotation-driven transaction-manager="transactionManager" proxy-target-class="true" />
  </beans>

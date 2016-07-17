@@ -1,5 +1,6 @@
 package com.keyking.coin.service.net.logic.user;
 
+import com.keyking.coin.service.dao.TableName;
 import com.keyking.coin.service.domain.deal.Deal;
 import com.keyking.coin.service.domain.deal.Revert;
 import com.keyking.coin.service.domain.user.UserCharacter;
@@ -37,7 +38,7 @@ public class RevertAdd extends AbstractLogic {
 			revrt.setDependentId(id);
 			revrt.setContext(context);
 			revrt.setCreateTime(TimeUtils.formatYear(TimeUtils.now()));
-			long rid = PK.key("deal_revert");
+			long rid = PK.key(TableName.TABLE_NAME_REVERT);
 			revrt.setId(rid);
 			deal.addRevert(revrt);
 			ServerLog.info(user.getAccount() + " revert deal ok ----> deal-id is " + deal.getId() + " revert-id is " + revrt.getId() + "revert-context is " + context);
