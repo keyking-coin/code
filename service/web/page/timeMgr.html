@@ -101,16 +101,16 @@
 		    function addType(){
 		    	typeCount++;
 		    	var html = "<div id='typeItem" + typeCount + "'>" +
-		    	"<span style='color:#ff3333'>类型" + typeCount + ": </span>" +
+		    	"<span style='color:#0010ff'>类型" + typeCount + ": </span>" +
 		    	"<select id='t_type" + typeCount + "' style='width:250px;margin-top:9px;margin-left:5px;border:1px'>" +
 	    		"<option value='1'>申购配售</option>" +
 	    		"<option value='2'>托管入库预约</option>" +
 	    		"<option value='3'>托管入库</option>" +
 	    		"<option value='4'>重要提示</option>" +
 		    	"</select>" +
-		    	"<span style='color:#ff3333'>开始时间  : </span>" + 
+		    	"<span style='color:#0010ff'>开始时间  : </span>" + 
 		    	"<input readonly='readonly' type='text' class='Wdate' id='timeStart" + typeCount + "' onfocus='WdatePicker({dateFmt:\"yyyy-MM-dd\"})' />" + 
-		    	"<span style='color:#ff3333'>结束时间  : </span>" + 
+		    	"<span style='color:#0010ff'>结束时间  : </span>" + 
 		    	"<input readonly='readonly' type='text' class='Wdate' id='timeEnd" + typeCount + "' onfocus='WdatePicker({dateFmt:\"yyyy-MM-dd\"})' />" + 
 		    	"</div>";
 		    	$("#typeLists").append(html);
@@ -265,50 +265,17 @@
 			});
 		</script>
 	</head>
-	<body>
-		<div style="margin-left:2px;">
+	<body style="margin-left:20%;">
+	    <div style="margin-left:2px;">
 		    <button id="operate_add" class="btn btn-default" type="button" >添加</button>
 		            开始:
 		    <input id="refresh_start" readonly="readonly" type="text" class="Wdate"  onfocus="WdatePicker({dateFmt:'yyyy-MM-dd'})" />
 		            结束:
 		    <input id="refresh_end" readonly="readonly" type="text" class="Wdate"  onfocus="WdatePicker({dateFmt:'yyyy-MM-dd'})" />
 		    <button id="operate_list" class="btn btn-default" type="button" >刷新</button>
-	    </div>
-	    <div id="h_col" style="float:left;width:550px;height:700px;border:1px solid #000;background-color:#FFFF93;overflow:auto;">
-	        <!--
-	        <li style="margin-left:5px;" id="1" onclick ="show(id)" ><a href="#" >申购配售</a></li>
-	        <li style="margin-left:5px;" id="1" onclick ="show(id)" ><a href="#" >申购配售</a></li>
-	        <li style="margin-left:5px;" id="1" onclick ="show(id)" ><a href="#" >申购配售</a></li>
-	        <li style="margin-left:5px;" id="1" onclick ="show(id)" ><a href="#" >申购配售</a></li>
-	        <li style="margin-left:5px;" id="1" onclick ="show(id)" ><a href="#" >申购配售</a></li>
-	        <li style="margin-left:5px;" id="1" onclick ="show(id)" ><a href="#" >申购配售</a></li>
-	        <li style="margin-left:5px;" id="1" onclick ="show(id)" ><a href="#" >申购配售</a></li>
-	        <li style="margin-left:5px;" id="1" onclick ="show(id)" ><a href="#" >申购配售</a></li>
-	        <li style="margin-left:5px;" id="1" onclick ="show(id)" ><a href="#" >申购配售</a></li>
-	        <li style="margin-left:5px;" id="1" onclick ="show(id)" ><a href="#" >申购配售</a></li>
-	        <li style="margin-left:5px;" id="1" onclick ="show(id)" ><a href="#" >申购配售</a></li>
-	        <li style="margin-left:5px;" id="1" onclick ="show(id)" ><a href="#" >申购配售</a></li>
-	        <li style="margin-left:5px;" id="1" onclick ="show(id)" ><a href="#" >申购配售</a></li>
-	        <li style="margin-left:5px;" id="1" onclick ="show(id)" ><a href="#" >申购配售</a></li>
-	        <li style="margin-left:5px;" id="1" onclick ="show(id)" ><a href="#" >申购配售</a></li>
-	        <li style="margin-left:5px;" id="1" onclick ="show(id)" ><a href="#" >申购配售</a></li>
-	        <li style="margin-left:5px;" id="1" onclick ="show(id)" ><a href="#" >申购配售</a></li>
-	        <li style="margin-left:5px;" id="1" onclick ="show(id)" ><a href="#" >申购配售</a></li>
-	        <li style="margin-left:5px;" id="1" onclick ="show(id)" ><a href="#" >申购配售</a></li>
-	        <li style="margin-left:5px;" id="1" onclick ="show(id)" ><a href="#" >申购配售</a></li>
-	        <li style="margin-left:5px;" id="1" onclick ="show(id)" ><a href="#" >申购配售</a></li>
-	        <li style="margin-left:5px;" id="1" onclick ="show(id)" ><a href="#" >申购配售</a></li>
-	        <li style="margin-left:5px;" id="1" onclick ="show(id)" ><a href="#" >申购配售</a></li>
-	        <li style="margin-left:5px;" id="1" onclick ="show(id)" ><a href="#" >申购配售</a></li>
-	        <li style="margin-left:5px;" id="1" onclick ="show(id)" ><a href="#" >申购配售</a></li>
-	        <li style="margin-left:5px;" id="1" onclick ="show(id)" ><a href="#" >申购配售</a></li>
-	        <li style="margin-left:5px;" id="1" onclick ="show(id)" ><a href="#" >申购配售</a></li>
-	        <li style="margin-left:5px;" id="1" onclick ="show(id)" ><a href="#" >申购配售</a></li>
-	        <li style="margin-left:5px;" id="1" onclick ="show(id)" ><a href="#" >申购配售</a></li>
-	        <li style="margin-left:5px;" id="1" onclick ="show(id)" ><a href="#" >申购配售</a></li>
-	        -->
-	    </div>
-	    <div style="float:left;width:800px;height:700px;border:1px solid #000;background-color:#81C0C0;">
+    	</div>
+    	<div id="h_col" style="float:left;width:550px;height:700px;border:1px solid #000;background-color:#FFFF93;overflow:auto;"></div>
+    	<div style="float:left;width:800px;height:700px;border:1px solid #000;background-color:#81C0C0;">
 	        <div id="sub_add" style="margin-left:20px;display:none;">
 	        	<button class="btn btn-default" type="button" onclick ="addType()">添加类型</button>
 	        	<button class="btn btn-default" type="button" onclick ="clearType()">清除类型</button>
@@ -316,24 +283,24 @@
 	        	   
 	        	</div>
 				<br>
-				<span style="color:#ff3333">文交所  : </span>
+				<span style="color:#0010ff">文交所  : </span>
 		    	<select id="bourse_select" style="width:250px;margin-top:9px;margin-left:5px;border:1px;background-color:'0F0F0F';" onchange="bourseChange(this.options[this.selectedIndex ].value,'bourse_input')">
 				</select>
 				<input id="bourse_input" type="text" style="width:250px;margin-top:9px;margin-left:5px;border:0px;display:none;" placeholder="请手动输入文交所"/>
 				<br>
 				<br>
-				<span style="color:#ff3333">公告地址 : </span>
+				<span style="color:#0010ff">公告地址 : </span>
 				<input type="text" id="url_address" style="width:650px;" />
 				<br>
 				<br>
-				<span style="color:#ff3333">标题:</span>
+				<span style="color:#0010ff">标题:</span>
 				<input id="timeTitle" type="text" style="width:550px;" placeholder="请输入标题" />
 				<br>
 				<br>
 		       	<button id="sub_add_logic" class="btn btn-default" style="margin-left:300px;" type="button">确认添加</button>
 	        </div>
 	        <div id="sub_show" style="margin-left:20px;display:none;">
-	        	<span style="color:#ff3333">类型 (最好不要修改): </span>
+	        	<span style="color:#0010ff">类型 (最好不要修改): </span>
 	        	<select id="show_type" style="width:250px;margin-top:9px;margin-left:5px;border:1px">
 		    		<option value="1">申购配售</option>
 		    		<option value="2">托管入库预约</option>
@@ -342,32 +309,31 @@
 		    	</select>
 		    	<br>
 		    	<br>
-		    	<span style="color:#ff3333">开始时间: </span>
+		    	<span style="color:#0010ff">开始时间: </span>
 		    	<input readonly="readonly" type="text" class="Wdate" id="show_time_start" onfocus="WdatePicker({dateFmt:'yyyy-MM-dd'})" />
 		    	<br>
 		    	<br>
-		    	<span style="color:#ff3333">结束时间: </span>
+		    	<span style="color:#0010ff">结束时间: </span>
 		    	<input readonly="readonly" type="text" class="Wdate" id="show_time_end" onfocus="WdatePicker({dateFmt:'yyyy-MM-dd'})" />
 		    	<br>
 		    	<br>
-		    	<span style="color:#ff3333">文交所  : </span>
+		    	<span style="color:#0010ff">文交所  : </span>
 		    	<select id="show_bourse_select" style="width:250px;margin-top:9px;margin-left:5px;border:1px;background-color:'0F0F0F';" onchange="bourseChange(this.options[this.selectedIndex ].value,'show_bourse_input')">
 				</select>
 				<input id="show_bourse_input" type="text" style="width:250px;margin-top:9px;margin-left:5px;border:0px;display:none;" placeholder="请手动输入文交所"/>
 				<br>
 				<br>
-				<span style="color:#ff3333">公告地址 : </span>
+				<span style="color:#0010ff">公告地址 : </span>
 				<input type="text" id="show_url_address" style="width:650px;" />
 				<br>
 				<br>
-				<span style="color:#ff3333">标题:</span>
+				<span style="color:#0010ff">标题:</span>
 				<input id="show_time_title" type="text" style="width:550px;" placeholder="请输入标题" />
 				<br>
 				<br>
 		       	<button id="sub_show_update" class="btn btn-default" style="margin-left:200px;" type="button">修改</button>
 		       	<button id="sub_show_del" class="btn btn-default" style="margin-left:200px;" type="button">删除</button>
 	        </div>
-	    </div>
-	    <br>
+    	</div>
 	</body>
 </html>
