@@ -11,38 +11,11 @@
 		<script type="text/javascript" src="../js/jquery-2.1.1.min.js"></script>
 		<script type="text/javascript" src="../js/bootstrap.min.js"></script>
 		<script type="text/javascript">
-			var file_name = "";
 			$(document).ready(function(){
-				$("#upload_pic").click(function(){
-					var params = "fname=uu_sys_ad_pic";
-					$.ajax({
-					    type:"post",
-				        url :"http://www.521uu.cc:321/sendfile_php.php",
-				        data:params,
-				        contentType:"multipart/form-data; charset=utf-8",
-				        dataType:"json",
-				        success:function(data) {
-				        	alert(1);
-				        	if (data.status == "1"){
-				        		file_name = data.fname;
-				        	}else{
-				        		alert(data.msg);
-				        	}
-				        },
-				        error:function (msg) {
-				        	alert(2);
-			                //alert(msg);
-			            }
-				    });
-				});
 				$("#ad_insert").click(function(){
 					var url_str = $("#ad_title").val();
 					if (url_str == ""){
 					   alert("请输入广告的地址");
-					   return;
-					}
-					if (file_name == ""){
-					   alert("请先上传图片");
 					   return;
 					}
 					var params = "ad_url=" + url_str + "&" +
@@ -74,8 +47,10 @@
 			<input type="text" id="ad_title" style="width:250px;"/>
 			<br>
 			<br>
-			<input type="file" name="file" id="file" accept="image/*" />
-			<button id="upload_pic" class="btn btn-default" type="button">上传</button>
+			<form action="http://www.521uu.cc:321/up.php?fname=uu_sys_ad_pic"  method="post" enctype="multipart/form-data">
+				<input type="file" name="file" id="file" accept="image/*" />
+				<input type="submit" value="上传图片" />
+			</form>
 			<br>
 			<span style="color:#4A02F9">图片大小不要超出1M否则上传失败</span>
 			<br>
