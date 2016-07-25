@@ -34,10 +34,14 @@ public class AppLogin extends AbstractLogic {
 					temp.put("tip","您的账号在别处登录,如果不是你本人操作请立即修改你的密码。");
 					String prePlatform = user.getPlatform();
 					if (prePlatform != null){
-						if (prePlatform.equals(DeviceType.Android.value())){
-							PUSH.getPushClient().sendAndroidNotificationWithRegistrationID("异端登录","您的账号在别处登录",temp,preId);
-						}else if (prePlatform.equals(DeviceType.IOS.value())){
-							PUSH.getPushClient().sendIosNotificationWithRegistrationID("您的账号在别处登录",temp,preId);
+						try {
+							if (prePlatform.equals(DeviceType.Android.value())){
+								PUSH.getPushClient().sendAndroidNotificationWithRegistrationID("异端登录","您的账号在别处登录",temp,preId);
+							}else if (prePlatform.equals(DeviceType.IOS.value())){
+								PUSH.getPushClient().sendIosNotificationWithRegistrationID("您的账号在别处登录",temp,preId);
+							}
+						} catch (Exception e) {
+							ServerLog.error("推送错误",e);
 						}
 					}
 				}

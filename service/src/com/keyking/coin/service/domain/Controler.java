@@ -41,7 +41,7 @@ import com.keyking.coin.util.TimeUtils;
 public class Controler implements Instances{
 	
 	private static Controler instance = new Controler();
-	Map<String,UserCharacter> characters = new ConcurrentHashMap<String,UserCharacter>();
+	Map<Long,UserCharacter> characters = new ConcurrentHashMap<Long,UserCharacter>();
 	Map<Long,Deal> deals = new ConcurrentHashMap<Long,Deal>();
 	
 	List<Broker> brokers = new CopyOnWriteArrayList<Broker>();
@@ -56,7 +56,7 @@ public class Controler implements Instances{
 		List<UserCharacter> users = DB.getUserDao().loadAll();
 		if (users != null){
 			for (UserCharacter user : users){
-				characters.put(user.getAccount(),user);
+				characters.put(user.getId(),user);
 			}
 			for (UserCharacter user : users){
 				user.load();
@@ -153,12 +153,18 @@ public class Controler implements Instances{
 	}
 	
 	public UserCharacter search(String accout){
-		UserCharacter user = characters.get(accout);
+		UserCharacter user = null;
+		for (UserCharacter uc : characters.values()){
+			if (uc.getAccount().equals(accout) ){
+				user = uc;
+				break;
+			}
+		}
 		if (user == null){
 			user = DB.getUserDao().search(accout);
 			if (user != null){
-				characters.put(accout,user);
 				user.load();
+				characters.put(user.getId(),user);
 			}
 		}
 		return user;
@@ -211,18 +217,21 @@ public class Controler implements Instances{
 	}
 	
 	public UserCharacter search(long id){
-		for (UserCharacter user : characters.values()){
-			if (user.getId() == id){
-				return user;
+		UserCharacter user = characters.get(id);
+		if (user == null){
+			user = DB.getUserDao().search(id);
+			if (user != null){
+				user.load();
+				characters.put(user.getId(),user);
 			}
 		}
-		return null;
+		return user;
 	}
 	
 	public synchronized boolean register(UserCharacter user){
 		long id = PK.key(TableName.TABLE_NAME_USER);
 		user.setId(id);
-		characters.put(user.getAccount(),user);
+		characters.put(id,user);
 		return true;
 	}
 	
