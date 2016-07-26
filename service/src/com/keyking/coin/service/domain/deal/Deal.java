@@ -16,8 +16,12 @@ import com.keyking.coin.service.net.SerializeEntity;
 import com.keyking.coin.service.net.buffer.DataBuffer;
 import com.keyking.coin.service.net.resp.module.Module;
 import com.keyking.coin.service.net.resp.module.ModuleResp;
+import com.keyking.coin.service.push.PushType;
 import com.keyking.coin.service.tranform.page.deal.TransformDealDetail;
+import com.keyking.coin.service.tranform.page.deal.TransformRevert;
+import com.keyking.coin.service.tranform.page.order.TransformOrderDetail;
 import com.keyking.coin.util.Instances;
+import com.keyking.coin.util.JsonUtil;
 import com.keyking.coin.util.StringUtil;
 import com.keyking.coin.util.TimeUtils;
 
@@ -180,6 +184,16 @@ public class Deal implements Instances,SerializeEntity,Comparable<Deal>{
 		this.lastIssue = lastIssue;
 	}
 
+	public void issue(){
+		lastIssue = TimeUtils.nowChStr();
+		TransformDealDetail tdd = new TransformDealDetail();
+		tdd.copy(this);
+		Map<String,String> pushMap = new HashMap<String, String>();
+		pushMap.put("type",PushType.PUSH_TYPE_DEAL.toString());
+		pushMap.put("deal",JsonUtil.ObjectToJsonString(tdd));
+		PUSH.pushAll("买卖盘推送","买卖盘推送弹出提示",pushMap);
+	}
+	
 	public List<Revert> getReverts() {
 		return reverts;
 	}
@@ -204,6 +218,15 @@ public class Deal implements Instances,SerializeEntity,Comparable<Deal>{
 	public void addOrder(DealOrder order){
 		orders.add(order);
 		compare_o();
+		UserCharacter owner = CTRL.search(uid);
+		if (owner.couldPush(PushType.PUSH_TYPE_ORDER)){
+			TransformOrderDetail tod = new TransformOrderDetail();
+			tod.copy(this,order);
+			Map<String,String> pushMap = new HashMap<String, String>();
+			pushMap.put("type",PushType.PUSH_TYPE_ORDER.toString());
+			pushMap.put("order",JsonUtil.ObjectToJsonString(tod));
+			PUSH.push("新增成交盘","新增成交盘提示",owner.getPlatform(),pushMap,owner.getPushId());
+		}
 	}
 	
 	private void compare_r(){
@@ -554,7 +577,15 @@ public class Deal implements Instances,SerializeEntity,Comparable<Deal>{
 		revrt.setId(rid);
 		addRevert(revrt);
 		revrt.save();
-		//NET.sendMessageToAllClent(clientMessage(Module.UPDATE_FLAG),null);
+		UserCharacter target = CTRL.search(tid);
+		if (target.couldPush(PushType.PUSH_TYPE_REVERT)){
+			Map<String,String> pushMap = new HashMap<String, String>();
+			pushMap.put("type",PushType.PUSH_TYPE_REVERT.toString());
+			TransformRevert tr = new TransformRevert();
+			tr.copy(revrt);
+			pushMap.put("revert",JsonUtil.ObjectToJsonString(tr));
+			PUSH.push("买卖盘回复","新增买卖盘回复",target.getPlatform(),pushMap,target.getPushId());
+		}
 		return true;
 	}
 

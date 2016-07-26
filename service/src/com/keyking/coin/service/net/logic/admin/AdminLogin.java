@@ -59,7 +59,8 @@ public class AdminLogin extends AbstractLogic {
 	private List<TransformDealData> getAgencys(){
 		List<TransformDealData> result = new ArrayList<TransformDealData>();
 		List<Deal> deals = CTRL.getDeals();
-		for (Deal deal : deals){
+		for (int i = 0 ; i < deals.size() ; i++){
+			Deal deal = deals.get(i);
 			for (DealOrder order : deal.getOrders()){
 				if (order.getHelpFlag() == 0 || order.checkRevoke()){
 					continue;

@@ -88,7 +88,8 @@ public class HttpMyDealPage extends HttpDealPage {
 	private List<TransformDealListInfo> searchSells(long uid){
 		List<TransformDealListInfo> result = new ArrayList<TransformDealListInfo>();
 		List<Deal> deals = CTRL.getDeals();
-		for (Deal deal : deals){
+		for (int i = 0 ; i < deals.size() ; i++){
+			Deal deal = deals.get(i);
 			if (!deal.checkValidTime() || deal.getUid() != uid || deal.isRevoke() || deal.getLeftNum() == 0){
 				continue;
 			}
@@ -103,7 +104,8 @@ public class HttpMyDealPage extends HttpDealPage {
 	private List<TransformOrderListInfo> searchDealing(long uid){
 		List<TransformOrderListInfo> result = new ArrayList<TransformOrderListInfo>();
 		List<Deal> deals = CTRL.getDeals();
-		for (Deal deal : deals){
+		for (int i = 0 ; i < deals.size() ; i++){
+			Deal deal = deals.get(i);
 			if (!deal.checkJoin(uid)){
 				continue;
 			}
@@ -132,7 +134,8 @@ public class HttpMyDealPage extends HttpDealPage {
 	private List<TransformOrderListInfo> searchConfirmOrders(long uid){
 		List<TransformOrderListInfo> result = new ArrayList<TransformOrderListInfo>();
 		List<Deal> deals = CTRL.getDeals();
-		for (Deal deal : deals){
+		for (int i = 0 ; i < deals.size() ; i++){
+			Deal deal = deals.get(i);
 			if (!deal.checkJoin(uid)){
 				continue;
 			}
@@ -161,7 +164,8 @@ public class HttpMyDealPage extends HttpDealPage {
 	private List<TransformOrderListInfo> searchDealOver(long uid){
 		List<TransformOrderListInfo> result = new ArrayList<TransformOrderListInfo>();
 		List<Deal> deals = CTRL.getDeals();
-		for (Deal deal : deals){
+		for (int i = 0 ; i < deals.size() ; i++){
+			Deal deal = deals.get(i);
 			if (!deal.checkJoin(uid)){
 				continue;
 			}
@@ -190,7 +194,8 @@ public class HttpMyDealPage extends HttpDealPage {
 	private List<TransformOrderListInfo> searchDealHelp(long uid){
 		List<TransformOrderListInfo> result = new ArrayList<TransformOrderListInfo>();
 		List<Deal> deals = CTRL.getDeals();
-		for (Deal deal : deals){
+		for (int i = 0 ; i < deals.size() ; i++){
+			Deal deal = deals.get(i);
 			if (deal.getHelpFlag() == 0 || !deal.checkJoin(uid)){
 				continue;
 			}

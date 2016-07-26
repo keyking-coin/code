@@ -8,7 +8,6 @@ import com.keyking.coin.service.http.request.HttpRequestMessage;
 import com.keyking.coin.service.http.response.HttpResponseMessage;
 import com.keyking.coin.service.net.resp.module.AdminModuleResp;
 import com.keyking.coin.service.net.resp.module.Module;
-import com.keyking.coin.service.net.resp.module.ModuleResp;
 
 public class HttpDealOrderRevoke extends HttpHandler {
 	//http://139.196.30.53:32104/HttpDealOrderRevoke?uid=x&pwd=x&did=x&oid=x
@@ -40,9 +39,6 @@ public class HttpDealOrderRevoke extends HttpHandler {
 						if (!order.checkRevoke(flag)){//撤销成功
 							order.addRevoke(flag);
 							order.save();
-							ModuleResp modules = new ModuleResp();
-							order.clientMessage(Module.UPDATE_FLAG,modules,deal);
-							NET.sendMessageToAllClent(modules,null);
 							if (order.checkRevoke()){//双方都同意了
 								NET.sendMessageToAdmin(order.clientAdminMessage(Module.DEL_FLAG,new AdminModuleResp()));
 							}

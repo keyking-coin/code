@@ -3,8 +3,6 @@ package com.keyking.coin.service.net.logic.app;
 import java.util.HashMap;
 import java.util.Map;
 
-import cn.jpush.api.common.DeviceType;
-
 import com.keyking.coin.service.domain.user.UserCharacter;
 import com.keyking.coin.service.net.buffer.DataBuffer;
 import com.keyking.coin.service.net.data.LoginData;
@@ -12,6 +10,7 @@ import com.keyking.coin.service.net.logic.AbstractLogic;
 import com.keyking.coin.service.net.resp.impl.AppResp;
 import com.keyking.coin.service.push.PushType;
 import com.keyking.coin.util.ServerLog;
+import com.keyking.coin.util.StringUtil;
 
 public class AppLogin extends AbstractLogic {
 
@@ -22,6 +21,10 @@ public class AppLogin extends AbstractLogic {
 		String pwd      = buffer.getUTF();//登录密码
 		String pushId   = buffer.getUTF();//单独推送编号
 		String platform = buffer.getUTF();//平台编号android或者ios
+		if (StringUtil.isNull(pushId)){
+			resp.setError("推送注册Id为空");
+			return resp;
+		}
 		UserCharacter user = CTRL.search(account);
 		if (user == null){//不存在账号是account
 			resp.setError("账号:" + account + "不存在");
@@ -34,15 +37,7 @@ public class AppLogin extends AbstractLogic {
 					temp.put("tip","您的账号在别处登录,如果不是你本人操作请立即修改你的密码。");
 					String prePlatform = user.getPlatform();
 					if (prePlatform != null){
-						try {
-							if (prePlatform.equals(DeviceType.Android.value())){
-								PUSH.getPushClient().sendAndroidNotificationWithRegistrationID("异端登录","您的账号在别处登录",temp,preId);
-							}else if (prePlatform.equals(DeviceType.IOS.value())){
-								PUSH.getPushClient().sendIosNotificationWithRegistrationID("您的账号在别处登录",temp,preId);
-							}
-						} catch (Exception e) {
-							ServerLog.error("推送错误",e);
-						}
+						PUSH.push("异端登录","您的账号在别处登录",prePlatform,temp,preId);
 					}
 				}
 				resp.put("user",new LoginData(user));

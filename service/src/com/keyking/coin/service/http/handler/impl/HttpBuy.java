@@ -8,7 +8,6 @@ import com.keyking.coin.service.domain.user.UserCharacter;
 import com.keyking.coin.service.http.handler.HttpHandler;
 import com.keyking.coin.service.http.request.HttpRequestMessage;
 import com.keyking.coin.service.http.response.HttpResponseMessage;
-import com.keyking.coin.service.net.resp.module.Module;
 import com.keyking.coin.util.JsonUtil;
 import com.keyking.coin.util.ServerLog;
 import com.keyking.coin.util.StringUtil;
@@ -72,11 +71,9 @@ public class HttpBuy extends HttpHandler {
 		if (CTRL.tryToInsert(deal)){
 			if (sendFlag){//强制推送
 				user.getRecharge().changeMoney(-10);
-				deal.setLastIssue(TimeUtils.nowChStr());
-				NET.sendMessageToAllClent(deal.pushMessage(),user.getSessionAddress());
+				deal.issue();
 			}
 			deal.save();
-			NET.sendMessageToAllClent(deal.clientMessage(Module.ADD_FLAG),null);
 			Map<String,Object> data = new HashMap<String,Object>();
 			data.put("result","ok");
 			data.put("dealId",deal.getId());

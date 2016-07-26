@@ -12,7 +12,6 @@ import com.keyking.coin.service.domain.user.UserCharacter;
 import com.keyking.coin.service.http.handler.HttpHandler;
 import com.keyking.coin.service.http.request.HttpRequestMessage;
 import com.keyking.coin.service.http.response.HttpResponseMessage;
-import com.keyking.coin.service.net.resp.module.Module;
 import com.keyking.coin.service.tranform.page.deal.TransformRevert;
 import com.keyking.coin.util.JsonUtil;
 import com.keyking.coin.util.ServerLog;
@@ -65,7 +64,6 @@ public class HttpDealRevert extends HttpHandler {
 			revrt.save();
 			ServerLog.info(user.getAccount() + " revert deal ok ----> deal-id is " + deal.getId() + " revert-id is " + revrt.getId() + "revert-context is " + content);
 		}
-		NET.sendMessageToAllClent(deal.clientMessage(Module.UPDATE_FLAG),null);
 		List<TransformRevert> reverts = new ArrayList<TransformRevert>();
 		for (Revert revert : deal.getReverts()){
 			TransformRevert tr = new TransformRevert();

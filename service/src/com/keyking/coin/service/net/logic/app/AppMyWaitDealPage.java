@@ -37,7 +37,8 @@ public class AppMyWaitDealPage extends AbstractLogic{
 	private List<TransformDealListInfo> searchSells(long uid){
 		List<TransformDealListInfo> result = new ArrayList<TransformDealListInfo>();
 		List<Deal> deals = CTRL.getDeals();
-		for (Deal deal : deals){
+		for (int i = 0 ; i < deals.size() ; i++){
+			Deal deal = deals.get(i);
 			if (!deal.checkValidTime() || deal.getUid() != uid || deal.isRevoke() || deal.getLeftNum() == 0){
 				continue;
 			}

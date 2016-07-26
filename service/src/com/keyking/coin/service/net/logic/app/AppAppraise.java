@@ -7,7 +7,6 @@ import com.keyking.coin.service.domain.user.UserCharacter;
 import com.keyking.coin.service.net.buffer.DataBuffer;
 import com.keyking.coin.service.net.logic.AbstractLogic;
 import com.keyking.coin.service.net.resp.impl.AppResp;
-import com.keyking.coin.service.net.resp.module.Module;
 import com.keyking.coin.service.tranform.page.order.TransformOrderDetail;
 import com.keyking.coin.util.ServerLog;
 
@@ -63,7 +62,6 @@ public class AppAppraise extends AbstractLogic {
 							tod.copy(deal,order);
 							resp.setSucces();
 							resp.put("order",tod);
-							NET.sendMessageToAllClent(order.clientMessage(Module.UPDATE_FLAG,deal),null);
 							ServerLog.info(user.getAccount()+ " appraised : star = " + star + " context = "+ context);
 						}else{
 							resp.setError("您已评价过了");

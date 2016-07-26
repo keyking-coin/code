@@ -6,14 +6,16 @@ import com.keyking.coin.service.net.logic.AbstractLogic;
 import com.keyking.coin.service.net.resp.impl.AppResp;
 import com.keyking.coin.util.StringUtil;
 
-public class AppAddressChange extends AbstractLogic {
+public class AppUserAccountChange extends AbstractLogic {
 
 	@Override
 	public Object doLogic(DataBuffer buffer, String logicName) throws Exception {
 		AppResp resp = new AppResp(logicName);
-		byte type = buffer.get();
-		long uid  = buffer.getLong();
-		String address = buffer.getUTF();
+		byte type      = buffer.get();
+		long uid       = buffer.getLong();
+		String bourser = buffer.getUTF();
+		String account = buffer.getUTF();
+		String key = bourser + " " + account;
 		UserCharacter user = CTRL.search(uid);
 		if (user != null){
 			String forbidStr = user.getForbid().getReason();
@@ -23,26 +25,30 @@ public class AppAddressChange extends AbstractLogic {
 			}
 			synchronized (user) {
 				if (type == 0){
-					if (StringUtil.isNull(address)){
-						resp.setError("地址不能为空");
+					if (StringUtil.isNull(bourser)){
+						resp.setError("文交所不能为空");
 						return resp;
 					}
-					if (!user.addAddress(address)){
+					if (StringUtil.isNull(account)){
+						resp.setError("账号不能为空");
+						return resp;
+					}
+					if (!user.addAddress(bourser + " " + account)){
 						resp.setError("此地址已在列表");
 						return resp;
 					}
 				}else{
-					if (StringUtil.isNull(address)){
-						resp.setError("不能删除空的地址");
+					if (StringUtil.isNull(key)){
+						resp.setError("参数不对");
 						return resp;
 					}
-					if (!user.removeAddress(address)){
-						resp.setError("在列表中找不到要删除的地址");
+					if (!user.removeAddress(key)){
+						resp.setError("找不到文交所账号");
 						return resp;
 					}
 				}
 				user.save();
-				resp.put("addresses",user.getAddresses());
+				resp.put("list",user.getAddresses());
 				resp.setSucces();
 			}
 		}else{

@@ -103,37 +103,6 @@ public class ServiceHandler extends IoHandlerAdapter implements Instances {
 		adminSession.write(resp);
 	}
 	
-	
-	public void sendMessageToClent(ModuleResp resp,UserCharacter user){
-		sendMessageToClent(resp,user.getSessionAddress());
-	}
-	
-	public void sendMessageToClent(ModuleResp resp,String key){
-		if (resp == null || !resp.send()){
-			return;
-		}
-		if (key != null && sessions.containsKey(key)){
-			IoSession session = sessions.get(key);
-			Object attribute = session.getAttribute("isAdmin");
-			if (attribute != null && attribute.toString().equals("true")){
-				return;
-			}
-			ServerLog.info("send module to " + key);
-			session.write(resp);
-		}
-	}
-	
-	public void sendMessageToAllClent(ModuleResp resp , String excepte){
-		if (resp == null || !resp.send()){
-			return;
-		}
-		for (String key : sessions.keySet()){
-			if (excepte == null || !key.equals(excepte)){
-				sendMessageToClent(resp,key);
-			}
-		}
-	}
-	
 	public void sendTip(String tip,UserCharacter user){
 		IoSession session = NET.search(user.getSessionAddress());
 		if (session == null){

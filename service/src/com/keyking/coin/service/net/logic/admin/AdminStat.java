@@ -1,5 +1,7 @@
 package com.keyking.coin.service.net.logic.admin;
 
+import java.util.List;
+
 import com.keyking.coin.service.domain.deal.Deal;
 import com.keyking.coin.service.domain.deal.DealOrder;
 import com.keyking.coin.service.net.buffer.DataBuffer;
@@ -19,7 +21,9 @@ public class AdminStat extends AbstractLogic{
 		}else{
 			float dealNum   = 0;
 			float agencyNum = 0;
-			for (Deal deal : CTRL.getDeals()){
+			List<Deal> deals = CTRL.getDeals();
+			for (int i = 0 ; i < deals.size() ; i++){
+				Deal deal = deals.get(i);
 				for (DealOrder order : deal.getOrders()){
 					long time = TimeUtils.getTimes(order.getTimes().get(0));
 					if (time >= start && time <= end){

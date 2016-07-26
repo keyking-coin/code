@@ -24,7 +24,6 @@ public class BankAccountDel extends AbstractLogic {
 				module.setCode(Module.MODULE_CODE_BANK_ACCOUNT);
 				module.add("banks",bank.getAccounts());
 				modules.addModule(module);
-				NET.sendMessageToClent(modules,user);
 				resp.setSucces();
 			}else{
 				resp.setError("未找到要删除的银行卡记录");

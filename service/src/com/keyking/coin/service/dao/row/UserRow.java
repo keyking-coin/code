@@ -44,6 +44,7 @@ public class UserRow implements RowMapper<UserCharacter>{
 		user.setDeposit(rs.getFloat("deposit"));
 		user.setFather(rs.getLong("father"));
 		user.setBroker(rs.getLong("broker"));
+		user.deserializeFlags(rs.getString("flags"));
 		return user;
 	}
 }

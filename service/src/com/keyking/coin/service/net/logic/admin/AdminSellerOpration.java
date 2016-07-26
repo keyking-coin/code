@@ -33,7 +33,6 @@ public class AdminSellerOpration extends AbstractLogic {
 			}
 			user.save();
 			NET.sendMessageToAdmin(user.clientAdminMessage(Module.DEL_FLAG));
-			NET.sendMessageToClent(user.clientMessage(Module.UPDATE_FLAG),user.getSessionAddress());
 			resp.setSucces();
 		}else{
 			resp.setError("找不到用户编号 ：" + uid);

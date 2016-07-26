@@ -7,7 +7,6 @@ import com.keyking.coin.service.domain.user.UserCharacter;
 import com.keyking.coin.service.net.buffer.DataBuffer;
 import com.keyking.coin.service.net.logic.AbstractLogic;
 import com.keyking.coin.service.net.resp.impl.GeneralResp;
-import com.keyking.coin.service.net.resp.module.Module;
 import com.keyking.coin.util.ServerLog;
 import com.keyking.coin.util.TimeUtils;
 
@@ -43,7 +42,6 @@ public class RevertAdd extends AbstractLogic {
 			deal.addRevert(revrt);
 			ServerLog.info(user.getAccount() + " revert deal ok ----> deal-id is " + deal.getId() + " revert-id is " + revrt.getId() + "revert-context is " + context);
 		}
-		NET.sendMessageToAllClent(deal.clientMessage(Module.UPDATE_FLAG),null);
 		resp.setSucces();
 		return resp;
 	}

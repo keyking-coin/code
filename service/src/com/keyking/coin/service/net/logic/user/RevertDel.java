@@ -6,7 +6,6 @@ import com.keyking.coin.service.domain.user.UserCharacter;
 import com.keyking.coin.service.net.buffer.DataBuffer;
 import com.keyking.coin.service.net.logic.AbstractLogic;
 import com.keyking.coin.service.net.resp.impl.GeneralResp;
-import com.keyking.coin.service.net.resp.module.Module;
 import com.keyking.coin.util.ServerLog;
 
 public class RevertDel extends AbstractLogic{
@@ -28,7 +27,6 @@ public class RevertDel extends AbstractLogic{
 			Revert revert = deal.searchRevert(id);
 			if (revert != null && revert.getUid() == uid){
 				revert.setRevoke(true);
-				NET.sendMessageToAllClent(deal.clientMessage(Module.UPDATE_FLAG),null);
 				resp.setSucces();
 				ServerLog.info("rovke deal ok ----> id is " + deal.getId());
 			}else{

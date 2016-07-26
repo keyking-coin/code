@@ -22,17 +22,17 @@ public class AppFriendApply extends AbstractLogic {
 			}
 			UserCharacter user_friend = CTRL.searchByAccountOrNickName(value);
 			if (user_friend != null){
-				if (user_friend.getId() == uid){
+				if (user_friend.getId() == uid) {
 					resp.setError("不能加自己");
 				}else {
 					Friend friend = user_friend.findFriend(uid);
-					if (friend != null){
-						if(friend.getPass() == 1){
+					if (friend != null) {
+						if (friend.getPass() == 1) {
 							resp.setError("他已经是你好友了");
 						}else{
 							resp.setError("已向他申请过了");
 						}
-					}else {
+					} else {
 						user_friend.applyFriend(uid);
 						resp.setSucces("已向对方发送申请");
 					}

@@ -5,7 +5,6 @@ import com.keyking.coin.service.domain.user.UserCharacter;
 import com.keyking.coin.service.http.handler.HttpHandler;
 import com.keyking.coin.service.http.request.HttpRequestMessage;
 import com.keyking.coin.service.http.response.HttpResponseMessage;
-import com.keyking.coin.service.net.resp.module.Module;
 import com.keyking.coin.util.ServerLog;
 
 public class HttpDealDel extends HttpHandler {
@@ -35,7 +34,6 @@ public class HttpDealDel extends HttpHandler {
 					deal.setRevoke(true);
 					deal.save();
 					message(request,response,"ok");
-					NET.sendMessageToAllClent(deal.clientMessage(Module.DEL_FLAG),null);
 					ServerLog.info(user.getAccount() + " revoke deal ----> id is " + dealId);
 				}else{
 					message(request,response,"您不是发帖人");

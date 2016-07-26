@@ -7,7 +7,6 @@ import com.keyking.coin.service.domain.user.UserCharacter;
 import com.keyking.coin.service.net.buffer.DataBuffer;
 import com.keyking.coin.service.net.logic.AbstractLogic;
 import com.keyking.coin.service.net.resp.impl.GeneralResp;
-import com.keyking.coin.service.net.resp.module.Module;
 import com.keyking.coin.util.ServerLog;
 
 public class Appraise extends AbstractLogic {
@@ -57,7 +56,6 @@ public class Appraise extends AbstractLogic {
 							if (other != null){
 								other.getCredit().addNum(star);
 							}
-							NET.sendMessageToAllClent(order.clientMessage(Module.UPDATE_FLAG,deal),null);
 							ServerLog.info(user.getAccount() + " appraised : star = " + star + " context = " + value);
 							resp.setSucces();
 						}else{

@@ -38,7 +38,8 @@ public class AppMyDealHelpPage extends AbstractLogic {
 	private List<TransformOrderListInfo> searchDealHelp(long uid){
 		List<TransformOrderListInfo> result = new ArrayList<TransformOrderListInfo>();
 		List<Deal> deals = CTRL.getDeals();
-		for (Deal deal : deals){
+		for (int i = 0 ; i < deals.size() ; i++){
+			Deal deal = deals.get(i);
 			if (deal.getHelpFlag() == 0 || !deal.checkJoin(uid)){
 				continue;
 			}

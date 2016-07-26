@@ -23,7 +23,6 @@ public class LookEmail extends AbstractLogic {
 			ModuleResp modules = new ModuleResp();
 			module.setFlag(Module.UPDATE_FLAG);
 			modules.addModule(module);
-			NET.sendMessageToClent(modules,user);
 		}
 		return null;
 	}

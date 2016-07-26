@@ -83,8 +83,7 @@ public class AppDeployDeal extends AbstractLogic{
 					return resp;
 				}
 				user.getRecharge().changeMoney(-10);
-				deal.setLastIssue(TimeUtils.nowChStr());
-				NET.sendMessageToAllClent(deal.pushMessage(),user.getSessionAddress());
+				deal.issue();
 			}
 			TransformDealDetail tdd = new TransformDealDetail();
 			tdd.copy(deal);

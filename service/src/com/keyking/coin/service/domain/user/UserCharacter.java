@@ -2,9 +2,13 @@ package com.keyking.coin.service.domain.user;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.TypeReference;
 import com.keyking.coin.service.domain.deal.Deal;
 import com.keyking.coin.service.domain.email.Email;
 import com.keyking.coin.service.domain.friend.Friend;
@@ -14,6 +18,8 @@ import com.keyking.coin.service.net.buffer.DataBuffer;
 import com.keyking.coin.service.net.resp.module.AdminModuleResp;
 import com.keyking.coin.service.net.resp.module.Module;
 import com.keyking.coin.service.net.resp.module.ModuleResp;
+import com.keyking.coin.service.push.PushType;
+import com.keyking.coin.service.tranform.FriendListInfo;
 import com.keyking.coin.service.tranform.TransformUserData;
 import com.keyking.coin.util.Instances;
 import com.keyking.coin.util.JsonUtil;
@@ -54,6 +60,7 @@ public class UserCharacter implements Instances,SerializeEntity{
 	long broker = 0;//二级管理员关联的券商编号
 	String pushId;//单独推送编号
 	String platform;//平台编号android或者ios
+	Map<PushType,Boolean> pushFlags = new HashMap<PushType,Boolean>();//推送的标志位
 	
 	public long getId() {
 		return id;
@@ -513,6 +520,14 @@ public class UserCharacter implements Instances,SerializeEntity{
 		friend.setFid(fid);
 		friend.setUid(id);
 		friends.add(friend);
+		if (couldPush(PushType.PUSH_TYPE_FRIEND)){
+			FriendListInfo fi = new FriendListInfo();
+			fi.copy(friend);
+			Map<String,String> pushMap = new HashMap<String, String>();
+			pushMap.put("type",PushType.PUSH_TYPE_FRIEND.toString());
+			pushMap.put("friend",JsonUtil.ObjectToJsonString(fi));
+			PUSH.push("有人加我","好友申请提示",platform,pushMap,pushId);
+		}
 		sendFriendChange();
 	}
 	
@@ -521,12 +536,7 @@ public class UserCharacter implements Instances,SerializeEntity{
 	 * 我的好友有变化
 	 */
 	public void sendFriendChange(){
-		Module module = new Module();
-		module.setCode(Module.MODULE_CODE_FRIEND);
-		module.add("num",friends.size());
-		ModuleResp modules = new ModuleResp();
-		modules.addModule(module);
-		NET.sendMessageToClent(modules,sessionAddress);
+		
 	}
 	
 	public synchronized void addFriend(long fid){
@@ -589,7 +599,6 @@ public class UserCharacter implements Instances,SerializeEntity{
 	
 	public void addMessage(Message message,long fid){
 		messages.add(message);
-		NET.sendMessageToClent(message.clientMessage(Module.ADD_FLAG),sessionAddress);
 	}
 
 	public void deserializeAddresses(String str) {
@@ -673,5 +682,32 @@ public class UserCharacter implements Instances,SerializeEntity{
 		}
 		return false;
 	}
+
+	public boolean couldPush(PushType type) {
+		if (StringUtil.isNull(platform) || StringUtil.isNull(pushId)){
+			return false;
+		}
+		if (pushFlags.containsKey(type)){
+			return pushFlags.get(type).booleanValue();
+		}
+		return true;
+	}
+
+	public void updatePush(PushType type, boolean flag) {
+		pushFlags.put(type,flag);
+	}
+
+	public String serializeFlags() {
+		String str = JsonUtil.ObjectToJsonString(pushFlags);
+		return str;
+	}
+	
+	public void deserializeFlags(String str) {
+		if (StringUtil.isNull(str)){
+			return;
+		}
+		pushFlags = JSON.parseObject(str,new TypeReference<Map<PushType,Boolean>>(){});
+	}
+	
 }
  

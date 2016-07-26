@@ -3,6 +3,7 @@ package com.keyking.coin.service.domain;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -18,11 +19,8 @@ import com.keyking.coin.service.domain.broker.UserBroker;
 import com.keyking.coin.service.domain.condition.SearchCondition;
 import com.keyking.coin.service.domain.deal.Deal;
 import com.keyking.coin.service.domain.deal.DealOrder;
-import com.keyking.coin.service.domain.deal.Revert;
 import com.keyking.coin.service.domain.deal.SimpleOrderModule;
 import com.keyking.coin.service.domain.email.Email;
-import com.keyking.coin.service.domain.friend.Friend;
-import com.keyking.coin.service.domain.friend.Message;
 import com.keyking.coin.service.domain.user.RankEntity;
 import com.keyking.coin.service.domain.user.Seller;
 import com.keyking.coin.service.domain.user.UserCharacter;
@@ -30,10 +28,13 @@ import com.keyking.coin.service.net.data.RecentDeal;
 import com.keyking.coin.service.net.resp.RespEntity;
 import com.keyking.coin.service.net.resp.impl.AdminResp;
 import com.keyking.coin.service.net.resp.impl.GeneralResp;
+import com.keyking.coin.service.push.PushType;
+import com.keyking.coin.service.tranform.EmailList;
 import com.keyking.coin.service.tranform.TransformDealData;
 import com.keyking.coin.service.tranform.TransformTouristOrder;
 import com.keyking.coin.service.tranform.TransformUserData;
 import com.keyking.coin.util.Instances;
+import com.keyking.coin.util.JsonUtil;
 import com.keyking.coin.util.MathUtils;
 import com.keyking.coin.util.ServerLog;
 import com.keyking.coin.util.TimeUtils;
@@ -43,7 +44,6 @@ public class Controler implements Instances{
 	private static Controler instance = new Controler();
 	Map<Long,UserCharacter> characters = new ConcurrentHashMap<Long,UserCharacter>();
 	Map<Long,Deal> deals = new ConcurrentHashMap<Long,Deal>();
-	
 	List<Broker> brokers = new CopyOnWriteArrayList<Broker>();
 	List<UserBroker> userBrokers = new CopyOnWriteArrayList<UserBroker>();
 	
@@ -55,17 +55,20 @@ public class Controler implements Instances{
 		ServerLog.info("load all users");
 		List<UserCharacter> users = DB.getUserDao().loadAll();
 		if (users != null){
-			for (UserCharacter user : users){
+			for (int i = 0 ; i < users.size() ; i++){
+				UserCharacter user = users.get(i);
 				characters.put(user.getId(),user);
 			}
-			for (UserCharacter user : users){
+			for (int i = 0 ; i < users.size() ; i++){
+				UserCharacter user = users.get(i);
 				user.load();
 			}
 		}
 		ServerLog.info("load all deals");
 		List<Deal> ds = DB.getDealDao().loadAll();
 		if (ds != null){
-			for (Deal deal : ds){
+			for (int i = 0 ; i < ds.size() ; i++){
+				Deal deal = ds.get(i);
 				deal.read();
 				if (deal.couldInsert()){
 					deals.put(deal.getId(),deal);
@@ -75,46 +78,18 @@ public class Controler implements Instances{
 		ServerLog.info("load all brokers");
 		List<Broker> bs = DB.getBrokerDao().loadAll();
 		if (bs != null){
-			for (Broker broker : bs){
+			for (int i = 0 ; i < bs.size() ; i++){
+				Broker broker = bs.get(i);
 				brokers.add(broker);
 			}
 		}
 		ServerLog.info("load all userBrokers");
 		List<UserBroker> ubs = DB.getUserBrokerDao().loadAll();
 		if (ubs != null){
-			for (UserBroker ub : ubs){
+			for (int i = 0 ; i < ubs.size() ; i++){
+				UserBroker ub = ubs.get(i);
 				userBrokers.add(ub);
 			}
-		}
-	}
-	
-	public void save(){
-		for (Deal deal : deals.values()){
-			deal.save();
-			for (Revert revert : deal.getReverts()){
-				revert.save();
-			}
-			for (DealOrder order : deal.getOrders()){
-				order.save();
-			}
-		}
-		for (UserCharacter user : characters.values()){
-			user.save();
-			for (Email email : user.getEmails()){
-				email.save();
-			}
-			for (Friend friend : user.getFriends()){
-				friend.save();
-			}
-			for (Message message : user.getMessages()){
-				message.save();
-			}
-		}
-		for (Broker broker : brokers){
-			broker.save();
-		}
-		for (UserBroker ub : userBrokers){
-			ub.save();
 		}
 	}
 	
@@ -631,13 +606,13 @@ public class Controler implements Instances{
 			email.setId(id);
 			target.addEmail(email);
 			email.save();
-			/*
-			EmailModule module = new EmailModule();
-			module.add("num",user.getNewEmailNum());
-			ModuleResp modules = new ModuleResp();
-			modules.addModule(module);
-			NET.sendMessageToClent(modules,target);
-			*/
+			if (target.couldPush(PushType.PUSH_TYPE_EMAIL)){
+				EmailList el = new EmailList(email);
+				Map<String,String> pushMap = new HashMap<String, String>();
+				pushMap.put("type",PushType.PUSH_TYPE_EMAIL.toString());
+				pushMap.put("email",JsonUtil.ObjectToJsonString(el));
+				PUSH.push("新邮件","收到新邮件提示",target.getPlatform(),pushMap,target.getPushId());
+			}
 			return true;
 		}
 	}

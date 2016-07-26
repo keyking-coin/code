@@ -26,7 +26,6 @@ public class OrderRevoke extends AbstractLogic {
 					order.addRevoke(flag);
 					ModuleResp modules = new ModuleResp();
 					order.clientMessage(Module.UPDATE_FLAG,modules,deal);
-					NET.sendMessageToAllClent(modules,null);
 					resp.setSucces();
 					if (order.checkRevoke()){
 						//双方都同意了

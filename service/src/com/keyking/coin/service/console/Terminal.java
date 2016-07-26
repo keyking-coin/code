@@ -65,7 +65,6 @@ public class Terminal implements Instances{
 					System.exit(0);
 					break;
 				case "save":
-					CTRL.save();
 					writer.println("save ok");
 					writer.flush();
 					break;

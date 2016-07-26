@@ -6,14 +6,11 @@ import java.util.List;
 import com.keyking.coin.service.dao.TableName;
 import com.keyking.coin.service.domain.deal.Deal;
 import com.keyking.coin.service.domain.deal.DealOrder;
-import com.keyking.coin.service.domain.deal.SimpleOrderModule;
 import com.keyking.coin.service.domain.user.Seller;
 import com.keyking.coin.service.domain.user.UserCharacter;
 import com.keyking.coin.service.net.buffer.DataBuffer;
-import com.keyking.coin.service.net.data.RecentDeal;
 import com.keyking.coin.service.net.logic.AbstractLogic;
 import com.keyking.coin.service.net.resp.impl.AppResp;
-import com.keyking.coin.service.net.resp.module.ModuleResp;
 import com.keyking.coin.service.tranform.page.deal.TransformOrder;
 import com.keyking.coin.util.ServerLog;
 
@@ -73,15 +70,6 @@ public class AppDealGrab extends AbstractLogic {
 			order.setId(orderId);
 			deal.addOrder(order);
 			order.save();
-			RecentDeal rd = new RecentDeal(deal,order);
-			SimpleOrderModule module = new SimpleOrderModule();
-			order.simpleDes(module);
-			module.add("rd",rd);
-			ModuleResp modules = new ModuleResp();
-			modules.addModule(module);
-			//order.clientMessage(Module.ADD_FLAG,modules,deal);
-			//deal.clientMessage(Module.UPDATE_FLAG,modules);
-			NET.sendMessageToAllClent(modules,null);
 			List<TransformOrder> tos = new ArrayList<TransformOrder>();
 			for (DealOrder o : deal.getOrders()){
 				TransformOrder to = new TransformOrder();

@@ -5,7 +5,6 @@ import com.keyking.coin.service.domain.user.UserCharacter;
 import com.keyking.coin.service.net.buffer.DataBuffer;
 import com.keyking.coin.service.net.logic.AbstractLogic;
 import com.keyking.coin.service.net.resp.impl.GeneralResp;
-import com.keyking.coin.service.net.resp.module.Module;
 import com.keyking.coin.util.ServerLog;
 import com.keyking.coin.util.TimeUtils;
 
@@ -53,11 +52,9 @@ public class BuyDeploy extends AbstractLogic {
 		if (CTRL.tryToInsert(deal)){
 			if (flag == 1){//强制推送
 				user.getRecharge().changeMoney(-10);
-				deal.setLastIssue(TimeUtils.nowChStr());
-				NET.sendMessageToAllClent(deal.pushMessage(),user.getSessionAddress());
+				deal.issue();
 			}
 			resp.setSucces();
-			NET.sendMessageToAllClent(deal.clientMessage(Module.ADD_FLAG),null);
 			ServerLog.info(user.getAccount() + " deployed deal-buy ok ----> id is " + deal.getId());
 			resp.setSucces();
 		}

@@ -10,7 +10,6 @@ import com.keyking.coin.service.domain.user.UserCharacter;
 import com.keyking.coin.service.http.handler.HttpHandler;
 import com.keyking.coin.service.http.request.HttpRequestMessage;
 import com.keyking.coin.service.http.response.HttpResponseMessage;
-import com.keyking.coin.service.net.resp.module.Module;
 import com.keyking.coin.service.tranform.TransformOrderData;
 import com.keyking.coin.util.JsonUtil;
 import com.keyking.coin.util.ServerLog;
@@ -70,7 +69,6 @@ public class HttpAppraise extends HttpHandler {
 							hd.copy(deal,order);
 							datas.put("result","ok");
 							datas.put("order",hd);
-							NET.sendMessageToAllClent(order.clientMessage(Module.UPDATE_FLAG,deal),null);
 							ServerLog.info(user.getAccount()+ " appraised : star = " + star + " context = "+ context);
 							String result = formatJosn(request,JsonUtil.ObjectToJsonString(datas));
 							response.appendBody(result);

@@ -6,7 +6,6 @@ import com.keyking.coin.service.net.buffer.DataBuffer;
 import com.keyking.coin.service.net.logic.AbstractLogic;
 import com.keyking.coin.service.net.resp.impl.AppResp;
 import com.keyking.coin.util.ServerLog;
-import com.keyking.coin.util.TimeUtils;
 
 public class AppDealIssue extends AbstractLogic {
 
@@ -37,8 +36,7 @@ public class AppDealIssue extends AbstractLogic {
 		if (user.getRecharge().getCurMoney() < 10){
 			resp.setError("您的邮游币不足请先去充值");
 		}else{
-			deal.setLastIssue(TimeUtils.nowChStr());
-			NET.sendMessageToAllClent(deal.pushMessage(),user.getSessionAddress());
+			deal.issue();
 			resp.setSucces();
 			ServerLog.info(user.getAccount() + " issue deal ok ----> id is " + id);
 		}
