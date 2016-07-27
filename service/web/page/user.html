@@ -4,8 +4,15 @@
 		<meta charset="UTF-8">
 		<meta http-equiv="X-UA-Compatible" content="chrome=1,IE=edge" />
 		<meta name="renderer" content="webkit" />
-		<title>邮游管理后台</title>
 		<style type="text/css">
+			.border-table {   
+		        border-collapse: collapse;   
+		        border: none;   
+		    }   
+		    .border-table td {   
+		        border: solid #000 1px; 
+		        text-align:center;  
+		    }   
 		</style>
 		<link rel="stylesheet" href="../js/bootstrap.min.css" >
 		<script type="text/javascript" src="../js/jquery-2.1.1.min.js"></script>
@@ -14,9 +21,59 @@
 			
 		</script>
 	</head>
-	<body>
-		<div style="text-align:center;">
-			用户管理界面
-		</div>
+	<body style="margin-left:20%;">
+		<table class="border-table">
+			<tr id="title">
+			  <td>&nbsp;会员账号&nbsp;</td>
+			  <td>&nbsp;昵&nbsp;&nbsp;&nbsp;称&nbsp;</td>
+			  <td>&nbsp;姓&nbsp;&nbsp;&nbsp;名&nbsp;</td>
+			  <td>&nbsp;身&nbsp;份&nbsp;证&nbsp;</td>
+			  <td>&nbsp;注册时间</td>
+			  <td>&nbsp;头&nbsp;&nbsp;&nbsp;像</td>
+			  <td>&nbsp;买家权限&nbsp;</td>
+			  <td>&nbsp;卖家权限&nbsp;</td>
+			  <td>&nbsp;总成交额&nbsp;</td>
+			  <td>&nbsp;好评次数&nbsp;</td>
+			  <td>&nbsp;中评次数&nbsp;</td>
+			  <td>&nbsp;差评次数&nbsp;</td>
+			  <td>&nbsp;会员到期时间&nbsp;</td>
+			  <td>&nbsp;违约记录&nbsp;</td>
+			  <td>&nbsp;封号记录&nbsp;</td>
+			</tr>
+			<tr id="1" bgcolor="#ACDDEC">
+				<td>13856094894</td>
+				<td>会飞的猪</td>
+				<td>张三</td>
+				<td>1234566487741114</td>
+				<td>2015-01-01 10:50:20</td>
+				<td>未设置</td>
+				<td>true</td>
+				<td>true</td>
+				<td>10W</td>
+				<td>200</td>
+				<td>50</td>
+				<td>5</td>
+				<td>2017-01-01 23:59:59</td>
+				<td>0</td>
+				<td>无</td>
+			</tr>
+			<tr id="2" bgcolor="#ACDDEC">
+				<td>13856094894</td>
+				<td>会飞的猪</td>
+				<td>张三</td>
+				<td>1234566487741114</td>
+				<td>2015-01-01 10:50:20</td>
+				<td>未设置</td>
+				<td>true</td>
+				<td>true</td>
+				<td>10W</td>
+				<td>200</td>
+				<td>50</td>
+				<td>5</td>
+				<td>2017-01-01 23:59:59</td>
+				<td>0</td>
+				<td>无</td>
+			</tr>
+		</table>
 	</body>
 </html>
