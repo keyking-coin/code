@@ -43,6 +43,7 @@ public class AppUserLook extends AbstractLogic {
 				data.getBanks().addAll(user.getBankAccount().getAccounts());
 			}
 			data.getCredit().copy(user.getCredit());
+			data.setDealCount(CTRL.computeOkOrderNum(uid));
 			resp.put("info",data);
 			resp.setSucces();
 		}else{

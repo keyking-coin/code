@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<meta http-equiv="X-UA-Compatible" content="chrome=1,IE=edge" />
+		<meta name="renderer" content="webkit" />
+		<style type="text/css">
+		</style>
+		<link rel="stylesheet" href="../js/bootstrap.min.css" >
+		<script type="text/javascript" src="../js/jquery-2.1.1.min.js"></script>
+		<script type="text/javascript" src="../js/bootstrap.min.js"></script>
+		<script type="text/javascript">
+			function createName(){
+			    var temp = $("#up_file_name").val();
+			    var tail = temp.substring(temp.lastIndexOf("."));
+		    	var now = new Date();
+		    	var fileName = now.getFullYear() + "_" + (now.getMonth() + 1)+ "_" + now.getDate() + "_" + now.getHours() + "_" + now.getMinutes() + "_" + now.getSeconds();
+		    	var url = "http://www.521uu.cc:321/up.php?fname=" + fileName;
+		    	window.parent.setFileName(fileName + tail);
+		    	$("#upload_form").attr("action",url);
+		    };
+		</script>
+	</head>
+	<body>
+		<form id="upload_form" action="http://www.521uu.cc:321/up.php?fname=uu_sys_ad_pic" method="post" enctype="multipart/form-data">
+			<input type="file" name="file" id="up_file_name" accept="image/*" onchange="createName()"/>
+			<input type="submit" value="上传图片" />
+	    </form>
+	</body>
+</html>

@@ -10,30 +10,141 @@
 		<script type="text/javascript" src="../js/jquery-2.1.1.min.js"></script>
 		<script type="text/javascript" src="../js/bootstrap.min.js"></script>
 		<script type="text/javascript">
+		    var fileName = "";
+		    var selectId = 0;
+		    function setFileName(name){
+		    	fileName = name;
+		    };
+		    
+		    function lookDetail(tid){
+		    	$("#sub_add").hide();
+		    	selectId = tid;
+		    	$.ajax({
+				    type:"get",
+			        url : "../gm/HttpGetAd",
+			        data: "id=" + tid,
+			        contentType: "application/json; charset=utf-8",
+			        dataType : "json",
+			        success  : function(data) {
+			        	if (data.result == "ok"){
+			        		$("#sub_show").show();
+			        		$("#show_ad_title").val(data.ad.url);
+			        		$("#show_ad_pic").attr("src","http://www.521uu.cc:321/uploads/" + data.ad.pic);
+			        	}else{
+			        		alert(data.result);
+			        	}
+			        },
+			        error: function (msg) {
+		                alert(msg);
+		            }
+			    });
+		    };
+		    
+			function refreshList(){
+				$("#sub_add").hide();
+			    $("#sub_show").hide();
+				$.ajax({
+				    type:"get",
+			        url : "../gm/HttpAdList",
+			        contentType: "application/json; charset=utf-8",
+			        dataType : "json",
+			        success  : function(data) {
+			        	if(data.result == "ok"){
+			        		$("#sub_add").hide();
+			    			$("#sub_show").hide();
+			        		$("#h_col").empty();
+			        		var html = "";
+			        		for(var i = 0 ; i < data.list.length; i++){
+			        			var showTitle = data.list[i].url;
+			        			html += "<li style='margin-left:5px;' onclick ='lookDetail(" + data.list[i].id + ")' ><a href='#' >" + showTitle + "</a></li>";
+			        		}
+			        		$("#h_col").append(html);
+			        	}else{
+			        		alert(data.result);
+			        	}
+			        },
+			        error: function (msg) {
+		                alert(msg);
+		            }
+			    });
+		    };
+		    
 			$(document).ready(function(){
+				refreshList();
+				$("#operate_add").click(function(){
+					$("#sub_add").show();
+			    	$("#sub_show").hide();
+				});
 				$("#ad_insert").click(function(){
-					var temp_str= $("#up_file_name").val();
-					if (temp_str == ""){
-					   alert("请先选择要上传的图片");
+					if (fileName == ""){
+					   alert("请先上传的图片");
 					   return;
 					}
-					var tail = temp_str.substr(temp_str.indexOf("."));
 					var url_str = $("#ad_title").val();
 					if (url_str == ""){
 					   alert("请输入广告的地址");
 					   return;
 					}
-					var params = "ad_url=" + url_str + "&" +
-					             "ad_pic=uu_sys_ad_pic" + tail;
+					var params = "ad_url=" + url_str + "&ad_pic=" + fileName;
 					$.ajax({
 					    type:"get",
-				        url :"../gm/HttpSetAd",
+				        url :"../gm/HttpAdInsert",
 				        data:params,
 				        contentType:"application/json; charset=utf-8",
 				        dataType:"json",
 				        success:function(data) {
 				        	if (data.result == "ok"){
-				        		alert("设置成功");
+				        		fileName="";
+				        		alert("添加成功");
+				        		refreshList();
+				        	}else{
+				        		alert(data.result);
+				        	}
+				        },
+				        error:function (msg) {
+			                alert(msg);
+			            }
+				    });
+				});
+				$("#sub_show_update").click(function(){
+					var url_str = $("#show_ad_title").val();
+					if (url_str == ""){
+					   alert("请输入广告的地址");
+					   return;
+					}
+					var params = "ad_url=" + url_str + "&ad_pic=" + fileName;
+					$.ajax({
+					    type:"get",
+				        url :"../gm/HttpAdUpdate",
+				        data:params,
+				        contentType:"application/json; charset=utf-8",
+				        dataType:"json",
+				        success:function(data) {
+				        	if (data.result == "ok"){
+				        		fileName="";
+				        		alert("修改成功");
+				        		refreshList();
+				        	}else{
+				        		alert(data.result);
+				        	}
+				        },
+				        error:function (msg) {
+			                alert(msg);
+			            }
+				    });
+				});
+				$("#sub_show_del").click(function(){
+					var params = "id=" + selectId;
+					$.ajax({
+					    type:"get",
+				        url :"../gm/HtppAdDel",
+				        data:params,
+				        contentType:"application/json; charset=utf-8",
+				        dataType:"json",
+				        success:function(data) {
+				        	if (data.result == "ok"){
+				        		alert("删除成功");
+				        		refreshList();
 				        	}else{
 				        		alert(data.result);
 				        	}
@@ -46,21 +157,38 @@
 			});
 		</script>
 	</head>
-	<body>
-		<div style="text-align:center;">
-			<span style="color:#0010ff">URL:</span>
-			<input type="text" id="ad_title" style="width:250px;"/>
-			<br>
-			<br>
-			<form action="http://www.521uu.cc:321/up.php?fname=uu_sys_ad_pic" method="post" enctype="multipart/form-data">
-				<input type="file" name="file" id="up_file_name" accept="image/*"/>
-				<input type="submit" value="上传图片" />
-			</form>
-			<br>
-			<span style="color:#4A02F9">图片大小不要超出1M否则上传失败</span>
-			<br>
-			<br>
-			<button id="ad_insert" class="btn btn-default" type="button">设置</button>
+	<body style="margin-left:20%;">
+		<div style="margin-left:2px;">
+		    <button id="operate_add" class="btn btn-default" type="button" >添加</button>
+    	</div>
+	    <div id="h_col" style="float:left;width:550px;height:700px;border:1px solid #000;background-color:#FFFF93;overflow:auto;"></div>
+		<div style="float:left;width:800px;height:700px;border:1px solid #000;background-color:#81C0C0;">
+			<div id="sub_add" style="margin-left:250px;display:none;">
+				<input type="text" id="ad_file_name" style="display:none;"/>
+			    <br>
+				<span style="color:#0010ff">URL:</span>
+				<input type="text" id="ad_title" style="width:250px;"/>
+				<br>
+				<br>
+				<iframe src="pic_submit.html" frameborder="0" scrolling="no" width="500" height="80" ></iframe>
+				<br>
+				<span style="color:#4A02F9">图片大小不要超出1M否则上传失败</span>
+				<br>
+				<br>
+				<button id="ad_insert" style="margin-left:100px;" type="button">添加</button>
+			</div>
+			<div id="sub_show" style="margin-left:80px;">
+				<br>
+				<span style="color:#0010ff">URL:</span>
+				<input type="text" id="show_ad_title" style="width:250px;"/>
+				<br>
+				<br>
+				<img id="show_ad_pic" src="" width="650px" height="400px">
+				<br>
+				<br>
+				<button id="sub_show_update" class="btn btn-default" style="margin-left:200px;" type="button">修改</button>
+		       	<button id="sub_show_del" class="btn btn-default" style="margin-left:200px;" type="button">删除</button>
+			</div>
 		</div>
 	</body>
 </html>

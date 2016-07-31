@@ -1,16 +1,12 @@
 package com.keyking.coin.service.http.handler.gm;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.util.HashMap;
-import java.util.Map;
-
+import com.keyking.coin.service.dao.TableName;
+import com.keyking.coin.service.domain.ad.ADEntity;
 import com.keyking.coin.service.http.handler.HttpHandler;
 import com.keyking.coin.service.http.request.HttpRequestMessage;
 import com.keyking.coin.service.http.response.HttpResponseMessage;
-import com.keyking.coin.util.JsonUtil;
 
-public class HttpSetAd extends HttpHandler {
+public class HttpAdInsert extends HttpHandler {
 
 	@Override
 	public void handle(HttpRequestMessage request, HttpResponseMessage response) {
@@ -19,19 +15,16 @@ public class HttpSetAd extends HttpHandler {
 			response.setResponseCode(HttpResponseMessage.HTTP_STATUS_SUCCESS);
 			String url     = request.getParameter("ad_url");
 			String picName = request.getParameter("ad_pic");
-			File file = new File("./ad.data");
-			if (!file.exists()){
-				file.createNewFile();
+			ADEntity ade = new ADEntity();
+			long id = PK.key(TableName.TABLE_NAME_AD);
+			ade.setId(id);
+			ade.setUrl(url);
+			ade.setPic(picName);
+			if (DB.getAdDao().save(ade)){
+				response.put("result","ok");
+			}else{
+				response.put("result","fail");
 			}
-			FileOutputStream fos = new FileOutputStream(file);
-			Map<String, String> map = new HashMap<String, String>();
-			map.put("url",url);
-			map.put("pic",picName);
-			String str = JsonUtil.ObjectToJsonString(map);
-			fos.write(str.getBytes("UTF-8"));
-			fos.flush();
-			fos.close();
-			response.put("result","ok");
 		}catch (Exception e) {
 			e.printStackTrace();
 			response.put("result","fail");

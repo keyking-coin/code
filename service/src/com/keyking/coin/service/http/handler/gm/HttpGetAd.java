@@ -1,25 +1,24 @@
 package com.keyking.coin.service.http.handler.gm;
 
-import com.keyking.coin.service.domain.time.TimeLine;
+import com.keyking.coin.service.domain.ad.ADEntity;
 import com.keyking.coin.service.http.handler.HttpHandler;
 import com.keyking.coin.service.http.request.HttpRequestMessage;
 import com.keyking.coin.service.http.response.HttpResponseMessage;
 
-public class HttpGetTimeLine extends HttpHandler {
+public class HttpGetAd extends HttpHandler {
 
 	@Override
-	public void handle(HttpRequestMessage request,HttpResponseMessage response) {
+	public void handle(HttpRequestMessage request, HttpResponseMessage response) {
 		response.setContentType("text/plain");
 		response.setResponseCode(HttpResponseMessage.HTTP_STATUS_SUCCESS);
-		String id = request.getParameter("id");
-		TimeLine time = DB.getTimeDao().search(Long.parseLong(id));
-		if (time != null){
+		long id = Long.parseLong(request.getParameter("id"));
+		ADEntity ade = DB.getAdDao().search(id);
+		if (ade != null){
 			response.put("result","ok");
-			response.put("time",time);
+			response.put("ad",ade);
 		}else{
 			response.put("result","fail");
 		}
 	}
 
-	
 }

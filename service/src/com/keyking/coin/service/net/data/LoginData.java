@@ -5,8 +5,9 @@ import java.util.List;
 import com.keyking.coin.service.domain.user.Account;
 import com.keyking.coin.service.domain.user.Credit;
 import com.keyking.coin.service.domain.user.UserCharacter;
+import com.keyking.coin.util.Instances;
 
-public class LoginData {
+public class LoginData implements Instances{
 	long userId;//用户编号
 	String tel;//电话
 	String face;//头像名称
@@ -23,6 +24,7 @@ public class LoginData {
 	String other = "";//备注信息
 	MyselfNum mn = new MyselfNum();//和有有关的数据
 	Credit credit;//信用度
+	int dealCount;
 	
 	public LoginData (UserCharacter user){
 		userId = user.getId();
@@ -42,6 +44,7 @@ public class LoginData {
 		credit = user.getCredit();
 		mn.setEmailNum(user.getNewEmailNum());
 		mn.setFriendNum(user.getFriends().size());
+		dealCount = CTRL.computeOkOrderNum(userId);
 	}
 		
 	public LoginData (){
@@ -150,6 +153,14 @@ public class LoginData {
 
 	public void setCredit(Credit credit) {
 		this.credit = credit;
+	}
+
+	public int getDealCount() {
+		return dealCount;
+	}
+
+	public void setDealCount(int dealCount) {
+		this.dealCount = dealCount;
 	}
 	
 }

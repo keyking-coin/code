@@ -8,4 +8,5 @@
 	<PrimaryKey sql="select max(id) from " table="users"/>
 	<PrimaryKey sql="select max(id) from " table="brokers"/>
 	<PrimaryKey sql="select max(id) from " table="timeline"/>
+	<PrimaryKey sql="select max(id) from " table="ad"/>
 </PrimaryKeys>

@@ -8,7 +8,8 @@ public enum TableName {
 	TABLE_NAME_MESSAGE("message"),
 	TABLE_NAME_USER("users"),
 	TABLE_NAME_BROKER("brokers"),
-	TABLE_NAME_TIME_LINE("timeline")
+	TABLE_NAME_TIME_LINE("timeline"),
+	TABLE_NAME_AD("ad"),
 	;
 	
 	private TableName(String table){

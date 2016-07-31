@@ -106,7 +106,7 @@ public class UserDAO extends BaseDAO {
 			});
 			return true;
 		} catch (Exception e) {
-			ServerLog.error("insert user user",e);
+			ServerLog.error("insert user error",e);
 			return false;
 		}
 	}

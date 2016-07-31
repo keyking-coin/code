@@ -21,6 +21,7 @@ public class TransformLookData implements SerializeEntity{
 	Credit credit = new Credit();//信用度
 	boolean couldLook = true;
 	boolean isFriend;//目标是不是我的好友
+	int dealCount;//已成交次数
 	
 	public String getFace() {
 		return face;
@@ -116,6 +117,14 @@ public class TransformLookData implements SerializeEntity{
 
 	public void setFriend(boolean isFriend) {
 		this.isFriend = isFriend;
+	}
+
+	public int getDealCount() {
+		return dealCount;
+	}
+
+	public void setDealCount(int dealCount) {
+		this.dealCount = dealCount;
 	}
 
 	@Override
