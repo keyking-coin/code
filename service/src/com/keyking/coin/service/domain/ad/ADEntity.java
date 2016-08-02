@@ -4,6 +4,7 @@ public class ADEntity {
 	long id;
 	String url;
 	String pic;
+	
 	public long getId() {
 		return id;
 	}

@@ -3,8 +3,9 @@ package com.keyking.coin.service.tranform;
 import com.keyking.coin.service.domain.email.Email;
 import com.keyking.coin.service.domain.user.UserCharacter;
 import com.keyking.coin.util.Instances;
+import com.keyking.coin.util.TimeUtils;
 
-public class EmailList implements Instances{
+public class EmailList implements Instances,Comparable<EmailList>{
 	byte type = 1;//邮件类型 0系统邮件 1用户邮件
 	byte status;//状态 0新邮件 1已查看
 	long id;//邮件编号
@@ -100,5 +101,12 @@ public class EmailList implements Instances{
 
 	public void setContent(String content) {
 		this.content = content;
+	}
+
+	@Override
+	public int compareTo(EmailList o) {
+		long time1 = TimeUtils.getTimes(time);
+		long time2 = TimeUtils.getTimes(o.time);
+		return Long.compare(time2,time1);
 	}
 }

@@ -1,7 +1,9 @@
 package com.keyking.coin.service.domain.deal;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.joda.time.DateTime;
 
@@ -12,6 +14,7 @@ import com.keyking.coin.service.net.buffer.DataBuffer;
 import com.keyking.coin.service.net.resp.module.AdminModuleResp;
 import com.keyking.coin.service.net.resp.module.Module;
 import com.keyking.coin.service.net.resp.module.ModuleResp;
+import com.keyking.coin.service.push.PushType;
 import com.keyking.coin.service.tranform.TransformDealData;
 import com.keyking.coin.service.tranform.page.order.TransformOrderDetail;
 import com.keyking.coin.util.Instances;
@@ -235,7 +238,21 @@ public class DealOrder implements Instances,SerializeEntity,Comparable<DealOrder
 		DB.getDealOrderDao().save(this);
 	}
 	
-	public void addTimes(byte state){
+	public void addTimes(Deal deal,byte state){
+		if (state  > 0){
+			Map<String,String> pushMap = new HashMap<String, String>();
+			pushMap.put("type",PushType.PUSH_TYPE_ORDER_CHANGE.toString());
+			pushMap.put("dealId",dealId + "");
+			pushMap.put("orderId",id + "");
+			UserCharacter deployer = CTRL.search(deal.getUid());
+			if (deployer.couldPush(PushType.PUSH_TYPE_ORDER_CHANGE)){
+				PUSH.push("成交盘变化","成交盘变化",deployer.getPlatform(),pushMap,deployer.getPushId());
+			}
+			UserCharacter graber = CTRL.search(deal.getUid());
+			if (graber.couldPush(PushType.PUSH_TYPE_ORDER_CHANGE)){
+				PUSH.push("成交盘变化","成交盘变化",graber.getPlatform(),pushMap,graber.getPushId());
+			}
+		}
 		String str = TimeUtils.nowChStr();
 		times.add(state,str);
 		this.state = state;
@@ -248,14 +265,11 @@ public class DealOrder implements Instances,SerializeEntity,Comparable<DealOrder
 				credit.addDealVale(total_value);
 				buyer.save();
 			}
-			Deal deal = CTRL.tryToSearch(dealId);
-			if (deal != null){
-				UserCharacter seller = CTRL.search(deal.getUid());
-				if (seller != null){
-					Credit credit = seller.getCredit();
-					credit.addDealVale(total_value);
-					seller.save();
-				}
+			UserCharacter seller = CTRL.search(deal.getUid());
+			if (seller != null){
+				Credit credit = seller.getCredit();
+				credit.addDealVale(total_value);
+				seller.save();
 			}
 		}
 	}

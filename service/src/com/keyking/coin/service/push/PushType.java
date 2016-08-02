@@ -6,7 +6,8 @@ public enum PushType {
 	PUSH_TYPE_ORDER,//成交盘创建
 	PUSH_TYPE_REVERT,//买卖盘回复
 	PUSH_TYPE_FRIEND,//好友申请信息
-	PUSH_TYPE_EMAIL//收到新站内信
+	PUSH_TYPE_EMAIL,//收到新站内信
+	PUSH_TYPE_ORDER_CHANGE//成交盘变化了。
 	;
 	
 	public static PushType search(String name){

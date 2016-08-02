@@ -1,6 +1,7 @@
 package com.keyking.coin.service.net.logic.app;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import com.keyking.coin.service.domain.email.Email;
@@ -29,6 +30,7 @@ public class AppEmailList extends AbstractLogic {
 				EmailList el = new EmailList(email);
 				els.add(el);
 			}
+			Collections.sort(els);
 			resp.put("list",els);
 			resp.setSucces();
 		}else{

@@ -1,6 +1,5 @@
 package com.keyking.coin.service.net.logic.app;
 
-import com.keyking.coin.service.dao.TableName;
 import com.keyking.coin.service.domain.deal.Deal;
 import com.keyking.coin.service.domain.user.Seller;
 import com.keyking.coin.service.domain.user.UserCharacter;
@@ -74,9 +73,6 @@ public class AppDeployDeal extends AbstractLogic{
 		deal.setHelpFlag(helpFlag);
 		deal.setSellFlag(sellFlag);
 		if (CTRL.tryToInsert(deal)){
-			long dealId = PK.key(TableName.TABLE_NAME_DEAL);
-			deal.setId(dealId);
-			deal.save();
 			if (deployType == 1){//推送
 				if (user.getRecharge().getCurMoney() < 10){//强制推送
 					resp.setError("您的邮游币不足请先去充值");

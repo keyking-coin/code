@@ -577,14 +577,20 @@ public class Deal implements Instances,SerializeEntity,Comparable<Deal>{
 		revrt.setId(rid);
 		addRevert(revrt);
 		revrt.save();
+		Map<String,String> pushMap = new HashMap<String, String>();
+		pushMap.put("type",PushType.PUSH_TYPE_REVERT.toString());
+		TransformRevert tr = new TransformRevert();
+		tr.copy(revrt);
+		pushMap.put("revert",JsonUtil.ObjectToJsonString(tr));
 		UserCharacter target = CTRL.search(tid);
 		if (target.couldPush(PushType.PUSH_TYPE_REVERT)){
-			Map<String,String> pushMap = new HashMap<String, String>();
-			pushMap.put("type",PushType.PUSH_TYPE_REVERT.toString());
-			TransformRevert tr = new TransformRevert();
-			tr.copy(revrt);
-			pushMap.put("revert",JsonUtil.ObjectToJsonString(tr));
 			PUSH.push("买卖盘回复","新增买卖盘回复",target.getPlatform(),pushMap,target.getPushId());
+		}
+		if (tid != this.uid){
+			UserCharacter owner = CTRL.search(this.uid);
+			if (owner.couldPush(PushType.PUSH_TYPE_REVERT)){
+				PUSH.push("买卖盘回复","新增买卖盘回复",owner.getPlatform(),pushMap,owner.getPushId());
+			}
 		}
 		return true;
 	}

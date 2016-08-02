@@ -68,7 +68,7 @@ public class AppDealOrderCommite extends AbstractLogic {
 						order.setBuyerNum(num);
 					}
 					byte pre = order.getState();
-					order.addTimes(state);
+					order.addTimes(deal,state);
 					order.save();
 					TransformOrderDetail tod = new TransformOrderDetail();
 					tod.copy(deal,order);

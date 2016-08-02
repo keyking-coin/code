@@ -73,7 +73,6 @@ public class HttpBuy extends HttpHandler {
 				user.getRecharge().changeMoney(-10);
 				deal.issue();
 			}
-			deal.save();
 			Map<String,Object> data = new HashMap<String,Object>();
 			data.put("result","ok");
 			data.put("dealId",deal.getId());

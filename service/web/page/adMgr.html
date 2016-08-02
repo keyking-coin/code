@@ -69,6 +69,28 @@
 			    });
 		    };
 		    
+		    function delRecord(){
+		    	var params = "id=" + selectId;
+				$.ajax({
+				    type:"get",
+			        url :"../gm/HtppAdDel",
+			        data:params,
+			        contentType:"application/json; charset=utf-8",
+			        dataType:"json",
+			        success:function(data) {
+			        	if(data.result == "ok"){
+			        		alert("添加成功");
+			        		refreshList();
+			        	}else{
+			        		alert(data.result);
+			        	}
+			        },
+			        error:function (msg) {
+		                alert(msg);
+		            }
+			    });
+		    };
+		    
 			$(document).ready(function(){
 				refreshList();
 				$("#operate_add").click(function(){
@@ -106,51 +128,25 @@
 			            }
 				    });
 				});
-				$("#sub_show_update").click(function(){
-					var url_str = $("#show_ad_title").val();
-					if (url_str == ""){
-					   alert("请输入广告的地址");
-					   return;
-					}
-					var params = "ad_url=" + url_str + "&ad_pic=" + fileName;
-					$.ajax({
-					    type:"get",
-				        url :"../gm/HttpAdUpdate",
-				        data:params,
-				        contentType:"application/json; charset=utf-8",
-				        dataType:"json",
-				        success:function(data) {
-				        	if (data.result == "ok"){
-				        		fileName="";
-				        		alert("修改成功");
-				        		refreshList();
-				        	}else{
-				        		alert(data.result);
-				        	}
-				        },
-				        error:function (msg) {
-			                alert(msg);
-			            }
-				    });
-				});
 				$("#sub_show_del").click(function(){
-					var params = "id=" + selectId;
+				    var temp = $("#show_ad_pic").attr("src");
+				    var fn = temp.substring(temp.lastIndexOf("/") + 1);
+					var params = "fname=" + fn;
 					$.ajax({
 					    type:"get",
-				        url :"../gm/HtppAdDel",
+				        url :"http://www.521uu.cc:321/del.php",
 				        data:params,
 				        contentType:"application/json; charset=utf-8",
 				        dataType:"json",
 				        success:function(data) {
-				        	if (data.result == "ok"){
-				        		alert("删除成功");
-				        		refreshList();
+				        	if (data.status == 1){
+				        		delRecord();
 				        	}else{
-				        		alert(data.result);
+				        		alert(data.msg);
 				        	}
 				        },
 				        error:function (msg) {
-			                alert(msg);
+			                alert(msg.msg);
 			            }
 				    });
 				});
@@ -186,8 +182,7 @@
 				<img id="show_ad_pic" src="" width="650px" height="400px">
 				<br>
 				<br>
-				<button id="sub_show_update" class="btn btn-default" style="margin-left:200px;" type="button">修改</button>
-		       	<button id="sub_show_del" class="btn btn-default" style="margin-left:200px;" type="button">删除</button>
+		       	<button id="sub_show_del" class="btn btn-default" style="margin-left:250px;" type="button">删除</button>
 			</div>
 		</div>
 	</body>

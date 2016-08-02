@@ -84,7 +84,6 @@ public class HttpSell extends HttpHandler {
 				user.getRecharge().changeMoney(-10);
 				deal.issue();
 			}
-			deal.save();
 			ServerLog.info(user.getAccount() + " deployed deal-sell ok ----> id is " + deal.getId());
 			Map<String,Object> data = new HashMap<String,Object>();
 			data.put("result","ok");

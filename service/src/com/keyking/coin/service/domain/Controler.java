@@ -330,6 +330,7 @@ public class Controler implements Instances{
 		long dealId = PK.key(TableName.TABLE_NAME_DEAL);
 		deal.setId(dealId);
 		deals.put(dealId,deal);
+		deal.save();
 		return true;
 	}
 

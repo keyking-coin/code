@@ -62,7 +62,7 @@ public class AppDealGrab extends AbstractLogic {
 			DealOrder order = new DealOrder();
 			order.setDealId(id);
 			order.setBuyId(uid);
-			order.addTimes((byte)0);
+			order.addTimes(deal,(byte)0);
 			order.setPrice(deal.getPrice());
 			order.setNum(num);
 			order.setHelpFlag(deal.getHelpFlag());

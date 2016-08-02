@@ -76,7 +76,7 @@ public class HttpDealOrderUpdate extends HttpHandler {
 							order.setBuyerNum(num);
 						}
 						byte pre = order.getState();
-						order.addTimes(state);
+						order.addTimes(deal,state);
 						order.save();
 						if (order.getHelpFlag() == 1) {
 							if (order.getState() == 1 || order.getState() == 4){

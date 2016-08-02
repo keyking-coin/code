@@ -1,12 +1,11 @@
 package com.keyking.coin.service.net.logic.app;
 
-import java.io.FileInputStream;
-import java.util.Map;
+import java.util.List;
 
+import com.keyking.coin.service.domain.ad.ADEntity;
 import com.keyking.coin.service.net.buffer.DataBuffer;
 import com.keyking.coin.service.net.logic.AbstractLogic;
 import com.keyking.coin.service.net.resp.impl.AppResp;
-import com.keyking.coin.util.JsonUtil;
 
 public class AppLoadAd extends AbstractLogic {
 
@@ -14,22 +13,8 @@ public class AppLoadAd extends AbstractLogic {
 	public Object doLogic(DataBuffer buffer, String logicName) throws Exception {
 		AppResp resp = new AppResp(logicName);
 		try {
-			FileInputStream fis = new FileInputStream("./ad.data");
-			DataBuffer db = DataBuffer.allocate(1024);
-			byte[] temp = new byte[1024];
-			do {
-				int len = fis.read(temp);
-				if (len == -1){
-					break;
-				}
-				db.put(temp,0,len);
-			}while(true);
-			fis.close();
-			String str = new String(db.arrayToPosition(),"UTF-8");
-			Map<String,String> map = JsonUtil.JsonToObjectMap(str,String.class,String.class);
-			for (String key : map.keySet()){
-				resp.put(key,map.get(key));
-			}
+			List<ADEntity> ads = DB.getAdDao().load();
+			resp.put("list",ads == null ? "[]" : ads);
 			resp.setSucces();
 		} catch (Exception e) {
 			e.printStackTrace();
