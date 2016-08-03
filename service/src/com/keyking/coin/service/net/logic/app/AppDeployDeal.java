@@ -28,7 +28,6 @@ public class AppDeployDeal extends AbstractLogic{
 		String validTime = buffer.getUTF();//有效时间
 		String other     = buffer.getUTF();//其他备注信息
 		byte helpFlag    = buffer.get();//中介标志
-		
 		String createTime = TimeUtils.nowChStr();
 		byte type = (byte)(typeSTr.equals("入库") ? 0 : 1);
 		float price = Float.parseFloat(priceStr);
@@ -55,6 +54,10 @@ public class AppDeployDeal extends AbstractLogic{
 			}else{
 				resp.setError("请先进行卖家认证");
 			}
+			return resp;
+		}
+		if (!bourse.contains(",")){
+			resp.setError("文交所格式是\"0,xx\"或者\"1,xx\"");
 			return resp;
 		}
 		Deal deal = new Deal();
