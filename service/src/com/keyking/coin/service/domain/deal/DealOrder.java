@@ -340,12 +340,17 @@ public class DealOrder implements Instances,SerializeEntity,Comparable<DealOrder
 		return false;
 	}
 	
-	public boolean isConfirming(){
+	public boolean isConfirming(Deal deal,long uid){
 		if (Appraise()){
 			return false;
 		}
 		if ((helpFlag == 0 && state == ORDER_FINISH_NORMAL) || (helpFlag == 1 && state == ORDER_FINISH_HELP)){
-			return true;
+			if (checkBuyer(deal, uid)){//如果我是买家
+				return !buyerAppraise.isCompleted();
+			}
+			if (checkSeller(deal,uid)){//如果我是卖家
+				return !sellerAppraise.isCompleted();
+			}
 		}
 		return false;
 	}

@@ -44,7 +44,9 @@ public class AppMyDealAppraisingPage extends AbstractLogic {
 			}
 			if (deal.getUid() == uid){
 				for (DealOrder order : deal.getOrders()){
-					if (order.isConfirming() && !order.checkRevoke()){
+					boolean flag1 = deal.checkBuyer(uid) && !order.getBuyerAppraise().isCompleted();
+					boolean flag2 = deal.checkSeller(uid) && !order.getSellerAppraise().isCompleted();
+					if (flag1 && flag2 && !order.checkRevoke()){
 						TransformOrderListInfo hd = new TransformOrderListInfo();
 						hd.copy(deal,order);
 						result.add(hd);
@@ -52,7 +54,7 @@ public class AppMyDealAppraisingPage extends AbstractLogic {
 				}
 			}else{
 				for (DealOrder order : deal.getOrders()){
-					if (order.getBuyId() == uid && order.isConfirming() && !order.checkRevoke()){
+					if (order.getBuyId() == uid && order.isConfirming(deal,uid) && !order.checkRevoke()){
 						TransformOrderListInfo hd = new TransformOrderListInfo();
 						hd.copy(deal,order);
 						result.add(hd);

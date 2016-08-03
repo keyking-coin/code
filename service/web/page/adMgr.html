@@ -79,7 +79,7 @@
 			        dataType:"json",
 			        success:function(data) {
 			        	if(data.result == "ok"){
-			        		alert("添加成功");
+			        		alert("删除成功");
 			        		refreshList();
 			        	}else{
 			        		alert(data.result);
@@ -139,14 +139,10 @@
 				        contentType:"application/json; charset=utf-8",
 				        dataType:"json",
 				        success:function(data) {
-				        	if (data.status == 1){
-				        		delRecord();
-				        	}else{
-				        		alert(data.msg);
-				        	}
+				        	delRecord();
 				        },
 				        error:function (msg) {
-			                alert(msg.msg);
+			                delRecord();
 			            }
 				    });
 				});

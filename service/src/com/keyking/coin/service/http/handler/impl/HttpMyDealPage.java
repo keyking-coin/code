@@ -141,7 +141,9 @@ public class HttpMyDealPage extends HttpDealPage {
 			}
 			if (deal.getUid() == uid){
 				for (DealOrder order : deal.getOrders()){
-					if (order.isConfirming() && !order.checkRevoke()){
+					boolean flag1 = deal.checkBuyer(uid) && !order.getBuyerAppraise().isCompleted();
+					boolean flag2 = deal.checkSeller(uid) && !order.getSellerAppraise().isCompleted();
+					if (flag1 && flag2 && !order.checkRevoke()){
 						TransformOrderListInfo hd = new TransformOrderListInfo();
 						hd.copy(deal,order);
 						result.add(hd);
@@ -149,7 +151,7 @@ public class HttpMyDealPage extends HttpDealPage {
 				}
 			}else{
 				for (DealOrder order : deal.getOrders()){
-					if (order.getBuyId() == uid && order.isConfirming() && !order.checkRevoke()){
+					if (order.isConfirming(deal,uid) && !order.checkRevoke()){
 						TransformOrderListInfo hd = new TransformOrderListInfo();
 						hd.copy(deal,order);
 						result.add(hd);
