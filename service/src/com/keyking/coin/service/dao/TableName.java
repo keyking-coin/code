@@ -10,6 +10,7 @@ public enum TableName {
 	TABLE_NAME_BROKER("brokers"),
 	TABLE_NAME_TIME_LINE("timeline"),
 	TABLE_NAME_AD("ad"),
+	TABLE_NAME_BOURSE("bourse")
 	;
 	
 	private TableName(String table){

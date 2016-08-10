@@ -70,6 +70,9 @@
 	<bean id="adDao" class="com.keyking.coin.service.dao.impl.AdDAO">
 	    <property name="dataSource" ref="DAOS" />
 	</bean>
+	<bean id="bourseDao" class="com.keyking.coin.service.dao.impl.BourseDAO">
+	    <property name="dataSource" ref="DAOS" />
+	</bean>
 	<bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
 		<property name="dataSource" ref="DAOS" />
 	</bean>

@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<meta http-equiv="X-UA-Compatible" content="chrome=1,IE=edge" />
+		<meta name="renderer" content="webkit" />
+		<style type="text/css">
+		</style>
+		<link rel="stylesheet" href="../js/bootstrap.min.css" >
+		<script type="text/javascript" src="../js/jquery-2.1.1.min.js"></script>
+		<script type="text/javascript" src="../js/bootstrap.min.js"></script>
+		<script type="text/javascript">
+		    var selectId = 0;
+		    function lookDetail(tid){
+		    	selectId = tid;
+		    	$.ajax({
+				    type:"get",
+			        url : "../gm/HttpGetOpen",
+			        data: "id=" + tid,
+			        contentType: "application/json; charset=utf-8",
+			        dataType : "json",
+			        success  : function(data) {
+			        	$("#show_div").show();
+			        	if (data.result == "ok"){
+			        		$("#bourse").val(data.apply.bourse);
+			        		$("#bank").val(data.apply.bankName);
+			        		$("#tel").val(data.apply.tel);
+			        		$("#pic_1").attr("src","http://www.521uu.cc:321/uploads/" + data.apply.indentFront);
+			        		$("#pic_2").attr("src","http://www.521uu.cc:321/uploads/" + data.apply.indentBack);
+			        		$("#pic_3").attr("src","http://www.521uu.cc:321/uploads/" + data.apply.bankFront);
+			        	}else{
+			        		alert(data.result);
+			        	}
+			        },
+			        error: function (msg) {
+		                alert(msg);
+		            }
+			    });
+		    };
+		    
+			function refreshList(){
+			    $("#show_div").hide();
+				$.ajax({
+				    type:"get",
+			        url : "../gm/HttpOpenList",
+			        contentType: "application/json; charset=utf-8",
+			        dataType : "json",
+			        success  : function(data){
+			        	if (data.result == "ok") {
+			        		$("#h_col").empty();
+			        		var html = "";
+			        		for(var i = 0 ; i < data.list.length; i++){
+			        		    var tail = "未处理";
+			        		    if (data.list[i].state == 1){
+			        		    	tail = "完成";
+			        		    }else if (data.list[i].state == 1){
+			        		    	tail = "拒绝处理";
+			        		    }
+			        			var showTitle = data.list[i].bourse + "(" + data.list[i].tel + "—" + tail + ")";
+			        			html += "<li style='margin-left:5px;' onclick ='lookDetail(" + data.list[i].id + ")' ><a href='#' >" + showTitle + "</a></li>";
+			        		}
+			        		$("#h_col").append(html);
+			        	}else{
+			        		alert(data.result);
+			        	}
+			        },
+			        error: function (msg) {
+		                alert(msg);
+		            }
+			    });
+		    };
+			$(document).ready(function(){
+				refreshList();
+			});
+		</script>
+	</head>
+	<body style="margin-left:20%;">
+		<div id="h_col" style="float:left;width:550px;height:700px;border:1px solid #000;background-color:#FFFF93;overflow:auto;"></div>
+		<div style="float:left;width:800px;height:700px;border:1px solid #000;background-color:#81C0C0;">
+			<div id="show_div" style="margin-left:5%;">
+				<br>
+				<span style="color:#0010ff">文交所:</span>
+				<input type="text" id="bourse" style="width:250px;"/>
+				<br>
+				<br>
+				<span style="color:#0010ff">开户银行:</span>
+				<input type="text" id="bank" style="width:250px;"/>
+				<br>
+				<br>
+				<span style="color:#0010ff">联系电话:</span>
+				<input type="text" id="tel" style="width:250px;"/>
+				<br>
+				<br>
+				<img id="pic_1" src="" width="300px" height="250px">
+				<img id="pic_2" src="" width="300px" height="250px">
+				<br>
+				<img id="pic_3" src="" width="300px" height="250px">
+			</div>
+		</div>
+	</body>
+</html>

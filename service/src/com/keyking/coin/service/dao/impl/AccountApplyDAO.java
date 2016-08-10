@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.List;
 
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.PreparedStatementCreator;
@@ -19,6 +20,7 @@ public class AccountApplyDAO extends BaseDAO {
 	AccountApplyRow row = new AccountApplyRow();
 	private static String INSERT_SQL_STR = "insert into accountApply (bourse,bankName,tel,email,indentFront,indentBack,bankFront,state,reason)values(?,?,?,?,?,?,?,?,?)";
 	private static String SELECT_SQL_STR_ONE = "select * from accountApply where id=?";
+	private static String SELECT_SQL_STR_MORE = "select * from accountApply where 1=1";
 	
 	public synchronized boolean insert(final AccountApply apply) {
 		try {
@@ -57,5 +59,15 @@ public class AccountApplyDAO extends BaseDAO {
 			
 		}
 		return apply;
+	}
+	
+	public List<AccountApply> load(){
+		List<AccountApply> applys = null;
+		try {
+			applys = getJdbcTemplate().query(SELECT_SQL_STR_MORE,row);
+		} catch (DataAccessException e) {
+			//e.printStackTrace();
+		}
+		return applys;
 	}
 }

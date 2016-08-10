@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<meta http-equiv="X-UA-Compatible" content="chrome=1,IE=edge" />
+		<meta name="renderer" content="webkit" />
+		<style type="text/css">
+		</style>
+		<link rel="stylesheet" href="../js/bootstrap.min.css" >
+		<script type="text/javascript" src="../js/jquery-2.1.1.min.js"></script>
+		<script type="text/javascript" src="../js/bootstrap.min.js"></script>
+		<script type="text/javascript">
+		    var selectName = "";
+		    function lookDetail(name){
+		    	selectName = name;
+		    	$.ajax({
+				    type:"get",
+			        url : "../gm/HttpGetBourse",
+			        data: "name=" + name,
+			        contentType: "application/json; charset=utf-8",
+			        dataType : "json",
+			        success  : function(data) {
+			        	$("#show_div").show();
+			        	$("#add_div").hide();
+			        	if (data.result == "ok"){
+			        		$("#show_bourse").val(data.info.name);
+			        		$("#show_url").val(data.info.url);
+			        		if (data.info.type == 3){
+			        			$("#show_drag").attr("checked",true);
+			        			$("#show_hot").attr("checked",true);
+			        		}else if (data.info.type == 2){
+			        			$("#show_drag").attr("checked",true);
+			        			$("#show_hot").attr("checked",false);
+			        		}else{
+			        			$("#show_drag").attr("checked",false);
+			        			$("#show_hot").attr("checked",false);
+			        		}
+			        	}else{
+			        		alert(data.result);
+			        	}
+			        },
+			        error: function (msg) {
+		                alert(msg);
+		            }
+			    });
+		    };
+		    
+		    function chage_1(name1,name2){
+		    	var flag1 = $(name1).is(":checked");
+		    	var flag2 = $(name2).is(":checked");
+		    	if (flag1 == false){
+		    		$(name2).prop("checked",false);
+		    	}
+		    };
+		    
+		    function chage_2(name1,name2){
+		    	var flag1 = $(name1).is(":checked");
+		    	var flag2 = $(name2).is(":checked");
+		    	if (flag2 == true){
+		    		$(name1).prop("checked",true);
+		    	}
+		    };
+		    
+			function refreshList(){
+			    $("#show_div").hide();
+			    $("#add_div").hide();
+				$.ajax({
+				    type:"get",
+			        url : "../gm/HttpBourseList",
+			        contentType: "application/json; charset=utf-8",
+			        dataType : "json",
+			        success  : function(data){
+			        	if (data.result == "ok") {
+			        		$("#h_col").empty();
+			        		var html = "";
+			        		for(var i = 0 ; i < data.list.length; i++){
+			        			var showTitle = data.list[i].name;
+			        			html += "<li style='margin-left:5px;' onclick ='lookDetail(\"" + showTitle + "\")' ><a href='#' >" + showTitle + "</a></li>";
+			        		}
+			        		$("#h_col").append(html);
+			        	}else{
+			        		alert(data.result);
+			        	}
+			        },
+			        error: function (msg) {
+		                alert(msg);
+		            }
+			    });
+		    };
+			$(document).ready(function(){
+				refreshList();
+				$("#del").click(function(){
+					var params = "name=" + selectName;
+					$.ajax({
+					    type:"get",
+				        url :"../gm/HttpBourseDel",
+				        data:params,
+				        contentType:"application/json; charset=utf-8",
+				        dataType:"json",
+				        success:function(data) {
+				        	if (data.result == "ok"){
+				        		alert("删除成功");
+				        		refreshList();
+				        	}else{
+				        		alert(data.result);
+				        	}
+				        },
+				        error:function (msg) {
+				        	alert(msg);
+			            }
+				    });
+				});
+				
+				$("#operate_add").click(function(){
+					$("#show_div").hide();
+			    	$("#add_div").show();
+				});
+				
+				$("#update").click(function(){
+				    var url = $("#show_url").val();
+				    if (url == ""){
+				    	alert("地址不能为空");
+				    	return;
+				    }
+				    var bourse = $("#show_bourse").val();
+				    if (bourse == ""){
+				    	alert("文交所名称不能为空");
+				    	return;
+				    }
+				    var flag1 = $("#show_drag").is(":checked");
+		    		var flag2 = $("#show_hot").is(":checked");
+					var params = "name=" + bourse + "&" +
+					             "url=" + url + "&" +
+					             "flag1=" + flag1 + "&" +
+					             "flag2=" + flag2;
+					$.ajax({
+					    type:"get",
+				        url :"../gm/HttpBourseUpdate",
+				        data:params,
+				        contentType:"application/json; charset=utf-8",
+				        dataType:"json",
+				        success:function(data) {
+				        	if (data.result == "ok"){
+				        		alert("修改成功");
+				        		lookDetail(bourse);
+				        	}else{
+				        		alert(data.result);
+				        	}
+				        },
+				        error:function (msg) {
+				        	alert(msg);
+			            }
+				    });
+				});
+				$("#insert").click(function(){
+				    var url = $("#ad_url").val();
+				    if (url == ""){
+				    	alert("地址不能为空");
+				    	return;
+				    }
+				    var bourse = $("#ad_bourse").val();
+				    if (bourse == ""){
+				    	alert("文交所名称不能为空");
+				    	return;
+				    }
+				    var flag1 = $("#ad_drag").is(":checked");
+		    		var flag2 = $("#ad_hot").is(":checked");
+					var params = "name=" + bourse + "&" +
+					             "url=" + url + "&" +
+					             "flag1=" + flag1 + "&" +
+					             "flag2=" + flag2;
+					$.ajax({
+					    type:"get",
+				        url :"../gm/HttpBourseUpdate",
+				        data:params,
+				        contentType:"application/json; charset=utf-8",
+				        dataType:"json",
+				        success:function(data) {
+				        	if (data.result == "ok"){
+				        		alert("添加成功");
+				        		refreshList();
+				        		lookDetail(bourse);
+				        	}else{
+				        		alert(data.result);
+				        	}
+				        },
+				        error:function (msg) {
+				        	alert(msg);
+			            }
+				    });
+				});
+			});
+		</script>
+	</head>
+	<body style="margin-left:20%;">
+		<div style="margin-left:2px;">
+		   <button id="operate_add" class="btn btn-default" type="button" >添加</button>
+    	</div>
+		<div id="h_col" style="float:left;width:550px;height:700px;border:1px solid #000;background-color:#FFFF93;overflow:auto;"></div>
+		<div style="float:left;width:800px;height:700px;border:1px solid #000;background-color:#81C0C0;">
+			<div id="add_div" style="margin-left:5%;">
+				<br>
+				<span style="color:#0010ff">文交所名称:</span>
+				<input type="text" id="ad_bourse" style="width:250px;"/>
+				<br>
+				<br>
+				<span style="color:#0010ff">URL:</span>
+				<input type="text" id="ad_url" style="width:350px;"/>
+				<br>
+				<br>
+				<span style="color:#0010ff">下拉列表:</span>
+				<input type="checkbox" id="ad_drag" onchange="chage_1('#ad_drag','#ad_hot')" />
+				<br>
+				<br>
+				<span style="color:#0010ff">热门列表:</span>
+				<input type="checkbox" id="ad_hot" onchange="chage_2('#ad_drag','#ad_hot')" />
+				<br>
+				<br>
+				<button id="insert" class="btn btn-default" style="margin-left:250px;" type="button">添加 </button>
+			</div>
+			<div id="show_div" style="margin-left:5%;">
+				<br>
+				<span style="color:#0010ff">文交所名称:</span>
+				<input type="text" id="show_bourse" style="width:250px;"/>
+				<br>
+				<br>
+				<span style="color:#0010ff">URL:</span>
+				<input type="text" id="show_url" style="width:350px;"/>
+				<br>
+				<br>
+				<span style="color:#0010ff">下拉列表:</span>
+				<input type="checkbox" id="show_drag" onchange="chage_1('#show_drag','#show_hot')" />
+				<br>
+				<br>
+				<span style="color:#0010ff">热门列表:</span>
+				<input type="checkbox" id="show_hot" onchange="chage_2('#show_drag','#show_hot')" />
+				<br>
+				<br>
+				<button id="update" class="btn btn-default" style="margin-left:100px;" type="button">修改</button>
+				<button id="del" class="btn btn-default" style="margin-left:350px;" type="button">删除</button>
+			</div>
+		</div>
+	</body>
+</html>

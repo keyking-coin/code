@@ -16,7 +16,7 @@ public class AccountApplyRow implements RowMapper<AccountApply> {
 		apply.setBourse(rs.getString("bourse"));
 		apply.setBankName(rs.getString("bankName"));
 		apply.setTel(rs.getString("tel"));
-		apply.setEmail(rs.getString("eamil"));
+		apply.setEmail(rs.getString("email"));
 		apply.setIndentFront(rs.getString("indentFront"));
 		apply.setIndentBack(rs.getString("indentBack"));
 		apply.setBankFront(rs.getString("bankFront"));

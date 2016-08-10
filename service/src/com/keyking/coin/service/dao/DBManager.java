@@ -5,6 +5,7 @@ import org.springframework.context.support.FileSystemXmlApplicationContext;
 
 import com.keyking.coin.service.dao.impl.AccountApplyDAO;
 import com.keyking.coin.service.dao.impl.AdDAO;
+import com.keyking.coin.service.dao.impl.BourseDAO;
 import com.keyking.coin.service.dao.impl.BrokerDAO;
 import com.keyking.coin.service.dao.impl.DealDAO;
 import com.keyking.coin.service.dao.impl.DealOrderDAO;
@@ -35,6 +36,7 @@ public class DBManager {
 	FeedBackDAO feedBackDao = null;
 	NoticeDAO noticeDao = null;
 	AdDAO adDao = null;
+	BourseDAO bourseDao = null;
 	
 	private static DBManager instance = new DBManager();
 	
@@ -59,6 +61,7 @@ public class DBManager {
 		userBrokerDao   = (UserBrokerDAO)context.getBean("userBrokerDao");
 		feedBackDao     = (FeedBackDAO)context.getBean("feedBackDao");
 		adDao           = (AdDAO)context.getBean("adDao");
+		bourseDao       = (BourseDAO)context.getBean("bourseDao");
 	}
 	
 	public UserDAO getUserDao() {
@@ -119,6 +122,10 @@ public class DBManager {
 
 	public AdDAO getAdDao() {
 		return adDao;
+	}
+
+	public BourseDAO getBourseDao() {
+		return bourseDao;
 	}
 }
  
