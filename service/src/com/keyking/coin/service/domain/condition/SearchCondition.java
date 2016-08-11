@@ -112,7 +112,7 @@ public class SearchCondition implements Instances{
 		this.over = over;
 	}
 
-	public boolean legal(Deal deal){
+	public boolean legal(Deal deal,List<BourseInfo> bis){
 		if (!type.equals("null")){
 			if ((type.equals("入库") && deal.getType() == 1) || (type.equals("现货") && deal.getType() == 0) ||
 				(type.equals("过户") && deal.getType() == 0)){
@@ -126,7 +126,6 @@ public class SearchCondition implements Instances{
 		}
 		if (!bourse.equals("null") && !bourse.equals("全部文交所")){
 			if (bourse.equals("其他文交所")){
-				List<BourseInfo> bis = DB.getBourseDao().load(3);
 				for (int i = 0; i < bis.size() ; i++){
 					BourseInfo info = bis.get(i);
 					if (deal.getBourse().contains(info.getName())){

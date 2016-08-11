@@ -13,6 +13,7 @@ import org.apache.mina.core.session.IoSession;
 import org.joda.time.DateTime;
 
 import com.keyking.coin.service.dao.TableName;
+import com.keyking.coin.service.domain.bourse.BourseInfo;
 import com.keyking.coin.service.domain.broker.Broker;
 import com.keyking.coin.service.domain.broker.UserBroker;
 import com.keyking.coin.service.domain.condition.SearchCondition;
@@ -227,8 +228,9 @@ public class Controler implements Instances{
 		List<Deal> valides   = new ArrayList<Deal>();
 		List<Deal> normals   = new ArrayList<Deal>();
 		List<Deal> tails     = new ArrayList<Deal>();
+		List<BourseInfo> bis = DB.getBourseDao().load(3);
 		for (Deal deal : deals.values()){
-			if (condition.legal(deal)){
+			if (condition.legal(deal,bis)){
 				if (deal.getLeftNum() == 0){
 					tails.add(deal);
 					continue;
