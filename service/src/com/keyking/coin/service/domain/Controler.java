@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -400,7 +399,7 @@ public class Controler implements Instances{
 			}
 		}
 		int count = 1;
-		while (orders.size() < 50 && count < 8){
+		while (orders.size() < 50){
 			long pre = time.getMillis() - count * 24 * 3600 * 1000;
 			time = TimeUtils.getTime(pre);
 			for (Deal deal : deals.values()){
@@ -420,16 +419,8 @@ public class Controler implements Instances{
 			}
 		}
 		Collections.sort(orders);
-		if (count > 1){
-			count = 0;
-			Iterator<TransformTouristOrder> iter = orders.iterator();
-			while (iter.hasNext()){
-				iter.next();
-				if (count >= 50){
-					iter.remove();
-				}
-				count++;
-			}
+		for (int i = 49 ; i < orders.size() ; i++){
+			orders.remove(i);
 		}
 		return orders;
 	}

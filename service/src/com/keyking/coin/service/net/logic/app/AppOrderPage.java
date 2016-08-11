@@ -46,9 +46,9 @@ public class AppOrderPage extends AbstractLogic {
 			condition.setValid(valid);
 		}
 		List<Deal> temp = CTRL.getSearchDeals(condition);
+		List<TransformOrderListInfo> dst = new ArrayList<TransformOrderListInfo>();
 		if (temp.size() > 0){
 			List<TransformOrderListInfo> src = new ArrayList<TransformOrderListInfo>();
-			List<TransformOrderListInfo> dst = new ArrayList<TransformOrderListInfo>();
 			for (Deal deal : temp){
 				for (DealOrder order : deal.getOrders()){
 					if (order.checkRevoke()){
@@ -65,7 +65,7 @@ public class AppOrderPage extends AbstractLogic {
 			resp.put("page",page);
 			resp.put("left",left);
 		}else{
-			resp.put("list","[]");
+			resp.put("list",dst);
 			resp.put("page",page);
 			resp.put("left",0);
 		}

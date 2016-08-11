@@ -15,6 +15,7 @@ public class BourseInfoRow implements RowMapper<BourseInfo>{
 		info.setName(rs.getString("name"));
 		info.setUrl(rs.getString("url"));
 		info.setType(rs.getByte("type"));
+		info.setPos(rs.getInt("pos"));
 		return info;
 	}
 

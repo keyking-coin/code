@@ -1,7 +1,10 @@
 package com.keyking.coin.service.domain.condition;
 
+import java.util.List;
+
 import org.joda.time.DateTime;
 
+import com.keyking.coin.service.domain.bourse.BourseInfo;
 import com.keyking.coin.service.domain.deal.Deal;
 import com.keyking.coin.util.Instances;
 import com.keyking.coin.util.TimeUtils;
@@ -18,14 +21,6 @@ public class SearchCondition implements Instances{
 	boolean dealing = false;//正在交易，未到评分这一步的。
 	boolean confirming = false;//已经完成收货确认，但没有互评的（这一步未完成也应该释放信用额度）
 	boolean over = false;//已经完成评分的，包括交割失败的
-	public static final String[] OTHER_BOURSE_NAMES = {
-		"南京文交所","中南文交所","渤商收藏品",
-		"南方钱币邮票","上海邮币卡","湖北华中",
-		"北文中心", "中艺邮币卡","汉唐邮币卡",
-		"华夏文交所","上文申江","东北商品",
-		"乾元文交所","安贵艺术品","北京邮票",
-		"天津邮币卡","上海沙丘","中京邮币"
-	};
 	
 	public static final String[] OTHER_CITY_NAMES = {"北京","上海","广州"};
 	
@@ -131,9 +126,10 @@ public class SearchCondition implements Instances{
 		}
 		if (!bourse.equals("null") && !bourse.equals("全部文交所")){
 			if (bourse.equals("其他文交所")){
-				//List<BourseInfo> bis = DB.getBourseDao().load(3);
-				for (int i = 0; i < OTHER_BOURSE_NAMES.length ; i++){
-					if (deal.getBourse().contains(OTHER_BOURSE_NAMES[i])){
+				List<BourseInfo> bis = DB.getBourseDao().load(3);
+				for (int i = 0; i < bis.size() ; i++){
+					BourseInfo info = bis.get(i);
+					if (deal.getBourse().contains(info.getName())){
 						return false;
 					}
 				}

@@ -15,11 +15,11 @@ import com.keyking.coin.service.domain.bourse.BourseInfo;
 import com.keyking.coin.util.ServerLog;
 
 public class BourseDAO extends BaseDAO {
-	private static String INSERT_SQL_STR = "insert into bourse (name,url,type)values(?,?,?)";
-	private static String UPDATE_SQL_STR = "update bourse set url=?,type=? where name=?";
+	private static String INSERT_SQL_STR = "insert into bourse (name,url,type,pos)values(?,?,?,?)";
+	private static String UPDATE_SQL_STR = "update bourse set url=?,type=?,pos=? where name=?";
 	private static String SELECT_SQL_STR = "select * from bourse where name=?";
-	private static String SELECT_SQL_STR_MORE = "select * from bourse where 1=1";
-	private static String SELECT_SQL_STR_TYPE = "select * from bourse where type=?";
+	private static String SELECT_SQL_STR_MORE = "select * from bourse where 1=1 order by pos asc";
+	private static String SELECT_SQL_STR_TYPE = "select * from bourse where type=? order by pos asc";
 	
 	BourseInfoRow row = new BourseInfoRow();
 	
@@ -33,6 +33,7 @@ public class BourseDAO extends BaseDAO {
 					ps.setString(cursor++,info.getName());
 					ps.setString(cursor++,info.getUrl());
 					ps.setByte(cursor++,info.getType());
+					ps.setInt(cursor++,info.getPos());
 					return ps;
 				}
 			});
@@ -65,7 +66,7 @@ public class BourseDAO extends BaseDAO {
 	
 	private synchronized boolean update(BourseInfo info) {
 		try {
-			getJdbcTemplate().update(UPDATE_SQL_STR,info.getUrl(),info.getType(),info.getName());
+			getJdbcTemplate().update(UPDATE_SQL_STR,info.getUrl(),info.getType(),info.getPos(),info.getName());
 		} catch (DataAccessException e) {
 			ServerLog.error("save ad error",e);
 			return false;

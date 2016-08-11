@@ -5,6 +5,14 @@
 		<meta http-equiv="X-UA-Compatible" content="chrome=1,IE=edge" />
 		<meta name="renderer" content="webkit" />
 		<style type="text/css">
+			.border-table {   
+		        border-collapse: collapse;   
+		        border: none;   
+		    }   
+		    .border-table td {   
+		        border: solid #000 1px; 
+		        text-align:center;  
+		    }
 		</style>
 		<link rel="stylesheet" href="../js/bootstrap.min.css" >
 		<script type="text/javascript" src="../js/jquery-2.1.1.min.js"></script>
@@ -26,15 +34,16 @@
 			        		$("#show_bourse").val(data.info.name);
 			        		$("#show_url").val(data.info.url);
 			        		if (data.info.type == 3){
-			        			$("#show_drag").attr("checked",true);
-			        			$("#show_hot").attr("checked",true);
+			        			$("#show_drag").prop("checked",true);
+			        			$("#show_hot").prop("checked",true);
 			        		}else if (data.info.type == 2){
-			        			$("#show_drag").attr("checked",true);
-			        			$("#show_hot").attr("checked",false);
+			        			$("#show_drag").prop("checked",true);
+			        			$("#show_hot").prop("checked",false);
 			        		}else{
-			        			$("#show_drag").attr("checked",false);
-			        			$("#show_hot").attr("checked",false);
+			        			$("#show_drag").prop("checked",false);
+			        			$("#show_hot").prop("checked",false);
 			        		}
+			        		$("#show_pos").val(data.info.pos);
 			        	}else{
 			        		alert(data.result);
 			        	}
@@ -72,11 +81,28 @@
 			        success  : function(data){
 			        	if (data.result == "ok") {
 			        		$("#h_col").empty();
-			        		var html = "";
+			        		var html = "<table class='border-table'><tr><td>文交所名称</td><td>下拉列表</td><td>热门列表</td><td>排序位置</td></tr>";
 			        		for(var i = 0 ; i < data.list.length; i++){
 			        			var showTitle = data.list[i].name;
-			        			html += "<li style='margin-left:5px;' onclick ='lookDetail(\"" + showTitle + "\")' ><a href='#' >" + showTitle + "</a></li>";
+			        			html +="<tr><td>";
+			        			html += "<li style='margin-left:5px;' onclick ='lookDetail(\"" + data.list[i].name + "\")' ><a href='#' >" + showTitle + "</a></li>";
+			        			html +="</td><td>";
+			        			var title1 = "false";
+			        			if (data.list[i].type >= 2){
+			        				title1 = "true";
+			        			}
+			        			html += title1;
+			        			html +="</td><td>";
+			        			var title2 = "false";
+			        			if (data.list[i].type >= 3){
+			        				title2 = "true";
+			        			}
+			        			html += title2;
+			        			html +="</td><td>";
+			        			html += data.list[i].pos;
+			        			html +="</td></tr>";
 			        		}
+			        		html += "</table>";
 			        		$("#h_col").append(html);
 			        	}else{
 			        		alert(data.result);
@@ -127,11 +153,17 @@
 				    	alert("文交所名称不能为空");
 				    	return;
 				    }
+				    var pos = $("#show_pos").val();
+				    if (pos == ""){
+				    	alert("请设置排序位置");
+				    	return;
+				    }
 				    var flag1 = $("#show_drag").is(":checked");
 		    		var flag2 = $("#show_hot").is(":checked");
 					var params = "name=" + bourse + "&" +
 					             "url=" + url + "&" +
 					             "flag1=" + flag1 + "&" +
+					             "pos=" + pos + "&" +
 					             "flag2=" + flag2;
 					$.ajax({
 					    type:"get",
@@ -142,6 +174,7 @@
 				        success:function(data) {
 				        	if (data.result == "ok"){
 				        		alert("修改成功");
+				        		refreshList();
 				        		lookDetail(bourse);
 				        	}else{
 				        		alert(data.result);
@@ -163,11 +196,17 @@
 				    	alert("文交所名称不能为空");
 				    	return;
 				    }
+				    var pos = $("#ad_pos").val();
+				    if (pos == ""){
+				    	alert("请设置排序位置");
+				    	return;
+				    }
 				    var flag1 = $("#ad_drag").is(":checked");
 		    		var flag2 = $("#ad_hot").is(":checked");
 					var params = "name=" + bourse + "&" +
 					             "url=" + url + "&" +
 					             "flag1=" + flag1 + "&" +
+					             "pos=" + pos + "&" +
 					             "flag2=" + flag2;
 					$.ajax({
 					    type:"get",
@@ -193,8 +232,8 @@
 		</script>
 	</head>
 	<body style="margin-left:20%;">
-		<div style="margin-left:2px;">
-		   <button id="operate_add" class="btn btn-default" type="button" >添加</button>
+		<div style="margin-left:550px;">
+		   	<button id="operate_add" class="btn btn-default" type="button">添加</button>
     	</div>
 		<div id="h_col" style="float:left;width:550px;height:700px;border:1px solid #000;background-color:#FFFF93;overflow:auto;"></div>
 		<div style="float:left;width:800px;height:700px;border:1px solid #000;background-color:#81C0C0;">
@@ -216,6 +255,10 @@
 				<input type="checkbox" id="ad_hot" onchange="chage_2('#ad_drag','#ad_hot')" />
 				<br>
 				<br>
+				<span style="color:#0010ff">排序位置:</span>
+				<input type="text" id="ad_pos" onkeyup="this.value=this.value.replace(/\D/g,'')" onafterpaste="this.value=this.value.replace(/\D/g,'')"/>
+				<br>
+				<br>
 				<button id="insert" class="btn btn-default" style="margin-left:250px;" type="button">添加 </button>
 			</div>
 			<div id="show_div" style="margin-left:5%;">
@@ -234,6 +277,10 @@
 				<br>
 				<span style="color:#0010ff">热门列表:</span>
 				<input type="checkbox" id="show_hot" onchange="chage_2('#show_drag','#show_hot')" />
+				<br>
+				<br>
+				<span style="color:#0010ff">排序位置:</span>
+				<input type="text" id="show_pos" onkeyup="this.value=this.value.replace(/\D/g,'')" onafterpaste="this.value=this.value.replace(/\D/g,'')"/>
 				<br>
 				<br>
 				<button id="update" class="btn btn-default" style="margin-left:100px;" type="button">修改</button>

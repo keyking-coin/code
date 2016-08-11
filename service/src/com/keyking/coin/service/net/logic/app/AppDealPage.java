@@ -44,9 +44,9 @@ public class AppDealPage extends AbstractLogic {
 			condition.setValid(valid);
 		}
 		List<Deal> temp = CTRL.getSearchDeals(condition);
+		List<TransformDealListInfo> dst = new ArrayList<TransformDealListInfo>();
 		if (temp.size() > 0){
 			List<TransformDealListInfo> src = new ArrayList<TransformDealListInfo>();
-			List<TransformDealListInfo> dst = new ArrayList<TransformDealListInfo>();
 			for (Deal deal : temp){
 				TransformDealListInfo tdi = new TransformDealListInfo();
 				tdi.copy(deal);
@@ -57,7 +57,7 @@ public class AppDealPage extends AbstractLogic {
 			resp.put("page",page);
 			resp.put("left",left);
 		}else{
-			resp.put("list","[]");
+			resp.put("list",dst);
 			resp.put("page",page);
 			resp.put("left",0);
 		}

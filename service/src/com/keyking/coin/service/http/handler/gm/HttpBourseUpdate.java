@@ -15,9 +15,11 @@ public class HttpBourseUpdate extends HttpHandler {
 		String url   = request.getParameter("url");
 		String str1  = request.getParameter("flag1");
 		String str2  = request.getParameter("flag2");
+		int pos      = Integer.parseInt(request.getParameter("pos"));
 		BourseInfo info = new BourseInfo();
 		info.setName(name);
 		info.setUrl(url);
+		info.setPos(pos);
 		byte type = 1;
 		if (str1.equals("true")){
 			type ++;
