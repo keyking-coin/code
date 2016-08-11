@@ -670,6 +670,9 @@ public class UserCharacter implements Instances,SerializeEntity{
 	}
 
 	public boolean checkFriend(UserCharacter user) {
+		if (user == null){
+			return false;
+		}
 		for (Friend friend : friends){
 			if (friend.getFid() == user.id){
 				return true;

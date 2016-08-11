@@ -22,7 +22,7 @@ public class AppUserLook extends AbstractLogic {
 			if (deal != null){
 				look = (deal.getUid() == uid && deal.checkBuyerId(mid)) || (deal.getUid() == mid && deal.checkBuyerId(uid));
 			}
-			if (uid == mid || mid <= 2){
+			if (uid == mid || (mid > 0 && mid <= 2)){
 				look = true;
 			}
 			TransformLookData data = new TransformLookData();
