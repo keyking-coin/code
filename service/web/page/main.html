@@ -28,13 +28,9 @@
 			}
 			var showFlag = false;
 			$(document).ready(function(){
-				$("#testPic").click(function (){
-					if (showFlag){
-						$("#showPic").empty();
-					}else{
-						$("#showPic").append("<img src='http://www.521uu.cc:321/uploads/13051779023__sellercommit.jpg' width='50%' height='50%'>");
-					}
-					showFlag = !showFlag;
+				$("#goToPhp").click(function (){
+					//window.location.href="http://localhost:8080/editor/ht.php";
+					window.location.href="http://www.521uu.cc:324/ht.php";
 				});
 			});
 		</script>
@@ -52,6 +48,7 @@
 		    <button class="btn btn-default" type="button" onclick ="Jump_Url('chargeMgr.html')">充值管理</button>
 		    <button class="btn btn-default" type="button" onclick ="Jump_Url('openMgr.html')">开户管理</button>
 		    <button class="btn btn-default" type="button" onclick ="Jump_Url('bourseMgr.html')">文交所管理</button>
+		    <button class="btn btn-default" id="goToPhp" type="button">其他管理</button>
 		</div>
 		<iframe src="" name="frame_sub" frameborder="0" scrolling="no" width="1920" height="1000"></iframe>
 	</body>

@@ -10,12 +10,68 @@
 		<script type="text/javascript" src="../js/jquery-2.1.1.min.js"></script>
 		<script type="text/javascript" src="../js/bootstrap.min.js"></script>
 		<script type="text/javascript">
-			
+			$(document).ready(function(){
+				$("#charge").click(function(){
+				    var account = $("#account").val();
+				    if (account == ""){
+				    	alert("请输入用户账号");
+					   	return;
+				    }
+				    var nikeName = $("#nikeName").val();
+				    if (nikeName == ""){
+				    	alert("请输入用户昵称");
+					   	return;
+				    }
+				    var token = $("#token").val();
+				    if (token == ""){
+				    	alert("请输入操作口令");
+					   	return;
+				    }
+				    var num = $("#num").val();
+				    if (num == ""){
+				    	alert("请输入充值的数量");
+					   	return;
+				    }
+					var params = "account=" + account + "&" + 
+					             "nikeName=" + nikeName + "&" + 
+					             "token=" + token + "&" + 
+					             "num=" + num;
+					$.ajax({
+					    type:"get",
+				        url :"../gm/HttpCharge",
+				        data:params,
+				        contentType:"application/json; charset=utf-8",
+				        dataType:"json",
+				        success:function(data) {
+				        	alert(data.result);
+				        },
+				        error:function (msg) {
+			                delRecord();
+			            }
+				    });
+				});
+			});
 		</script>
 	</head>
 	<body>
 		<div style="text-align:center;">
-			充值界面
+			<span style="color:#0010ff">用户账户:</span>
+			<input type="text" id="account" style="width:250px;"/>
+			<br>
+			<br>
+			<span style="color:#0010ff">用户昵称:</span>
+			<input type="text" id="nikeName" style="width:250px;"/>
+			<br>
+			<br>
+			<span style="color:#0010ff">操作口令:</span>
+			<input type="password" id="token" style="width:250px;"/>
+			<br>
+			<br>
+			<span style="color:#0010ff">充值邮游币:</span>
+			<input type="text" id="num" style="width:250px;" onkeyup="this.value=this.value.replace(/\D/g,'')" onafterpaste="this.value=this.value.replace(/\D/g,'')"/>
+			<br>
+			<br>
+			<button id="charge" class="btn btn-default" type="button">充值</button>
 		</div>
 	</body>
 </html>

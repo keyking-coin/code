@@ -17,5 +17,4 @@ public class HttpBourseList extends HttpHandler {
 		response.put("result","ok");
 		response.put("list",list == null ? "[]" : list);
 	}
-
 }
