@@ -238,20 +238,53 @@ public class DealOrder implements Instances,SerializeEntity,Comparable<DealOrder
 		DB.getDealOrderDao().save(this);
 	}
 	
-	public void addTimes(Deal deal,byte state){
-		if (state  > 0){
+	private void push(Deal deal,byte state){
+		try {
 			Map<String,String> pushMap = new HashMap<String, String>();
 			pushMap.put("type",PushType.PUSH_TYPE_ORDER_CHANGE.toString());
 			pushMap.put("dealId",dealId + "");
 			pushMap.put("orderId",id + "");
-			UserCharacter deployer = CTRL.search(deal.getUid());
-			if (deployer.couldPush(PushType.PUSH_TYPE_ORDER_CHANGE)){
-				PUSH.push("成交盘变化","成交盘变化",deployer.getPlatform(),pushMap,deployer.getPushId());
+			UserCharacter target1 = null , target2 = null;
+			if (helpFlag == 0){//普通模式
+				switch(state){
+				case 1:
+				case 3:
+					target1 = deal.getSellFlag() == Deal.DEAL_TYPE_BUY ? CTRL.search(deal.getUid()) : CTRL.search(buyId);
+					break;
+				case 2:
+					target1 = deal.getSellFlag() == Deal.DEAL_TYPE_SELL ? CTRL.search(deal.getUid()) : CTRL.search(buyId);
+					break;
+				}
+			}else{
+				switch(state){
+				case 1:
+				case 4:
+					target1 = deal.getSellFlag() == Deal.DEAL_TYPE_BUY ? CTRL.search(deal.getUid()) : CTRL.search(buyId);
+					break;
+				case 3:
+					target1 = deal.getSellFlag() == Deal.DEAL_TYPE_SELL ? CTRL.search(deal.getUid()) : CTRL.search(buyId);
+					break;
+				case 2:
+				case 5:
+					target1 = CTRL.search(deal.getUid());
+					target2 = CTRL.search(buyId);
+					break;
+				}
 			}
-			UserCharacter graber = CTRL.search(deal.getUid());
-			if (graber.couldPush(PushType.PUSH_TYPE_ORDER_CHANGE)){
-				PUSH.push("成交盘变化","成交盘变化",graber.getPlatform(),pushMap,graber.getPushId());
+			if (target1 != null && target1.couldPush(PushType.PUSH_TYPE_ORDER_CHANGE)){
+				PUSH.push("成交盘变化","成交盘变化",target1.getPlatform(),pushMap,target1.getPushId());
 			}
+			if (target2 != null && target2.couldPush(PushType.PUSH_TYPE_ORDER_CHANGE)){
+				PUSH.push("成交盘变化","成交盘变化",target2.getPlatform(),pushMap,target2.getPushId());
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public void addTimes(Deal deal,byte state){
+		if (state  > 0){
+			push(deal,state);
 		}
 		String str = TimeUtils.nowChStr();
 		times.add(state,str);
@@ -341,16 +374,11 @@ public class DealOrder implements Instances,SerializeEntity,Comparable<DealOrder
 	}
 	
 	public boolean isConfirming(Deal deal,long uid){
-		if (Appraise()){
+		if (Appraise() || checkRevoke()){
 			return false;
 		}
 		if ((helpFlag == 0 && state == ORDER_FINISH_NORMAL) || (helpFlag == 1 && state == ORDER_FINISH_HELP)){
-			if (checkBuyer(deal, uid)){//如果我是买家
-				return !buyerAppraise.isCompleted();
-			}
-			if (checkSeller(deal,uid)){//如果我是卖家
-				return !sellerAppraise.isCompleted();
-			}
+			return buyId == uid || deal.getUid() == uid;
 		}
 		return false;
 	}

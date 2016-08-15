@@ -17,6 +17,8 @@ public class PrimaryKey implements Instances{
 	
 	Map<String,Long> keys = new HashMap<String,Long>();
 	
+	Map<String,Object> lockers = new HashMap<String,Object>();
+	
 	public static PrimaryKey getInstance(){
 		return instance;
 	}
@@ -32,11 +34,13 @@ public class PrimaryKey implements Instances{
 			long value = DB.getUserDao().getJdbcTemplate().queryForLong(sql + table);
 			ServerLog.info("table <" + table + "> ----- PrimaryKey is ----> " + value);
 			keys.put(table,value);
+			lockers.put(table,new Object());
 		}
 	}
 	
 	public long key(TableName tableName){
-		synchronized (keys) {
+		Object locker = lockers.get(tableName.getTable());
+		synchronized (locker) {
 			long value = 0;
 			if (keys.containsKey(tableName.getTable())){
 				value = keys.get(tableName.getTable()).longValue();

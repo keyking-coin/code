@@ -42,23 +42,12 @@ public class AppMyDealAppraisingPage extends AbstractLogic {
 			if (!deal.checkJoin(uid)){
 				continue;
 			}
-			if (deal.getUid() == uid){
-				for (DealOrder order : deal.getOrders()){
-					boolean flag1 = deal.checkBuyer(uid) && !order.getBuyerAppraise().isCompleted();
-					boolean flag2 = deal.checkSeller(uid) && !order.getSellerAppraise().isCompleted();
-					if (flag1 && flag2 && !order.checkRevoke()){
-						TransformOrderListInfo hd = new TransformOrderListInfo();
-						hd.copy(deal,order);
-						result.add(hd);
-					}
-				}
-			}else{
-				for (DealOrder order : deal.getOrders()){
-					if (order.getBuyId() == uid && order.isConfirming(deal,uid) && !order.checkRevoke()){
-						TransformOrderListInfo hd = new TransformOrderListInfo();
-						hd.copy(deal,order);
-						result.add(hd);
-					}
+			for (int j = 0 ; j < deal.getOrders().size() ; j++){
+				DealOrder order = deal.getOrders().get(j);
+				if (order.isConfirming(deal,uid)){
+					TransformOrderListInfo hd = new TransformOrderListInfo();
+					hd.copy(deal,order);
+					result.add(hd);
 				}
 			}
 		}

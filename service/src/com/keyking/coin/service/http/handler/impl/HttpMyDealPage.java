@@ -16,7 +16,7 @@ import com.keyking.coin.service.tranform.page.order.TransformOrderListInfo;
 import com.keyking.coin.util.JsonUtil;
 
 public class HttpMyDealPage extends HttpDealPage {
-	//http://139.196.30.53:32104/HttpMyDealPage?index=x&uid=1&page=x&num=x
+	//http://127.0.0.1:32104/HttpMyDealPage?index=3&uid=368&page=1&num=30
 	@Override
 	public void handle(HttpRequestMessage request, HttpResponseMessage response) {
 		response.setContentType("text/plain");
@@ -139,23 +139,12 @@ public class HttpMyDealPage extends HttpDealPage {
 			if (!deal.checkJoin(uid)){
 				continue;
 			}
-			if (deal.getUid() == uid){
-				for (DealOrder order : deal.getOrders()){
-					boolean flag1 = deal.checkBuyer(uid) && !order.getBuyerAppraise().isCompleted();
-					boolean flag2 = deal.checkSeller(uid) && !order.getSellerAppraise().isCompleted();
-					if (flag1 && flag2 && !order.checkRevoke()){
-						TransformOrderListInfo hd = new TransformOrderListInfo();
-						hd.copy(deal,order);
-						result.add(hd);
-					}
-				}
-			}else{
-				for (DealOrder order : deal.getOrders()){
-					if (order.isConfirming(deal,uid) && !order.checkRevoke()){
-						TransformOrderListInfo hd = new TransformOrderListInfo();
-						hd.copy(deal,order);
-						result.add(hd);
-					}
+			for (int j = 0 ; j < deal.getOrders().size() ; j++){
+				DealOrder order = deal.getOrders().get(j);
+				if (order.isConfirming(deal,uid)){
+					TransformOrderListInfo hd = new TransformOrderListInfo();
+					hd.copy(deal,order);
+					result.add(hd);
 				}
 			}
 		}
