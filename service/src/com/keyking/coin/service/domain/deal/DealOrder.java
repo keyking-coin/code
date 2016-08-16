@@ -249,20 +249,20 @@ public class DealOrder implements Instances,SerializeEntity,Comparable<DealOrder
 				switch(state){
 				case 1:
 				case 3:
-					target1 = deal.getSellFlag() == Deal.DEAL_TYPE_BUY ? CTRL.search(deal.getUid()) : CTRL.search(buyId);
+					target1 = deal.getSellFlag() == Deal.DEAL_TYPE_SELL ? CTRL.search(deal.getUid()) : CTRL.search(buyId);
 					break;
 				case 2:
-					target1 = deal.getSellFlag() == Deal.DEAL_TYPE_SELL ? CTRL.search(deal.getUid()) : CTRL.search(buyId);
+					target1 = deal.getSellFlag() == Deal.DEAL_TYPE_BUY ? CTRL.search(deal.getUid()) : CTRL.search(buyId);
 					break;
 				}
 			}else{
 				switch(state){
 				case 1:
 				case 4:
-					target1 = deal.getSellFlag() == Deal.DEAL_TYPE_BUY ? CTRL.search(deal.getUid()) : CTRL.search(buyId);
+					target1 = deal.getSellFlag() == Deal.DEAL_TYPE_SELL ? CTRL.search(deal.getUid()) : CTRL.search(buyId);
 					break;
 				case 3:
-					target1 = deal.getSellFlag() == Deal.DEAL_TYPE_SELL ? CTRL.search(deal.getUid()) : CTRL.search(buyId);
+					target1 = deal.getSellFlag() == Deal.DEAL_TYPE_BUY ? CTRL.search(deal.getUid()) : CTRL.search(buyId);
 					break;
 				case 2:
 				case 5:

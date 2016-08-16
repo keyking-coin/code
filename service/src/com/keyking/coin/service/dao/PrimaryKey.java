@@ -3,6 +3,7 @@ package com.keyking.coin.service.dao;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -15,9 +16,7 @@ public class PrimaryKey implements Instances{
 	
 	static PrimaryKey instance = new PrimaryKey();
 	
-	Map<String,Long> keys = new HashMap<String,Long>();
-	
-	Map<String,Object> lockers = new HashMap<String,Object>();
+	Map<String,AtomicLong> keys = new HashMap<String,AtomicLong>();
 	
 	public static PrimaryKey getInstance(){
 		return instance;
@@ -33,21 +32,20 @@ public class PrimaryKey implements Instances{
 			String table = XmlUtils.getAttribute(elements[i],"table");
 			long value = DB.getUserDao().getJdbcTemplate().queryForLong(sql + table);
 			ServerLog.info("table <" + table + "> ----- PrimaryKey is ----> " + value);
-			keys.put(table,value);
-			lockers.put(table,new Object());
+			AtomicLong al = new AtomicLong(value);
+			keys.put(table,al);
 		}
 	}
 	
 	public long key(TableName tableName){
-		Object locker = lockers.get(tableName.getTable());
-		synchronized (locker) {
-			long value = 0;
-			if (keys.containsKey(tableName.getTable())){
-				value = keys.get(tableName.getTable()).longValue();
-			}
-			value ++;
-			keys.put(tableName.getTable(),value);
-			return value;
+		AtomicLong al = null;
+		String key = tableName.getTable();
+		if (keys.containsKey(key)){
+			al = keys.get(key);
+		}else{
+			al = new AtomicLong(0);
+			keys.put(key,al);
 		}
+		return al.incrementAndGet();
 	}
 }

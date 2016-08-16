@@ -12,7 +12,16 @@
 		    .border-table td {   
 		        border: solid #000 1px; 
 		        text-align:center;  
-		    }   
+		    }
+		    ul{
+		    	list-style-type:none;
+		    	margin:0;width:100%; 
+		    } 
+			ul li{ 
+				width:40px; 
+				float:left;
+				border: solid 1px blue;
+			} 
 		</style>
 		<link rel="stylesheet" href="../js/bootstrap.min.css" >
 		<script type="text/javascript" src="../js/jquery-2.1.1.min.js"></script>
@@ -21,48 +30,81 @@
 			var page = 1;
 			var len  = 20;
 			var title_str =
-			"<tr id='title'>" +
-			  "<td>&nbsp;会员账号&nbsp;</td>"+
-			  "<td>&nbsp;昵&nbsp;&nbsp;&nbsp;称&nbsp;</td>"+
-			  "<td>&nbsp;姓&nbsp;&nbsp;&nbsp;名&nbsp;</td>"+
-			  "<td>&nbsp;身&nbsp;份&nbsp;证&nbsp;</td>"+
-			  "<td>&nbsp;注册时间</td>"+
-			  "<td>&nbsp;头&nbsp;&nbsp;&nbsp;像</td>"+
-			  "<td>&nbsp;买家权限&nbsp;</td>"+
-			  "<td>&nbsp;卖家权限&nbsp;</td>"+
-			  "<td>&nbsp;总成交额&nbsp;</td>"+
-			  "<td>&nbsp;好评次数&nbsp;</td>"+
-			  "<td>&nbsp;中评次数&nbsp;</td>"+
-			  "<td>&nbsp;差评次数&nbsp;</td>"+
-			  "<td>&nbsp;会员到期时间&nbsp;</td>"+
-			  "<td>&nbsp;违约记录&nbsp;</td>"+
-			  "<td>&nbsp;封号记录&nbsp;</td>"+
-			 "</tr>";
+			"<thead><tr style='background-color:#81C0C0;'>" +
+			  "<th>&nbsp;会员账号&nbsp;</th>"+
+			  "<th>&nbsp;昵&nbsp;&nbsp;&nbsp;称&nbsp;</th>"+
+			  "<th>&nbsp;姓&nbsp;&nbsp;&nbsp;名&nbsp;</th>"+
+			  "<th>&nbsp;身&nbsp;份&nbsp;证&nbsp;</th>"+
+			  "<th>&nbsp;注册时间</th>"+
+			  "<th>&nbsp;头&nbsp;&nbsp;&nbsp;像</th>"+
+			  "<th>&nbsp;买家权限&nbsp;</th>"+
+			  "<th>&nbsp;卖家权限&nbsp;</th>"+
+			  "<th>&nbsp;总成交额&nbsp;</th>"+
+			  "<th>&nbsp;好评次数&nbsp;</th>"+
+			  "<th>&nbsp;中评次数&nbsp;</th>"+
+			  "<th>&nbsp;差评次数&nbsp;</th>"+
+			  "<th>&nbsp;会员到期时间&nbsp;</th>"+
+			  "<th>&nbsp;违约记录&nbsp;</th>"+
+			  "<th>&nbsp;封号记录&nbsp;</th>"+
+			 "</tr></thead>";
+			function insert(container,data){
+				var html = "<tr id='" + data + "'>" +
+							   "<td>13856094894</td>" +
+							   "<td>会飞的猪</td>" +
+							   "<td>张三</td>" +
+							   "<td>1234566487741114</td>" +
+								"<td>2015-01-01 10:50:20</td>" +
+								"<td>未设置</td>" +
+								"<td>true</td>" +
+								"<td>true</td>" +
+								"<td>10W</td>" +
+								"<td>200</td>" +
+								"<td>50</td>" +
+								"<td>5</td>" +
+								"<td>2017-01-01 23:59:59</td>" +
+								"<td>0</td>" +
+								"<td>无</td>" +
+						    "</tr>";
+				container.append(html);		
+			};
+			
+			function go_page(index){
+				
+			};
+			
+			function init_ul(data){
+				var page_li='';
+				var ge = new Array();
+				ge[1]=parseInt(1);
+				ge[2]=1;
+				ge[3]=parseInt(20);
+				ge[4]=ge[1]+10;
+				if (ge[1]-4 > 0) {
+					ge[2]=ge[1]-4;
+					ge[4]=ge[4]-4;
+				};
+				for (var i = ge[2]; i < ge[4]; i++) {
+					var cs="";
+					if (i == ge[1]) {
+						cs="class=\"active\"";
+					}
+					if ( i > (Number(ge[1])+Number(ge[3]))){
+						break;
+					};
+					var page_li = page_li+"<li "+cs+" ><a href='#' onclick=\"go_page("+i+");return false;\">"+i+"</a></li>";
+				};
+				var page_ul = "<ul><li><a href='#'  onclick=\"go_page(1);return false;\">&laquo;</a></li>"+page_li+"<li><a href='#' onclick=\"go_page("+(Number(ge[1])+Number(ge[3]))+");return false;\">&raquo;</a></li> </ul>";
+				$("#cols").empty();
+				$("#cols").html(page_ul);
+			};
 			$(document).ready(function(){
-				alert(title_str);
 				var container = $("#container");
 				container.empty();
 				container.append(title_str);
-				alert(2);
-				for (int i = 0 ; i < 20 ; i++){
-					var html = "<tr id='tr_" + i + "'>"+
-							   "<td>13856094894</td>"+
-							   "<td>会飞的猪</td>"+
-							   "<td>张三</td>"+
-							   "<td>1234566487741114</td>"+
-								"<td>2015-01-01 10:50:20</td>"+
-								"<td>未设置</td>"+
-								"<td>true</td>"+
-								"<td>true</td>"+
-								"<td>10W</td>"+
-								"<td>200</td>"+
-								"<td>50</td>"+
-								"<td>5</td>"+
-								"<td>2017-01-01 23:59:59</td>"+
-								"<td>0</td>"+
-								"<td>无</td></tr>";
-					container.append(html);
+				for (var i = 0 ; i < 30 ; i++){
+					insert(container,i);
 				}
+				init_ul(1);
 			});
 		</script>
 	</head>
@@ -70,5 +112,11 @@
 		<table id="container" class="border-table">
 			
 		</table>
+		<br>
+		<center>
+			<div id="cols">
+				
+			</div>
+		</center>
 	</body>
 </html>
