@@ -19,7 +19,7 @@ public class BourseDAO extends BaseDAO {
 	private static String UPDATE_SQL_STR = "update bourse set url=?,type=?,pos=? where name=?";
 	private static String SELECT_SQL_STR = "select * from bourse where name=?";
 	private static String SELECT_SQL_STR_MORE = "select * from bourse where 1=1 order by pos asc";
-	private static String SELECT_SQL_STR_TYPE = "select * from bourse where type=? order by pos asc";
+	private static String SELECT_SQL_STR_TYPE = "select * from bourse where type>=? order by pos asc";
 	
 	BourseInfoRow row = new BourseInfoRow();
 	

@@ -19,12 +19,7 @@ public class HttpBourseList extends HttpHandler {
 		response.setResponseCode(HttpResponseMessage.HTTP_STATUS_SUCCESS);
 		String str = request.getParameter("type");//1只在文交所导航,2文交所导航加下拉列表,3文交所导航加下拉列表加热门文交所
 		byte type = Byte.parseByte(str);
-		List<BourseInfo> infos = null;
-		if (type == 1){
-			infos = DB.getBourseDao().load();
-		}else{
-			infos = DB.getBourseDao().load(type);
-		}
+		List<BourseInfo> infos = DB.getBourseDao().load(type);
 		if (infos == null){
 			infos = new ArrayList<BourseInfo>();
 		}
