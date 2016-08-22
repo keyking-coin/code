@@ -385,46 +385,57 @@ public class Controler implements Instances{
 		}
 		return result;
 	}
-
-	public List<TransformTouristOrder> trySearchHttpRecentOrder(){
-		List<TransformTouristOrder> orders = new ArrayList<TransformTouristOrder>();
-		DateTime time = TimeUtils.now();
+	
+	private void checkTime1(List<TransformTouristOrder> lis,long start,long end){
+		DateTime startTime = TimeUtils.getTime(start);
+		DateTime endTime = TimeUtils.getTime(end);
 		for (Deal deal : deals.values()){
 			for (DealOrder order : deal.getOrders()){
 				if (order.checkRevoke()){
 					continue;
 				}
 				DateTime otime = TimeUtils.getTime(order.getTimes().get(0));
-				if (TimeUtils.isSameDay(time,otime)){
-					orders.add(new TransformTouristOrder(deal,order));
+				if (otime.isBefore(startTime) && otime.isAfter(endTime)){
+					lis.add(new TransformTouristOrder(deal,order));
 				}
 			}
 		}
-		int count = 1;
-		while (orders.size() < 50){
-			long pre = time.getMillis() - count * 24 * 3600 * 1000;
-			time = TimeUtils.getTime(pre);
-			for (Deal deal : deals.values()){
-				for (DealOrder order : deal.getOrders()){
-					if (order.checkRevoke()){
-						continue;
-					}
-					DateTime otime = TimeUtils.getTime(order.getTimes().get(0));
-					if (TimeUtils.isSameDay(time,otime)){
-						orders.add(new TransformTouristOrder(deal,order));
-					}
+	}
+	
+	private void checkTime2(List<RecentDeal> lis,long start,long end){
+		DateTime startTime = TimeUtils.getTime(start);
+		DateTime endTime = TimeUtils.getTime(end);
+		for (Deal deal : deals.values()){
+			for (DealOrder order : deal.getOrders()){
+				if (order.checkRevoke()){
+					continue;
+				}
+				DateTime otime = TimeUtils.getTime(order.getTimes().get(0));
+				if (otime.isBefore(startTime) && otime.isAfter(endTime)){
+					lis.add(new RecentDeal(deal,order));
 				}
 			}
-			count ++;
-			if (orders.size() >= 50){
-				break;
+		}
+	}
+	
+	public List<TransformTouristOrder> trySearchHttpRecentOrder(){
+		List<TransformTouristOrder> ttos = new ArrayList<TransformTouristOrder>();
+		long start = TimeUtils.nowLong();
+		long des = 7 * 24 * 3600 * 1000;
+		long end = start - des;
+		int count = 100;
+		while (ttos.size() < 50 && count > 0){
+			checkTime1(ttos,start,end);
+			start -= des;
+			end -= des;
+		}
+		Collections.sort(ttos);
+		if (ttos.size() > 50){
+			for (int i = 50 ; i < ttos.size();){
+				ttos.remove(i);
 			}
 		}
-		Collections.sort(orders);
-		for (int i = 49 ; i < orders.size() ; i++){
-			orders.remove(i);
-		}
-		return orders;
+		return ttos;
 	}
 	
 	
@@ -466,7 +477,7 @@ public class Controler implements Instances{
 	public List<TransformUserData> getCoinUsers() {
 		List<TransformUserData> result = new ArrayList<TransformUserData>();
 		for (UserCharacter user : characters.values()){
-			if (user.getPermission().buyer() || user.getPermission().seller()){
+			if (user.getPermission().coin_user()){
 				TransformUserData tud = new TransformUserData(user);
 				result.add(tud);
 			}
@@ -502,33 +513,20 @@ public class Controler implements Instances{
 	
 	public List<RecentDeal> getRecentOrders() {
 		List<RecentDeal> result = new ArrayList<RecentDeal>();
-		DateTime time = TimeUtils.now();
-		for (Deal deal : deals.values()){
-			for (DealOrder order : deal.getOrders()){
-				DateTime otime = TimeUtils.getTime(order.getTimes().get(0));
-				if (TimeUtils.isSameDay(time,otime)){
-					RecentDeal rd = new RecentDeal(deal,order);
-					result.add(rd);
-				}
-			}
+		long start = TimeUtils.nowLong();
+		long des = 7 * 24 * 3600 * 1000;
+		long end = start - des;
+		int count = 100;
+		while (result.size() < 50 && count > 0){
+			checkTime2(result,start,end);
+			start -= des;
+			end -= des;
+			count--;
 		}
-		if (result.size() < 20){
-			long pre = time.getMillis() - 24 * 3600 * 1000;
-			time = TimeUtils.getTime(pre);
-			for (Deal deal : deals.values()){
-				for (DealOrder order : deal.getOrders()){
-					DateTime otime = TimeUtils.getTime(order.getTimes().get(0));
-					if (TimeUtils.isSameDay(time,otime)){
-						RecentDeal rd = new RecentDeal(deal,order);
-						result.add(rd);
-					}
-					if (result.size() >= 20){
-						break;
-					}
-				}
-				if (result.size() >= 20){
-					break;
-				}
+		Collections.sort(result);
+		if (result.size() > 50){
+			for (int i = 50 ; i < result.size();){
+				result.remove(i);
 			}
 		}
 		return result;

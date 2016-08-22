@@ -16,6 +16,7 @@ public class NoticeRow implements RowMapper<NoticeEntity> {
 		NoticeEntity notice = new NoticeEntity();
 		long time = arg0.getLong("_time");
 		DateTime dt = TimeUtils.getTime(time);
+		notice.set_time(time);
 		notice.setTime(dt.toString(TimeUtils.FORMAT_DAY));
 		notice.setTitle(arg0.getString("title"));
 		notice.setBody(arg0.getString("body"));

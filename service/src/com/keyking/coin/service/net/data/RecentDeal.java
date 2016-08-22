@@ -1,9 +1,12 @@
 package com.keyking.coin.service.net.data;
 
+import org.joda.time.DateTime;
+
 import com.keyking.coin.service.domain.deal.Deal;
 import com.keyking.coin.service.domain.deal.DealOrder;
+import com.keyking.coin.util.TimeUtils;
 
-public class RecentDeal {
+public class RecentDeal implements Comparable<RecentDeal>{
 	String bource;//文交所或者是成交城市
 	String type;//交易类型
 	String dealName;//交易藏品名称
@@ -84,5 +87,15 @@ public class RecentDeal {
 	}
 	public void setMonad(String monad) {
 		this.monad = monad;
+	}
+
+	@Override
+	public int compareTo(RecentDeal o) {
+		DateTime d1 = TimeUtils.getTime(time);
+		DateTime d2 = TimeUtils.getTime(o.time);
+		if (d1.isBefore(d2)){
+			return 1;
+		}
+		return -1;
 	}
 }

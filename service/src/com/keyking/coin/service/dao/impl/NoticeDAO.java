@@ -11,6 +11,8 @@ public class NoticeDAO extends BaseDAO {
 	
 	private static String SELECT_SQL_STR = "select * from notice where type=?";
 	
+	private static String SELECT_SQL_ONE = "select * from notice where _time=?";
+	
 	NoticeRow row = new NoticeRow();
 	
 	public List<NoticeEntity> search(int type) {
@@ -21,5 +23,15 @@ public class NoticeDAO extends BaseDAO {
 			return null;
 		}
 		return notices;
+	}
+	
+	public NoticeEntity search(long time) {
+		NoticeEntity entity = null;
+		try {
+			entity = getJdbcTemplate().queryForObject(SELECT_SQL_ONE,row,time);
+		} catch (DataAccessException e) {
+			return null;
+		}
+		return entity;
 	}
 }

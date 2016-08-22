@@ -54,7 +54,7 @@ public class UserPermission {
 	}
 	
 	public boolean coin_user(){
-		return type.ordinal() >= PermissionType.buyer.ordinal();
+		return type.ordinal() == PermissionType.buyer.ordinal() || type.ordinal() == PermissionType.seller.ordinal();
 	}
 	
 	public String serialize(){

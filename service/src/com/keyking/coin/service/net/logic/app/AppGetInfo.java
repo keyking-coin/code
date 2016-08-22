@@ -1,7 +1,5 @@
 package com.keyking.coin.service.net.logic.app;
 
-import java.util.List;
-
 import com.keyking.coin.service.domain.other.NoticeEntity;
 import com.keyking.coin.service.net.buffer.DataBuffer;
 import com.keyking.coin.service.net.logic.AbstractLogic;
@@ -12,9 +10,14 @@ public class AppGetInfo extends AbstractLogic {
 	@Override
 	public Object doLogic(DataBuffer buffer, String logicName) throws Exception {
 		AppResp resp = new AppResp(logicName);
-		List<NoticeEntity> result = DB.getNoticeDao().search(3);
-		resp.put("list",result);
-		resp.setSucces();
+		long _time = buffer.getLong();
+		NoticeEntity entity = DB.getNoticeDao().search(_time);
+		if (entity != null){
+			resp.put("data",entity);
+			resp.setSucces();
+		}else{
+			resp.setError("找不到资讯内容");
+		}
 		return resp;
 	}
 

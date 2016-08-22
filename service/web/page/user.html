@@ -27,57 +27,92 @@
 		<script type="text/javascript" src="../js/jquery-2.1.1.min.js"></script>
 		<script type="text/javascript" src="../js/bootstrap.min.js"></script>
 		<script type="text/javascript">
-			var page = 1;
-			var len  = 20;
+			var pageLen  = 30;
 			var title_str =
 			"<thead><tr style='background-color:#81C0C0;'>" +
 			  "<th>&nbsp;会员账号&nbsp;</th>"+
 			  "<th>&nbsp;昵&nbsp;&nbsp;&nbsp;称&nbsp;</th>"+
-			  "<th>&nbsp;姓&nbsp;&nbsp;&nbsp;名&nbsp;</th>"+
+			  "<th>&nbsp;头&nbsp;&nbsp;&nbsp;衔&nbsp;</th>"+
 			  "<th>&nbsp;身&nbsp;份&nbsp;证&nbsp;</th>"+
 			  "<th>&nbsp;注册时间</th>"+
-			  "<th>&nbsp;头&nbsp;&nbsp;&nbsp;像</th>"+
 			  "<th>&nbsp;买家权限&nbsp;</th>"+
 			  "<th>&nbsp;卖家权限&nbsp;</th>"+
 			  "<th>&nbsp;总成交额&nbsp;</th>"+
 			  "<th>&nbsp;好评次数&nbsp;</th>"+
 			  "<th>&nbsp;中评次数&nbsp;</th>"+
 			  "<th>&nbsp;差评次数&nbsp;</th>"+
-			  "<th>&nbsp;会员到期时间&nbsp;</th>"+
 			  "<th>&nbsp;违约记录&nbsp;</th>"+
 			  "<th>&nbsp;封号记录&nbsp;</th>"+
 			 "</tr></thead>";
+			 
+			function openFrame(){
+			   
+			};
+			
 			function insert(container,data){
+			    var buyFlag  = false;
+			    var sellFlag = false;
+			    if (data.perission.type == "seller"){
+			    	sellFlag = true;
+			    	buyFlag = true;
+			    }else if (data.perission.type == "buyer"){
+			    	sellFlag = false;
+			    	buyFlag = true;
+			    }
+			    var identity = (data.identity == undefined || data.identity== "") ? "无" : data.identity;
+			    var forbid  = data.forbid.reason == undefined ? "无" : data.forbid.reason;
 				var html = "<tr id='" + data + "'>" +
-							   "<td>13856094894</td>" +
-							   "<td>会飞的猪</td>" +
-							   "<td>张三</td>" +
-							   "<td>1234566487741114</td>" +
-								"<td>2015-01-01 10:50:20</td>" +
-								"<td>未设置</td>" +
-								"<td>true</td>" +
-								"<td>true</td>" +
-								"<td>10W</td>" +
-								"<td>200</td>" +
-								"<td>50</td>" +
-								"<td>5</td>" +
-								"<td>2017-01-01 23:59:59</td>" +
-								"<td>0</td>" +
-								"<td>无</td>" +
+							   "<td><a href='#' onclick='openFrame(" + data.id + ");return false;'>" + data.account + "</a></td>" +
+							   "<td>" + data.nikeName + "</td>" +
+							   "<td>" + data.title + "</td>" +
+							   "<td>" + identity + "</td>" +
+								"<td>" + data.registTime + "</td>" +
+								"<td>" + buyFlag + "</td>" +
+								"<td>" + sellFlag + "</td>" +
+								"<td>" + data.completeDealNum + "</td>" +
+								"<td>" + data.credit.hp + "</td>" +
+								"<td>" + data.credit.zp + "</td>" +
+								"<td>" + data.credit.cp + "</td>" +
+								"<td>" + data.breach + "</td>" +
+								"<td>" + forbid + "</td>" +
 						    "</tr>";
-				container.append(html);		
+				container.append(html);
+				init_ul(data);
 			};
 			
 			function go_page(index){
-				
+			    var params = "page=" + index + "&num=" + pageLen;
+				$.ajax({
+				    type:"get",
+			        url :"../gm/HttpUserList",
+			        data:params,
+			        contentType:"application/json; charset=utf-8",
+			        dataType:"json",
+			        success:function(data) {
+			        	if (data.result == "ok"){
+			        		var container = $("#container");
+							container.empty();
+							container.append(title_str);
+							for (var i = 0 ; i < pageLen ; i++){
+								insert(container,data.list[i]);
+							}
+							init_ul(data);
+			        	}else{
+			        		alert(data.result);
+			        	}
+			        },
+			        error:function (msg) {
+		                alert(msg);
+		            }
+				});
 			};
 			
 			function init_ul(data){
 				var page_li='';
 				var ge = new Array();
-				ge[1]=parseInt(1);
+				ge[1]=parseInt(data.page);
 				ge[2]=1;
-				ge[3]=parseInt(20);
+				ge[3]=parseInt(data.left);
 				ge[4]=ge[1]+10;
 				if (ge[1]-4 > 0) {
 					ge[2]=ge[1]-4;
@@ -98,13 +133,7 @@
 				$("#cols").html(page_ul);
 			};
 			$(document).ready(function(){
-				var container = $("#container");
-				container.empty();
-				container.append(title_str);
-				for (var i = 0 ; i < 30 ; i++){
-					insert(container,i);
-				}
-				init_ul(1);
+				go_page(1);
 			});
 		</script>
 	</head>
