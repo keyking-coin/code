@@ -457,7 +457,10 @@ public class Deal implements Instances,SerializeEntity,Comparable<Deal>{
 		Map<Long,RankEntity> result = new HashMap<Long, RankEntity>();
 		for (DealOrder order : orders){
 			if (order.over()){//已完成交易
-				int worth = type == 0 ? (int)order.getPrice() * order.getNum() : order.getNum();
+				int worth = 1;
+				if (type == 0){
+					worth = (int)(order.getPrice() * order.getNum());
+				}
 				RankEntity entity = result.get(uid);
 				if (entity == null){
 					entity = new RankEntity(uid);

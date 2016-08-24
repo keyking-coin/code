@@ -1,6 +1,7 @@
 package com.keyking.coin.service.domain.bourse;
 
-public class BourseInfo {
+public class BourseInfo{
+	
 	String name;
 	String url;
 	byte type;//1只在文交所导航,2文交所导航加下拉列表,3文交所导航加下拉列表加热门文交所

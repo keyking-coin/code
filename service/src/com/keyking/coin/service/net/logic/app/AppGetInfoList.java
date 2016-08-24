@@ -1,6 +1,7 @@
 package com.keyking.coin.service.net.logic.app;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import com.keyking.coin.service.domain.other.InfoList;
@@ -15,6 +16,7 @@ public class AppGetInfoList extends AbstractLogic {
 	public Object doLogic(DataBuffer buffer, String logicName) throws Exception {
 		AppResp resp = new AppResp(logicName);
 		List<NoticeEntity> result = DB.getNoticeDao().search(3);
+		Collections.sort(result);
 		List<InfoList> list = new ArrayList<InfoList>();
 		for (int i = 0 ; i < result.size() ; i++){
 			NoticeEntity entity = result.get(i);

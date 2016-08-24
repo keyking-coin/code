@@ -1,6 +1,7 @@
 package com.keyking.coin.service.domain.other;
 
-public class NoticeEntity {
+
+public class NoticeEntity implements Comparable<NoticeEntity>{
 	long _time;//时间戳
 	String time;//时间
 	String title;//标题
@@ -46,6 +47,9 @@ public class NoticeEntity {
 	public void setType(byte type) {
 		this.type = type;
 	}
-	
-	
+
+	@Override
+	public int compareTo(NoticeEntity o) {
+		return Long.compare(o._time,_time);
+	}
 }
