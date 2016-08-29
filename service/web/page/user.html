@@ -1,4 +1,4 @@
-<!doctype html>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html lang="en">
 	<head>
 		<meta charset="UTF-8">
@@ -21,67 +21,151 @@
 				width:40px; 
 				float:left;
 				border: solid 1px blue;
-			} 
+			}
 		</style>
 		<link rel="stylesheet" href="../js/bootstrap.min.css" >
 		<script type="text/javascript" src="../js/jquery-2.1.1.min.js"></script>
 		<script type="text/javascript" src="../js/bootstrap.min.js"></script>
+		<script type="text/javascript" src="../js/WdatePicker.js"></script>
 		<script type="text/javascript">
-			var pageLen  = 30;
-			var title_str =
-			"<thead><tr style='background-color:#81C0C0;'>" +
-			  "<th>&nbsp;会员账号&nbsp;</th>"+
-			  "<th>&nbsp;昵&nbsp;&nbsp;&nbsp;称&nbsp;</th>"+
-			  "<th>&nbsp;头&nbsp;&nbsp;&nbsp;衔&nbsp;</th>"+
-			  "<th>&nbsp;身&nbsp;份&nbsp;证&nbsp;</th>"+
-			  "<th>&nbsp;注册时间</th>"+
-			  "<th>&nbsp;买家权限&nbsp;</th>"+
-			  "<th>&nbsp;卖家权限&nbsp;</th>"+
-			  "<th>&nbsp;总成交额&nbsp;</th>"+
-			  "<th>&nbsp;好评次数&nbsp;</th>"+
-			  "<th>&nbsp;中评次数&nbsp;</th>"+
-			  "<th>&nbsp;差评次数&nbsp;</th>"+
-			  "<th>&nbsp;违约记录&nbsp;</th>"+
-			  "<th>&nbsp;封号记录&nbsp;</th>"+
+			var pageLen   = 25;
+			var rankType  = 1;
+			var sortType  = 1;
+			var pageIndex = 1;
+			var title_str = "<thead><tr style='background-color:#81C0C0;'>" +
+			  "<th>会员账号</th>"+
+			  "<th>昵称</th>"+
+			  "<th>头衔</th>"+
+			  "<th>身份证</th>"+
+			  "<th>注册时间</th>"+
+			  "<th>邮    游   币</th>"+
+			  "<th>成交笔数</th>"+
+			  "<th>买家</th>"+
+			  "<th>卖家</th>"+
+			  "<th>好评</th>"+
+			  "<th>中评</th>"+
+			  "<th>差评</th>"+
+			  "<th>违约</th>"+
+			  "<th>封号原因</th>"+
+			  "<th>解封日期</th>"+
+			  "<th>操作</th>"+
 			 "</tr></thead>";
 			 
-			function openFrame(){
-			   
+			function changeUser(account,id){
+			   var nickName = $("#nikeName_" + account).val();
+			   if (nickName == ""){
+			   		alert("昵称不能为空");
+			   		return;
+			   }
+			   var title = $("#title_" + account).val();
+			   if (title == ""){
+			   		alert("头衔不能为空");
+			   		return;
+			   }
+			   //var identity = $("#identity_" + account).val();
+			   //var registTime = $("#registTime_" + account).val();
+			   //if (registTime == ""){
+			   //		alert("注册时间不能为空");
+			   //		return;
+			   //}
+			   var sellFlag = $("#sellFlag_" + account).val();
+			   var hp = $("#hp_" + account).val();
+			   var zp = $("#zp_" + account).val();
+			   var cp = $("#cp_" + account).val();
+			   var breach = $("#breach_" + account).val();
+			   var forbid_r = $("#forbid_r_" + account).val();
+			   var forbid_t = $("#forbid_t_" + account).val();
+			   if (forbid_r == "" && forbid_t != ""){
+			   		alert("请设置封号原因");
+			   		return;
+			   }
+			   if (forbid_r != "" && forbid_t == ""){
+			   		alert("请设置解封日期");
+			   		return;
+			   }
+			   var params = "nickName=" + nickName + "&" +
+			   				"title=" + title + "&" +
+			   				//"identity=" + identity + "&" +
+			   				//"buyFlag=" + buyFlag + "&" +
+			   				"sellFlag=" + sellFlag + "&" +
+			   				"hp=" + hp + "&" +
+			   				"zp=" + zp + "&" +
+			   				"cp=" + cp + "&" +
+			   				"breach=" + breach + "&" +
+			   				"forbid_r=" + forbid_r + "&" +
+			   				"forbid_t=" + forbid_t + "&" +
+			   				"id=" + id;
+			   //alert(params);
+			   $.ajax({
+				    type:"get",
+			        url :"../gm/HttpGmUserUpdate",
+			        data:params,
+			        contentType:"application/json; charset=utf-8",
+			        dataType:"json",
+			        success:function(data) {
+			        	if (data.result == "ok"){
+			        		var container = $("#container");
+							container.empty();
+							container.append(title_str);
+							for (var i = 0 ; i < pageLen ; i++){
+								insert(container,data.list[i]);
+							}
+							init_ul(data);
+			        	}else{
+			        		alert(data.result);
+			        	}
+			        },
+			        error:function (msg) {
+		                alert(msg);
+		            }
+			   });
 			};
 			
 			function insert(container,data){
-			    var buyFlag  = false;
-			    var sellFlag = false;
+			    var sellFlag = "<option value='true' selected='selected'>是</option><option value='false'>否</option>";
 			    if (data.perission.type == "seller"){
-			    	sellFlag = true;
-			    	buyFlag = true;
+			    	sellFlag = "<option value='true' selected='selected'>是</option><option value='false'>否</option>";
 			    }else if (data.perission.type == "buyer"){
-			    	sellFlag = false;
-			    	buyFlag = true;
+			    	sellFlag = "<option value='true'>是</option><option value='false' selected='selected'>否</option>";
 			    }
-			    var identity = (data.identity == undefined || data.identity== "") ? "无" : data.identity;
-			    var forbid  = data.forbid.reason == undefined ? "无" : data.forbid.reason;
+			    var identity = (data.identity == undefined || data.identity== "") ? "未设置" : data.identity;
+			    var forbid_r = data.forbid.reason == undefined ? "" : data.forbid.reason;
+			    var forbid_t = data.forbid.showTime == undefined ? "" : data.forbid.showTime;
 				var html = "<tr id='" + data + "'>" +
-							   "<td><a href='#' onclick='openFrame(" + data.id + ");return false;'>" + data.account + "</a></td>" +
-							   "<td>" + data.nikeName + "</td>" +
-							   "<td>" + data.title + "</td>" +
+							   "<td>" + data.account + "</td>" +
+							   "<td><input id='nikeName_" + data.account + "' type='text' value='" + data.nikeName + "' style='text-align:center' /></td>" +
+							   "<td><input id='title_" + data.account + "' type='text' value='" + data.title + "' style='text-align:center' /></td>" +
 							   "<td>" + identity + "</td>" +
-								"<td>" + data.registTime + "</td>" +
-								"<td>" + buyFlag + "</td>" +
-								"<td>" + sellFlag + "</td>" +
-								"<td>" + data.completeDealNum + "</td>" +
-								"<td>" + data.credit.hp + "</td>" +
-								"<td>" + data.credit.zp + "</td>" +
-								"<td>" + data.credit.cp + "</td>" +
-								"<td>" + data.breach + "</td>" +
-								"<td>" + forbid + "</td>" +
+							   //"<td><input id='identity_" + data.account + "' type='text' value='" + identity+ "' style='text-align:center' /></td>" +
+							   "<td>" + data.registTime + "</td>" +
+							   "<td>" + data.money + "</td>" +
+							   "<td>" + data.completeDealNum + "</td>" +
+							   "<td>是</td>" +
+							   //"<td><select id='buyFlag_" + data.account + "'>" + buyFlag + "</select></td>" +
+							   "<td><select id='sellFlag_" + data.account + "'>" + sellFlag + "</select></td>" +
+							   "<td><input id='hp_" + data.account + "' type='text' value='" + data.credit.hp + "' onkeyup=\"this.value=this.value.replace(\/\\D\/g,'')\" onafterpaste=\"this.value=this.value.replace(\/\\D\/g,'')\"  style='text-align:center;width:80px;' /></td>" +
+							   "<td><input id='zp_" + data.account + "' type='text' value='" + data.credit.zp + "' onkeyup=\"this.value=this.value.replace(\/\\D\/g,'')\" onafterpaste=\"this.value=this.value.replace(\/\\D\/g,'')\"  style='text-align:center;width:80px;' /></td>" +
+							   "<td><input id='cp_" + data.account + "' type='text' value='" + data.credit.cp + "' onkeyup=\"this.value=this.value.replace(\/\\D\/g,'')\" onafterpaste=\"this.value=this.value.replace(\/\\D\/g,'')\"  style='text-align:center;width:80px;' /></td>" +
+							   "<td><input id='breach_" + data.account + "' type='text' value='" + data.breach + "' onkeyup=\"this.value=this.value.replace(\/\\D\/g,'')\" onafterpaste=\"this.value=this.value.replace(\/\\D\/g,'')\" style='text-align:center;width:80px;' /></td>" +
+							   "<td><input id='forbid_r_" + data.account + "' type='text' value='" + forbid_r + "' placeholder='封号原因'  style='text-align:center' /></td>" +
+							   "<td><input id='forbid_t_" + data.account + "' type='text' value='" + forbid_t + "' class='Wdate'  onfocus='WdatePicker({dateFmt:\"yyyy-MM-dd HH:mm:ss\"})' /></td>" +
+							   "<td><input type='button' value='修改' onclick='changeUser(" + data.account + "," + data.id + ")'/></td>" +
 						    "</tr>";
 				container.append(html);
 				init_ul(data);
 			};
 			
+			function uiCenter(){
+				$("#cols").css({
+					position: "absolute",
+					left: ($(window).width() - $("#cols").outerWidth())/2,
+					//top: ($(window).height() - $("#cols").outerHeight())/2
+				});
+			};
+			
 			function go_page(index){
-			    var params = "page=" + index + "&num=" + pageLen;
+				pageIndex = index;
+			    var params = "page=" + index + "&num=" + pageLen + "&rank=" + rankType + "&sort=" + sortType;
 				$.ajax({
 				    type:"get",
 			        url :"../gm/HttpUserList",
@@ -128,16 +212,46 @@
 					};
 					var page_li = page_li+"<li "+cs+" ><a href='#' onclick=\"go_page("+i+");return false;\">"+i+"</a></li>";
 				};
-				var page_ul = "<ul><li><a href='#'  onclick=\"go_page(1);return false;\">&laquo;</a></li>"+page_li+"<li><a href='#' onclick=\"go_page("+(Number(ge[1])+Number(ge[3]))+");return false;\">&raquo;</a></li> </ul>";
+				var page_ul = "<ul><li><a href='#'  onclick=\"go_page(1);return false;\">首页</a></li>"+page_li+"<li><a href='#' onclick=\"go_page("+(Number(ge[1])+Number(ge[3]))+");return false;\">尾页</a></li> </ul>";
 				$("#cols").empty();
 				$("#cols").html(page_ul);
+				uiCenter();
 			};
+			
+			function rankChange(index){
+				if (rankType != index){
+					rankType = index;
+					go_page(pageIndex);
+				}
+			};
+			
+			function sortChange(index){
+				if (sortType != index){
+					sortType = index;
+					go_page(pageIndex);
+				}
+			};
+			
 			$(document).ready(function(){
 				go_page(1);
 			});
 		</script>
 	</head>
-	<body style="margin-left:20%;">
+	<body style="margin-left:140px;">
+		<span style="color:#0010ff">排序类型:</span>
+		<select onchange="rankChange(this.options[this.selectedIndex].value)">
+			<option value="1">注册时间</option>
+			<option value="2">好评次数</option>
+			<option value="3">中评次数</option>
+			<option value="4">差评次数</option>
+			<option value="5">违约次数</option>
+			<option value="6">邮游币</option>
+		</select>
+		<span style="color:#0010ff">顺序类型:</span>
+		<select onchange="sortChange(this.options[this.selectedIndex].value)">
+			<option value="1">升序</option>
+			<option value="2">降序</option>
+		</select>
 		<table id="container" class="border-table">
 			
 		</table>

@@ -323,6 +323,14 @@ public class UserCharacter implements Instances,SerializeEntity{
 			return;
 		}
 		seller = JsonUtil.JsonToObject(str,Seller.class);
+		if (seller != null){
+			String pic = seller.getPic();
+			if (pic.startsWith("http://")){
+				int index = pic.lastIndexOf("/");
+				pic = pic.substring(index + 1,pic.length());
+				seller.setPic(pic);
+			}
+		}
 	}
 	
 	public String serializeUser(){
@@ -696,6 +704,13 @@ public class UserCharacter implements Instances,SerializeEntity{
 		return true;
 	}
 
+	public boolean pushSend(PushType type){
+		if (pushFlags.containsKey(type)){
+			return pushFlags.get(type).booleanValue();
+		}
+		return true;
+	}
+	
 	public void updatePush(PushType type, boolean flag) {
 		pushFlags.put(type,flag);
 	}

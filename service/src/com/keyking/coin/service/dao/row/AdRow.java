@@ -15,6 +15,7 @@ public class AdRow implements RowMapper<ADEntity> {
 		ad.setId(rs.getLong("id"));
 		ad.setUrl(rs.getString("url"));
 		ad.setPic(rs.getString("pic"));
+		ad.setRank(rs.getInt("rank"));
 		return ad;
 	}
 

@@ -16,10 +16,17 @@ public class UserRow implements RowMapper<UserCharacter>{
 		user.setId(rs.getLong("id"));
 		user.setAccount(rs.getString("account"));
 		user.setPwd(rs.getString("pwd"));
-		user.setFace(rs.getString("face"));
+		String face = rs.getString("face");
+		if (face.startsWith("http://")){
+			int index = face.lastIndexOf("/");
+			face = face.substring(index + 1,face.length());
+		}
+		user.setFace(face);
 		user.setNikeName(rs.getString("nikeName"));
 		user.setTitle(rs.getString("title"));
-		user.setRegistTime(rs.getString("registTime"));
+		String time = rs.getString("registTime");
+		time = time.substring(0,19);
+		user.setRegistTime(time);
 		user.setName(rs.getString("name"));
 		user.deserializeAddresses(rs.getString("address"));
 		user.setAge(rs.getInt("age"));

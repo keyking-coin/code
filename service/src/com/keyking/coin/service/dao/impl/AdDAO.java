@@ -16,10 +16,10 @@ import com.keyking.coin.util.ServerLog;
 
 public class AdDAO extends BaseDAO {
 	
-	private static String INSERT_SQL_STR = "insert into ad (id,url,pic)values(?,?,?)";
-	private static String UPDATE_SQL_STR = "update ad set url=?,pic=? where id=?";
+	private static String INSERT_SQL_STR = "insert into ad (id,url,pic,rank)values(?,?,?,?)";
+	private static String UPDATE_SQL_STR = "update ad set url=?,pic=?,rank=? where id=?";
 	private static String SELECT_SQL_STR = "select * from ad where id=?";
-	private static String SELECT_SQL_STR_MORE = "select * from ad where 1=1";
+	private static String SELECT_SQL_STR_MORE = "select * from ad where 1=1 order by rank asc";
 	AdRow row = new AdRow();
 	
 	public synchronized boolean insert(final ADEntity ad) {
@@ -32,6 +32,7 @@ public class AdDAO extends BaseDAO {
 					ps.setLong(cursor++,ad.getId());
 					ps.setString(cursor++,ad.getUrl());
 					ps.setString(cursor++,ad.getPic());
+					ps.setInt(cursor++,ad.getRank());
 					return ps;
 				}
 			});
@@ -62,7 +63,7 @@ public class AdDAO extends BaseDAO {
 
 	private synchronized boolean update(ADEntity ad) {
 		try {
-			getJdbcTemplate().update(UPDATE_SQL_STR,ad.getUrl(),ad.getPic(),ad.getId());
+			getJdbcTemplate().update(UPDATE_SQL_STR,ad.getUrl(),ad.getPic(),ad.getRank(),ad.getId());
 		} catch (DataAccessException e) {
 			ServerLog.error("save ad error",e);
 			return false;

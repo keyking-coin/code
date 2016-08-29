@@ -485,8 +485,8 @@ public class Controler implements Instances{
 		return result;
 	}
 	
-	public int computeOkOrderNum(long id) {
-		int count = 0 ;
+	public int computeOkOrderNum(long id){
+		int count = 0;
 		for (Deal deal : deals.values()){
 			if (deal.getUid() == id){
 				for (DealOrder order : deal.getOrders()){
@@ -694,6 +694,12 @@ public class Controler implements Instances{
 			}
 		}
 		return null;
+	}
+
+	public void tick(long now) {
+		for (UserCharacter user : characters.values()){
+			user.getForbid().tick(now);
+		}
 	}
 }
  

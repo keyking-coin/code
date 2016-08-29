@@ -1,8 +1,5 @@
 package com.keyking.coin.service.net.logic.app;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.keyking.coin.service.dao.TableName;
 import com.keyking.coin.service.domain.deal.Deal;
 import com.keyking.coin.service.domain.deal.DealOrder;
@@ -11,7 +8,7 @@ import com.keyking.coin.service.domain.user.UserCharacter;
 import com.keyking.coin.service.net.buffer.DataBuffer;
 import com.keyking.coin.service.net.logic.AbstractLogic;
 import com.keyking.coin.service.net.resp.impl.AppResp;
-import com.keyking.coin.service.tranform.page.deal.TransformOrder;
+import com.keyking.coin.service.tranform.page.order.TransformOrderDetail;
 import com.keyking.coin.util.ServerLog;
 
 public class AppDealGrab extends AbstractLogic {
@@ -70,16 +67,12 @@ public class AppDealGrab extends AbstractLogic {
 			order.setId(orderId);
 			deal.addOrder(order);
 			order.save();
-			List<TransformOrder> tos = new ArrayList<TransformOrder>();
-			for (DealOrder o : deal.getOrders()){
-				TransformOrder to = new TransformOrder();
-				to.copy(o);
-				tos.add(to);
-			}
+			TransformOrderDetail tod = new TransformOrderDetail();
+			tod.copy(deal,order);
 			resp.setSucces();
 			resp.put("num",deal.getLeftNum());
 			resp.put("monad",deal.getMonad());
-			resp.put("orders",tos);
+			resp.put("order",tod);
 			ServerLog.info(user.getAccount() + " grab deal ok ----> id is " + id);
 		}
 		return resp;

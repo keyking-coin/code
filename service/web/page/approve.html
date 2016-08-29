@@ -10,12 +10,121 @@
 		<script type="text/javascript" src="../js/jquery-2.1.1.min.js"></script>
 		<script type="text/javascript" src="../js/bootstrap.min.js"></script>
 		<script type="text/javascript">
+			var selectId = 0;
+			function lookDetail(tid){
+				selectId = tid;
+				$.ajax({
+					type:"get",
+			        url : "../gm/HttpGetApprove",
+			        data: "id=" + tid,
+			        contentType: "application/json; charset=utf-8",
+			        dataType : "json",
+			        success  : function(data) {
+			        	$("#sub_show").show();
+			        	var type = data.approve.seller.type == 0 ? "个人" : "公司";
+			        	$("#approve_type").val(type);
+			        	$("#approve_key").val(data.approve.seller.key);
+			        	$("#approve_pic").attr("src","http://www.521uu.cc:321/uploads/" + data.approve.seller.pic);
+			        },
+			        error: function (msg) {
+		                alert(msg);
+		            }
+				});
+			};
 			
+			function refreshList(){
+				$("#sub_show").hide();
+				$.ajax({
+				    type:"get",
+			        url : "../gm/HttpApproveList",
+			        contentType: "application/json; charset=utf-8",
+			        dataType : "json",
+			        success  : function(data) {
+			        	if(data.result == "ok"){
+			        		$("#h_col").empty();
+			        		var html = "";
+			        		for(var i = 0 ; i < data.list.length; i++){
+			        			var showTitle = data.list[i].name + "(" + data.list[i].account + ")";
+			        			html += "<li style='margin-left:5px;' onclick ='lookDetail(" + data.list[i].uid + ")' ><a href='#' >" + showTitle + "</a></li>";
+			        		}
+			        		$("#h_col").append(html);
+			        	}else{
+			        		alert(data.result);
+			        	}
+			        },
+			        error: function (msg) {
+		                alert(msg);
+		            }
+			    });
+			};
+			
+			function show_dialog(){
+			 	
+			};
+			
+			$(document).ready(function(){
+				refreshList();
+				$("#approve_pass").click(function(){
+					var params = "id=" + selectId + "&type=1";
+					$.ajax({
+				    	type:"get",
+			        	url : "../gm/HttpApproveUpdate",
+			        	data:params,
+			        	contentType: "application/json; charset=utf-8",
+			       	 	dataType : "json",
+			        	success  : function(data) {
+			        		if(data.result == "ok"){
+			        			refreshList();
+			        		}else{
+			        			alert(data.result);
+			        		}
+			        	},
+			        	error: function (msg) {
+		                	alert(msg);
+		            	}
+			    	});
+				});
+				$("#approve_refuse").click(function(){
+				    /*
+					var params = "id=" + selectId + "&type=0";
+					$.ajax({
+				    	type:"get",
+			        	url : "../gm/HttpApproveUpdate",
+			        	data:params,
+			        	contentType: "application/json; charset=utf-8",
+			       	 	dataType : "json",
+			        	success  : function(data) {
+			        		if(data.result == "ok"){
+			        			refreshList();
+			        		}else{
+			        			alert(data.result);
+			        		}
+			        	},
+			        	error: function (msg) {
+		                	alert(msg);
+		            	}
+			    	});*/
+				});
+			});
 		</script>
 	</head>
-	<body>
-		<div style="text-align:center;">
-			认证中心界面
+	<body style="margin-left:15%;">
+		<div id="h_col" style="float:left;width:550px;height:700px;border:1px solid #000;background-color:#FFFF93;overflow:auto;"></div>
+		<div style="float:left;width:800px;height:700px;border:1px solid #000;background-color:#81C0C0;">
+			<div id="sub_show" style="margin-left:100px;">
+				<br>
+				<span style="color:#0010ff">类型:</span>
+				<span id="approve_type" style="color:#ff1000">个人</span>
+				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+				<span style="color:#0010ff">证件编号:</span>
+				<input id="approve_key" type="text" style="width:250px;"/>
+				<br>
+				<br>
+				<img id="approve_pic" src=""  width="620px" height="600px">
+				<br>
+				<button id="approve_pass" class="btn btn-default" type="button">通过</button>
+			    <button id="approve_refuse" class="btn btn-default" style="margin-left:510px;" type="button">拒绝</button>
+			</div>
 		</div>
 	</body>
 </html>

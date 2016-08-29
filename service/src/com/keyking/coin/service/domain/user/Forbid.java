@@ -9,7 +9,6 @@ public class Forbid {
 	long endTime = 0;//-1永久封号，0正常状态,>0表示封号截止时间。
 	
 	public String getReason() {
-		tick();
 		return StringUtil.isNull(reason) ? null : reason;
 	}
 
@@ -25,9 +24,8 @@ public class Forbid {
 		this.endTime = endTime;
 	}
 
-	public void tick(){
+	public void tick(long now){
 		if (endTime > 0){
-			long now = TimeUtils.nowLong() / 1000;
 			if (now > endTime){//解除封禁
 				endTime = 0;
 				reason  = null;
@@ -64,7 +62,7 @@ public class Forbid {
 		}
 	}
 
-	public void copy(Forbid forbid) {
+	public void copy(TransForbid forbid) {
 		if (forbid == null){
 			return ;
 		}

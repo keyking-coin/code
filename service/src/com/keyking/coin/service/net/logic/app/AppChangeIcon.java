@@ -27,6 +27,10 @@ public class AppChangeIcon extends AbstractLogic {
 			resp.setError("您已经被封号原因是:" + forbidStr);
 			return resp;
 		}
+		if (faceName.startsWith("http://")){
+			int index = faceName.lastIndexOf("/");
+			faceName = faceName.substring(index + 1,faceName.length());
+		}
 		user.setFace(faceName);
 		user.save();
 		resp.setSucces();

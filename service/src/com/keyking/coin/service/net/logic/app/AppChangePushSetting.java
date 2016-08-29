@@ -23,7 +23,8 @@ public class AppChangePushSetting extends AbstractLogic {
 		Map<String,String> temp = JsonUtil.JsonToObjectMap(str,String.class,String.class);
 		for (String key : temp.keySet()){
 			PushType pt = PushType.search(key);
-			user.updatePush(pt,temp.get(key).equals("true"));
+			boolean flag = temp.get(key).equals("true");
+			user.updatePush(pt,flag);
 		}
 		user.save();
 		resp.setSucces();

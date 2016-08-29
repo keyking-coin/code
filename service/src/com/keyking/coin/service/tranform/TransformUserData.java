@@ -5,9 +5,9 @@ import java.util.List;
 
 import com.keyking.coin.service.domain.user.Account;
 import com.keyking.coin.service.domain.user.Credit;
-import com.keyking.coin.service.domain.user.Forbid;
 import com.keyking.coin.service.domain.user.Recharge;
 import com.keyking.coin.service.domain.user.Seller;
+import com.keyking.coin.service.domain.user.TransForbid;
 import com.keyking.coin.service.domain.user.UserCharacter;
 import com.keyking.coin.service.domain.user.UserPermission;
 import com.keyking.coin.service.net.SerializeEntity;
@@ -34,7 +34,8 @@ public class TransformUserData implements Instances,SerializeEntity{
 	Seller seller;
 	Recharge recharge;
 	int completeDealNum;
-	Forbid forbid;//封号
+	TransForbid forbid = new TransForbid();//封号
+	float money;
 	
 	public TransformUserData(){
 		
@@ -59,7 +60,8 @@ public class TransformUserData implements Instances,SerializeEntity{
 		seller = user.getSeller();
 		perission = user.getPermission();
 		recharge = user.getRecharge();
-		forbid = user.getForbid();
+		forbid.copy(user.getForbid());
+		money = user.getRecharge().getCurMoney();
 		completeDealNum = CTRL.computeOkOrderNum(id);
 	}
 	
@@ -175,11 +177,11 @@ public class TransformUserData implements Instances,SerializeEntity{
 		this.breach = breach;
 	}
 
-	public Forbid getForbid() {
+	public TransForbid getForbid() {
 		return forbid;
 	}
 
-	public void setForbid(Forbid forbid) {
+	public void setForbid(TransForbid forbid) {
 		this.forbid = forbid;
 	}
 
@@ -223,9 +225,16 @@ public class TransformUserData implements Instances,SerializeEntity{
 		this.perission = perission;
 	}
 
+	public float getMoney() {
+		return money;
+	}
+
+	public void setMoney(float money) {
+		this.money = money;
+	}
+
 	@Override
 	public void serialize(DataBuffer out) {
-		// TODO Auto-generated method stub
 		
 	}
 	

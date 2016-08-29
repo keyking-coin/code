@@ -27,8 +27,20 @@ public class AppOpenAccount extends AbstractLogic {
 		String tel = buffer.getUTF();
 		String email = buffer.getUTF();
 		String indentFront = buffer.getUTF();
+		if (indentFront.startsWith("http://")){
+			int index = indentFront.lastIndexOf("/");
+			indentFront = indentFront.substring(index + 1,indentFront.length());
+		}
 		String indentBack = buffer.getUTF();
+		if (indentBack.startsWith("http://")){
+			int index = indentBack.lastIndexOf("/");
+			indentBack = indentBack.substring(index + 1,indentBack.length());
+		}
 		String bankFront = buffer.getUTF();
+		if (bankFront.startsWith("http://")){
+			int index = bankFront.lastIndexOf("/");
+			bankFront = bankFront.substring(index + 1,bankFront.length());
+		}
 		AccountApply apply = new AccountApply();
 		apply.setBourse(bourse);
 		apply.setBankName(bankName);

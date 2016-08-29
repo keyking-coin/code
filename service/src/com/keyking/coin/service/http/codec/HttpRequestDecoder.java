@@ -160,6 +160,7 @@ public class HttpRequestDecoder extends MessageDecoderAdapter {
 				line = null;
 			}
 			if (line != null) {
+				/*
 				String[] match = line.split("\\&");
 				for (String element : match) {
 					String[] params = new String[1];
@@ -186,7 +187,8 @@ public class HttpRequestDecoder extends MessageDecoderAdapter {
 						params[params.length - 1] = str;
 						map.put(name, params);
 					}
-				}
+				}*/
+				parseParam(line,map);
 			}
 			if (url[0].equalsIgnoreCase("POST")) {
 				char[] buf = new char[1024];
@@ -207,4 +209,60 @@ public class HttpRequestDecoder extends MessageDecoderAdapter {
 		return map;
 	}
 
+	private void parseParam(String str,Map<String, String[]> map){
+		int index = 0;
+		do{
+			index = str.indexOf("&");
+			String s1 = null;
+			if (index == -1){
+				s1 = str;
+			}else{
+				s1 = str.substring(0,index);
+			}
+			int s = s1.indexOf("[u_s]");
+			int e  = str.indexOf("[u_e]");
+			if (s >= 0 && e >= 0){//特殊的url地址参数
+				s1 = str.substring(s+5,e);
+				if (e + 6 < str.length()){
+					str = str.substring(e + 6,str.length());
+				}
+			}else{
+				str = str.substring(index + 1,str.length());
+			}
+			int ei = s1.indexOf("=");
+			if (ei > 0){
+				String key   = s1.substring(0,ei);
+				if (ei + 1 == s1.length()){
+					map.put("@".concat(key),new String[] {});
+				}else{
+					String value = s1.substring(ei+1,s1.length());
+					insert(key,value,map);
+				}
+			}else{
+				map.put("@".concat(s1),new String[] {});
+			}
+		}while(index > 0);
+	}
+	
+	private void insert(String key,String vaule,Map<String, String[]> map){
+		String name = "@".concat(key);
+		String[] params = new String[1];
+		if (map.containsKey(name)) {
+			params = map.get(name);
+			String[] tmp = new String[params.length + 1];
+			for (int j = 0; j < params.length; j++) {
+				tmp[j] = params[j];
+			}
+			params = null;
+			params = tmp;
+		}
+		String str = null;
+		try {
+			str = URLDecoder.decode(vaule.trim(),"UTF-8");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		params[params.length - 1] = str;
+		map.put(name,params);
+	}
 }

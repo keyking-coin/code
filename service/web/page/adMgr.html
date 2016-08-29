@@ -29,6 +29,7 @@
 			        	if (data.result == "ok"){
 			        		$("#sub_show").show();
 			        		$("#show_ad_title").val(data.ad.url);
+			        		$("#show_ad_rank").val(data.ad.rank);
 			        		$("#show_ad_pic").attr("src","http://www.521uu.cc:321/uploads/" + data.ad.pic);
 			        	}else{
 			        		alert(data.result);
@@ -56,7 +57,7 @@
 			        		var html = "";
 			        		for(var i = 0 ; i < data.list.length; i++){
 			        			var showTitle = data.list[i].url;
-			        			html += "<li style='margin-left:5px;' onclick ='lookDetail(" + data.list[i].id + ")' ><a href='#' >" + showTitle + "</a></li>";
+			        			html += "<li style='margin-left:5px;' onclick ='lookDetail(" + data.list[i].id + ")' ><a href='#' >" + showTitle + "(排序" + data.list[i].rank  + ")</a></li>";
 			        		}
 			        		$("#h_col").append(html);
 			        	}else{
@@ -107,7 +108,12 @@
 					   alert("请输入广告的地址");
 					   return;
 					}
-					var params = "ad_url=" + url_str + "&ad_pic=" + fileName;
+					var rank = $("#ad_rank").val();
+					if (rank == ""){
+					   alert("请设置排序编号");
+					   return;
+					}
+					var params = "[u_s]ad_url=" + url_str + "[u_e]&ad_pic=" + fileName + "&rank=" + rank;
 					$.ajax({
 					    type:"get",
 				        url :"../gm/HttpAdInsert",
@@ -146,20 +152,43 @@
 			            }
 				    });
 				});
+				$("#sub_show_update").click(function(){
+				    var url = $("#show_ad_title").val();
+				    var rank = $("#show_ad_rank").val();
+					var params = "id=" + selectId + "&rank=" + rank + "&[u_s]url=" + url + "[u_e]";
+					$.ajax({
+					    type:"get",
+				        url :"../gm/HttpAdUpdate",
+				        data:params,
+				        contentType:"application/json; charset=utf-8",
+				        dataType:"json",
+				        success:function(data) {
+				        	alert(data.result);
+				        	refreshList();
+				        },
+				        error:function (msg) {
+				        	
+			            }
+				    });
+				});
 			});
 		</script>
 	</head>
-	<body style="margin-left:20%;">
-		<div style="margin-left:2px;">
+	<body style="margin-left:15%;">
+		<div style="margin-left:550px;">
 		    <button id="operate_add" class="btn btn-default" type="button" >添加</button>
     	</div>
 	    <div id="h_col" style="float:left;width:550px;height:700px;border:1px solid #000;background-color:#FFFF93;overflow:auto;"></div>
 		<div style="float:left;width:800px;height:700px;border:1px solid #000;background-color:#81C0C0;">
-			<div id="sub_add" style="margin-left:250px;display:none;">
+			<div id="sub_add" style="margin-left:80px;display:none;">
 				<input type="text" id="ad_file_name" style="display:none;"/>
 			    <br>
 				<span style="color:#0010ff">URL:</span>
-				<input type="text" id="ad_title" style="width:250px;"/>
+				<input type="text" id="ad_title" style="width:550px;"/>
+				<br>
+				<br>
+				<span style="color:#0010ff">序号:</span>
+				<input type="text" id="ad_rank" style="width:50px;" onkeyup="this.value=this.value.replace(/\D/g,'')" onafterpaste="this.value=this.value.replace(/\D/g,'')"/>
 				<br>
 				<br>
 				<iframe src="pic_submit.html" frameborder="0" scrolling="no" width="500" height="80" ></iframe>
@@ -172,12 +201,17 @@
 			<div id="sub_show" style="margin-left:80px;">
 				<br>
 				<span style="color:#0010ff">URL:</span>
-				<input type="text" id="show_ad_title" style="width:250px;"/>
+				<input type="text" id="show_ad_title" style="width:550px;"/>
+				<br>
+				<br>
+				<span style="color:#0010ff">序号:</span>
+				<input type="text" id="show_ad_rank" style="width:50px;" onkeyup="this.value=this.value.replace(/\D/g,'')" onafterpaste="this.value=this.value.replace(/\D/g,'')"/>
 				<br>
 				<br>
 				<img id="show_ad_pic" src="" width="650px" height="400px">
 				<br>
 				<br>
+				<button id="sub_show_update" class="btn btn-default" style="margin-left:100px;" type="button">修改</button>
 		       	<button id="sub_show_del" class="btn btn-default" style="margin-left:250px;" type="button">删除</button>
 			</div>
 		</div>

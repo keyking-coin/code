@@ -16,6 +16,7 @@ import com.keyking.coin.service.domain.deal.Deal;
 import com.keyking.coin.service.domain.deal.DealAppraise;
 import com.keyking.coin.service.domain.deal.DealOrder;
 import com.keyking.coin.service.domain.user.UserCharacter;
+import com.keyking.coin.service.thread.UserThread;
 import com.keyking.coin.util.Instances;
 import com.keyking.coin.util.StringUtil;
 
@@ -62,6 +63,7 @@ public class Terminal implements Instances{
 					return true;
 				case "close":
 					HTTP.stop();
+					UserThread.isRunning = false;
 					System.exit(0);
 					break;
 				case "save":

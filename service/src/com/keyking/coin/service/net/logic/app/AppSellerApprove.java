@@ -18,6 +18,10 @@ public class AppSellerApprove extends AbstractLogic {
 		byte type  = buffer.get();//0 个人认证;1公司认证
 		String keyCode = buffer.getUTF();//编号个人身份证号/公司营业执照编号
 		String pic  = buffer.getUTF();//上传的证件正面的图片名称
+		if (pic.startsWith("http://")){
+			int index = pic.lastIndexOf("/");
+			pic = pic.substring(index + 1,pic.length());
+		}
 		UserCharacter user = CTRL.search(uid);
 		if (user != null){
 			String forbidStr = user.getForbid().getReason();

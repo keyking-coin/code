@@ -18,7 +18,7 @@ import com.keyking.coin.util.JsonUtil;
 import com.keyking.coin.util.ServerLog;
 
 public class HttpDealGrab extends HttpHandler {
-	//http://139.196.30.53:32104/HttpDealGrab?did=2&uid=1&num=20&pwd=xxxx
+	//http://127.0.0.1:32104/HttpDealGrab?did=2&uid=1&num=20&pwd=xxxx
 	@Override
 	public void handle(HttpRequestMessage request, HttpResponseMessage response) {
 		response.setContentType("text/plain");

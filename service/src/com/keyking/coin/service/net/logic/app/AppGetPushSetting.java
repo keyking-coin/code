@@ -19,7 +19,7 @@ public class AppGetPushSetting extends AbstractLogic {
 		PushType[] datas = PushType.values();
 		for (int i = 0 ; i < datas.length ; i++){
 			PushType type = datas[i];
-			if (user.couldPush(type)){
+			if (user.pushSend(type)){
 				resp.put(type.name(),"true");
 			}else{
 				resp.put(type.name(),"false");

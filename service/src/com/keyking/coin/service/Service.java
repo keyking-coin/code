@@ -15,6 +15,7 @@ import org.w3c.dom.Element;
 
 import com.keyking.coin.service.console.ConsoleService;
 import com.keyking.coin.service.net.codec.MessageCodecFactory;
+import com.keyking.coin.service.thread.UserThread;
 import com.keyking.coin.util.Instances;
 import com.keyking.coin.util.ServerLog;
 import com.keyking.coin.util.XmlUtils;
@@ -50,6 +51,7 @@ public class Service implements Instances{
 			acceptor.bind(new InetSocketAddress(address,PORT));
 			HTTP.run(HTTP_PORT);
 			PUSH.init();
+			new UserThread().start();
 			ConsoleService.addConsole(CONSOLE);
 		} catch (Exception e) {
 			e.printStackTrace();

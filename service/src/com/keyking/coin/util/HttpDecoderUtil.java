@@ -28,7 +28,6 @@ import org.htmlparser.util.NodeList;
 
 public class HttpDecoderUtil {
 
-	static String URL = "http://www.zgqbyp.com/web/xxpl";
 
 	static HttpClient client;
 
