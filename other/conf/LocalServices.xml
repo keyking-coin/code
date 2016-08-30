@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LocalServices>
+	<!-- add your services -->
+	<LocalService class="com.joymeng.slg.net.TransmissionService"/>
+	<LocalService class="com.joymeng.slg.net.CommunicateService"/>
+</LocalServices>

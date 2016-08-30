@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PrimaryKeyDatas>
+	<PrimaryKeyData sql="select max(id) from roleGarrison" table="roleGarrison"/>
+    <PrimaryKeyData sql="select max(id) from roleExpedite" table="roleExpedite"/>
+	<PrimaryKeyData sql="select max(id) from unionBody" table="unionBody"/>
+</PrimaryKeyDatas>

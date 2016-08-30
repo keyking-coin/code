@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ServersList> 
+	<!--0x3000 服务器最大实例号是12543-->
+    <ServerStates>
+      	<ServerState id="0" name="服务器关服状态"/>
+      	<ServerState id="1" name="服务器新服状态"/>
+      	<ServerState id="2" name="服务器维护状态"/>
+      	<ServerState id="3" name="服务器正常状态"/>
+      	<ServerState id="4" name="服务器繁忙状态"/>
+      	<ServerState id="5" name="服务器爆满状态"/><!--只是标记， 玩家依然可以进入，新玩家也可以进入-->
+        <ServerState id="6" name="服务器爆满状态"/><!--只是标记， 玩家依然可以进入，新玩家不可以进入-->
+        <ServerState id="7" name="服务器准备（待开放）状态"/><!--MM-dd HH:mm开启，到时间玩家才能进入-->
+    </ServerStates>
+	<ChannelFilter id="development" name="开发渠道过滤器">
+		<ChannelID id="0000000" name="开发" />
+    </ChannelFilter>
+    <ChannelFilter id="CPIS" name="运维渠道过滤器">
+		<ChannelID id="0000002" name="开发" />
+    </ChannelFilter>
+ 	<ChannelFilter id="channel" name="渠道测试滤器">
+		
+    </ChannelFilter>
+    <ChannelFilter id="version" name="版号评审">
+ 	    <ChannelID id="1009999" name="版号评审" />
+    </ChannelFilter>
+    <ChannelFilter id="GMTEST" name="GM测试过滤器">
+ 	    <ChannelID id="9000000" name="GM测试" />
+    </ChannelFilter>
+    <ChannelFilter id="normal" name="通用渠道过滤器">
+        <ChannelID id="0000565" name="当乐" />
+		<ChannelID id="0000694" name="联想" />
+    </ChannelFilter>
+    <ChannelFilter id="newTemp" name="新增渠道过滤器">
+		<ChannelID id="0001381" name="金立" />
+    </ChannelFilter>
+ 	<ChannelFilter id="temporaryFix" name="临时维护过滤器" must="2">
+		<ChannelID id="0000842" name="小米" />
+		<ChannelID id="0000700" name="百度" />
+		<ChannelID id="0001671" name="优酷" />
+		<ChannelID id="0000695" name="酷派" />
+		<ChannelID id="0001142" name="OPPO" />
+		<ChannelID id="0000843" name="360" />
+		<ChannelID id="0001286" name="豌豆荚" />
+		<ChannelID id="0000690" name="安智" />
+		<ChannelID id="0001441" name="VIVO" />
+		<ChannelID id="0000699" name="华为" />
+		<ChannelID id="0000871" name="拇指玩" />
+		<ChannelID id="0000915" name="电信" />
+		<ChannelID id="0000948" name="移动" />
+        <ChannelID id="0000066" name="UC" />
+ 		<ChannelID id="0001395" name="搜狗" />
+		<ChannelID id="0001062" name="4399" />
+		<ChannelID id="0000919" name="联通" />
+		<ChannelID id="0001284" name="应用汇" />
+		<ChannelID id="0002518" name="三星" />
+		<ChannelID id="0001405" name="酷狗" />
+  	</ChannelFilter>
+ 	<ChannelFilter id="tencent" name="腾讯独服过滤器">
+		<ChannelID id="4000000" name="腾讯" />
+    </ChannelFilter>
+ 	<ChannelFilter id="judge" name="评审渠道过滤器">
+		<ChannelID id="0000001" name="评审的渠道" />
+    </ChannelFilter>
+    <LanguageFilter id="zh">
+		<ServerName id="12290" name="谭勇" />
+		<ServerName id="12291" name="马正鲍" />
+		<ServerName id="12292" name="侯善平" />
+		<ServerName id="12293" name="周子臻" />
+		<ServerName id="12294" name="陈炜" />
+		<ServerName id="12295" name="机器人压力测试" />
+		<ServerName id="12296" name="内测" />
+		<ServerName id="12297" name="尹海波" />
+		<ServerName id="12298" name="战区1-浩劫余生" />
+		<ServerName id="12299" name="战区1-浩劫余生" />
+		<ServerName id="12300" name="战区1-兵临城下" />
+		<ServerName id="12301" name="战区1-兵临城下" />
+		<ServerName id="12303" name="战区1-浩劫余生" />
+		<ServerName id="12304" name="运维内测" />
+		<ServerName id="12305" name="战区2-兵临城下" />
+	</LanguageFilter>
+    <Server serverId="12290" newNum="1000" normalNum="3000" fullNum="5000">
+		<ChannelFilter>development</ChannelFilter>
+        <LanguageFilter>zh</LanguageFilter>
+    </Server>
+    <Server serverId="12291" newNum="1000" normalNum="3000" fullNum="5000">
+		<ChannelFilter>development</ChannelFilter>
+        <LanguageFilter>zh</LanguageFilter>
+    </Server>
+    <Server serverId="12292" newNum="1000" normalNum="3000" fullNum="5000">
+		<ChannelFilter>development</ChannelFilter>
+        <LanguageFilter>zh</LanguageFilter>
+    </Server>
+    <Server serverId="12293" newNum="1000" normalNum="3000" fullNum="5000" openTime="2016-08-16 12:00:00" openTimeShow="8月16日12点整">
+		<ChannelFilter>development</ChannelFilter>
+        <LanguageFilter>zh</LanguageFilter>
+    </Server>
+    <Server serverId="12294" newNum="1000" normalNum="3000" fullNum="5000">
+		<ChannelFilter>development</ChannelFilter>
+        <LanguageFilter>zh</LanguageFilter>
+    </Server>
+    <Server serverId="12295" newNum="1000" normalNum="3000" fullNum="5000">
+		<ChannelFilter>CPIS</ChannelFilter>
+		<ChannelFilter>development</ChannelFilter>
+        <LanguageFilter>zh</LanguageFilter>
+    </Server>
+    <Server serverId="12296" newNum="5" normalNum="10" fullNum="25">
+		<ChannelFilter>development</ChannelFilter>
+        <LanguageFilter>zh</LanguageFilter>
+    </Server>
+    <Server serverId="12297" newNum="1000" normalNum="3000" fullNum="5000">
+		<ChannelFilter>development</ChannelFilter>
+        <LanguageFilter>zh</LanguageFilter>
+    </Server>
+    <Server serverId="12298" newNum="1000" normalNum="3000" fullNum="5000">
+		<ChannelFilter>judge</ChannelFilter>
+        <LanguageFilter>zh</LanguageFilter>
+    </Server>
+    <Server serverId="12299" newNum="1000" normalNum="3000" fullNum="5000">
+	   <ChannelFilter>normal</ChannelFilter>
+	   <ChannelFilter>temporaryFix</ChannelFilter>
+       <LanguageFilter>zh</LanguageFilter>
+    </Server>
+    <Server serverId="12300" newNum="1000" normalNum="3000" fullNum="5000">
+		<ChannelFilter>tencent</ChannelFilter>
+		<LanguageFilter>zh</LanguageFilter>
+    </Server>
+    <Server serverId="12301" newNum="1000" normalNum="3000" fullNum="5000">
+		<ChannelFilter>channel</ChannelFilter>
+		<LanguageFilter>zh</LanguageFilter>
+    </Server>
+    <Server serverId="12303" newNum="1000" normalNum="3000" fullNum="5000">
+		<ChannelFilter>version</ChannelFilter>
+		<LanguageFilter>zh</LanguageFilter>
+    </Server>
+    <Server serverId="12304" newNum="1000" normalNum="3000" fullNum="5000">
+		<ChannelFilter>GMTEST</ChannelFilter>
+		<LanguageFilter>zh</LanguageFilter>
+    </Server>
+    <Server serverId="12305" newNum="1000" normalNum="3000" fullNum="5000" openTime="2016-08-18 10:00:00" openTimeShow="8月18日10点整">
+		<ChannelFilter>newTemp</ChannelFilter>
+		<LanguageFilter>zh</LanguageFilter>
+    </Server>
+</ServersList>

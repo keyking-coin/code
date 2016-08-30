@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LoginJudge> 
+      <Conditions>
+      <parameter key="memory"      value="1024"           name="内存"/>
+      <parameter key="version"     value="Android7.0"     name="版本"/>
+      <parameter key="country"     value="Chinese"        name="国家"/>
+      <parameter key="language"    value="zh"             name="语言"/>   
+      </Conditions>	
+</LoginJudge>
