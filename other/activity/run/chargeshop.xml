@@ -1,0 +1,43 @@
+<?xml version="1.0"?>
+<ActivityEntity name = "充值商城" module = "ChargeShop" isrepeat = "true">
+	<ShopLayout id="chargeShop1" margin="1,1,1,1" background="shop/bg" grid="9x20">
+		<!--Condition value="getLevel(uid)&lt;=5"/>
+		<Condition value="getBuilding(uid,0,&apos;CityCenter&apos;)&lt;=5"/-->
+		<RowBlock id="rb0" name="0" posx="0" posy="0" width="9" height="3" padding="1,1,1,1">
+			<SlideBanner name="热卖中" changeDelay="10">
+				<!--LimitBanner>
+					<Banner id="b1" name="金币4000" image="shop/advertise1" limitDuration="2400h0m0s" personLimit="1" serviceLimit="null" data="goldcoin:4000" price="120"/>
+				</LimitBanner-->
+				<Banner id="b1" productId ="null" name="金币4000" image="shop/advertise1" data="" price="0"/>
+				<Banner id="b2" productId ="null" name="金币4000"  image="shop/advertise2" data="" price="0"/>
+            </SlideBanner>
+        </RowBlock>
+		<!--RowBlock id="rb1" name="1" posx="0" posy="3" width="9" height="6" padding="1,1,1,1">
+			<Banner id="b3" productId ="paid_1_3" name="稀有资源箱" image="shop/cuxiao2" data="item:box_99_1_5_3:1" price="60"/>
+		</RowBlock>
+		<RowBlock id="rb2" name="1" posx="0" posy="9" width="9" height="3" padding="1,1,1,1">
+			<Banner id="b4" productId ="paid_1_2" name="加速道具礼包" image="shop/cuxiao3" data="item:box_99_1_5_2:1" price="198"/>
+		</RowBlock>
+		<RowBlock id="rb3" name="1" posx="0" posy="12" width="9" height="6" padding="1,1,1,1">
+			<Banner id="b5" productId ="paid_1_1" name="新服礼盒" image="shop/cuxiao" data="item:box_99_1_5_1:1" price="6"/>
+		</RowBlock-->
+		<RowBlock id="rb4" name="2" posx="0" posy="3" width="3" height="2">
+			<Banner id="b6" productId ="paid_0_1" name="金币100"  image="shop/6" data="goldcoin:100" price="6"/>
+		</RowBlock>
+		<RowBlock id="rb5" name="3" posx="0" posy="5" width="3" height="2">
+			<Banner id="b7" productId ="paid_0_2" name="金币550"  image="shop/30" data="goldcoin:550" price="30"/>
+		</RowBlock>
+		<RowBlock id="rb6" name="4" posx="3" posy="3" width="6" height="4">
+			<Banner id="b8" productId ="paid_0_4" name="金币2500"  image="shop/128" data="goldcoin:2500" price="128"/>	
+		</RowBlock>
+		<RowBlock id="rb7" name="5" posx="0" posy="7" width="3" height="2">
+			<Banner id="b9" productId ="paid_0_3" name="金币1200"  image="shop/68" data="goldcoin:1200" price="68"/>	
+		</RowBlock>
+		<RowBlock id="rb8" name="6" posx="3" posy="7" width="3" height="2">
+			<Banner id="b10" productId ="paid_0_5" name="金币6500"  image="shop/328" data="goldcoin:6500" price="328"/>	
+		</RowBlock>
+		<RowBlock id="rb9" name="7" posx="6" posy="7" width="3" height="2">
+			<Banner id="b11" productId ="paid_0_6" name="金币14000"  image="shop/648" data="goldcoin:14000" price="648"/>	
+		</RowBlock>
+	</ShopLayout>
+</ActivityEntity>

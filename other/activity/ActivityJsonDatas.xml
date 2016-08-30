@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<JsonDatas>
+	<JsonData class="com.joymeng.slg.domain.actvt.data.Activity"/>
+	<JsonData class="com.joymeng.slg.domain.actvt.data.Activity_cmd"/>
+	<JsonData class="com.joymeng.slg.domain.actvt.data.Activity_newserverbuff"/>
+	<JsonData class="com.joymeng.slg.domain.actvt.data.Activity_reward"/>
+	<JsonData class="com.joymeng.slg.domain.actvt.data.Activity_scorerush"/>
+	<JsonData class="com.joymeng.slg.domain.actvt.data.Activity_task"/>
+	<JsonData class="com.joymeng.slg.domain.actvt.data.Activity_vigorsupply"/>
+	<JsonData class="com.joymeng.slg.domain.actvt.data.Activity_unionoccupycity"/>
+	<JsonData class="com.joymeng.slg.domain.actvt.data.Activity_rushsevenday"/>
+	<JsonData class="com.joymeng.slg.domain.actvt.data.Activity_armyrebellion"/>
+	<JsonData class="com.joymeng.slg.domain.actvt.data.Activity_soldierscore"/>
+</JsonDatas>

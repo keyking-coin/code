@@ -1,0 +1,1 @@
+[{"nId":0,"id":"boss1","name":"boss1_name","level":1,"monster":["monster1:20","monster2:4"],"droplist":"drop_monster41","moduleList":["atlas_monsterdetails:true"],"animation":"monster1","rank":41,"icon":"enemyhead","fightingcapacity":1000,"physicalStrength":10,"rewardtype":"","reduDeathRate":5000,"refreshCd":0,"killType":"","size":9,"porecondition":[]}]
