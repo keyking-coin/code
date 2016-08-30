@@ -15,3 +15,5 @@
 /UserManager/bin/
 /UserManager/logs/
 /UserManager/dist/
+/other/bin/
+/other/.settings/

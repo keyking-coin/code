@@ -25,6 +25,7 @@ public class LoginData implements Instances{
 	MyselfNum mn = new MyselfNum();//和有有关的数据
 	Credit credit;//信用度
 	int dealCount;
+	float money;//邮游币
 	
 	public LoginData (UserCharacter user){
 		userId = user.getId();
@@ -45,6 +46,7 @@ public class LoginData implements Instances{
 		mn.setEmailNum(user.getNewEmailNum());
 		mn.setFriendNum(user.getFriends().size());
 		dealCount = CTRL.computeOkOrderNum(userId);
+		money = user.getRecharge().getCurMoney();
 	}
 		
 	public LoginData (){
@@ -162,5 +164,12 @@ public class LoginData implements Instances{
 	public void setDealCount(int dealCount) {
 		this.dealCount = dealCount;
 	}
-	
+
+	public float getMoney() {
+		return money;
+	}
+
+	public void setMoney(float money) {
+		this.money = money;
+	}
 }

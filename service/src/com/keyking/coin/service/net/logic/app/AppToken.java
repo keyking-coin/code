@@ -15,10 +15,10 @@ public class AppToken extends AbstractLogic {
 			code = TOKEN.create(key);
 		}
 		if (!SMS.couldSend(key)){
-			resp.setError("系统错误 ");
+			resp.setError("最近已向你发送过验证码了,请稍后再试。");
 			return resp;
 		}
-		if (!SMS.sendToken(key,code)){
+		if (SMS.sendToken(key,code)){
 			resp.put("result","验证码已发送");
 			resp.setSucces();
 		}else{

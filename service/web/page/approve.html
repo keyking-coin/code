@@ -58,11 +58,32 @@
 			    });
 			};
 			
-			function show_dialog(){
-			 	
+			function approve_refuse(){
+			 	var reason = prompt("拒绝认证的原因","上传图片不够清晰");
+				if (reason && reason != ""){
+					var params = "id=" + selectId + "&type=0&reason=" + reason;
+					$.ajax({
+				    	type:"get",
+			        	url : "../gm/HttpApproveUpdate",
+			        	data:params,
+			        	contentType: "application/json; charset=utf-8",
+			       	 	dataType : "json",
+			        	success  : function(data) {
+			        		if(data.result == "ok"){
+			        			refreshList();
+			        		}else{
+			        			alert(data.result);
+			        		}
+			        	},
+			        	error: function (msg) {
+		                	alert(msg);
+		            	}
+			    	});
+				}
 			};
 			
 			$(document).ready(function(){
+				$("#show_r_box").fadeOut("fast");
 				refreshList();
 				$("#approve_pass").click(function(){
 					var params = "id=" + selectId + "&type=1";
@@ -84,27 +105,6 @@
 		            	}
 			    	});
 				});
-				$("#approve_refuse").click(function(){
-				    /*
-					var params = "id=" + selectId + "&type=0";
-					$.ajax({
-				    	type:"get",
-			        	url : "../gm/HttpApproveUpdate",
-			        	data:params,
-			        	contentType: "application/json; charset=utf-8",
-			       	 	dataType : "json",
-			        	success  : function(data) {
-			        		if(data.result == "ok"){
-			        			refreshList();
-			        		}else{
-			        			alert(data.result);
-			        		}
-			        	},
-			        	error: function (msg) {
-		                	alert(msg);
-		            	}
-			    	});*/
-				});
 			});
 		</script>
 	</head>
@@ -117,13 +117,13 @@
 				<span id="approve_type" style="color:#ff1000">个人</span>
 				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 				<span style="color:#0010ff">证件编号:</span>
-				<input id="approve_key" type="text" style="width:250px;"/>
+				<input id="approve_key" readonly="readonly" type="text" style="width:250px;"/>
 				<br>
 				<br>
 				<img id="approve_pic" src=""  width="620px" height="600px">
 				<br>
 				<button id="approve_pass" class="btn btn-default" type="button">通过</button>
-			    <button id="approve_refuse" class="btn btn-default" style="margin-left:510px;" type="button">拒绝</button>
+			    <button onclick="approve_refuse()" class="btn btn-default" style="margin-left:510px;" type="button">拒绝</button>
 			</div>
 		</div>
 	</body>
