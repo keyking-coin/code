@@ -10,12 +10,80 @@
 		<script type="text/javascript" src="../js/jquery-2.1.1.min.js"></script>
 		<script type="text/javascript" src="../js/bootstrap.min.js"></script>
 		<script type="text/javascript">
+		    var select_deal_id = 0;
+		    var select_order_id = 0;
+		    function insert_data(data){
+		    	$("#_order").empty();
+		    	var html = '<span style="float: left;">发布人：&nbsp;' + data.order.issueName + '</span><span style="float: right;">发布时间:&nbsp;' + data.order.issueTime + '</span>';
+		    	$("#_order").html(html);
+		    };
+		    
+			function lookDetail(did,oid){
+				select_deal_id  = did;
+				select_order_id = oid;
+				var params = "did=" + did + "&oid=" + oid ;
+				$.ajax({
+					type:"get",
+			        url : "../gm/HttpGetAgency",
+			        data: params,
+			        contentType: "application/json; charset=utf-8",
+			        dataType : "json",
+			        success  : function(data) {
+			        	$("#sub_show").show();
+			        	if(data.result == "ok"){
+			        		insert_data(data);
+			        	}else{
+			        		alert(data.result);
+			        	}
+			        },
+			        error: function (msg) {
+		                alert(msg);
+		            }
+				});
+			};
 			
+			function refreshList(){
+				$("#sub_show").hide();
+				$.ajax({
+				    type:"get",
+			        url : "../gm/HttpAgencyList",
+			        contentType: "application/json; charset=utf-8",
+			        dataType : "json",
+			        success  : function(data) {
+			        	if(data.result == "ok"){
+			        		$("#h_col").empty();
+			        		var html = "";
+			        		for(var i = 0 ; i < data.list.length; i++){
+			        			var showTitle = data.list[i].name + "(" + data.list[i].orderId + ")";
+			        			var params = data.list[i].dealId + "," + data.list[i].orderId;
+			        			html += "<li style='margin-left:5px;' onclick ='lookDetail(" + params + ")' ><a href='#' >" + showTitle + "</a></li>";
+			        		}
+			        		$("#h_col").append(html);
+			        	}else{
+			        		alert(data.result);
+			        	}
+			        },
+			        error: function (msg) {
+		                alert(msg);
+		            }
+			    });
+			};
+			
+			$(document).ready(function(){
+				refreshList();
+			});
 		</script>
 	</head>
-	<body>
-		<div style="text-align:center;">
-			中介交易界面
+	<body style="margin-left:16%;">
+		<div>
+		    <button class="btn btn-default" type="button" onclick="refreshList()" >刷新</button>
+    	</div>
+		<div id="h_col" style="float:left;width:550px;height:700px;border:1px solid #000;background-color:#FFFF93;overflow:auto;"></div>
+		<div style="float:left;width:800px;height:700px;border:1px solid #000;background-color:#81C0C0;">
+			<div id="sub_show" style="margin-left:10px;">
+				<div class="panel panel-default" style="margin-bottom:2px" id="_order">
+				</div>
+			</div>
 		</div>
 	</body>
 </html>
