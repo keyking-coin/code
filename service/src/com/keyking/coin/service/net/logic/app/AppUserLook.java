@@ -28,7 +28,7 @@ public class AppUserLook extends AbstractLogic {
 			TransformLookData data = new TransformLookData();
 			data.setFace(user.getFace());
 			data.setNikeName(user.getNikeName());
-			data.setSignature(look ? user.getSignature() : "仅对交易方可见");
+			data.setSignature(user.getSignature());
 			data.setTitle(user.getTitle());
 			data.setRegistTime(user.getRegistTime());
 			data.setTel(look ? user.getAccount() : "仅对交易方可见");

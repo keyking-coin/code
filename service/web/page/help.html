@@ -12,6 +12,21 @@
 		<script type="text/javascript">
 		    var select_deal_id = 0;
 		    var select_order_id = 0;
+		    function Get_schedule(type,helpFlag){
+				if(type==0){
+					if (helpFlag==0) {
+						return "下单,买家已付款,卖家已入库,买家确认货已入库,买家未评价,卖家未评价";
+					}else{
+						return "下单,买家已付款给中介,中介已收款,卖家已入库,买家确认货已入库,中介已结算,买家未评价,卖家未评价";
+					}
+				}else{
+					if (helpFlag==0) {
+						return "下单,买家已付款,卖家已过户,买家确认过户,买家未评价,卖家未评价";
+					}else{
+				  		return "下单,买家已付款给中介,中介已收款,卖家已过户,买家确认过户,中介已结算,买家未评价,卖家未评价";
+					}
+				}
+			}
 		    function insert_data(data){
 		    	$("#_order").empty();
 		    	var html = '<span style="float: left;">发布人：&nbsp;' + data.order.issueName + '</span><span style="float: right;">发布时间:&nbsp;' + data.order.issueTime + '</span>';
@@ -42,8 +57,19 @@
 				bourse = bourse.substring(2,bourse.length);
 				html='编号：'+data.order.dealId+'<br> '+help+'&nbsp;&nbsp;'+sell+'&nbsp;&nbsp;'+bourse+'（'+type+'）&nbsp;&nbsp;'+data.order.name+'&nbsp;&nbsp;'+data.order.price+'元/'+data.order.monad+'<br> 备注：'+other+'<br> 有效时间: '+data.order.validTime;
 				$("#_body").html(html);
-				html='成交编号: '+data.order.orderId+'<br>成&nbsp;&nbsp;交&nbsp;人:'+data.order.grabName+'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;成交数量: '+data.order.num+'&nbsp;'+data.order.monad+'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;成交时间: '+data.order.times[0]
+				html='成交编号: '+data.order.orderId+'<br>成&nbsp;&nbsp;交&nbsp;人:&nbsp;'+data.order.grabName+'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;成交数量: '+data.order.num+'&nbsp;'+data.order.monad+'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;成交时间: '+data.order.times[0]
 				$("#_order").html(html);
+				var str = Get_schedule(data.order.type,data.order.helpFlag);
+				var titles = str.split(",");
+				html = '';
+				for (var i = 1 ; i <= data.order.state + 1; i++){
+					if (i <= data.order.state){
+						html = html + '<span style="width:200px;background-color:#00FF00">' + titles[i] + '<br>' + data.order.times[i] + '</span><br><span style="margin-left:50px;">&#8595;</span><br>';
+					}else{
+						html = html + '<a href="#" style="width:200px;background-color:#FFFFFF">' + titles[i] + '<br>' + data.order.times[i] + '</a>';
+					}
+				}
+				$("#_state").html(html);
 		    };
 		    
 			function lookDetail(did,oid){
