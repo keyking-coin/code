@@ -26,13 +26,18 @@
 			function Jump_Url(url){
 				window.frames["frame_sub"].location.href = url;
 			}
-			var showFlag = false;
 			$(document).ready(function(){
 				$("#goToPhp").click(function (){
 					//window.location.href="http://localhost:8080/editor/ht.php";
 					window.location.href="http://www.521uu.cc:324/ht.php";
 				});
 			});
+			
+			function isUrl(url){
+				var re = /^http:\/\/(?:[\w-\.]{0,255})(?:(?:\/?[^\s]{0,255}){0,255})/g;
+				var result = re.test(url);
+				return result;
+			};
 		</script>
 	</head>
 	<body>

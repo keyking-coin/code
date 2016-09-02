@@ -93,8 +93,7 @@ public class HttpMyDealPage extends HttpDealPage {
 			if (!deal.checkValidTime() || deal.getUid() != uid || deal.isRevoke() || deal.getLeftNum() == 0){
 				continue;
 			}
-			TransformDealListInfo hd = new TransformDealListInfo();
-			hd.copy(deal);
+			TransformDealListInfo hd = new TransformDealListInfo(deal);
 			result.add(hd);
 		}
 		Collections.sort(result);
@@ -112,16 +111,14 @@ public class HttpMyDealPage extends HttpDealPage {
 			if (deal.getUid() == uid){
 				for (DealOrder order : deal.getOrders()){
 					if (order.isDealing() && !order.checkRevoke()){
-						TransformOrderListInfo hd = new TransformOrderListInfo();
-						hd.copy(deal,order);
+						TransformOrderListInfo hd = new TransformOrderListInfo(deal,order);
 						result.add(hd);
 					}
 				}
 			}else{
 				for (DealOrder order : deal.getOrders()){
 					if (order.getBuyId() == uid && order.isDealing() && !order.checkRevoke()){
-						TransformOrderListInfo hd = new TransformOrderListInfo();
-						hd.copy(deal,order);
+						TransformOrderListInfo hd = new TransformOrderListInfo(deal,order);
 						result.add(hd);
 					}
 				}
@@ -142,8 +139,7 @@ public class HttpMyDealPage extends HttpDealPage {
 			for (int j = 0 ; j < deal.getOrders().size() ; j++){
 				DealOrder order = deal.getOrders().get(j);
 				if (order.isConfirming(deal,uid)){
-					TransformOrderListInfo hd = new TransformOrderListInfo();
-					hd.copy(deal,order);
+					TransformOrderListInfo hd = new TransformOrderListInfo(deal,order);
 					result.add(hd);
 				}
 			}
@@ -163,16 +159,14 @@ public class HttpMyDealPage extends HttpDealPage {
 			if (deal.getUid() == uid){
 				for (DealOrder order : deal.getOrders()){
 					if (order.isCompleted() && !order.checkRevoke()){
-						TransformOrderListInfo hd = new TransformOrderListInfo();
-						hd.copy(deal,order);
+						TransformOrderListInfo hd = new TransformOrderListInfo(deal,order);
 						result.add(hd);
 					}
 				}
 			}else{
 				for (DealOrder order : deal.getOrders()){
 					if (order.getBuyId() == uid && order.isCompleted() && !order.checkRevoke()){
-						TransformOrderListInfo hd = new TransformOrderListInfo();
-						hd.copy(deal,order);
+						TransformOrderListInfo hd = new TransformOrderListInfo(deal,order);
 						result.add(hd);
 					}
 				}
@@ -193,16 +187,14 @@ public class HttpMyDealPage extends HttpDealPage {
 			if (deal.getUid() == uid){
 				for (DealOrder order : deal.getOrders()){
 					if (order.isDealing() && !order.checkRevoke()){
-						TransformOrderListInfo hd = new TransformOrderListInfo();
-						hd.copy(deal,order);
+						TransformOrderListInfo hd = new TransformOrderListInfo(deal,order);
 						result.add(hd);
 					}
 				}
 			}else{
 				for (DealOrder order : deal.getOrders()){
 					if (order.getBuyId() == uid && order.isDealing() && !order.checkRevoke()){
-						TransformOrderListInfo hd = new TransformOrderListInfo();
-						hd.copy(deal,order);
+						TransformOrderListInfo hd = new TransformOrderListInfo(deal,order);
 						result.add(hd);
 					}
 				}

@@ -225,6 +225,8 @@ public class HttpRequestDecoder extends MessageDecoderAdapter {
 				s1 = str.substring(s+5,e);
 				if (e + 6 < str.length()){
 					str = str.substring(e + 6,str.length());
+				}else{
+					str =  "";
 				}
 			}else{
 				str = str.substring(index + 1,str.length());

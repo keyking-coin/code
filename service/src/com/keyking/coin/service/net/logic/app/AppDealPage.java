@@ -48,8 +48,7 @@ public class AppDealPage extends AbstractLogic {
 		if (temp.size() > 0){
 			List<TransformDealListInfo> src = new ArrayList<TransformDealListInfo>();
 			for (Deal deal : temp){
-				TransformDealListInfo tdi = new TransformDealListInfo();
-				tdi.copy(deal);
+				TransformDealListInfo tdi = new TransformDealListInfo(deal);
 				src.add(tdi);
 			}
 			int left = CTRL.compute(src,dst,page,num);

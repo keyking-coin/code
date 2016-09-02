@@ -12,6 +12,7 @@
 		<script type="text/javascript">
 		    var select_deal_id = 0;
 		    var select_order_id = 0;
+		    
 		    function Get_schedule(type,helpFlag){
 				if(type==0){
 					if (helpFlag==0) {
@@ -26,7 +27,30 @@
 				  		return "下单,买家已付款给中介,中介已收款,卖家已过户,买家确认过户,中介已结算,买家未评价,卖家未评价";
 					}
 				}
-			}
+			};
+			
+			function update_state(state){
+				var params ="state=" + state + "&did=" + select_deal_id + "&oid=" + select_order_id ;
+				$.ajax({
+					type:"get",
+			        url : "../gm/HttpUpdateState",
+			        data: params,
+			        contentType: "application/json; charset=utf-8",
+			        dataType : "json",
+			        success  : function(data) {
+			        	if(data.result == "ok"){
+			        		alert("处理成功");
+			        		refreshList();
+			        	}else{
+			        		alert(data.result);
+			        	}
+			        },
+			        error: function (msg) {
+		                alert(msg);
+		            }
+				});
+			};
+			
 		    function insert_data(data){
 		    	$("#_order").empty();
 		    	var html = '<span style="float: left;">发布人：&nbsp;' + data.order.issueName + '</span><span style="float: right;">发布时间:&nbsp;' + data.order.issueTime + '</span>';
@@ -64,9 +88,9 @@
 				html = '';
 				for (var i = 1 ; i <= data.order.state + 1; i++){
 					if (i <= data.order.state){
-						html = html + '<span style="width:200px;background-color:#00FF00">' + titles[i] + '<br>' + data.order.times[i] + '</span><br><span style="margin-left:50px;">&#8595;</span><br>';
+						html = html + '<span style="background-color:#00FF00">' + titles[i] + '<br>' + data.order.times[i] + '</span><br><span style="margin-left:50px;">&#8595;</span><br>';
 					}else{
-						html = html + '<a href="#" style="width:200px;background-color:#FFFFFF">' + titles[i] + '<br>' + data.order.times[i] + '</a>';
+						html = html + '<a href="#" style="background-color:#FFFFFF" onclick="update_state(' + i + ')">' + titles[i] + '<br>等待处理</a>';
 					}
 				}
 				$("#_state").html(html);

@@ -2,7 +2,6 @@ package com.keyking.coin.service.domain;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,6 +32,7 @@ import com.keyking.coin.service.tranform.EmailList;
 import com.keyking.coin.service.tranform.TransformDealData;
 import com.keyking.coin.service.tranform.TransformTouristOrder;
 import com.keyking.coin.service.tranform.TransformUserData;
+import com.keyking.coin.service.tranform.page.deal.TransformDealListInfo;
 import com.keyking.coin.util.Instances;
 import com.keyking.coin.util.JsonUtil;
 import com.keyking.coin.util.MathUtils;
@@ -224,40 +224,22 @@ public class Controler implements Instances{
 	
 	public List<Deal> getSearchDeals(SearchCondition condition) {
 		List<Deal> result = new ArrayList<Deal>();
-		List<Deal> issues    = new ArrayList<Deal>();
 		List<Deal> valides   = new ArrayList<Deal>();
 		List<Deal> normals   = new ArrayList<Deal>();
 		List<Deal> tails     = new ArrayList<Deal>();
 		List<BourseInfo> bis = DB.getBourseDao().load(3);
 		for (Deal deal : deals.values()){
 			if (condition.legal(deal,bis)){
-				if (deal.getLeftNum() == 0){
+				if (deal.getLeftNum() == 0 || deal.isRevoke()){
 					tails.add(deal);
 					continue;
 				}
-				if (deal.isIssueRecently()){
-					issues.add(deal);
-				}else if (deal.checkValidTime()){
+				if (deal.checkValidTime()){
 					valides.add(deal);
 				}else{
 					normals.add(deal);
 				}
 			}
-		}
-		if (issues.size() > 0){
-			Collections.sort(issues,new Comparator<Deal>(){
-				@Override
-				public int compare(Deal o1, Deal o2) {
-					DateTime time1 = TimeUtils.getTime(o1.getLastIssue());
-					DateTime time2 = TimeUtils.getTime(o2.getLastIssue());
-					if (time1.isBefore(time2)){
-						return 1;
-					}else{
-						return -1;
-					}
-				}
-			});
-			result.addAll(issues);
 		}
 		if (valides.size() > 0){
 			Collections.sort(valides);
@@ -699,6 +681,16 @@ public class Controler implements Instances{
 	public void tick(long now) {
 		for (UserCharacter user : characters.values()){
 			user.getForbid().tick(now);
+		}
+	}
+	
+	public void trySearchDeals(String key,List<TransformDealListInfo> list){
+		for (Deal deal : deals.values()){
+			String name = deal.getName();
+			if (name.contains(key) || key.contains(name)){
+				TransformDealListInfo tdi = new TransformDealListInfo(deal);
+				list.add(tdi);
+			}
 		}
 	}
 }

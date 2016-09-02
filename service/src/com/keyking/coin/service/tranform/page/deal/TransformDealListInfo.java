@@ -24,7 +24,7 @@ public class TransformDealListInfo implements Instances,Comparable<TransformDeal
 	String validTime = "永久";//有效时间
 	String createTime;//创建时间
 	
-	public void copy(Deal deal) {
+	public TransformDealListInfo(Deal deal){
 		id         = deal.getId();
 		uid        = deal.getUid();
 		type       = deal.getType();

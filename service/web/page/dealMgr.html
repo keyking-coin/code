@@ -5,17 +5,62 @@
 		<meta http-equiv="X-UA-Compatible" content="chrome=1,IE=edge" />
 		<meta name="renderer" content="webkit" />
 		<style type="text/css">
+			.border-table {   
+		        border-collapse: collapse;   
+		        border: none;   
+		    }   
+		    .border-table td {   
+		        border: solid #000 1px; 
+		        text-align:center;  
+		    }
 		</style>
 		<link rel="stylesheet" href="../js/bootstrap.min.css" >
 		<script type="text/javascript" src="../js/jquery-2.1.1.min.js"></script>
 		<script type="text/javascript" src="../js/bootstrap.min.js"></script>
 		<script type="text/javascript">
+			function search_deal(){
+				var str = $("#search_deal").val();
+				if (str == ""){
+					alert("请输入查询参数");
+					return;
+				}
+				var params = "type=deal&key=" + str;
+				$.ajax({
+					type:"get",
+			        url : "../gm/HttpDealSearchByKey",
+			        data: params,
+			        contentType: "application/json; charset=utf-8",
+			        dataType : "json",
+			        success  : function(data) {
+			        	if(data.result == "ok"){
+			        		
+			        	}else{
+			        		alert(data.result);
+			        	}
+			        },
+			        error: function (msg) {
+		                alert(msg);
+		            }
+				});
+			};
 			
+			function search_order(){
+				
+			};
+
 		</script>
 	</head>
-	<body>
-		<div style="text-align:center;">
-			交易管理页面
-		</div>
+	<body style="text-align:center;">
+		<div>
+			买卖盘:<input type ="text" id="search_deal" style="width:400px;" placeholder="买卖盘编号\藏品名称"/>
+		    <button class="btn btn-default" type="button" onclick="search_deal()" >查询</button>
+    	</div>
+    	<div>
+			成交盘:<input type ="text" id="search_order" style="width:400px;" placeholder="成交盘编号\购买人昵称"/>
+		    <button class="btn btn-default" type="button" onclick="search_order()" >查询</button>
+    	</div>
+    	<table id="container" class="border-table">
+			
+		</table>
 	</body>
 </html>

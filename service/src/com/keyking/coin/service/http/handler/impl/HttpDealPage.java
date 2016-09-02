@@ -31,8 +31,7 @@ public class HttpDealPage extends HttpHandler {
 			List<TransformDealListInfo> src = new ArrayList<TransformDealListInfo>();
 			List<TransformDealListInfo> dst = new ArrayList<TransformDealListInfo>();
 			for (Deal deal : temp){
-				TransformDealListInfo tdl = new TransformDealListInfo();
-				tdl.copy(deal);
+				TransformDealListInfo tdl = new TransformDealListInfo(deal);
 				src.add(tdl);
 			}
 			int left = CTRL.compute(src,dst,page,num);

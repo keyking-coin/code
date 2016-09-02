@@ -45,8 +45,7 @@ public class AppMyDealAppraisingPage extends AbstractLogic {
 			for (int j = 0 ; j < deal.getOrders().size() ; j++){
 				DealOrder order = deal.getOrders().get(j);
 				if (order.isConfirming(deal,uid)){
-					TransformOrderListInfo hd = new TransformOrderListInfo();
-					hd.copy(deal,order);
+					TransformOrderListInfo hd = new TransformOrderListInfo(deal,order);
 					result.add(hd);
 				}
 			}

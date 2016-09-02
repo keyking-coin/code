@@ -42,8 +42,7 @@ public class AppMyWaitDealPage extends AbstractLogic{
 			if (!deal.checkValidTime() || deal.getUid() != uid || deal.isRevoke() || deal.getLeftNum() == 0){
 				continue;
 			}
-			TransformDealListInfo hd = new TransformDealListInfo();
-			hd.copy(deal);
+			TransformDealListInfo hd = new TransformDealListInfo(deal);
 			result.add(hd);
 		}
 		Collections.sort(result);

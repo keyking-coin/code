@@ -35,8 +35,7 @@ public class HttpOrderPage extends HttpDealPage {
 					if (order.checkRevoke()){
 						continue;
 					}
-					TransformOrderListInfo tol = new TransformOrderListInfo();
-					tol.copy(deal,order);
+					TransformOrderListInfo tol = new TransformOrderListInfo(deal,order);
 					src.add(tol);
 				}
 			}

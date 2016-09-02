@@ -45,16 +45,14 @@ public class AppMyDealDonePage extends AbstractLogic {
 			if (deal.getUid() == uid){
 				for (DealOrder order : deal.getOrders()){
 					if (order.isCompleted() && !order.checkRevoke()){
-						TransformOrderListInfo hd = new TransformOrderListInfo();
-						hd.copy(deal,order);
+						TransformOrderListInfo hd = new TransformOrderListInfo(deal,order);
 						result.add(hd);
 					}
 				}
 			}else{
 				for (DealOrder order : deal.getOrders()){
 					if (order.getBuyId() == uid && order.isCompleted() && !order.checkRevoke()){
-						TransformOrderListInfo hd = new TransformOrderListInfo();
-						hd.copy(deal,order);
+						TransformOrderListInfo hd = new TransformOrderListInfo(deal,order);
 						result.add(hd);
 					}
 				}

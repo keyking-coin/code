@@ -29,7 +29,7 @@ public class TransformOrderListInfo implements Instances ,Comparable<TransformOr
     boolean sellerAppraise;
     boolean buyerAppraise;
     
-	public void copy(Deal deal,DealOrder order){
+	public TransformOrderListInfo(Deal deal,DealOrder order){
 		dealId     = deal.getId();
 		orderId    = order.getId();
 		issueId    = deal.getUid();
