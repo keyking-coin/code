@@ -32,6 +32,8 @@ public class Service implements Instances{
 	
 	public static int IUSSUE_TIME = 6;
 	
+	public static boolean PRODUCT = false;
+	
 	public static void main(String[] args) {
         try {
         	ServerLog.init();
@@ -71,6 +73,7 @@ public class Service implements Instances{
 			HTTP_PORT = Integer.parseInt(XmlUtils.getAttribute(service,"http"));
 			PORT      = Integer.parseInt(XmlUtils.getAttribute(service,"port"));
 			CONSOLE   = Integer.parseInt(XmlUtils.getAttribute(service,"console"));
+			PRODUCT   = XmlUtils.getAttribute(service,"prodcut").equals("true");
 		}
 	}
 }

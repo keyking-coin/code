@@ -613,7 +613,12 @@ public class UserCharacter implements Instances,SerializeEntity{
 		if (StringUtil.isNull(str)){
 			return;
 		}
-		addresses = JsonUtil.JsonToObjectList(str,String.class);
+		List<String> temp = JsonUtil.JsonToObjectList(str,String.class);
+		for (int i = 0 ; i < temp.size() ; i++){
+			String address = temp.get(i);
+			address = address.replaceAll("　", " ");
+			addresses.add(address);
+		}
 	}
 	
 	public String serializeAddresses(){

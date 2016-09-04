@@ -28,8 +28,7 @@ public class HttpAgencyList extends HttpHandler {
 				}
 				if (order.getState() == 1 || order.getState() == 4){
 					//中介可以操作成交盘
-					TransformOrderDetail to = new TransformOrderDetail();
-					to.copy(deal,order);
+					TransformOrderDetail to = new TransformOrderDetail(deal,order);
 					orders.add(to);
 				}
 			}

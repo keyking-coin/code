@@ -15,7 +15,7 @@ public class HttpSuspendDown extends HttpHandler {
 			response.setContentType("text/plain");
 			response.setResponseCode(HttpResponseMessage.HTTP_STATUS_SUCCESS);
 			FileInputStream fis = new FileInputStream("./suspend.data");
-			DataBuffer buffer = DataBuffer.allocate(1024);
+			DataBuffer buffer = DataBuffer.allocate(128);
 			byte[] temp = new byte[1024];
 			do {
 				int len = fis.read(temp);

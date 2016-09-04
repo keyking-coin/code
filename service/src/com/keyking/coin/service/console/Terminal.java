@@ -216,7 +216,7 @@ public class Terminal implements Instances{
 							}else if (deal.checkBuyer(user.getId()) || a_order.checkBuyer(deal,user.getId())){//卖家
 								appraise = a_order.getBuyerAppraise();
 							}
-							appraise.appraise(star,cValue);
+							appraise.appraise(deal,a_order,user,star,cValue);
 							appraise.setTime(time);
 							a_order.save();
 							System.out.println(account + " appraised " + bns + " * " + cValue + " at " + time);

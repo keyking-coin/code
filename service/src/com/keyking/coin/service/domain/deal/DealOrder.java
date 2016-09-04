@@ -348,8 +348,7 @@ public class DealOrder implements Instances,SerializeEntity,Comparable<DealOrder
 		Module module = new Module();
 		module.setCode(Module.MODULE_CODE_ORDER);
 		module.setFlag(type);
-		TransformOrderDetail tod = new TransformOrderDetail();
-		tod.copy(deal,this);
+		TransformOrderDetail tod = new TransformOrderDetail(deal,this);
 		module.add("order",tod);
 		modules.addModule(module);
 	}

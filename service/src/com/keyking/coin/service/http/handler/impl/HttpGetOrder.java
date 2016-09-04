@@ -24,8 +24,7 @@ public class HttpGetOrder extends HttpHandler {
 		if (deal != null){
 			DealOrder order = deal.searchOrder(orderId);
 			if (order != null){
-				tod = new TransformOrderDetail();
-				tod.copy(deal,order);
+				tod = new TransformOrderDetail(deal,order);
 			}
 		}
 		if (tod != null){

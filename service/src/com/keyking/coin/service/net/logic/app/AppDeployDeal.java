@@ -77,15 +77,14 @@ public class AppDeployDeal extends AbstractLogic{
 		deal.setSellFlag(sellFlag);
 		if (CTRL.tryToInsert(deal)){
 			if (deployType == 1){//推送
-				if (user.getRecharge().getCurMoney() < 10){//强制推送
+				if (user.getRecharge().getCurMoney() < Deal.ISSUE_COST_MONEY){//强制推送
 					resp.setError("您的邮游币不足请先去充值");
 					return resp;
 				}
-				user.getRecharge().changeMoney(-10);
+				user.getRecharge().changeMoney(-Deal.ISSUE_COST_MONEY);
 				deal.issue();
 			}
-			TransformDealDetail tdd = new TransformDealDetail();
-			tdd.copy(deal);
+			TransformDealDetail tdd = new TransformDealDetail(deal);
 			resp.put("deal",tdd);
 			resp.setSucces();
 			ServerLog.info(user.getAccount() + " deployed deal ok ----> id is " + deal.getId());

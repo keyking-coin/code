@@ -8,21 +8,44 @@ import org.apache.mina.filter.codec.ProtocolDecoderOutput;
 import com.keyking.coin.service.net.buffer.DataBuffer;
 
 public class MessageDecoder extends CumulativeProtocolDecoder {
-	
+	IoBuffer reader = IoBuffer.allocate(1024);
+	int preLen = 0;
 	@Override
 	protected boolean doDecode(IoSession session, IoBuffer buffer , ProtocolDecoderOutput out) throws Exception {
-		int len = buffer.getInt();
+		int len = preLen;
+		if (len == 0){
+			len = buffer.getInt();
+		}
 		int remain = buffer.remaining();
-		if (len != remain) {
-			buffer.position(buffer.position() + remain);
+		int readLen = len;
+		if (readLen >= remain){
+			preLen = readLen - remain;
+			readLen = remain;
+		}else if (preLen > 0){
+			preLen = 0;
+		}
+		byte[] datas = new byte[readLen];
+		buffer.get(datas);
+		if (preLen > 0){
+			reader.put(datas);
 			return false;
 		}
-		byte[] datas = new byte[len];
-		buffer.get(datas);
-		DataBuffer data = DataBuffer.wrap(datas);
+		byte[] total = null;
+		if (reader.position() == 0){
+			total = datas;
+		}else{
+			reader.put(datas);
+			int pos = reader.position();
+			reader.rewind();
+			total = new byte[pos];
+			reader.get(total);
+			reader.clear();
+		}
+		DataBuffer data = DataBuffer.wrap(total);
 		out.write(data);
-		return buffer.remaining() > 0;
+		return true;
 	}
+	
 }
  
  

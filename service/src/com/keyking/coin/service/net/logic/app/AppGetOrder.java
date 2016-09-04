@@ -16,8 +16,7 @@ public class AppGetOrder extends AbstractLogic {
 		Deal deal = CTRL.tryToSearch(dealId);
 		if (deal != null){
 			DealOrder order = deal.searchOrder(orderId);
-			TransformOrderDetail tod = new TransformOrderDetail();
-			tod.copy(deal,order);
+			TransformOrderDetail tod = new TransformOrderDetail(deal,order);
 			resp.put("deal",tod);
 			resp.setSucces();
 		}else{

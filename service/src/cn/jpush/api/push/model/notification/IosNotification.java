@@ -28,7 +28,7 @@ import java.util.Map;
 public class IosNotification extends PlatformNotification {
     public static final String NOTIFICATION_IOS = "ios";
         
-    private static final String DEFAULT_SOUND = "";
+    private static final String DEFAULT_SOUND = "default";
     private static final String DEFAULT_BADGE = "+1";
     
     private static final String BADGE = "badge";

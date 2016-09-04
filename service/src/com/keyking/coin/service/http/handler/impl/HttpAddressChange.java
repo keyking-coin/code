@@ -16,6 +16,7 @@ public class HttpAddressChange extends HttpHandler {
 		String pwd     = request.getParameter("pwd");//验证密码
 		String flag    = request.getParameter("flag");//0添加,1删除
 		String address = request.getParameter("address");//地址
+		address = address.replaceAll("　", " ");
 		UserCharacter user = CTRL.search(uid);
 		if (user != null){
 			String forbidStr = user.getForbid().getReason();

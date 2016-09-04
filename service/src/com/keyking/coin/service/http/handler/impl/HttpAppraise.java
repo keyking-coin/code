@@ -57,7 +57,7 @@ public class HttpAppraise extends HttpHandler {
 					}
 					if (appraise != null){
 						if (!appraise.isCompleted()) {
-							appraise.appraise(star,context);
+							appraise.appraise(deal,order,user,star,context);
 							order.save();
 							UserCharacter other = CTRL.search(uid == deal.getUid() ? order.getBuyId() : deal.getUid());
 							if (other != null) {

@@ -62,12 +62,6 @@
 			   		alert("头衔不能为空");
 			   		return;
 			   }
-			   //var identity = $("#identity_" + account).val();
-			   //var registTime = $("#registTime_" + account).val();
-			   //if (registTime == ""){
-			   //		alert("注册时间不能为空");
-			   //		return;
-			   //}
 			   var sellFlag = $("#sellFlag_" + account).val();
 			   var hp = $("#hp_" + account).val();
 			   var zp = $("#zp_" + account).val();
@@ -85,8 +79,6 @@
 			   }
 			   var params = "nickName=" + nickName + "&" +
 			   				"title=" + title + "&" +
-			   				//"identity=" + identity + "&" +
-			   				//"buyFlag=" + buyFlag + "&" +
 			   				"sellFlag=" + sellFlag + "&" +
 			   				"hp=" + hp + "&" +
 			   				"zp=" + zp + "&" +
@@ -95,7 +87,6 @@
 			   				"forbid_r=" + forbid_r + "&" +
 			   				"forbid_t=" + forbid_t + "&" +
 			   				"id=" + id;
-			   //alert(params);
 			   $.ajax({
 				    type:"get",
 			        url :"../gm/HttpGmUserUpdate",
@@ -136,12 +127,10 @@
 							   "<td><input id='nikeName_" + data.account + "' type='text' value='" + data.nikeName + "' style='text-align:center' /></td>" +
 							   "<td><input id='title_" + data.account + "' type='text' value='" + data.title + "' style='text-align:center' /></td>" +
 							   "<td>" + identity + "</td>" +
-							   //"<td><input id='identity_" + data.account + "' type='text' value='" + identity+ "' style='text-align:center' /></td>" +
 							   "<td>" + data.registTime + "</td>" +
 							   "<td>" + data.money + "</td>" +
 							   "<td>" + data.completeDealNum + "</td>" +
 							   "<td>是</td>" +
-							   //"<td><select id='buyFlag_" + data.account + "'>" + buyFlag + "</select></td>" +
 							   "<td><select id='sellFlag_" + data.account + "'>" + sellFlag + "</select></td>" +
 							   "<td><input id='hp_" + data.account + "' type='text' value='" + data.credit.hp + "' onkeyup=\"this.value=this.value.replace(\/\\D\/g,'')\" onafterpaste=\"this.value=this.value.replace(\/\\D\/g,'')\"  style='text-align:center;width:80px;' /></td>" +
 							   "<td><input id='zp_" + data.account + "' type='text' value='" + data.credit.zp + "' onkeyup=\"this.value=this.value.replace(\/\\D\/g,'')\" onafterpaste=\"this.value=this.value.replace(\/\\D\/g,'')\"  style='text-align:center;width:80px;' /></td>" +
@@ -165,7 +154,8 @@
 			
 			function go_page(index){
 				pageIndex = index;
-			    var params = "page=" + index + "&num=" + pageLen + "&rank=" + rankType + "&sort=" + sortType;
+				var search = $("#search_user").val();
+			    var params = "page=" + index + "&num=" + pageLen + "&rank=" + rankType + "&sort=" + sortType + "&search=" + search;
 				$.ajax({
 				    type:"get",
 			        url :"../gm/HttpUserList",
@@ -252,6 +242,8 @@
 			<option value="1">升序</option>
 			<option value="2">降序</option>
 		</select>
+		筛选条件:<input type ="text" id="search_user" style="width:400px;" placeholder="用户编号\用户昵称"/>
+		<button class="btn btn-default" type="button" onclick="go_page(1)" >查询</button>
 		<table id="container" class="border-table">
 			
 		</table>

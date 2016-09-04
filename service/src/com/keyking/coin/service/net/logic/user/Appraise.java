@@ -50,7 +50,7 @@ public class Appraise extends AbstractLogic {
 					if (couldAppraise){
 						DealAppraise appraise = type == 0 ? order.getSellerAppraise() : order.getBuyerAppraise();
 						if (!appraise.isCompleted()){
-							appraise.appraise(star,value);
+							appraise.appraise(deal,order,user,star,value);
 							resp.add(appraise);
 							UserCharacter other = CTRL.search(uid == deal.getUid() ? order.getBuyId() : deal.getUid());
 							if (other != null){

@@ -33,9 +33,10 @@ public class AppDealIssue extends AbstractLogic {
 			resp.setError("此贴已过期");
 			return resp;
 		}
-		if (user.getRecharge().getCurMoney() < 10){
+		if (user.getRecharge().getCurMoney() < Deal.ISSUE_COST_MONEY){
 			resp.setError("您的邮游币不足请先去充值");
 		}else{
+			user.getRecharge().changeMoney(-Deal.ISSUE_COST_MONEY);
 			deal.issue();
 			resp.setSucces();
 			ServerLog.info(user.getAccount() + " issue deal ok ----> id is " + id);

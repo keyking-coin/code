@@ -8,6 +8,7 @@ import cn.jpush.api.JPushClient;
 import cn.jpush.api.common.ClientConfig;
 import cn.jpush.api.common.DeviceType;
 
+import com.keyking.coin.service.Service;
 import com.keyking.coin.service.domain.user.UserCharacter;
 import com.keyking.coin.service.push.PushType;
 
@@ -21,7 +22,7 @@ public class PushUtil implements Instances{
 	}
 	
 	public void init(){
-		ClientConfig.getInstance().setApnsProduction(true);//生产模式
+		ClientConfig.getInstance().setApnsProduction(Service.PRODUCT);//生产模式
 		pushClient = new JPushClient("502a04e6eb6667f7ed661fd5","32da6fb9ca79badeb5284070");
 	}
 

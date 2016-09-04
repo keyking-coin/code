@@ -29,7 +29,7 @@ public class TransformDealDetail implements Instances{
 	List<TransformOrder> orders = new ArrayList<TransformOrder>();//成交数据
 	List<TransformRevert> reverts = new ArrayList<TransformRevert>();//回复数据
 	
-	public void copy(Deal deal) {
+	public TransformDealDetail(Deal deal) {
 		id         = deal.getId();
 		uid        = deal.getUid();
 		type       = deal.getType();

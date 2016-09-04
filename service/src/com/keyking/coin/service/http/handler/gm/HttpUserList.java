@@ -24,6 +24,7 @@ public class HttpUserList extends HttpHandler {
 			//每一页数量
 			int num  = Integer.parseInt(request.getParameter("num"));
 			int type = Integer.parseInt(request.getParameter("rank"));
+			String search = request.getParameter("search");
 			final int sort = Integer.parseInt(request.getParameter("sort"));
 			Comparator<TransformUserData> comparator = null;
 			if (type == 1){
@@ -98,7 +99,7 @@ public class HttpUserList extends HttpHandler {
 				response.put("result","错误的排序类型");
 				return;
 			}
-			List<TransformUserData> src = CTRL.getCoinUsers();
+			List<TransformUserData> src = CTRL.getCoinUsers(search);
 			Collections.sort(src,comparator);
 			List<TransformUserData> dst = new ArrayList<TransformUserData>();
 			int left = CTRL.compute(src,dst,page,num);

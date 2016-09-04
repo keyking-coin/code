@@ -75,13 +75,13 @@ public class HttpSell extends HttpHandler {
 			}
 			return;
 		}
-		if (sendFlag && user.getRecharge().getCurMoney() < 10){//强制推送
+		if (sendFlag && user.getRecharge().getCurMoney() < Deal.ISSUE_COST_MONEY){//强制推送
 			message(request,response,"您的邮游币不足请先去充值");
 			return;
 		}
 		if (CTRL.tryToInsert(deal)){
 			if (sendFlag){//强制推送
-				user.getRecharge().changeMoney(-10);
+				user.getRecharge().changeMoney(-Deal.ISSUE_COST_MONEY);
 				deal.issue();
 			}
 			ServerLog.info(user.getAccount() + " deployed deal-sell ok ----> id is " + deal.getId());

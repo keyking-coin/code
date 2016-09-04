@@ -45,13 +45,12 @@ public class MessageDecoder extends CumulativeProtocolDecoder {
 			for (int i = 0 ; i < size ;i++){
 				total[i] = bytes.get(i).byteValue();
 			}
-			//System.arraycopy(bytes.toArray(new Object[size]),0,total,0,size);
 			System.arraycopy(datas,0,total,size,readLen);
 			bytes.clear();
 		}
 		DataBuffer data = DataBuffer.wrap(total);
 		out.write(data);
-		return buffer.remaining() == 0;
+		return true;
 	}
 
 

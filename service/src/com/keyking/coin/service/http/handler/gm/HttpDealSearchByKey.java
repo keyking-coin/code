@@ -4,11 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.keyking.coin.service.domain.deal.Deal;
-import com.keyking.coin.service.domain.deal.DealOrder;
 import com.keyking.coin.service.http.handler.HttpHandler;
 import com.keyking.coin.service.http.request.HttpRequestMessage;
 import com.keyking.coin.service.http.response.HttpResponseMessage;
 import com.keyking.coin.service.tranform.page.deal.TransformDealListInfo;
+import com.keyking.coin.service.tranform.page.order.TransformOrderListInfo;
 import com.keyking.coin.util.StringUtil;
 
 public class HttpDealSearchByKey extends HttpHandler {
@@ -35,12 +35,10 @@ public class HttpDealSearchByKey extends HttpHandler {
 			response.put("result","ok");
 			response.put("list",list);
 		}else{
-			if (StringUtil.isInteger(key)){
-				long id = Long.parseLong(key);
-				
-			}else{
-				
-			}
+			List<TransformOrderListInfo> list = new ArrayList<TransformOrderListInfo>();
+			CTRL.trySearchOrders(key,list);
+			response.put("result","ok");
+			response.put("list",list);
 		}
 	}
 }

@@ -54,6 +54,7 @@ public class UserRow implements RowMapper<UserCharacter>{
 		user.deserializeFlags(rs.getString("flags"));
 		return user;
 	}
+	
 }
  
  

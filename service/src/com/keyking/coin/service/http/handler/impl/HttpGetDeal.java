@@ -19,8 +19,7 @@ public class HttpGetDeal extends HttpHandler {
 		long dealId    = Long.parseLong(request.getParameter("did"));//帖子编号
 		Deal deal = CTRL.tryToSearch(dealId);
 		if (deal != null){
-			TransformDealDetail td = new TransformDealDetail();
-			td.copy(deal);
+			TransformDealDetail td = new TransformDealDetail(deal);
 			Map<String,Object> datas = new HashMap<String,Object>();
 			datas.put("result","ok");
 			datas.put("deal",td);

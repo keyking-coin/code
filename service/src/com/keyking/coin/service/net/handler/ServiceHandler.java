@@ -79,6 +79,7 @@ public class ServiceHandler extends IoHandlerAdapter implements Instances {
 			adminSession = null;
 		}
 		super.sessionClosed(session);
+		ServerLog.info(key + " close connect");
 	}
 	
 	public IoSession getAdminSession() {

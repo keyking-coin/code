@@ -51,15 +51,14 @@ public class AppAppraise extends AbstractLogic {
 					}
 					if (appraise != null){
 						if (!appraise.isCompleted()) {
-							appraise.appraise(star,context);
+							appraise.appraise(deal,order,user,star,context);
 							order.save();
 							UserCharacter other = CTRL.search(uid == deal.getUid() ? order.getBuyId() : deal.getUid());
 							if (other != null) {
 								other.getCredit().addNum(star);
 								other.save();
 							}
-							TransformOrderDetail tod = new TransformOrderDetail();
-							tod.copy(deal,order);
+							TransformOrderDetail tod = new TransformOrderDetail(deal,order);
 							resp.setSucces();
 							resp.put("order",tod);
 							ServerLog.info(user.getAccount()+ " appraised : star = " + star + " context = "+ context);

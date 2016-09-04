@@ -64,13 +64,13 @@ public class HttpBuy extends HttpHandler {
 		}
 		deal.setHelpFlag(helpFlag);
 		boolean sendFlag = sendType.equals("1");
-		if (sendFlag && user.getRecharge().getCurMoney() < 10){//强制推送
+		if (sendFlag && user.getRecharge().getCurMoney() < Deal.ISSUE_COST_MONEY){//强制推送
 			message(request,response,"您的邮游币不足请先去充值");
 			return;
 		}
 		if (CTRL.tryToInsert(deal)){
 			if (sendFlag){//强制推送
-				user.getRecharge().changeMoney(-10);
+				user.getRecharge().changeMoney(-Deal.ISSUE_COST_MONEY);
 				deal.issue();
 			}
 			Map<String,Object> data = new HashMap<String,Object>();

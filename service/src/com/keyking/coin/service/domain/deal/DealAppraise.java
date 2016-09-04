@@ -1,13 +1,19 @@
 package com.keyking.coin.service.domain.deal;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import com.keyking.coin.service.domain.user.UserCharacter;
 import com.keyking.coin.service.net.SerializeEntity;
 import com.keyking.coin.service.net.buffer.DataBuffer;
+import com.keyking.coin.service.push.PushType;
+import com.keyking.coin.util.Instances;
 import com.keyking.coin.util.StringUtil;
 import com.keyking.coin.util.TimeUtils;
 
 
 
-public class DealAppraise implements SerializeEntity{
+public class DealAppraise implements SerializeEntity,Instances{
 	
 	boolean completed = false;//是否完成评价
 	
@@ -72,12 +78,24 @@ public class DealAppraise implements SerializeEntity{
 		buffer.putUTF(time);
 	}
 	
-	public void appraise(byte star,String detail){
+	public void appraise(Deal deal,DealOrder order,UserCharacter oparter, byte star,String detail){
 		completed = true;
 		this.star = star;
 		if (!StringUtil.isNull(detail)){
 			this.detail = detail;
 		}
 		time = TimeUtils.nowChStr();
+		String str = star == 1 ? "差评" : (star == 2 ? "中评" : "好评");
+		Map<String,String> pushMap = new HashMap<String, String>();
+		pushMap.put("type",PushType.PUSH_TYPE_APPRAISE.toString());
+		pushMap.put("dealId",deal.getId() + "");
+		pushMap.put("orderId",order.getId() + "");
+		String result = oparter.getNikeName() + "评价了您的某个成交盘结果是:" + str + "," + (StringUtil.isNull(detail)? "" : detail);
+		pushMap.put("detail",result);
+		long uid = deal.getUid() == oparter.getId() ? order.getBuyId() : deal.getUid();
+		UserCharacter target = CTRL.search(uid);
+		if (target != null && target.couldPush(PushType.PUSH_TYPE_APPRAISE)){
+			PUSH.push("评价变化","评价变化",target.getPlatform(),pushMap,target.getPushId());
+		}
 	}
 }

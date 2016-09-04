@@ -28,6 +28,7 @@ import com.keyking.coin.util.TimeUtils;
 public class Deal implements Instances,SerializeEntity,Comparable<Deal>{
 	public static final byte DEAL_TYPE_BUY  = 0;
 	public static final byte DEAL_TYPE_SELL = 1;
+	public static final int ISSUE_COST_MONEY = 20;
 	long id;//编号
 	long uid;//用户编号
 	byte sellFlag = DEAL_TYPE_BUY;//出售帖还是求购帖
@@ -186,8 +187,7 @@ public class Deal implements Instances,SerializeEntity,Comparable<Deal>{
 
 	public void issue(){
 		lastIssue = TimeUtils.nowChStr();
-		TransformDealDetail tdd = new TransformDealDetail();
-		tdd.copy(this);
+		TransformDealDetail tdd = new TransformDealDetail(this);
 		Map<String,String> pushMap = new HashMap<String, String>();
 		pushMap.put("type",PushType.PUSH_TYPE_DEAL.toString());
 		pushMap.put("deal",JsonUtil.ObjectToJsonString(tdd));
@@ -220,8 +220,7 @@ public class Deal implements Instances,SerializeEntity,Comparable<Deal>{
 		compare_o();
 		UserCharacter owner = CTRL.search(uid);
 		if (owner.couldPush(PushType.PUSH_TYPE_ORDER)){
-			TransformOrderDetail tod = new TransformOrderDetail();
-			tod.copy(this,order);
+			TransformOrderDetail tod = new TransformOrderDetail(this,order);
 			Map<String,String> pushMap = new HashMap<String, String>();
 			pushMap.put("type",PushType.PUSH_TYPE_ORDER.toString());
 			pushMap.put("order",JsonUtil.ObjectToJsonString(tod));
@@ -540,8 +539,7 @@ public class Deal implements Instances,SerializeEntity,Comparable<Deal>{
 		Module module = new Module();
 		module.setCode(Module.MODULE_CODE_DEAL);
 		module.setFlag(type);
-		TransformDealDetail tdd = new TransformDealDetail();
-		tdd.copy(this);
+		TransformDealDetail tdd = new TransformDealDetail(this);
 		module.add("deal",tdd);
 		resp.addModule(module);
 		return resp;

@@ -36,7 +36,7 @@ public class TransformOrderDetail implements Instances{
 	DealAppraise buyerAppraise;//买家评价
 	DealAppraise sellerAppraise;//卖家评价
 	
-	public void copy(Deal deal,DealOrder order){
+	public TransformOrderDetail(Deal deal,DealOrder order){
 		dealId     = deal.getId();
 		orderId    = order.getId();
 		issueId    = deal.getUid();

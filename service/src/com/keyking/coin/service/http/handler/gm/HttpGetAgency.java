@@ -20,8 +20,7 @@ public class HttpGetAgency extends HttpHandler {
 		if (deal != null){
 			DealOrder order = deal.searchOrder(oid);
 			if (order != null){
-				tod = new TransformOrderDetail();
-				tod.copy(deal,order);
+				tod = new TransformOrderDetail(deal,order);
 			}
 		}
 		if (tod != null){

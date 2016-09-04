@@ -18,6 +18,195 @@
 		<script type="text/javascript" src="../js/jquery-2.1.1.min.js"></script>
 		<script type="text/javascript" src="../js/bootstrap.min.js"></script>
 		<script type="text/javascript">
+			var dealIndex =0;
+			var orderIndex =0;
+			function Get_schedule(type,helpFlag){
+				if(type==0){
+					if (helpFlag==0) {
+						return "下单,买家已付款,卖家已入库,买家确认货已入库,买家未评价,卖家未评价";
+					}else{
+						return "下单,买家已付款给中介,中介已收款,卖家已入库,买家确认货已入库,中介已结算,买家未评价,卖家未评价";
+					}
+				}else{
+					if (helpFlag==0) {
+						return "下单,买家已付款,卖家已过户,买家确认过户,买家未评价,卖家未评价";
+					}else{
+				  		return "下单,买家已付款给中介,中介已收款,卖家已过户,买家确认过户,中介已结算,买家未评价,卖家未评价";
+					}
+				}
+			};
+			function revoke(type){
+				var params = "type=" + type;
+				if (type == "deal"){
+					params += "&id=" + dealIndex;
+				}else{
+					params += "&id=" + orderIndex;
+				}
+				$.ajax({
+					type:"get",
+			        url : "../gm/HttpRevoke",
+			        data: params,
+			        contentType: "application/json; charset=utf-8",
+			        dataType : "json",
+			        success  : function(data) {
+			        	if (data.result == "ok"){
+			        		alert("撤销成功");
+			        		if (type == "deal"){
+			        			search_deal();
+			        		}else{
+			        			search_order();
+			        		}
+			        	}else{
+			        		alert(data.result);
+			        	}
+			        },
+			        error: function (msg) {
+		                alert(msg);
+		            }
+				});
+			}
+			
+			function lookDeal(tid){
+				dealIndex = tid;
+				var params = "type=deal&id=" + tid;
+				$.ajax({
+					type:"get",
+			        url : "../gm/HttpGetDealOrOrder",
+			        data: params,
+			        contentType: "application/json; charset=utf-8",
+			        dataType : "json",
+			        success  : function(data) {
+			        	if(data.result == "ok"){
+			    			$("#sub_show").show();
+			    			var help = '';
+			    			var sell = '';
+			    			var type = '';
+			    			if (data.deal.helpFlag==1) {
+								help='中介模式';
+							}else{
+								help='买方先款';
+							}
+							if (data.deal.sellFlag==1) {
+								sell='出售';
+							}else{
+								sell='求购';
+							}
+							if (data.deal.type==1) {
+								type='过户';
+							}else{
+								type='入库';
+							}
+							var other = data.deal.other;
+							if (other=="") {
+								other="无"
+							};
+							var bourse = data.deal.bourse;
+							bourse = bourse.substring(2,bourse.length);
+			    			var html = '<br>编号：'+data.deal.id+'<br> '+help+'&nbsp;&nbsp;' + sell + '&nbsp;&nbsp;'+bourse+'（'+type+'）&nbsp;&nbsp;'+data.deal.name+'&nbsp;&nbsp;'+data.deal.price+'元/'+data.deal.monad+'<br> 剩余数量：<span id="_num">'+data.deal.num+'</span>&nbsp;'+data.deal.monad+'<br> 备注：'+other+'<br> 有效时间: '+data.deal.validTime+'<br>';
+							if (data.deal.revoke == false){
+								html += '<br><div><button onclick="revoke(\'deal\')">撤&nbsp;&nbsp;销</button></div>';
+							}else{
+								html += '<span style="color:#FF0000">已撤销</span>';
+							}
+							$("#sub_show").html(html);
+			        	}else{
+			        		alert(data.result);
+			        	}
+			        },
+			        error: function (msg) {
+		                alert(msg);
+		            }
+				});
+			}
+			
+			function lookOrder(tid){
+				orderIndex = tid;
+				var params = "type=order&id=" + tid;
+				$.ajax({
+					type:"get",
+			        url : "../gm/HttpGetDealOrOrder",
+			        data: params,
+			        contentType: "application/json; charset=utf-8",
+			        dataType : "json",
+			        success  : function(data) {
+			        	if(data.result == "ok"){
+			        		$("#sub_show").show();
+			        		var html = '<div><span style="float: left;">发布人：&nbsp;' + data.order.issueName + '</span><span style="float: right;">发布时间:&nbsp;' + data.order.issueTime + '</span></div>';
+					    	var sell = '';
+					    	var help = '';
+					    	var type = '';
+					    	if (data.order.sellFlag==1) {
+								sell='出售';
+							}else{
+								sell='求购';
+							}
+							if (data.order.helpFlag==1) {
+								help='中介模式';
+							}else{
+								help='买方先款';
+							}
+							if (data.order.type==1) {
+								type='过户';
+							}else{
+								type='入库';
+							}
+							var other = data.order.other;
+							if (other=="") {
+								other="无";
+							}
+							var bourse = data.order.bourse;
+							bourse = bourse.substring(2,bourse.length);
+							html +='<div>编号：'+data.order.dealId+'<br> '+help+'&nbsp;&nbsp;'+sell+'&nbsp;&nbsp;'+bourse+'（'+type+'）&nbsp;&nbsp;'+data.order.name+'&nbsp;&nbsp;'+data.order.price+'元/'+data.order.monad+'<br> 备注：'+other+'<br> 有效时间: '+data.order.validTime + '</div>';
+							html +='<div>成交编号: '+data.order.orderId+'<br>成&nbsp;&nbsp;交&nbsp;人:&nbsp;'+data.order.grabName+'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;成交数量: '+data.order.num+'&nbsp;'+data.order.monad+'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;成交时间: '+data.order.times[0] + '</div>';
+							var str = Get_schedule(data.order.type,data.order.helpFlag);
+							var titles = str.split(",");
+							html += '<div>';
+							for (var i = 1 ; i < titles.length; i++){
+								if (i <= data.order.state){
+									html += '<span style="background-color:#00FF00">' + titles[i] + '<br>' + data.order.times[i] + '</span><br><span style="margin-left:50px;">&#8595;</span><br>';
+								}else{
+								    if (i < titles.length - 1){
+								    	html += '<span style="background-color:#FFFFFF">' + titles[i] + '<br>等待处理</span><br><span style="margin-left:50px;">&#8595;</span><br>';
+								    }else{
+								    	html += '<span style="background-color:#FFFFFF">' + titles[i] + '<br>等待处理</span>';
+								    }
+								}
+							}
+							html += '</div>';
+							if (data.order.revoke == 3){
+								html += '<br><span style="color:#FF0000">已撤销</span>';
+							}else{
+								html += '<br><div><button onclick="revoke(\'order\')">撤&nbsp;&nbsp;销</button></div>';
+							}
+							$("#sub_show").html(html);
+			        	}else{
+			        		alert(data.result);
+			        	}
+			        },
+			        error: function (msg) {
+		                alert(msg);
+		            }
+			     });
+			};
+			
+			function insert_deal(data){
+				var html = "";
+        		for(var i = 0 ; i < data.list.length; i++){
+        			var showTitle = data.list[i].name + "(" + data.list[i].id + ")";
+        			html += "<li style='margin-left:5px;' onclick ='lookDeal(" + data.list[i].id + ")' ><a href='#' >" + showTitle + "</a></li>";
+        		}
+        		$("#h_col").html(html);
+			};
+			
+			function insert_order(data){
+				var html = "";
+        		for(var i = 0 ; i < data.list.length; i++){
+        			var showTitle = data.list[i].name + "(" + data.list[i].orderId + ")";
+        			html += "<li style='margin-left:5px;' onclick ='lookOrder(" + data.list[i].orderId + ")' ><a href='#' >" + showTitle + "</a></li>";
+        		}
+        		$("#h_col").html(html);
+			};
+			
 			function search_deal(){
 				var str = $("#search_deal").val();
 				if (str == ""){
@@ -33,7 +222,8 @@
 			        dataType : "json",
 			        success  : function(data) {
 			        	if(data.result == "ok"){
-			        		
+			    			$("#sub_show").hide();
+							insert_deal(data);
 			        	}else{
 			        		alert(data.result);
 			        	}
@@ -45,22 +235,45 @@
 			};
 			
 			function search_order(){
-				
+				var str = $("#search_order").val();
+				if (str == ""){
+					alert("请输入查询参数");
+					return;
+				}
+				var params = "type=order&key=" + str;
+				$.ajax({
+					type:"get",
+			        url : "../gm/HttpDealSearchByKey",
+			        data: params,
+			        contentType: "application/json; charset=utf-8",
+			        dataType : "json",
+			        success  : function(data) {
+			        	if(data.result == "ok"){
+			    			$("#sub_show").hide();
+							insert_order(data);
+			        	}else{
+			        		alert(data.result);
+			        	}
+			        },
+			        error: function (msg) {
+		                alert(msg);
+		            }
+				});
 			};
 
 		</script>
 	</head>
-	<body style="text-align:center;">
+	<body style="margin-left:15%;">
 		<div>
 			买卖盘:<input type ="text" id="search_deal" style="width:400px;" placeholder="买卖盘编号\藏品名称"/>
 		    <button class="btn btn-default" type="button" onclick="search_deal()" >查询</button>
-    	</div>
-    	<div>
-			成交盘:<input type ="text" id="search_order" style="width:400px;" placeholder="成交盘编号\购买人昵称"/>
+			成交盘:<input type ="text" id="search_order" style="width:400px;" placeholder="成交盘编号\抢单人昵称"/>
 		    <button class="btn btn-default" type="button" onclick="search_order()" >查询</button>
     	</div>
-    	<table id="container" class="border-table">
-			
-		</table>
+    	 <div id="h_col" style="float:left;width:550px;height:700px;border:1px solid #000;background-color:#FFFF93;overflow:auto;"></div>
+    	 <div style="float:left;width:800px;height:700px;border:1px solid #000;background-color:#81C0C0;">
+    	 	<div id="sub_show" style="margin-left:10px;">
+    	 	</div>
+    	 </div>
 	</body>
 </html>

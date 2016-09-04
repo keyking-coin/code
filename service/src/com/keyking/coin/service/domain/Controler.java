@@ -1,5 +1,6 @@
 package com.keyking.coin.service.domain;
 
+import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -20,9 +21,11 @@ import com.keyking.coin.service.domain.deal.Deal;
 import com.keyking.coin.service.domain.deal.DealOrder;
 import com.keyking.coin.service.domain.deal.SimpleOrderModule;
 import com.keyking.coin.service.domain.email.Email;
+import com.keyking.coin.service.domain.other.AboutInfo;
 import com.keyking.coin.service.domain.user.RankEntity;
 import com.keyking.coin.service.domain.user.Seller;
 import com.keyking.coin.service.domain.user.UserCharacter;
+import com.keyking.coin.service.net.buffer.DataBuffer;
 import com.keyking.coin.service.net.data.RecentDeal;
 import com.keyking.coin.service.net.resp.RespEntity;
 import com.keyking.coin.service.net.resp.impl.AdminResp;
@@ -33,10 +36,12 @@ import com.keyking.coin.service.tranform.TransformDealData;
 import com.keyking.coin.service.tranform.TransformTouristOrder;
 import com.keyking.coin.service.tranform.TransformUserData;
 import com.keyking.coin.service.tranform.page.deal.TransformDealListInfo;
+import com.keyking.coin.service.tranform.page.order.TransformOrderListInfo;
 import com.keyking.coin.util.Instances;
 import com.keyking.coin.util.JsonUtil;
 import com.keyking.coin.util.MathUtils;
 import com.keyking.coin.util.ServerLog;
+import com.keyking.coin.util.StringUtil;
 import com.keyking.coin.util.TimeUtils;
 
 public class Controler implements Instances{
@@ -46,6 +51,7 @@ public class Controler implements Instances{
 	Map<Long,Deal> deals = new ConcurrentHashMap<Long,Deal>();
 	List<Broker> brokers = new CopyOnWriteArrayList<Broker>();
 	List<UserBroker> userBrokers = new CopyOnWriteArrayList<UserBroker>();
+	AboutInfo aboutInfo ;
 	
 	public static Controler getInstance() {
 		return instance;
@@ -91,8 +97,34 @@ public class Controler implements Instances{
 				userBrokers.add(ub);
 			}
 		}
+		loadAbout();
 	}
 	
+	public void loadAbout(){
+		ServerLog.info("load about");
+		try {
+			FileInputStream fis = new FileInputStream("./about.data");
+			DataBuffer buffer = DataBuffer.allocate(128);
+			byte[] temp = new byte[1024];
+			do {
+				int len = fis.read(temp);
+				if (len == -1){
+					break;
+				}
+				buffer.put(temp,0,len);
+			}while(true);
+			fis.close();
+			String str = new String(buffer.arrayToPosition(),"UTF-8");
+			aboutInfo = JsonUtil.JsonToObject(str,AboutInfo.class);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public AboutInfo getAboutInfo() {
+		return aboutInfo;
+	}
+
 	public UserCharacter adminLogin(String account,String pwd,AdminResp resp){
 		UserCharacter user = search(account);
 		if (user == null){//不存在账号是account
@@ -456,12 +488,30 @@ public class Controler implements Instances{
 		return result;
 	}
 	
-	public List<TransformUserData> getCoinUsers() {
+	public List<TransformUserData> getCoinUsers(String search) {
+		boolean flag = StringUtil.isNull(search);
 		List<TransformUserData> result = new ArrayList<TransformUserData>();
 		for (UserCharacter user : characters.values()){
 			if (user.getPermission().coin_user()){
-				TransformUserData tud = new TransformUserData(user);
-				result.add(tud);
+				if (flag){
+					TransformUserData tud = new TransformUserData(user);
+					result.add(tud);
+				}else{
+					if (StringUtil.isInteger(search)){
+						long uid = Long.parseLong(search);
+						if (user.getId() == uid){
+							TransformUserData tud = new TransformUserData(user);
+							result.add(tud);
+							break;
+						}
+					}else{
+						String name = user.getNikeName();
+						if (name.contains(search) || search.contains(name)){
+							TransformUserData tud = new TransformUserData(user);
+							result.add(tud);
+						}
+					}
+				}
 			}
 		}
 		return result;
@@ -690,6 +740,33 @@ public class Controler implements Instances{
 			if (name.contains(key) || key.contains(name)){
 				TransformDealListInfo tdi = new TransformDealListInfo(deal);
 				list.add(tdi);
+			}
+		}
+	}
+	
+	public void trySearchOrders(String key,List<TransformOrderListInfo> list){
+		long id = 0;
+		if (StringUtil.isInteger(key)){
+			id = Long.parseLong(key);
+		}
+		for (Deal deal : deals.values()){
+			for (int i = 0 ; i < deal.getOrders().size() ; i++){
+				DealOrder order = deal.getOrders().get(i);
+				if (order.getId() == id){
+					TransformOrderListInfo toi = new TransformOrderListInfo(deal,order);
+					list.add(toi);
+					return ;
+				}else{
+					long uid = order.getBuyId();
+					UserCharacter user = search(uid);
+					if (user != null){
+						String name = user.getName();
+						if(name.contains(key) || key.contains(name)){
+							TransformOrderListInfo toi = new TransformOrderListInfo(deal,order);
+							list.add(toi);
+						}
+					}
+				}
 			}
 		}
 	}

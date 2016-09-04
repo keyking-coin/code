@@ -67,8 +67,7 @@ public class AppDealGrab extends AbstractLogic {
 			order.setId(orderId);
 			deal.addOrder(order);
 			order.save();
-			TransformOrderDetail tod = new TransformOrderDetail();
-			tod.copy(deal,order);
+			TransformOrderDetail tod = new TransformOrderDetail(deal,order);
 			resp.setSucces();
 			resp.put("num",deal.getLeftNum());
 			resp.put("monad",deal.getMonad());

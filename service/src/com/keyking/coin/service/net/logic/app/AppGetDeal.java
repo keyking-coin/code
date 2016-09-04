@@ -14,8 +14,7 @@ public class AppGetDeal extends AbstractLogic {
 		long dealId = buffer.getLong();
 		Deal deal = CTRL.tryToSearch(dealId);
 		if (deal != null){
-			TransformDealDetail td = new TransformDealDetail();
-			td.copy(deal);
+			TransformDealDetail td = new TransformDealDetail(deal);
 			resp.put("deal",td);
 			resp.setSucces();
 		}else{
