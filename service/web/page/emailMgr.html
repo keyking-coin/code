@@ -10,12 +10,77 @@
 		<script type="text/javascript" src="../js/jquery-2.1.1.min.js"></script>
 		<script type="text/javascript" src="../js/bootstrap.min.js"></script>
 		<script type="text/javascript">
+			function showInput(select){
+				if (select == "2"){
+					$("#target").show();
+				}else{
+					$("#target").hide();
+				}
+			};
+			function send(){
+				var type =  $("#type").val();
+				var target= "null";
+				if (type == 2){
+					target = $("#target").val();
+					if (target == ""){
+						alert("请输入会员昵称");
+						return;
+					}
+				}
+				var title = $("#title").val();
+				if (title == ""){
+					alert("请输入主题");
+					return;
+				}
+				var content = $("#content").val();
+				if (title == ""){
+					alert("内容不能为空");
+					return;
+				}
+				var params = "type=" + type + "&target=" + target + "&title=" + title + "&content=" + content;
+				$.ajax({
+				    type:"get",
+			        url :"../gm/HttpGmSendEamil",
+			        data:params,
+			        contentType:"application/json; charset=utf-8",
+			        dataType:"json",
+			        success:function(data) {
+			        	if (data.result == "ok"){
+			        		alert("发送成功");
+			        	}else{
+			        		alert(data.result);
+			        	}
+			        },
+			        error:function (msg) {
+		                alert(msg);
+		            }
+			    });
+			};
 			
+			$(document).ready(function() {
+				showInput("0");
+			});
 		</script>
 	</head>
 	<body>
 		<div style="text-align:center;">
-			站内信页面
+			<span style="color:#0010ff">目标类型:</span>
+			<select id="type" onchange="showInput(this.options[this.selectedIndex].value)">
+		       <option value=0>全体会员</option>
+		       <option value=1>全体卖家</option>
+		       <option value=2>个人</option>
+		    </select>
+		    <input type="text" id="target" style="width:250px;" placeholder="会员昵称\会员账号"/>
+		    <br>
+		    <br>
+			<span style="color:#0010ff">主题:</span>
+			<input type="text" id="title" style="width:360px;"/>
+			<br>
+			<br>
+			<textarea id="content" rows="10" cols="50"></textarea>
+	 		<br>
+	 		<br>
+	 		<button  type="button" onclick="send()">发送</button>
 		</div>
 	</body>
 </html>

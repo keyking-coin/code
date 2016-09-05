@@ -488,6 +488,22 @@ public class Controler implements Instances{
 		return result;
 	}
 	
+	public List<UserCharacter> getCoinUsers(int type) {
+		List<UserCharacter> result = new ArrayList<UserCharacter>();
+		for (UserCharacter user : characters.values()){
+			if (user.getPermission().coin_user()){
+				if (type == 1){
+					if (user.getPermission().seller()){
+						result.add(user);
+					}
+				}else{
+					result.add(user);
+				}
+			}
+		}
+		return result;
+	}
+	
 	public List<TransformUserData> getCoinUsers(String search) {
 		boolean flag = StringUtil.isNull(search);
 		List<TransformUserData> result = new ArrayList<TransformUserData>();
