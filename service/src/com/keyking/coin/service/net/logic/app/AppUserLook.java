@@ -26,7 +26,7 @@ public class AppUserLook extends AbstractLogic {
 				look = true;
 			}
 			TransformLookData data = new TransformLookData();
-			data.setFace(user.getFace());
+			data.setFace(user.getAppFace());
 			data.setNikeName(user.getNikeName());
 			data.setSignature(user.getSignature());
 			data.setTitle(user.getTitle());

@@ -25,7 +25,7 @@ public class RankEntity implements Comparable<RankEntity> , Instances , Serializ
 	public void init(UserCharacter user){
 		uid   = user.getId();
 		name  = user.getNikeName();
-		face  = user.getFace();
+		face  = user.getAppFace();
 		title = user.getTitle();
 	}
 	

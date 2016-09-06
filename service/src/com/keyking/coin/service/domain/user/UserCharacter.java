@@ -90,6 +90,13 @@ public class UserCharacter implements Instances,SerializeEntity{
 		return face;
 	}
 
+	public String getAppFace(){
+		if (!StringUtil.isNull(face)){
+			return "http://www.521uu.cc:321/uploads/" + face;
+		}
+		return face;
+	}
+	
 	public void setFace(String face) {
 		this.face = face;
 	}
@@ -529,8 +536,7 @@ public class UserCharacter implements Instances,SerializeEntity{
 		friend.setUid(id);
 		friends.add(friend);
 		if (couldPush(PushType.PUSH_TYPE_FRIEND)){
-			FriendListInfo fi = new FriendListInfo();
-			fi.copy(friend);
+			FriendListInfo fi = new FriendListInfo(friend);
 			Map<String,String> pushMap = new HashMap<String, String>();
 			pushMap.put("type",PushType.PUSH_TYPE_FRIEND.toString());
 			pushMap.put("friend",JsonUtil.ObjectToJsonString(fi));

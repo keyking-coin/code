@@ -13,6 +13,18 @@ public class FriendListInfo implements Instances{
 	String time;//申请时间或者是通过时间
 	String other;//验证信息
 	
+	public FriendListInfo(Friend friend){
+		fid = friend.getFid();
+		UserCharacter user = CTRL.search(fid);
+		if (user != null){
+			nikeName = user.getNikeName();
+			faceIcon = user.getAppFace();
+			tel      = user.getAccount();
+		}
+		pass  = friend.getPass();
+		time  = friend.getTime();
+		other = friend.getOther();
+	}
 	public long getFid() {
 		return fid;
 	}
@@ -67,18 +79,5 @@ public class FriendListInfo implements Instances{
 	
 	public void setOther(String other) {
 		this.other = other;
-	}
-
-	public void copy(Friend friend) {
-		fid = friend.getFid();
-		UserCharacter user = CTRL.search(fid);
-		if (user != null){
-			nikeName = user.getNikeName();
-			faceIcon = user.getFace();
-			tel      = user.getAccount();
-		}
-		pass  = friend.getPass();
-		time  = friend.getTime();
-		other = friend.getOther();
 	}
 }

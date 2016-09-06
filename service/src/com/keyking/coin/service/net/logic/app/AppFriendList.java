@@ -29,8 +29,7 @@ public class AppFriendList extends AbstractLogic {
 		List<FriendListInfo> fis = new ArrayList<FriendListInfo>();
 		List<Friend> friends = user.getFriends();
 		for (Friend friend : friends){
-			FriendListInfo fi = new FriendListInfo();
-			fi.copy(friend);
+			FriendListInfo fi = new FriendListInfo(friend);
 			fis.add(fi);
 		}
 		resp.put("list",fis);

@@ -26,7 +26,7 @@ public class EmailList implements Instances,Comparable<EmailList>{
 		UserCharacter user = CTRL.search(senderId);
 		if (user != null){
 			senderName = user.getNikeName();
-			senderFace = user.getFace();
+			senderFace = user.getAppFace();;
 		}
 		content = email.getContent();
 	}

@@ -6,7 +6,6 @@ import com.keyking.coin.service.domain.user.Account;
 import com.keyking.coin.service.domain.user.Credit;
 import com.keyking.coin.service.domain.user.UserCharacter;
 import com.keyking.coin.util.Instances;
-import com.keyking.coin.util.StringUtil;
 
 public class LoginData implements Instances{
 	long userId;//用户编号
@@ -31,9 +30,7 @@ public class LoginData implements Instances{
 	public LoginData (UserCharacter user){
 		userId = user.getId();
 		tel  = user.getAccount();
-		if (!StringUtil.isNull(user.getFace())){
-			face = "http://www.521uu.cc:321/uploads/" + user.getFace();
-		}
+		face = user.getAppFace();
 		nikeName = user.getNikeName();
 		title = user.getTitle();
 		registTime = user.getRegistTime();
