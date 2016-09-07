@@ -28,7 +28,7 @@ public class HttpLook extends HttpHandler {
 				look = true;
 			}
 			TransformLookData data = new TransformLookData();
-			data.setFace(user.getFace());
+			data.setFace(user.getAppFace());
 			data.setNikeName(user.getNikeName());
 			data.setSignature(look ? user.getSignature() : "仅对交易方可见");
 			data.setTitle(user.getTitle());

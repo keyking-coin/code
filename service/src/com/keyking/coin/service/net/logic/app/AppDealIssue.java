@@ -34,7 +34,7 @@ public class AppDealIssue extends AbstractLogic {
 			return resp;
 		}
 		if (user.getRecharge().getCurMoney() < Deal.ISSUE_COST_MONEY){
-			resp.setError("您的邮游币不足请先去充值");
+			resp.setError("您的邮游币不足请联系平台客服充值");
 		}else{
 			user.getRecharge().changeMoney(-Deal.ISSUE_COST_MONEY);
 			deal.issue();

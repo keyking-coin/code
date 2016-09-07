@@ -44,7 +44,7 @@ public class TransformUserData implements Instances,SerializeEntity{
 	public TransformUserData(UserCharacter user){
 		id = user.getId();
 		account = user.getAccount();
-		face = user.getFace();
+		face = user.getAppFace();
 		nikeName = user.getNikeName();
 		title = user.getTitle();
 		registTime  = user.getRegistTime();

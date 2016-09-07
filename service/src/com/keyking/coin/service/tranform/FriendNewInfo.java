@@ -34,6 +34,6 @@ public class FriendNewInfo {
 	public void copy(UserCharacter user){
 		uid = user.getId();
 		nikeName = user.getNikeName();
-		faceIcon = user.getFace();
+		faceIcon = user.getAppFace();
 	}
 }

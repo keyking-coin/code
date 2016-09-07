@@ -86,7 +86,7 @@ public class TransformRevertData implements Instances,SerializeEntity{
 		uid                = revert.getUid();
 		UserCharacter user = CTRL.search(uid);
 		sayerName          = user.getNikeName();
-		sayerIcon          = user.getFace();
+		sayerIcon          = user.getAppFace();
 		user               = CTRL.search(revert.getTar());
 		target             = user.getNikeName();
 		context            = revert.getContext();

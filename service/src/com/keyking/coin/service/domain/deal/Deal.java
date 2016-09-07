@@ -587,7 +587,7 @@ public class Deal implements Instances,SerializeEntity,Comparable<Deal>{
 		if (target.couldPush(PushType.PUSH_TYPE_REVERT)){
 			PUSH.push("买卖盘回复","新增买卖盘回复",target.getPlatform(),pushMap,target.getPushId());
 		}
-		if (tid != this.uid){
+		if (uid != this.uid){
 			UserCharacter owner = CTRL.search(this.uid);
 			if (owner.couldPush(PushType.PUSH_TYPE_REVERT)){
 				PUSH.push("买卖盘回复","新增买卖盘回复",owner.getPlatform(),pushMap,owner.getPushId());

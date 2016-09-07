@@ -104,10 +104,7 @@
 					   return;
 					}
 					var url_str = $("#ad_title").val();
-					if (url_str == ""){
-					   url_str = "#";
-					   return;
-					}else if (window.parent.isUrl(url_str) == false){
+					if (window.parent.isUrl(url_str) == false){
 					   alert("非法的URL地址");
 					   return;
 					}
@@ -159,10 +156,7 @@
 				$("#sub_show_update").click(function(){
 				    var url = $("#show_ad_title").val();
 				    var rank = $("#show_ad_rank").val();
-					if (url == ""){
-					   url = "#";
-					   return;
-					}else if (window.parent.isUrl(url) == false){
+					if (window.parent.isUrl(url) == false){
 					   alert("非法的URL地址");
 					   return;
 					}

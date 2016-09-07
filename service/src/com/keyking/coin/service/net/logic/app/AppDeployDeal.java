@@ -78,7 +78,7 @@ public class AppDeployDeal extends AbstractLogic{
 		if (CTRL.tryToInsert(deal)){
 			if (deployType == 1){//推送
 				if (user.getRecharge().getCurMoney() < Deal.ISSUE_COST_MONEY){//强制推送
-					resp.setError("您的邮游币不足请先去充值");
+					resp.setError("您的邮游币不足请联系平台客服充值");
 					return resp;
 				}
 				user.getRecharge().changeMoney(-Deal.ISSUE_COST_MONEY);

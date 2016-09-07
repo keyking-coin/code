@@ -89,8 +89,8 @@ public class UserCharacter implements Instances,SerializeEntity{
 	public String getFace() {
 		return face;
 	}
-
-	public String getAppFace(){
+	
+	public String getAppFace() {
 		if (!StringUtil.isNull(face)){
 			return "http://www.521uu.cc:321/uploads/" + face;
 		}

@@ -23,11 +23,11 @@ public class TransformRevert implements Instances , Comparable<TransformRevert>{
 		sayerId            = revert.getUid();
 		UserCharacter user = CTRL.search(sayerId);
 		sayerName          = user.getNikeName();
-		sayerFace          = user.getFace();
+		sayerFace          = user.getAppFace();
 		sayToId            = revert.getTar();
 		user               = CTRL.search(sayToId);
 		sayToName          = user.getNikeName();
-		sayToFace          = user.getFace();
+		sayToFace          = user.getAppFace();
 		context            = revert.getContext();
 		time               = revert.getCreateTime();
 	}

@@ -19,7 +19,7 @@ public class UserLook extends AbstractLogic{
 		if (user != null){
 			Deal deal = CTRL.tryToSearch(dealId);
 			boolean look = (deal.getUid() == uid && deal.checkBuyerId(mid)) || (deal.getUid() == mid && deal.checkBuyerId(uid));
-			resp.add(user.getFace());
+			resp.add(user.getAppFace());
 			resp.add(user.getNikeName());
 			resp.add(look?user.getSignature():"保密");
 			resp.add(user.getTitle());

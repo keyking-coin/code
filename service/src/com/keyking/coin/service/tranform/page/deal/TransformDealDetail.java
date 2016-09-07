@@ -46,7 +46,7 @@ public class TransformDealDetail implements Instances{
 		other      = deal.getOther();
 		UserCharacter user = CTRL.search(uid);
 		issueName  = user.getNikeName();
-		issueFace  = user.getFace();
+		issueFace  = user.getAppFace();
 		for (Revert revert : deal.getReverts()){
 			if (revert.isRevoke()){
 				continue;

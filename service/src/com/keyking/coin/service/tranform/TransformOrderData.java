@@ -164,7 +164,7 @@ public class TransformOrderData implements Instances,SerializeEntity{
 		type               = deal.getType();
 		UserCharacter user = CTRL.search(buyId);
 		buyerName          = user.getNikeName();
-		buyerIcon          = user.getFace();
+		buyerIcon          = user.getAppFace();
 		helpFlag           = order.getHelpFlag();
 		num                = order.getNum();
 		buyerNum           = order.getBuyerNum();

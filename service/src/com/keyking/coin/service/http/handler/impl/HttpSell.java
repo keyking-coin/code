@@ -76,7 +76,7 @@ public class HttpSell extends HttpHandler {
 			return;
 		}
 		if (sendFlag && user.getRecharge().getCurMoney() < Deal.ISSUE_COST_MONEY){//强制推送
-			message(request,response,"您的邮游币不足请先去充值");
+			message(request,response,"您的邮游币不足请联系平台客服充值");
 			return;
 		}
 		if (CTRL.tryToInsert(deal)){
