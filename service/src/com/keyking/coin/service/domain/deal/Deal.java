@@ -583,9 +583,11 @@ public class Deal implements Instances,SerializeEntity,Comparable<Deal>{
 		TransformRevert tr = new TransformRevert();
 		tr.copy(revrt);
 		pushMap.put("revert",JsonUtil.ObjectToJsonString(tr));
-		UserCharacter target = CTRL.search(tid);
-		if (target.couldPush(PushType.PUSH_TYPE_REVERT)){
-			PUSH.push("买卖盘回复","新增买卖盘回复",target.getPlatform(),pushMap,target.getPushId());
+		if (tid != uid && tid > 0){//在回复自己
+			UserCharacter target = CTRL.search(tid);
+			if (target.couldPush(PushType.PUSH_TYPE_REVERT)){
+				PUSH.push("买卖盘回复","新增买卖盘回复",target.getPlatform(),pushMap,target.getPushId());
+			}
 		}
 		if (uid != this.uid){
 			UserCharacter owner = CTRL.search(this.uid);
