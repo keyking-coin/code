@@ -4,7 +4,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.StringReader;
 import java.net.URLDecoder;
-import java.nio.charset.CharacterCodingException;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.util.HashMap;
@@ -31,8 +30,6 @@ public class HttpRequestDecoder extends MessageDecoderAdapter {
 	public void setEncoder(CharsetDecoder decoder) {
 		this.decoder = decoder;
 	}
-
-	private HttpRequestMessage request = null;
 
 	public HttpRequestDecoder() {
 		decoder = Charset.forName(defaultEncoding).newDecoder();
@@ -121,11 +118,12 @@ public class HttpRequestDecoder extends MessageDecoderAdapter {
 	}
 
 	private HttpRequestMessage decodeBody(IoBuffer in) {
-		request = new HttpRequestMessage();
+		HttpRequestMessage request = new HttpRequestMessage();
 		try {
-			request.setHeaders(parseRequest(new StringReader(in.getString(decoder))));
+			String str = in.getString(decoder);
+			request.setHeaders(parseRequest(new StringReader(str)));
 			return request;
-		} catch (CharacterCodingException ex) {
+		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
 		return null;
@@ -160,34 +158,6 @@ public class HttpRequestDecoder extends MessageDecoderAdapter {
 				line = null;
 			}
 			if (line != null) {
-				/*
-				String[] match = line.split("\\&");
-				for (String element : match) {
-					String[] params = new String[1];
-					String[] tokens = element.split("=");
-					switch (tokens.length) {
-					case 0:
-						map.put("@".concat(element), new String[] {});
-						break;
-					case 1:
-						map.put("@".concat(tokens[0]), new String[] {});
-						break;
-					default:
-						String name = "@".concat(tokens[0]);
-						if (map.containsKey(name)) {
-							params = map.get(name);
-							String[] tmp = new String[params.length + 1];
-							for (int j = 0; j < params.length; j++) {
-								tmp[j] = params[j];
-							}
-							params = null;
-							params = tmp;
-						}
-						String str = URLDecoder.decode(tokens[1].trim(),"UTF-8");
-						params[params.length - 1] = str;
-						map.put(name, params);
-					}
-				}*/
 				parseParam(line,map);
 			}
 			if (url[0].equalsIgnoreCase("POST")) {
@@ -199,9 +169,7 @@ public class HttpRequestDecoder extends MessageDecoderAdapter {
 						sb.append(buf[i]);
 					}
 				}
-				String[] params = new String[1];
-				params[0] = sb.toString();
-				map.put("$value", params);
+				parseParam(sb.toString(),map);
 			} 
 		} catch (IOException ex) {
 			ex.printStackTrace();
