@@ -100,9 +100,8 @@
 				});
 				$("#ad_insert").click(function(){
 					if (fileName == ""){
-					   //alert("请先上传的图片");
-					   //return;
-					   fileName = "测试.png";
+					   alert("请先上传的图片");
+					   return;
 					}
 					var url_str = $("#ad_title").val();
 					if (window.parent.isUrl(url_str) == false){

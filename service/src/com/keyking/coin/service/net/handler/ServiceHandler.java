@@ -4,6 +4,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.mina.core.service.IoHandlerAdapter;
+import org.apache.mina.core.session.IdleStatus;
 import org.apache.mina.core.session.IoSession;
 
 import com.keyking.coin.service.domain.user.UserCharacter;
@@ -57,17 +58,17 @@ public class ServiceHandler extends IoHandlerAdapter implements Instances {
 					}
 				}
 			} catch (Exception e) {
-				e.printStackTrace();
+				ServerLog.error("请求处理异常",e);
 			}
 		}
 	}
 
 	@Override
 	public void sessionCreated(IoSession session) throws Exception {
-		String key = session.getRemoteAddress().toString();
-		ServerLog.info(key + " open connect");
-		sessions.put(key,session);
 		super.sessionCreated(session);
+		String key = session.getRemoteAddress().toString();
+		ServerLog.info(key + " open connect ");
+		sessions.put(key,session);
 	}
 
 	@Override
@@ -78,10 +79,22 @@ public class ServiceHandler extends IoHandlerAdapter implements Instances {
 		if (adminSession != null && session.equals(adminSession)){
 			adminSession = null;
 		}
-		super.sessionClosed(session);
+		session.close(true);
 		ServerLog.info(key + " close connect");
 	}
 	
+	@Override
+	public void sessionIdle(IoSession iosession, IdleStatus idlestatus) throws Exception {
+		super.sessionIdle(iosession, idlestatus);
+	}
+
+	
+	@Override
+	public void exceptionCaught(IoSession session, Throwable cause) throws Exception {
+		super.exceptionCaught(session, cause);
+		session.close(true);
+	}
+
 	public IoSession getAdminSession() {
 		return adminSession;
 	}

@@ -83,6 +83,7 @@ public class NetUtil {
 	public boolean send(Request request,ResultCallBack callBack){
 		if (writer == null || !writer.isConnected()){
 			logger.info("send error because the connect is out of line!");
+			connected = false;
 			return false;
 		}
 		if (callBack != null){

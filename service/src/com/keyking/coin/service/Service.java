@@ -34,6 +34,8 @@ public class Service implements Instances{
 	
 	public static boolean PRODUCT = false;
 	
+	public static String VERSION = "1.0.1";
+	
 	public static void main(String[] args) {
         try {
         	ServerLog.init();
@@ -43,9 +45,13 @@ public class Service implements Instances{
         	SMS.init();
         	CTRL.load();
         	SocketAcceptor acceptor = new NioSocketAcceptor();  
-            SocketSessionConfig config = acceptor.getSessionConfig();  
-            config.setReadBufferSize(1024*1024*100);//100M
+            SocketSessionConfig config = acceptor.getSessionConfig();
+            config.setReceiveBufferSize(10 * 1024);
+            config.setReadBufferSize(1024);
+            config.setMaxReadBufferSize(10 * 1024);
             config.setIdleTime(IdleStatus.BOTH_IDLE,10);
+            config.setKeepAlive(true);
+            config.setSoLinger(0); //这个是根本解决问题的设置 
             DefaultIoFilterChainBuilder chain = acceptor.getFilterChain();
             chain.addLast("codec",new ProtocolCodecFilter(new MessageCodecFactory()));
             acceptor.setHandler(NET);
@@ -74,6 +80,7 @@ public class Service implements Instances{
 			PORT      = Integer.parseInt(XmlUtils.getAttribute(service,"port"));
 			CONSOLE   = Integer.parseInt(XmlUtils.getAttribute(service,"console"));
 			PRODUCT   = XmlUtils.getAttribute(service,"prodcut").equals("true");
+			VERSION   = XmlUtils.getAttribute(service,"version");
 		}
 	}
 }

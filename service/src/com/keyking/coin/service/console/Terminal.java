@@ -11,6 +11,7 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.keyking.coin.service.Service;
 import com.keyking.coin.service.domain.Controler;
 import com.keyking.coin.service.domain.deal.Deal;
 import com.keyking.coin.service.domain.deal.DealAppraise;
@@ -68,6 +69,15 @@ public class Terminal implements Instances{
 					break;
 				case "save":
 					writer.println("save ok");
+					writer.flush();
+					break;
+				case "version":
+					try {
+						Service.load();
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+					writer.println("change version ok");
 					writer.flush();
 					break;
 				case "fix" :{

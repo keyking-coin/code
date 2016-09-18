@@ -170,6 +170,7 @@ public class HttpRequestDecoder extends MessageDecoderAdapter {
 					}
 				}
 				parseParam(sb.toString(),map);
+				map.put("$value",new String[]{sb.toString()});
 			} 
 		} catch (IOException ex) {
 			ex.printStackTrace();

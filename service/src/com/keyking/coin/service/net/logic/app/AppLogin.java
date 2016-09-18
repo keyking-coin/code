@@ -3,6 +3,9 @@ package com.keyking.coin.service.net.logic.app;
 import java.util.HashMap;
 import java.util.Map;
 
+import cn.jpush.api.common.DeviceType;
+
+import com.keyking.coin.service.Service;
 import com.keyking.coin.service.domain.user.UserCharacter;
 import com.keyking.coin.service.net.buffer.DataBuffer;
 import com.keyking.coin.service.net.data.LoginData;
@@ -21,6 +24,22 @@ public class AppLogin extends AbstractLogic {
 		String pwd      = buffer.getUTF();//登录密码
 		String pushId   = buffer.getUTF();//单独推送编号
 		String platform = buffer.getUTF();//平台编号android或者ios
+		String version  = null;
+		try {
+			version         = buffer.getUTF();
+		} catch (Exception e) {
+			//e.printStackTrace();
+		}
+		if (version == null && platform.equals(DeviceType.Android.value())){//旧版本
+			resp.setError("您的版本过低,请到官网下载最新应用。");
+			return resp;
+		}
+		if (version == null || !version.equals(Service.VERSION)){//正常的版本检查
+			resp.put("version","版本过低,需要更新是否继续？");
+		}else{
+			resp.put("version","ok");
+		}
+		resp.put("androidUrl","http://www.521uu.cc/downloads/down.php?fname=youyou.apk");
 		if (StringUtil.isNull(pushId)){
 			resp.setError("推送注册Id为空");
 			return resp;

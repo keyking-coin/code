@@ -6,6 +6,7 @@ import org.apache.mina.filter.codec.CumulativeProtocolDecoder;
 import org.apache.mina.filter.codec.ProtocolDecoderOutput;
 
 import com.keyking.coin.service.net.buffer.DataBuffer;
+import com.keyking.coin.util.ServerLog;
 
 public class MessageDecoder extends CumulativeProtocolDecoder {
 	IoBuffer reader = IoBuffer.allocate(1024);
@@ -21,6 +22,7 @@ public class MessageDecoder extends CumulativeProtocolDecoder {
 		if (readLen >= remain){
 			preLen = readLen - remain;
 			readLen = remain;
+			ServerLog.info("more data received >>> " + preLen);
 		}else if (preLen > 0){
 			preLen = 0;
 		}
