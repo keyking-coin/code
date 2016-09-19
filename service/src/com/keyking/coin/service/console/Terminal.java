@@ -80,6 +80,15 @@ public class Terminal implements Instances{
 					writer.println("change version ok");
 					writer.flush();
 					break;
+				case "push":
+					try {
+						PUSH.init();
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+					writer.println("load push properties ok");
+					writer.flush();
+					break;
 				case "fix" :{
 					if (cmds.length < 2){
 						writer.println("need param of date");

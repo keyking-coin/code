@@ -36,6 +36,8 @@ public class Service implements Instances{
 	
 	public static String VERSION = "1.0.1";
 	
+	public static String APK_URL;
+	
 	public static void main(String[] args) {
         try {
         	ServerLog.init();
@@ -81,6 +83,7 @@ public class Service implements Instances{
 			CONSOLE   = Integer.parseInt(XmlUtils.getAttribute(service,"console"));
 			PRODUCT   = XmlUtils.getAttribute(service,"prodcut").equals("true");
 			VERSION   = XmlUtils.getAttribute(service,"version");
+			APK_URL   = XmlUtils.getAttribute(service,"url");
 		}
 	}
 }

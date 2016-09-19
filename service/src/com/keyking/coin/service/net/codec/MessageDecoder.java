@@ -22,7 +22,6 @@ public class MessageDecoder extends CumulativeProtocolDecoder {
 		if (readLen >= remain){
 			preLen = readLen - remain;
 			readLen = remain;
-			ServerLog.info("more data received >>> " + preLen);
 		}else if (preLen > 0){
 			preLen = 0;
 		}
@@ -30,6 +29,7 @@ public class MessageDecoder extends CumulativeProtocolDecoder {
 		buffer.get(datas);
 		if (preLen > 0){
 			reader.put(datas);
+			ServerLog.info("more data received >>> " + preLen);
 			return false;
 		}
 		byte[] total = null;

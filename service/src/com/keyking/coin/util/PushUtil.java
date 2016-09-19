@@ -1,8 +1,10 @@
 package com.keyking.coin.util;
 
+import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 import cn.jpush.api.JPushClient;
 import cn.jpush.api.common.ClientConfig;
@@ -21,9 +23,13 @@ public class PushUtil implements Instances{
 		return instance;
 	}
 	
-	public void init(){
+	public void init() throws Exception{
+		Properties prop = new Properties();
+		prop.load(new FileInputStream("conf/push.properties"));
+		String appKey = prop.getProperty("appKey");
+		String masterSecret = prop.getProperty("masterSecret");
 		ClientConfig.getInstance().setApnsProduction(Service.PRODUCT);//生产模式
-		pushClient = new JPushClient("502a04e6eb6667f7ed661fd5","32da6fb9ca79badeb5284070");
+		pushClient = new JPushClient(masterSecret,appKey);
 	}
 
 	public JPushClient getPushClient() {

@@ -26,7 +26,7 @@ public class AppLogin extends AbstractLogic {
 		String platform = buffer.getUTF();//平台编号android或者ios
 		String version  = null;
 		try {
-			version         = buffer.getUTF();
+			version     = buffer.getUTF();
 		} catch (Exception e) {
 			//e.printStackTrace();
 		}
@@ -39,7 +39,7 @@ public class AppLogin extends AbstractLogic {
 		}else{
 			resp.put("version","ok");
 		}
-		resp.put("androidUrl","http://www.521uu.cc/downloads/down.php?fname=youyou.apk");
+		resp.put("androidUrl",Service.URL);
 		if (StringUtil.isNull(pushId)){
 			resp.setError("推送注册Id为空");
 			return resp;
