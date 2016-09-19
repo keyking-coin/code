@@ -36,6 +36,7 @@ import com.keyking.coin.service.tranform.TransformDealData;
 import com.keyking.coin.service.tranform.TransformTouristOrder;
 import com.keyking.coin.service.tranform.TransformUserData;
 import com.keyking.coin.service.tranform.page.deal.TransformDealListInfo;
+import com.keyking.coin.service.tranform.page.order.TransformOrderDetail;
 import com.keyking.coin.service.tranform.page.order.TransformOrderListInfo;
 import com.keyking.coin.util.Instances;
 import com.keyking.coin.util.JsonUtil;
@@ -743,7 +744,18 @@ public class Controler implements Instances{
 		}
 		return null;
 	}
-
+	
+	public TransformOrderDetail searchTransOrder(long orderId) {
+		for (Deal deal : deals.values()){
+			for (DealOrder order : deal.getOrders()){
+				if (order.getId() == orderId){
+					return new TransformOrderDetail(deal,order);
+				}
+			}
+		}
+		return null;
+	}
+	
 	public void tick(long now) {
 		for (UserCharacter user : characters.values()){
 			user.getForbid().tick(now);
