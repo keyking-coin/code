@@ -26,7 +26,7 @@ public class RecentDeal implements Comparable<RecentDeal>{
 		dealId = deal.getId();
 		orderId = order.getId();
 		bource = ss[1];
-		type = deal.getType() == 0 ? "入库" : "现货";
+		type = deal.getType() == 0 ? "入库" : "过户";
 		dealName = deal.getName();
 		time = order.getTimes().get(0);
 		price = order.getPrice();
