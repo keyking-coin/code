@@ -39,7 +39,7 @@ public class AppLogin extends AbstractLogic {
 		}else{
 			resp.put("version","ok");
 		}
-		resp.put("androidUrl",Service.URL);
+		resp.put("androidUrl",Service.APK_URL);
 		if (StringUtil.isNull(pushId)){
 			resp.setError("推送注册Id为空");
 			return resp;
