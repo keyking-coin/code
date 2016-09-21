@@ -19,9 +19,9 @@ public class CommunicateResp extends JoyResponse {
 	@Override
 	protected void _serialize(JoyBuffer out) {
 		try {
-			JoyBuffer temp = JoyBuffer.allocate(1024);
+			JoyBuffer temp = JoyBuffer.allocate(128);
 			params.serialize(temp);
-			MessageSendUtil.checkAndZip(out,temp.arrayToPosition());
+			MessageSendUtil.checkAndZip(out,temp.arrayToPosition(),getUserInfo(),false);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

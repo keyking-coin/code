@@ -35,6 +35,7 @@ public class ChangeRoleIconHandler extends ServiceHandler implements Instances {
 		String iconName = params.get(1);
 		RoleBagAgent bagAgent = role.getBagAgent();
 		if (bagAgent == null) {
+			GameLog.error("role.getBagAgent() is null role.uid = " + role.getId());
 			resp.fail();
 			return resp;
 		}

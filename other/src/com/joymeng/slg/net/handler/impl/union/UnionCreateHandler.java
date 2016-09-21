@@ -4,12 +4,15 @@ import com.joymeng.common.util.I18nGreeting;
 import com.joymeng.common.util.MessageSendUtil;
 import com.joymeng.common.util.StringUtils;
 import com.joymeng.common.util.expression.ProtoExpression;
+import com.joymeng.list.EventName;
+import com.joymeng.log.GameLog;
 import com.joymeng.log.LogManager;
 import com.joymeng.log.NewLogManager;
 import com.joymeng.services.core.buffer.JoyBuffer;
 import com.joymeng.services.core.message.JoyNormalMessage.UserInfo;
 import com.joymeng.services.core.message.JoyProtocol;
 import com.joymeng.slg.domain.data.SearchFilter;
+import com.joymeng.slg.domain.object.bag.ItemCell;
 import com.joymeng.slg.domain.object.role.Role;
 import com.joymeng.slg.net.ParametersEntity;
 import com.joymeng.slg.net.handler.ServiceHandler;
@@ -49,7 +52,8 @@ public class UnionCreateHandler extends ServiceHandler {
 					resp.fail();
 					return resp;
 				}
-				if (!nameManager.isNameLegal(name)) {
+				if (!nameManager.isNameCharLegal(name, GameConfig.REGEX_CHINESE_AND_NUMBER_AND_ALL_LETTER)
+						|| !nameManager.isNameLegal(name)) {
 					MessageSendUtil.sendNormalTip(info, I18nGreeting.MSG_UNION_NAME_OR_SHORTNAME_ILLEGALITY_SENSITIVE);
 					resp.fail();
 				}
@@ -66,7 +70,8 @@ public class UnionCreateHandler extends ServiceHandler {
 					resp.fail();
 					return resp;
 				}
-				if (!nameManager.isNameLegal(shortName)) {
+				if (!nameManager.isNameCharLegal(shortName, GameConfig.REGEX_UPPER_LETTER_NUMBER)
+						|| !nameManager.isNameLegal(shortName)) {
 					MessageSendUtil.sendNormalTip(info, I18nGreeting.MSG_UNION_NAME_OR_SHORTNAME_ILLEGALITY_SENSITIVE);
 					resp.fail();
 				}
@@ -89,11 +94,13 @@ public class UnionCreateHandler extends ServiceHandler {
 				resp.fail();
 				return resp;
 			}
-			if (!nameManager.isNameLegal(name)) {
+			if (!nameManager.isNameCharLegal(name, GameConfig.REGEX_CHINESE_AND_NUMBER_AND_ALL_LETTER)
+					|| !nameManager.isNameLegal(name)) {
 				MessageSendUtil.sendNormalTip(info, I18nGreeting.MSG_UNION_NAME_OR_SHORTNAME_ILLEGALITY_SENSITIVE);
 				resp.fail();
 			}
-			if (!nameManager.isNameLegal(shortName)) {
+			if (!nameManager.isNameCharLegal(shortName, GameConfig.REGEX_UPPER_LETTER_NUMBER)
+					|| !nameManager.isNameLegal(shortName)) {
 				MessageSendUtil.sendNormalTip(info, I18nGreeting.MSG_UNION_NAME_OR_SHORTNAME_ILLEGALITY_SENSITIVE);
 				resp.fail();
 			}
@@ -114,16 +121,23 @@ public class UnionCreateHandler extends ServiceHandler {
 				resp.fail();
 				return resp;
 			}
+			if (role.getUnionId() != 0) {
+				MessageSendUtil.sendNormalTip(role.getUserInfo(), I18nGreeting.MSG_JOINED_IN_UNION); // 提示创建成功
+				resp.fail();
+				return resp;
+			}
 			RespModuleSet rms = new RespModuleSet();
 			String createUnionItemId = "allianceLicence";
 			if (role.getBagAgent().getItemNumFromBag(createUnionItemId) > 0) { // 有创建联盟的道具
 																				// 优先使用道具创建联盟
+				ItemCell itemCell = role.getBagAgent().getItemFromBag(createUnionItemId);
 				if (!role.getBagAgent().removeItems(createUnionItemId, 1)) {
 					MessageSendUtil.sendNormalTip(info, I18nGreeting.MSG_ITEM_NOT_ENOUGH, createUnionItemId, 1);
 					resp.fail();
 					return resp;
 				}
-				role.getBagAgent().sendBagToClient(rms);
+				role.getBagAgent().sendItemsToClient(rms, itemCell);
+				MessageSendUtil.sendModule(rms, role.getUserInfo());
 			} else {
 				Alliance alliance = dataManager.serach(Alliance.class, new SearchFilter<Alliance>() {
 					@Override
@@ -147,21 +161,16 @@ public class UnionCreateHandler extends ServiceHandler {
 				}
 				role.redRoleMoney(needMoney);
 				role.sendRoleToClient(rms);
-				String event = "UnionCreateHandler";
-				LogManager.goldConsumeLog(role, needMoney, event);
-				NewLogManager.unionLog(role, "create_alliance", needMoney);
+				MessageSendUtil.sendModule(rms, role.getUserInfo());
+				LogManager.goldConsumeLog(role, needMoney, EventName.UnionCreateHandler.getName());
+				NewLogManager.unionLog(role, "create_alliance",needMoney);
 			}
 			union = unionManager.create(role, name, shortName);
-			MessageSendUtil.sendModule(rms, role.getUserInfo());
-			// RespModuleSet rms = new RespModuleSet();
-			// role.sendRoleToClient(rms);
-			// union.sendToClient(rms);
-			// union.sendUnionTech(role); //发送商店科技
-			// union.sendUnionStore(role); //发送联盟商店
-			// union.sendUnionRecordsToClient(rms, union.getAllUnionRecords());
-			// //发送联盟记录
-			// union.sendMemberTechProgress(role); //发送个人对应联盟科技的捐赠按钮
-			// MessageSendUtil.sendModule(rms,role.getUserInfo());
+			if (union == null) {
+				GameLog.error("unionManager create union is null");
+				resp.fail();
+				return resp;
+			}
 			MessageSendUtil.sendNormalTip(info, I18nGreeting.MSG_UNION_CREATE_SUCCESS); // 提示创建成功
 		}
 		return resp;

@@ -1,5 +1,7 @@
 package com.joymeng.slg.domain.object.build.impl;
 
+import com.joymeng.Const;
+import com.joymeng.log.GameLog;
 import com.joymeng.slg.domain.object.build.BuildComponent;
 import com.joymeng.slg.domain.object.build.BuildComponentType;
 import com.joymeng.slg.domain.object.build.RoleBuild;
@@ -17,7 +19,6 @@ public class BuildComponentStorage implements BuildComponent {
 	long uid;
 	int cityID;
 	long buildId;
-	
 	public BuildComponentStorage(){
 		buildComType = BuildComponentType.BUILD_COMPONENT_STORAGE;
 	}
@@ -90,5 +91,11 @@ public class BuildComponentStorage implements BuildComponent {
 		
 		
 		return 0;
+	}
+
+	@Override
+	public boolean isWorking(Role role, RoleBuild build) {
+		// TODO Auto-generated method stub
+		return false;
 	}
 }

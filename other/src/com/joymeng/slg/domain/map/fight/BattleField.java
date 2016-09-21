@@ -2,6 +2,7 @@
 package com.joymeng.slg.domain.map.fight;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import com.joymeng.Instances;
@@ -32,6 +33,7 @@ public class BattleField implements Instances{
     public static boolean loggerFlag = false;
     public static boolean attackWin = false;
     PriorityQ actionQueue = new PriorityQ();//出手队列
+    int attackArmyCount = 0;
     
     public static FightTroops create(Army army,int num,Side side){
     	FightTroops troops = new FightTroops();
@@ -68,6 +70,9 @@ public class BattleField implements Instances{
     	Army army = entity.getTemp();
     	if (army == null){
     		army = dataManager.serach(Army.class,entity.getKey());
+    	}
+    	if (side == Side.ATTACK){
+    		attackArmyCount ++;
     	}
     	entity.setId(idIndex);
     	FightTroops troops = create(army,entity.getSane(),side);
@@ -169,14 +174,14 @@ public class BattleField implements Instances{
 	}
 
 	/**
-	 * 选择战斗目标
+	 * 选择战斗目标,每次只选择战斗力排名前8名
 	 * @param t
 	 * @param temp
 	 * @param targetType
 	 * @return
 	 */
 	private FightTroops selectTarget(FightTroops attacker) {
-		int size = attacker.getCouldAttacks().size();
+		int size = Math.min(attackArmyCount * 2,attacker.getCouldAttacks().size());
 		if (!attacker.isAlive() ||  size == 0){
 			return null;
 		}
@@ -226,7 +231,17 @@ public class BattleField implements Instances{
 			return null;
 		}
 	}
-	
+	/**
+	 * 
+	* @Title: reSort 
+	* @Description: 调整部队位置
+	* 
+	* @return void
+	* @param record
+	* @param act
+	* @param runBuff
+	* @param runSkill
+	 */
 	private void reSort(BattleRecord record,boolean act,boolean runBuff,boolean runSkill){
 		adjustPosition();
 		List<FightTroops> attackers = getAliveTroopses(Side.ATTACK);
@@ -244,6 +259,7 @@ public class BattleField implements Instances{
 			}
 			if (act){
 				troops.setHaveActed(false);
+				troops.clearCastRecord();
 				actionQueue.Push(troops);
 			}
 			if (runSkill){
@@ -256,6 +272,9 @@ public class BattleField implements Instances{
 				if (enemy.getPos().getRow() <= attackRange && troops.getAttribute().checkAttack(enemy)){
 					attacks.add(enemy);
 				}
+			}
+			if (troops.getSide() == Side.ATTACK){//攻击方的可攻击序列排序
+				Collections.sort(attacks);
 			}
 		}
 	}
@@ -420,6 +439,8 @@ public class BattleField implements Instances{
 				lis.add(str);
 			}
 		}
+		if(lis.size() > 0)
+			Collections.sort(lis);
 		lis.add("total|" + total);
 	}
 }

@@ -6,6 +6,7 @@ import java.util.List;
 import com.joymeng.common.util.JsonUtil;
 import com.joymeng.common.util.StringUtils;
 import com.joymeng.common.util.TimeUtils;
+import com.joymeng.list.EventName;
 import com.joymeng.log.LogManager;
 import com.joymeng.services.core.buffer.JoyBuffer;
 import com.joymeng.slg.dao.SqlData;
@@ -25,7 +26,7 @@ import com.joymeng.slg.domain.timer.TimerOver;
 import com.joymeng.slg.net.SerializeEntity;
 
 /**
- * 驻防部队,依附于地图格子
+ * 固定部队,依附于地图格子
  * @author tanyong
  */
 public class GarrisonTroops extends AbstractObject implements TimerOver,SerializeEntity,Comparable<GarrisonTroops>{
@@ -284,7 +285,7 @@ public class GarrisonTroops extends AbstractObject implements TimerOver,Serializ
 				}
 			}
 		}
-		LogManager.mapLog(role, position, targetPos,expedite.getId(), "withdrawalForce");
+		LogManager.mapLog(role, position, targetPos,expedite.getId(), EventName.withdrawalForce.getName());
 		role.handleEvent(GameEvent.TROOPS_SEND);
 		return expedite;
 	}

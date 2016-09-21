@@ -1,5 +1,6 @@
 package com.joymeng.slg.net.handler.impl;
 
+import com.joymeng.log.NewLogManager;
 import com.joymeng.services.core.buffer.JoyBuffer;
 import com.joymeng.services.core.message.JoyNormalMessage.UserInfo;
 import com.joymeng.services.core.message.JoyProtocol;
@@ -24,6 +25,7 @@ public class MoneySecKillHandler extends ServiceHandler {
 		CommunicateResp resp = newResp(info);
 		Role role = getRole(info);
 		if (role == null) {
+			NewLogManager.misTakeLog("MoneySecKillHandler getRole is null where uid = " + info.getUid());
 			resp.fail();
 			return resp;
 		}
@@ -32,11 +34,13 @@ public class MoneySecKillHandler extends ServiceHandler {
 		int money = params.get(2);// 是否消耗金币
 		RoleCityAgent agent = role.getCity(cityId);
 		if (agent == null) {
+			NewLogManager.misTakeLog("MoneySecKillHandler getRoleCityAgent is null where uid = " + info.getUid());
 			resp.fail();
 			return resp;
 		}
 		RoleBuild build = agent.searchBuildById(id);
 		if (build == null) {
+			NewLogManager.misTakeLog("MoneySecKillHandler getRoleBuild is null where uid = " + info.getUid());
 			resp.fail();
 			return resp;
 		}

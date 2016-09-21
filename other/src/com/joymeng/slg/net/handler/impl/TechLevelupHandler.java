@@ -2,6 +2,8 @@ package com.joymeng.slg.net.handler.impl;
 
 import com.joymeng.common.util.I18nGreeting;
 import com.joymeng.common.util.MessageSendUtil;
+import com.joymeng.log.GameLog;
+import com.joymeng.log.NewLogManager;
 import com.joymeng.services.core.buffer.JoyBuffer;
 import com.joymeng.services.core.message.JoyNormalMessage.UserInfo;
 import com.joymeng.services.core.message.JoyProtocol;
@@ -28,6 +30,7 @@ public class TechLevelupHandler extends ServiceHandler{
 		CommunicateResp resp = newResp( info );
 		Role role = getRole(info);
 		if (role == null){
+			NewLogManager.misTakeLog("TechLevelupHandler getRole is null where uid = " + info.getUid());
 			resp.fail();
 			return resp;
 		}
@@ -36,8 +39,14 @@ public class TechLevelupHandler extends ServiceHandler{
 		String techId = params.get(2);//科技Id，String
 		int money = params.get(3);//是否金币直接升级
 		RoleCityAgent agent = role.getCity(cityId);
+		if(agent == null){
+			GameLog.error("getCity" + cityId + "is null where uid = " + role.getId());
+			resp.fail();
+			return resp;
+		}
 		RoleBuild build = agent.searchBuildById(id);
 		if (build == null){
+			NewLogManager.misTakeLog("TechLevelupHandler getRoleBuild is null where uid = " + info.getUid());
 			resp.fail();
 			MessageSendUtil.sendNormalTip(info,I18nGreeting.MSG_BUILD_NOT_FIND,id);
 			return resp;

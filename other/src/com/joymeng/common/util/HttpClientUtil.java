@@ -12,21 +12,8 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.HttpClients;
 
 public class HttpClientUtil {
-
-	static String URL = "http://www.zgqbyp.com/web/xxpl";
-
+	
 	static HttpClient client;
-
-	public static void main(String[] args) {
-		try {
-			//getInfoFromNet("http://www.zgqbyp.com/html/2015-7/201571846879.html");
-			HttpPost post = new HttpPost("http://127.0.0.1:32104/HttpLogin?account=13856094894&pwd=123456789");
-			HttpResponse resp = getHttpResponse(post);
-			System.out.println(resp.getEntity().toString());
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
 
 	public static HttpResponse getHttpResponse(HttpGet request)
 			throws ClientProtocolException, IOException {

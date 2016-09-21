@@ -1,5 +1,6 @@
 package com.joymeng.slg.net.handler.impl.task;
 
+import com.joymeng.log.NewLogManager;
 import com.joymeng.services.core.buffer.JoyBuffer;
 import com.joymeng.services.core.message.JoyNormalMessage.UserInfo;
 import com.joymeng.services.core.message.JoyProtocol;
@@ -22,6 +23,7 @@ public class GetHonorAwardHandler extends ServiceHandler {
 		CommunicateResp resp = newResp(info);
 		Role role = world.getRole(info.getUid());
 		if (role == null){
+			NewLogManager.misTakeLog("GetHonorAwardHandler getRole is null where uid = " + info.getUid());
 			resp.fail();
 			return resp;
 		}

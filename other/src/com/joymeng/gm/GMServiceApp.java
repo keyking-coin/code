@@ -30,6 +30,7 @@ public class GMServiceApp {
 			Announcement.getInstance().load();
 			ServerManager.getInstance().loadRedis();
 			LoginJudge.getInstance().load();
+//			WriteLogManager.getInstance().start();
 			SERVICE_APP = JoyServiceApp.getInstance();
 			//注册所需的回调函数
 			SERVICE_APP.registPlugin(new Plugin() {

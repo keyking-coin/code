@@ -2,6 +2,8 @@ package com.joymeng.slg.net.handler.impl.chat;
 
 import com.joymeng.common.util.I18nGreeting;
 import com.joymeng.common.util.MessageSendUtil;
+import com.joymeng.common.util.StringUtils;
+import com.joymeng.log.NewLogManager;
 import com.joymeng.services.core.buffer.JoyBuffer;
 import com.joymeng.services.core.message.JoyNormalMessage.UserInfo;
 import com.joymeng.services.core.message.JoyProtocol;
@@ -9,6 +11,7 @@ import com.joymeng.slg.domain.object.role.Role;
 import com.joymeng.slg.net.ParametersEntity;
 import com.joymeng.slg.net.handler.ServiceHandler;
 import com.joymeng.slg.net.resp.CommunicateResp;
+import com.joymeng.slg.world.GameConfig;
 
 public class ChatGroupNameChange extends ServiceHandler {
 
@@ -24,6 +27,8 @@ public class ChatGroupNameChange extends ServiceHandler {
 		CommunicateResp resp = newResp(info);
 		Role role = getRole(info);
 		if (role == null) {
+			NewLogManager.misTakeLog("Userinfo : " + info, "uid : " + info.getUid(),
+					"className : " + this.getClass().getName(), "params : " + params);
 			resp.fail();
 			return resp;
 		}
@@ -33,7 +38,14 @@ public class ChatGroupNameChange extends ServiceHandler {
 		groupName = groupName.trim();
 		resp.add(handlerType);
 		if (handlerType == 0) {
-			if (!nameManager.isNameLegal(groupName)) {
+			if (StringUtils.countStringLength(groupName) < GameConfig.GROUP_NAME_MIN
+					|| StringUtils.countStringLength(groupName) > GameConfig.GROUP_NAME_MAX) {
+				MessageSendUtil.sendNormalTip(info, I18nGreeting.MSG_ROLE_NAME_ILLEGAL_LENGTH, groupName);
+				resp.fail();
+				return resp;
+			}
+			if (!nameManager.isNameCharLegal(groupName, GameConfig.REGEX_CHINESE_AND_NUMBER_AND_ALL_LETTER)
+					|| !nameManager.isNameLegal(groupName)) {
 				MessageSendUtil.sendNormalTip(info, I18nGreeting.CHAT_GROUP_NAME_ILLEGALITY_SENSITIVE);
 				resp.fail();
 				return resp;
@@ -44,7 +56,14 @@ public class ChatGroupNameChange extends ServiceHandler {
 				return resp;
 			}
 		} else {
-			if (!nameManager.isNameLegal(groupName)) {
+			if (StringUtils.countStringLength(groupName) < GameConfig.GROUP_NAME_MIN
+					|| StringUtils.countStringLength(groupName) > GameConfig.GROUP_NAME_MAX) {
+				MessageSendUtil.sendNormalTip(info, I18nGreeting.MSG_ROLE_NAME_ILLEGAL_LENGTH, groupName);
+				resp.fail();
+				return resp;
+			}
+			if (!nameManager.isNameCharLegal(groupName, GameConfig.REGEX_CHINESE_AND_NUMBER_AND_ALL_LETTER)
+					|| !nameManager.isNameLegal(groupName)) {
 				MessageSendUtil.sendNormalTip(info, I18nGreeting.CHAT_GROUP_NAME_ILLEGALITY_SENSITIVE);
 				resp.fail();
 				return resp;

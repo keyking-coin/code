@@ -33,7 +33,16 @@ public abstract class EventMgr {
 		evnts.remove(exe);
 	}
 	
-	public void Notify(String event, String value)
+	public void Remove(IEvnt exe)
+	{
+		for (Map.Entry<String, List<IEvnt>> entry : events.entrySet())
+		{
+			List<IEvnt> evnts = entry.getValue();
+			evnts.remove(exe);
+		}
+	}
+	
+	public void Notify(String event, Object... value)
 	{
 		if (!events.containsKey(event)) {
 			return;

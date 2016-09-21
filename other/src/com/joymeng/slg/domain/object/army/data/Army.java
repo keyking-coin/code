@@ -47,7 +47,8 @@ public class Army implements DataKey, Comparable<Army> {
 	List<String> damageRates;
 	List<String> randomWeight;
 	int armycamp;
-
+	//["1","2"]，前面是个人贡献度，后面是联盟积分
+	List<String> alliancescore;
 	public Army() {
 		// TODO Auto-generated constructor stub
 	};
@@ -382,6 +383,14 @@ public class Army implements DataKey, Comparable<Army> {
 
 	public void setArmycamp(int armycamp) {
 		this.armycamp = armycamp;
+	}
+
+	public List<String> getAlliancescore() {
+		return alliancescore;
+	}
+
+	public void setAlliancescore(List<String> alliancescore) {
+		this.alliancescore = alliancescore;
 	}
 
 	@Override

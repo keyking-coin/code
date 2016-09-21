@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.joymeng.Instances;
 import com.joymeng.common.util.TimeUtils;
+import com.joymeng.log.GameLog;
 import com.joymeng.services.core.buffer.JoyBuffer;
 import com.joymeng.slg.dao.DaoData;
 import com.joymeng.slg.dao.SqlData;
@@ -20,7 +21,7 @@ import com.joymeng.slg.domain.timer.TimerOver;
 public class ResourceCollecter implements Instances,TimerOver{
 	long troopId;
 	float collectSpeed = 5.0f;//采集速度
-	float collectEffect;//采集buff加成
+	float collectEffect;//TODO buff 功能 采集buff加成   
 	long  collectTime;//已经采集的时间
 	float collectNum;//已经采集的量
 	boolean needRemove;//需要从列表移除
@@ -99,6 +100,11 @@ public class ResourceCollecter implements Instances,TimerOver{
 		this.collectNum    = value;
 	}
 	
+	public void motifyBuff(float collectSpeed , float collectEffect) {
+		this.collectSpeed  = collectSpeed;
+		this.collectEffect = collectEffect;
+	}
+	
 	/**
 	 * 计算实际获得量
 	 * @param rate
@@ -107,12 +113,15 @@ public class ResourceCollecter implements Instances,TimerOver{
 	 */
 	public float computeCollectNum(GarrisonTroops collecter,float rate , int level){
 		//实际采集量=平均采集速度*采集时间*(1+科技缩短的采集时间)*采集收益率/资源兑换率
-		//采集收益率 = 1+(野地等级^1.65-1.45*基地等级)/100;
+		//采集收益率 = 1+(野地等级^1.65-1.45*基地等级)/100; (取消)
+		
 		if (collecter == null){
+			GameLog.info("--------computeCollectNum--collecter="+null+"level="+level+"|rate="+rate+"------\n");
 			return 0;
 		}
+		StringBuffer buffer = new StringBuffer("--------computeCollectNum--collecter="+collecter.getPosition()+"level="+level+"|rate="+rate+"------\n");
 		int cityLevel = collecter.getTroops().getInfo().getLevel();
-		float effect = (float)(1 + (Math.pow(level,1.65f) - 1.45f * cityLevel) / 100);
+		float effect = 1;//(float)(1 + (Math.pow(level,1.65f) - 1.45f * cityLevel) / 100);
 		long now = TimeUtils.nowLong() / 1000;
 		long last = collecter.getTimer().getLast();
 		long totalTime = 0;
@@ -125,6 +134,8 @@ public class ResourceCollecter implements Instances,TimerOver{
 			return 0;
 		}
 		float temp = collectSpeed * (1 + collectEffect) * totalTime * effect / rate ;
+		
+		GameLog.info(buffer.append("cityLevel="+cityLevel+"|effect="+effect+"|totalTime="+totalTime+"|temp="+temp+"|collectNum="+collectNum+"\n").append("-------------").toString());
 		return temp + collectNum;
 	}
 	

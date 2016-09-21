@@ -24,14 +24,17 @@ import com.joymeng.slg.domain.map.impl.still.role.MapCity;
 import com.joymeng.slg.domain.object.role.Role;
 import com.joymeng.slg.domain.object.role.RoleIcon;
 import com.joymeng.slg.domain.timer.TimerLast;
+import com.joymeng.slg.domain.timer.TimerLastType;
 import com.joymeng.slg.domain.timer.TimerOver;
 import com.joymeng.slg.net.SerializeEntity;
 import com.joymeng.slg.net.mod.AbstractClientModule;
+import com.joymeng.slg.net.mod.ClientModule;
 import com.joymeng.slg.net.mod.RespModuleSet;
 import com.joymeng.slg.net.resp.CommunicateResp;
 import com.joymeng.slg.union.UnionBody;
 import com.joymeng.slg.union.data.Alliancemembers;
 import com.joymeng.slg.union.data.UnionPostType;
+import com.joymeng.slg.world.GameConfig;
 /**
  * 联盟成员
  * @author tanyong
@@ -327,11 +330,11 @@ public class UnionMember implements Comparable<UnionMember>, DaoData, Instances,
 		donateWeekly  = data.getLong(RED_ALERT_UNION_DONATEWEEKLY);
 		donateRecord  = data.getLong(RED_ALERT_UNION_DONATE_RECORD);
 		donateType	= data.getInt(RED_ALERT_UNION_DONATE_TYPE);
-		//String timerData      = data.getString(RED_ALERT_UNION_DONATE_TIMER);
-		//if (!StringUtils.isNull(timerData)) {
-		//	TimerLast timer = JsonUtil.JsonToObject(timerData,TimerLast.class);
-		//	timer.registTimeOver(this);
-		//}
+		String timerData = data.getString(RED_ALERT_UNION_DONATE_TIMER);
+		if (!StringUtils.isNull(timerData)) {
+			TimerLast timer = JsonUtil.JsonToObject(timerData,TimerLast.class);
+			timer.registTimeOver(this);
+		}
 		Timestamp ts = data.getTimestamp(RED_ALERT_UNION_MEMBER_JOIN_TIME);
 		joinTime     = ts.toString().substring(0,19);
 		allianceKey  = data.getString(RED_ALERT_UNION_MEMBER_ALLIANCE_KEY);
@@ -389,14 +392,13 @@ public class UnionMember implements Comparable<UnionMember>, DaoData, Instances,
 		out.putLong(donateDaily);	//long 日捐献度 ★
 		out.putLong(donateWeekly);	//long 周捐献度 ★
 		out.putLong(donateRecord);	//long 历史捐献度 ★
-		//TODO 2
-//		out.putInt(donateType);		//int 捐赠按钮的状态 0:正常 1:倒计时
-//		if (timer != null){
-//			out.putInt(1);
-//			timer.serialize(out);
-//		}else{
-//			out.putInt(0);
-//		}
+		out.putInt(donateType);		//int 捐赠按钮的状态 0:正常 1:倒计时
+		if (timer != null){
+			out.putInt(1);
+			timer.serialize(out);
+		}else{
+			out.putInt(0);
+		}
 		Alliancemembers data = getData();
 		String title = getTitle(data);
 		out.putPrefixedString(title,JoyBuffer.STRING_TYPE_SHORT);//String 官职名称
@@ -585,10 +587,52 @@ public class UnionMember implements Comparable<UnionMember>, DaoData, Instances,
 	@Override
 	public void finish() {
 		donateType = 0;
+		timer = null;
+		RespModuleSet rms = sendToClient(ClientModule.DATA_TRANS_TYPE_UPDATE);
+		Role role = world.getOnlineRole(uid);
+		if (rms != null && role != null) {
+			MessageSendUtil.sendModule(rms, role);
+		}
 	}
 	
 	@Override
 	public String toString() {
 		return getClass().getSimpleName()  + "_" + uid;
+	}
+
+	/**
+	 * 增加捐赠的累计时间
+	 */
+	public void incrementDonateTime() {
+		if (timer == null) {
+			timer = new TimerLast(TimeUtils.nowLong() / 1000, GameConfig.UNION_DONATE_TIME_PER,
+					TimerLastType.TIME_UNION_DONATE);
+		} else {
+			timer.setLast(timer.getLast() + GameConfig.UNION_DONATE_TIME_PER);
+		}
+		timer.registTimeOver(this);
+		if (timer.getLast() >= GameConfig.UNION_DONATE_MAX_TIME) {
+			donateType = 1;
+		}
+	}
+
+	/**
+	 * 能捐赠(捐赠不在倒计时)
+	 * @return
+	 */
+	public boolean isCanDonate() {
+		return donateType == 0;
+	}
+	
+	/**
+	 * 增加个人贡献度
+	 * 
+	 * @param add
+	 */
+	public void addUnionMemberScore(long add) {
+		score += add;
+		scoreDaily += add;
+		scoreWeekly += add;
+		scoreRecord += add;
 	}
 }

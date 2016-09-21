@@ -10,10 +10,10 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
 
 import javax.imageio.ImageIO;
 
@@ -34,6 +34,7 @@ import com.joymeng.slg.domain.map.data.Monster;
 import com.joymeng.slg.domain.map.data.Monsterrefresh;
 import com.joymeng.slg.domain.map.data.NPCDistributionData;
 import com.joymeng.slg.domain.map.data.Npccity;
+import com.joymeng.slg.domain.map.data.Resourcerefresh;
 import com.joymeng.slg.domain.map.data.UserDistribution;
 import com.joymeng.slg.domain.map.impl.MapRoleInfo;
 import com.joymeng.slg.domain.map.impl.dynamic.ExpediteTroops;
@@ -43,10 +44,11 @@ import com.joymeng.slg.domain.map.impl.dynamic.TroopsData;
 import com.joymeng.slg.domain.map.impl.still.copy.Scene;
 import com.joymeng.slg.domain.map.impl.still.copy.data.Ruinscheckpoin;
 import com.joymeng.slg.domain.map.impl.still.moster.MapMonster;
-import com.joymeng.slg.domain.map.impl.still.moster.RefreshRun;
+import com.joymeng.slg.domain.map.impl.still.moster.MonsterRefreshAble;
 import com.joymeng.slg.domain.map.impl.still.proxy.MapProxy;
 import com.joymeng.slg.domain.map.impl.still.res.MapEctype;
 import com.joymeng.slg.domain.map.impl.still.res.MapResource;
+import com.joymeng.slg.domain.map.impl.still.res.ResourceRefreshAble;
 import com.joymeng.slg.domain.map.impl.still.role.MapBarracks;
 import com.joymeng.slg.domain.map.impl.still.role.MapCity;
 import com.joymeng.slg.domain.map.impl.still.role.MapCityMove;
@@ -69,13 +71,11 @@ public class BigMapWorld implements Instances {
 
 	private static final int PHYSIC_DATA_FLAG_SLOW = 1 << 1;
 
-	long createIndex = 1;
-
+	AtomicLong idCreater = new AtomicLong(1);
+	
 	private static BigMapWorld instance = new BigMapWorld();
 
 	Object positionLocker = new Object();
-
-	Object createLocker = new Object();
 
 	MapCell[] mapCells;// 地图格子数据
 
@@ -106,11 +106,8 @@ public class BigMapWorld implements Instances {
 	}
 
 	public void insertObj(MapObject obj) {
-		synchronized (createLocker) {
-			obj.id = createIndex;
-			obj.addSelf();
-			createIndex++;
-		}
+		obj.id = idCreater.incrementAndGet();
+		obj.addSelf();
 	}
 
 	/***
@@ -172,6 +169,7 @@ public class BigMapWorld implements Instances {
 			radiation.save();
 		}
 		worldSInfo.save();
+		forbidden.save();
 	}
 
 	public MapCell getMapCell(int position) {
@@ -198,8 +196,8 @@ public class BigMapWorld implements Instances {
 		resp.add(objs.size());// int 格子数量
 		for (int i = 0 ; i < objs.size() ; i++){
 			MapObject obj = objs.get(i);
-			int col = obj.getPosition() % GameConfig.MAP_WIDTH;
-			int row = obj.getPosition() / GameConfig.MAP_WIDTH;
+			int col = PointVector.getX(obj.getPosition());
+			int row = PointVector.getY(obj.getPosition());
 			resp.add(col);//int 在地图格子坐标x
 			resp.add(row);//int 在地图格子坐标y
 			resp.add(obj.getId());//long 在地图格子坐标x
@@ -239,41 +237,40 @@ public class BigMapWorld implements Instances {
 	 * @param obj
 	 */
 	public void bornAtBigMap(MapObject obj) {
-		synchronized (positionLocker) {
-			int rectIndex = MathUtils.random(1,4);
-			final String rectName = String.valueOf(rectIndex);
-			List<UserDistribution> fileDatas = dataManager.serachList(UserDistribution.class,new SearchFilter<UserDistribution>(){
-				@Override
-				public boolean filter(UserDistribution data) {
-					return data.getName().equals(rectName);
-				}
-			});
-			Collections.sort(fileDatas);
-			for (int i = 0 ; i < fileDatas.size() ; i++){
-				UserDistribution data = fileDatas.get(i);
-				List<Integer> indexs = MapUtil.getRangeIndexs(data.getCenterX(), data.getCenterY(), data.getRangeX(),data.getRangeY());
-				int roleCount = 0;
-				Iterator<Integer> iter = indexs.iterator();
-				while (iter.hasNext()) {
-					int indexId = iter.next().intValue();
-					if (mapCells[indexId].getType() == MapCellType.MAP_CELL_TYPE_ROLE_CITY) {
-						roleCount++;
-					}else if (mapCells[indexId].getType() != MapCellType.MAP_CELL_TYPE_NONE) {// 空地
-						iter.remove();
-					}
-				}
-				int count = data.getCount() - roleCount;// 需要刷新的个数
-				if (count <= 0) {
+		int rectIndex = MathUtils.random(1,4);
+		final String rectName = String.valueOf(rectIndex);
+		List<UserDistribution> fileDatas = dataManager.serachList(UserDistribution.class,new SearchFilter<UserDistribution>(){
+			@Override
+			public boolean filter(UserDistribution data) {
+				return data.getName().equals(rectName);
+			}
+		});
+		Collections.sort(fileDatas);
+		for (int i = 0 ; i < fileDatas.size() ; i++){
+			UserDistribution data = fileDatas.get(i);
+			List<Integer> indexs = MapUtil.getRangeIndexs(data.getCenterX(), data.getCenterY(), data.getRangeX(),data.getRangeY());
+			int roleCount = 0;
+			for (int j = 0 ; j  < indexs.size() ; ){
+				int indexId = indexs.get(j).intValue();
+				if (mapCells[indexId].getType() == MapCellType.MAP_CELL_TYPE_ROLE_CITY) {
+					roleCount ++;
+				}else if (mapCells[indexId].getType() != MapCellType.MAP_CELL_TYPE_NONE) {// 空地
+					indexs.remove(j);
 					continue;
 				}
-				int maxCount = 500;// 防止死循环
-				while (maxCount > 0) {
-					maxCount--;
-					int index = MathUtils.random(indexs.size());
-					int position = indexs.get(index).intValue();
-					if (checkAndUpdatePosition(obj, position)) {// 判断是否能放下，如果呢过发下就发下
-						return;
-					}
+				j++;
+			}
+			int count = data.getCount() - roleCount;// 需要刷新的个数
+			if (count <= 0) {
+				continue;
+			}
+			int maxCount = 500;// 防止死循环
+			while (maxCount > 0) {
+				maxCount--;
+				int index = MathUtils.random(indexs.size());
+				int position = indexs.get(index).intValue();
+				if (checkAndUpdatePosition(obj, position)) {// 判断是否能放下，如果呢过发下就发下
+					return;
 				}
 			}
 		}
@@ -356,18 +353,17 @@ public class BigMapWorld implements Instances {
 			}
 		}
 	}
-
+	
 	/**
 	 * 判断位置能不能放的下
 	 * 
-	 * @param obj
+	 * @param radius
 	 * @param position
 	 * @return
 	 */
-	public boolean checkPosition(MapObject obj, int position) {
+	public boolean checkPosition(int radius, int position) {
 		synchronized (positionLocker) {
-			int radius = obj.getVolume();
-			List<Integer> indexs = MapUtil.computeIndexs(position, radius);
+			List<Integer> indexs = MapUtil.computeIndexs(position,radius);
 			if (indexs != null) {
 				if (radius == 0 && indexs.size() > 0) {
 					return true;
@@ -386,6 +382,17 @@ public class BigMapWorld implements Instances {
 			}
 			return false;
 		}
+	}
+	
+	/**
+	 * 判断位置能不能放的下
+	 * 
+	 * @param obj
+	 * @param position
+	 * @return
+	 */
+	public boolean checkPosition(MapObject obj, int position) {
+		return checkPosition(obj.getVolume(),position);
 	}
 
 	/**
@@ -545,66 +552,77 @@ public class BigMapWorld implements Instances {
 	 */
 	private void refreshResources() throws Exception {
 		GameLog.info("start refresh resources at "+ TimeUtils.nowStr());
-		List<DistributionData> fileDatas = dataManager.serachList(DistributionData.class);
-		for (int i = 0 ; i < fileDatas.size() ; i++){
-			DistributionData data = fileDatas.get(i);
-			List<Integer> indexs = MapUtil.getRangeIndexs(data.getCenterX(),data.getCenterY(), data.getRangeX(), data.getRangeY());
-			int count = Math.min(data.getCount(), indexs.size());
-			int have = getRefreshAliveCount(data.getType() == 1,data.getId());
-			if (have >= count) {
-				continue;
+		if (GameConfig.BIG_MAP_USE_NEW_MONSTER){
+			List<Resourcerefresh> rfs = dataManager.serachList(Resourcerefresh.class);
+			for (int i = 0 ; i < rfs.size() ; i++){
+				Resourcerefresh rf = rfs.get(i);
+				ResourceRefreshAble rr = new ResourceRefreshAble(rf.getId(),true);
+				rr.run();
+				long time = rf.getRefreshTime();
+				if (time > 0){
+					long delay = (i + 1) * 60 + time;
+					taskPool.scheduleAtFixedRate(null,rr,delay,time,TimeUnit.SECONDS);
+				}
 			}
-			count -= have;//需要刷新的个数
-			int[][] typeIndexs = data.computeTypeIndexs();
-			if (data.getType() == 1) {// 资源点
-				int[][] leveIndexs = data.computeLevelIndexs();
-				do {
-					MapResource obj = create(MapResource.class, false);
-					int index = MathUtils.random(indexs.size());
-					int position = indexs.get(index).intValue();
-					if (!checkPosition(obj, position)) {// 如果这个位置放不下
-						continue;
-					}
-					int typeIndex = MathUtils.getRandomInt(typeIndexs[0],typeIndexs[1]);
-					String typeKey = data.getNeedDistribution().get(typeIndex).getpName();
-					int levelIndex = MathUtils.getRandomInt(leveIndexs[0],leveIndexs[1]);
-					String levelStr = data.getNeedProbavility().get(levelIndex).getpName();
-					int level = Integer.parseInt(levelStr);
-					insertObj(obj);
-					obj.setLevel(level);
-					obj.setKey(typeKey);
-					obj.setRefreshId(data.getId());
-					obj.initOutPut();
-					updatePosition(obj, position);// 如果能放下就放这里
-					clearIndexs(indexs);// 移除被占的格子
-					count--;
-				} while (count > 0 && indexs.size() > 0);
-			} else if (data.getType() == 2) {//怪物
-				if (GameConfig.BIG_MAP_USE_NEW_MONSTER){
+		}else{
+			List<DistributionData> fileDatas = dataManager.serachList(DistributionData.class);
+			for (int i = 0 ; i < fileDatas.size() ; i++){
+				DistributionData data = fileDatas.get(i);
+				List<Integer> indexs = MapUtil.getRangeIndexs(data.getCenterX(),data.getCenterY(), data.getRangeX(), data.getRangeY());
+				int count = Math.min(data.getCount(), indexs.size());
+				int have = getRefreshAliveCount(data.getType() == 1,data.getId(),false);
+				if (have >= count) {
 					continue;
 				}
-				do {
-					MapMonster monster = create(MapMonster.class,false);
-					int index = MathUtils.random(indexs.size());
-					int position = indexs.get(index).intValue();
-					if (!checkPosition(monster, position)) {// 如果这个位置放不下
-						continue;
-					}
-					int typeIndex = MathUtils.getRandomInt(typeIndexs[0],typeIndexs[1]);
-					String typeKey = data.getNeedDistribution().get(typeIndex).getpName();
-					Monster monsterData = dataManager.serach(Monster.class,typeKey);
-					if (monsterData == null) {
-						GameLog.error("策划SB,把怪物类型字符串填错了");
-						break;
-					}
-					monster.setKey(typeKey);
-					monster.setLevel(monsterData.getLevel());
-					monster.setRefreshId(data.getId());
-					insertObj(monster);
-					updatePosition(monster,position);//如果能放下就放这里
-					clearIndexs(indexs);// 移除被占的格子
-					count--;
-				} while (count > 0 && indexs.size() > 0);
+				count -= have;//需要刷新的个数
+				int[][] typeIndexs = data.computeTypeIndexs();
+				if (data.getType() == 1) {// 资源点
+					int[][] leveIndexs = data.computeLevelIndexs();
+					do {
+						MapResource obj = create(MapResource.class, false);
+						int index = MathUtils.random(indexs.size());
+						int position = indexs.get(index).intValue();
+						if (!checkPosition(obj, position)) {// 如果这个位置放不下
+							continue;
+						}
+						int typeIndex = MathUtils.getRandomInt(typeIndexs[0],typeIndexs[1]);
+						String typeKey = data.getNeedDistribution().get(typeIndex).getpName();
+						int levelIndex = MathUtils.getRandomInt(leveIndexs[0],leveIndexs[1]);
+						String levelStr = data.getNeedProbavility().get(levelIndex).getpName();
+						int level = Integer.parseInt(levelStr);
+						insertObj(obj);
+						obj.setLevel(level);
+						obj.setKey(typeKey);
+						obj.setRefreshId(data.getId());
+						obj.initOutPut();
+						updatePosition(obj, position);// 如果能放下就放这里
+						clearIndexs(indexs);// 移除被占的格子
+						count--;
+					} while (count > 0 && indexs.size() > 0);
+				} else if (data.getType() == 2) {//怪物
+					do {
+						MapMonster monster = create(MapMonster.class,false);
+						int index = MathUtils.random(indexs.size());
+						int position = indexs.get(index).intValue();
+						if (!checkPosition(monster, position)) {// 如果这个位置放不下
+							continue;
+						}
+						int typeIndex = MathUtils.getRandomInt(typeIndexs[0],typeIndexs[1]);
+						String typeKey = data.getNeedDistribution().get(typeIndex).getpName();
+						Monster monsterData = dataManager.serach(Monster.class,typeKey);
+						if (monsterData == null) {
+							GameLog.error("策划SB,把怪物类型字符串填错了");
+							break;
+						}
+						monster.setKey(typeKey);
+						monster.setLevel(monsterData.getLevel());
+						monster.setRefreshId(data.getId());
+						insertObj(monster);
+						updatePosition(monster,position);//如果能放下就放这里
+						clearIndexs(indexs);// 移除被占的格子
+						count--;
+					} while (count > 0 && indexs.size() > 0);
+				}
 			}
 		}
 		GameLog.info("end refresh resources at " + TimeUtils.nowStr());
@@ -619,12 +637,12 @@ public class BigMapWorld implements Instances {
 		for (int i = 0 ; i < mfs.size() ; i++){
 			Monsterrefresh mf = mfs.get(i);
 			if (mf.getActivity().equals("false")){
-				RefreshRun rr = new RefreshRun(mf.getId());
+				MonsterRefreshAble rr = new MonsterRefreshAble(mf.getId(),true);
 				rr.run();
-				long time = mf.getRefreshTime() * 1000;
+				long time = mf.getRefreshTime();
 				if (time > 0){
-					long delay = time + i * 3 * 60 * 1000;
-					taskPool.scheduleAtFixedRate(null,rr,delay,delay,TimeUnit.SECONDS);
+					long delay = (i + 1) * 60 + time;
+					taskPool.scheduleAtFixedRate(null,rr,delay,time,TimeUnit.SECONDS);
 				}
 			}
 		}
@@ -659,7 +677,7 @@ public class BigMapWorld implements Instances {
 			int x = Integer.parseInt(ss[0]);
 			int y = Integer.parseInt(ss[1]);
 			int physic = Integer.parseInt(ss[2]);
-			int index = y * GameConfig.MAP_WIDTH + x;
+			int index = PointVector.getPosition(x,y);
 			physics.put(index, physic);
 		}
 		if (mapCells == null) {
@@ -751,7 +769,7 @@ public class BigMapWorld implements Instances {
 			FubenDistributionData data = fileDatas.get(i);
 			int row = data.getCenterY();
 			int col = data.getCenterX();
-			int position = row * GameConfig.MAP_WIDTH + col;
+			int position = PointVector.getPosition(col,row);
 			MapEctype ectype = create(MapEctype.class, false);
 			if (checkPosition(ectype, position)) {
 				insertObj(ectype);
@@ -783,7 +801,7 @@ public class BigMapWorld implements Instances {
 			CampDistributionData data =  fileDatas.get(i);
 			int row = data.getCenterY();
 			int col = data.getCenterX();
-			int position = row * GameConfig.MAP_WIDTH + col;
+			int position = PointVector.getPosition(col,row);
 			MapBarracks barracks = searchObject(position);
 			if (barracks != null) {
 				continue;
@@ -805,29 +823,8 @@ public class BigMapWorld implements Instances {
 	@SuppressWarnings("unchecked")
 	private void loadNpcCity() throws Exception {
 		GameLog.info("load all npc city to map");
-		List<Map<String, Object>> sqlDatas = dbMgr.getGameDao().getDatasByTableName(DaoData.TABLE_RED_ALERT_NPC_CITY);
-		List<NPCDistributionData> fileDatas = dataManager.serachList(NPCDistributionData.class);
-		for (int i = 0 ; i <  fileDatas.size() ; i++){
-			NPCDistributionData data =  fileDatas.get(i);
-			MapUnionCity unionCity = null;
-			for (int j = 0 ; j < sqlDatas.size() ; j++){
-				Map<String, Object> map = sqlDatas.get(j);
-				String key = map.get(DaoData.RED_ALERT_NPC_CITY_KEY).toString();
-				if (key.equals(data.getId())) {
-					unionCity = create(MapUnionCity.class, true);
-					unionCity.loadFromData(new SqlData(map));
-					break;
-				}
-			}
-			if (unionCity == null) {
-				Npccity npc = dataManager.serach(Npccity.class, data.getId());
-				unionCity = create(MapUnionCity.class, true);
-				unionCity.init(data, npc);
-			}
-			updatePosition(unionCity, unionCity.getPosition());
-		}
 		//加载城市建筑
-		sqlDatas = dbMgr.getGameDao().getDatasByTableName(DaoData.TABLE_RED_ALERT_UNION_BUILD);
+		List<Map<String, Object>> sqlDatas = dbMgr.getGameDao().getDatasByTableName(DaoData.TABLE_RED_ALERT_UNION_BUILD);
 		for (int i = 0 ; i < sqlDatas.size() ; i++){
 			Map<String, Object> map = sqlDatas.get(i);
 			String classType = map.get(DaoData.RED_ALERT_GENERAL_TYPE).toString();
@@ -835,6 +832,29 @@ public class BigMapWorld implements Instances {
 			MapUnionBuild unionBuild = create(clazz, true);
 			unionBuild.loadFromData(new SqlData(map));
 			updatePosition(unionBuild, unionBuild.getPosition());
+		}
+		sqlDatas = dbMgr.getGameDao().getDatasByTableName(DaoData.TABLE_RED_ALERT_NPC_CITY);
+		List<NPCDistributionData> fileDatas = dataManager.serachList(NPCDistributionData.class);
+		for (int i = 0 ; i <  fileDatas.size() ; i++){
+			NPCDistributionData data =  fileDatas.get(i);
+			MapUnionCity unionCity = null;
+			Npccity npc = dataManager.serach(Npccity.class, data.getId());
+			for (int j = 0 ; j < sqlDatas.size() ; j++){
+				Map<String, Object> map = sqlDatas.get(j);
+				String key = map.get(DaoData.RED_ALERT_NPC_CITY_KEY).toString();
+				if (key.equals(data.getId())) {
+					unionCity = create(MapUnionCity.class, true);
+					unionCity.loadFromData(new SqlData(map));
+					unionCity.initMonster(npc);
+					break;
+				}
+			}
+			if (unionCity == null) {
+				unionCity = create(MapUnionCity.class, true);
+				unionCity.init(data,npc);
+			}
+			unionCity.initConstBuilds(npc);
+			updatePosition(unionCity, unionCity.getPosition());
 		}
 	}
 
@@ -1002,14 +1022,30 @@ public class BigMapWorld implements Instances {
 		}
 	}
 
-	public int getRefreshAliveCount(boolean isRes, String id) {
+	/**
+	 * 获取某个刷新块上对象的数量
+	 * @param isRes
+	 * @param id
+	 * @param delFlag
+	 * @return
+	 */
+	public int getRefreshAliveCount(boolean isRes, String id,boolean delFlag) {
 		int count = 0;
 		if (isRes) {
 			List<MapResource> resources = world.getListObjects(MapResource.class);
 			for (int i = 0 ; i <  resources.size(); i++){
 				MapResource resource =  resources.get(i);
 				if (resource.getRefreshId().equals(id)) {
-					count++;
+					boolean add = true;
+					if (delFlag){
+						if (!resource.isLock()){
+							add = false;
+							resource.remove();
+						}
+					}
+					if (add){
+						count++;
+					}
 				}
 			}
 		} else {
@@ -1017,7 +1053,16 @@ public class BigMapWorld implements Instances {
 			for (int i = 0 ; i <  monsters.size(); i++){
 				MapMonster monster =  monsters.get(i);
 				if (monster.getRefreshId().equals(id)) {
-					count++;
+					boolean add = true;
+					if (delFlag){
+						if (!monster.isLock()){
+							add = false;
+							monster.remove();
+						}
+					}
+					if (add){
+						count++;
+					}
 				}
 			}
 		}
@@ -1026,16 +1071,18 @@ public class BigMapWorld implements Instances {
 
 	private void registThread() {
 		// 两小时刷新一次资源
-		taskPool.scheduleAtFixedRate(null, new Runnable() {
-			@Override
-			public void run() {
-				try {
-					refreshResources();
-				} catch (Exception e) {
-					e.printStackTrace();
+		if (GameConfig.BIG_MAP_USE_NEW_MONSTER){
+			taskPool.scheduleAtFixedRate(null, new Runnable() {
+				@Override
+				public void run() {
+					try {
+						refreshResources();
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
 				}
-			}
-		}, 2 * TaskPool.SECONDS_PER_HOUR,2 * TaskPool.SECONDS_PER_HOUR,TimeUnit.SECONDS);
+			}, 2 * TaskPool.SECONDS_PER_HOUR,2 * TaskPool.SECONDS_PER_HOUR,TimeUnit.SECONDS);
+		}
 		taskPool.scheduleAtFixedRate(null, new Runnable() {
 			@Override
 			public void run() {
@@ -1121,6 +1168,36 @@ public class BigMapWorld implements Instances {
 			}
 		}
 		return result;
+	}
+	
+	/*
+	 * 获取离玩家最近的废墟
+	 */
+	public MapEctype getNearestEctype(Role role) {
+		int pos = role.getCity(0).getPosition();
+		PointVector posv = MapUtil.getPointVector(pos);
+		
+		float minDist = 0;
+		int index = -1;
+		List<MapEctype> list = world.getListObjects(MapEctype.class); 
+		if (list.isEmpty()) {
+			GameLog.error("BigMapWorld MapEctype list is empty");
+			return null;
+		}
+		
+		for (int i = 0; i < list.size(); i++) {
+			MapEctype ectype = list.get(i);
+			PointVector posvv = MapUtil.getPointVector(ectype.getPosition());
+			if (index == -1 || minDist > posv.distance(posvv)) {
+				index = i;
+				minDist = posv.distance(posvv);
+			}
+		}
+		if (index == -1) {
+			GameLog.error("getNearestEctype error, no nearest ectype");
+			return list.get(0);
+		}
+		return list.get(index);
 	}
 
 	/**
@@ -1232,7 +1309,6 @@ public class BigMapWorld implements Instances {
 
 	/**
 	 * 我的正在行军的部队
-	 * 
 	 * @param uid
 	 * @return
 	 */
@@ -1403,7 +1479,59 @@ public class BigMapWorld implements Instances {
 		TroopsData troops = TroopsData.create(monster,0);
 		Map<Byte,Map<String,Integer>> packages = new HashMap<Byte,Map<String,Integer>>();
 		MapUtil.drop(monster.getDroplist(), packages);
-		Scene scene = new Scene(sceneId, 0, checkpoin.getDieProbability(), troops, packages, "");
+		Scene scene = new Scene(sceneId, 0, checkpoin.getDieProbability(), troops, packages, "", checkpoin);
 		return scene;
+	}
+	
+	public MapMonster searchMonsterNearby(int pos){
+		int radius = 1;
+		int x = PointVector.getX(pos);
+		int y = PointVector.getY(pos);
+		do{
+			int left  = Math.min(0,x-radius);
+			int right = (int)Math.max(x+radius,GameConfig.MAP_WIDTH);
+			int up    = (int)Math.min(0,y-radius);
+			int down  = (int)Math.max(y+radius,GameConfig.MAP_CELL_HEIGHT);
+			MapCell cell = null;
+			MapMonster monster = null;
+			for (int i = left ; i <= right ; i++){
+				int position = PointVector.getPosition(i,up);
+				cell = mapCells[position];
+				if (cell.getType() == MapCellType.MAP_CELL_TYPE_MONSTER){
+					monster = searchObject(cell);
+					if (monster != null){
+						return monster;
+					}
+				}
+				position = PointVector.getPosition(i,down);
+				cell = mapCells[position];
+				if (cell.getType() == MapCellType.MAP_CELL_TYPE_MONSTER){
+					monster = searchObject(cell);
+					if (monster != null){
+						return monster;
+					}
+				}
+			}
+			for (int i = up ; i <= down ; i++){
+				int position = PointVector.getPosition(left,i); 
+				cell = mapCells[position];
+				if (cell.getType() == MapCellType.MAP_CELL_TYPE_MONSTER){
+					monster = searchObject(cell);
+					if (monster != null){
+						return monster;
+					}
+				}
+				position = PointVector.getPosition(right,i); 
+				cell = mapCells[position];
+				if (cell.getType() == MapCellType.MAP_CELL_TYPE_MONSTER){
+					monster = searchObject(cell);
+					if (monster != null){
+						return monster;
+					}
+				}
+			}
+			radius++;
+		}while(radius < GameConfig.MAP_WIDTH / 2);
+		return null;
 	}
 }

@@ -8,20 +8,35 @@ import java.util.Map;
 
 import com.joymeng.Instances;
 import com.joymeng.common.util.I18nGreeting;
+import com.joymeng.common.util.JsonUtil;
 import com.joymeng.common.util.MessageSendUtil;
+import com.joymeng.common.util.StringUtils;
+import com.joymeng.common.util.TimeUtils;
 import com.joymeng.list.ArmyDetail;
+import com.joymeng.list.EventName;
 import com.joymeng.log.GameLog;
 import com.joymeng.services.core.buffer.JoyBuffer;
 import com.joymeng.slg.dao.DaoData;
 import com.joymeng.slg.dao.SqlData;
 import com.joymeng.slg.domain.object.army.data.Army;
+import com.joymeng.slg.domain.object.bag.ItemCell;
+import com.joymeng.slg.domain.object.bag.data.Item;
+import com.joymeng.slg.domain.object.build.BuildComponentType;
 import com.joymeng.slg.domain.object.build.BuildName;
+import com.joymeng.slg.domain.object.build.RoleBuild;
 import com.joymeng.slg.domain.object.build.RoleCityAgent;
+import com.joymeng.slg.domain.object.build.RolePromotArmyFinish;
+import com.joymeng.slg.domain.object.build.impl.BuildComponentArmyTrain;
+import com.joymeng.slg.domain.object.effect.BuffTypeConst.TargetType;
+import com.joymeng.slg.domain.object.effect.data.Buff;
 import com.joymeng.slg.domain.object.role.Role;
+import com.joymeng.slg.domain.object.role.RoleArmyAttr;
+import com.joymeng.slg.domain.timer.TimerLast;
+import com.joymeng.slg.domain.timer.TimerLastType;
 import com.joymeng.slg.net.mod.AbstractClientModule;
 import com.joymeng.slg.net.mod.RespModuleSet;
 
-public class RoleArmyAgent implements Instances {
+public class RoleArmyAgent implements Instances{
 	private long uid;
 	private int cityId;
 	private Map<String, Map<Byte, ArmyInfo>> armysMap = new HashMap<String, Map<Byte, ArmyInfo>>();//<ArmyId,<State,num>>
@@ -36,6 +51,21 @@ public class RoleArmyAgent implements Instances {
 		this.cityId = cityId;
 	}
 
+	public void tick(long now) {
+		for (String str : armysMap.keySet()) {
+			Map<Byte, ArmyInfo> armyMap = armysMap.get(str);
+			ArmyInfo armyInfo = armyMap.get((byte) 88);
+			if (armyInfo != null && armyInfo.getTime() != null) {
+				TimerLast timer = armyInfo.getTime();
+				if (timer.over(now)) {
+					timer.die();
+					timer = null;
+					armyInfo.setTime(null);
+				}
+			}
+		}
+	}
+	
 	public void loadFromData(SqlData data) {
 		uid = data.getInt(DaoData.RED_ALERT_GENERAL_UID);
 		cityId = data.getInt(DaoData.RED_ALERT_GENERAL_CITY_ID);
@@ -45,6 +75,7 @@ public class RoleArmyAgent implements Instances {
 		ArmyInfo army = createArmy(armyId, num, state);// new ArmyInfo(armyId,
 														// num, state );
 		if (army == null) {
+			GameLog.error("createArmy is error armyId = " + armyId + " num = " + num + " state = " + state);
 			return;
 		}
 		army.init(uid, cityId);
@@ -67,6 +98,17 @@ public class RoleArmyAgent implements Instances {
 				out.putPrefixedString(army.getArmyId(),JoyBuffer.STRING_TYPE_SHORT);
 				out.put(army.getState());
 				out.putInt(army.getArmyNum());
+				if (army.getTime() != null) {
+					String time = JsonUtil.ObjectToJsonString(army.getTime());
+					out.putPrefixedString(time, JoyBuffer.STRING_TYPE_SHORT);
+				} else {
+					out.putPrefixedString("null", JoyBuffer.STRING_TYPE_SHORT);
+				}
+				if (army.getPromotId() != null) {
+					out.putPrefixedString(army.getPromotId(), JoyBuffer.STRING_TYPE_SHORT);
+				} else {
+					out.putPrefixedString("null", JoyBuffer.STRING_TYPE_SHORT);
+				}
 			}
 		}
 		data.put(DaoData.RED_ALERT_CITY_ARMYS, out.arrayToPosition());
@@ -84,18 +126,36 @@ public class RoleArmyAgent implements Instances {
 				String armyId = armyDatas.getPrefixedString(JoyBuffer.STRING_TYPE_SHORT);
 				byte state = armyDatas.get();
 				int num = armyDatas.getInt();
+				String time = armyDatas.getPrefixedString(JoyBuffer.STRING_TYPE_SHORT);
+				String promotId = armyDatas.getPrefixedString(JoyBuffer.STRING_TYPE_SHORT);
 				ArmyInfo army = createArmy(armyId, num, state);
+				ArmyInfo aArmy = new ArmyInfo(promotId, num, ArmyState.ARMY_IN_NORMAL.getValue());
 				if (army == null) {
 					continue;
 				}
-				army.init(uid, cityId);
+				if (!StringUtils.isNull(time)) {
+					TimerLast timer = JsonUtil.JsonToObject(time, TimerLast.class);
+					long pass = TimeUtils.nowLong() / 1000 - timer.getStart();
+					if (pass >= timer.getLast()) {
+						army = createArmy(promotId, num, ArmyState.ARMY_IN_NORMAL.getValue());
+					} else {
+						timer.setStart(TimeUtils.nowLong() / 1000 - pass);
+						army = new ArmyInfo(armyId, num, ArmyState.ARMY_PROMOT.getValue(), timer, promotId);
+						army.init(uid, cityId);
+						timer.registTimeOver(new RolePromotArmyFinish(uid, cityId, army, aArmy));
+					}
+				}
 				Map<Byte, ArmyInfo> armyMap;
-				armyMap = armysMap.get(armyId);
+				armyMap = armysMap.get(army.getArmyId());
 				if (armyMap == null) {
 					armyMap = new HashMap<Byte, ArmyInfo>();
 				}
+				ArmyInfo armyInfo = armyMap.get(army.getState());
+				if (armyInfo != null) {
+					army.setArmyNum(army.getArmyNum() + armyInfo.getArmyNum());
+				}
 				armyMap.put(state, army);
-				armysMap.put(armyId, armyMap);
+				armysMap.put(army.getArmyId(), armyMap);
 			}
 		}
 	}
@@ -119,6 +179,9 @@ public class RoleArmyAgent implements Instances {
 				module.add(armyInfo.getArmyId());// 兵ID， String
 				module.add(armyInfo.getArmyNum());// 数量，int
 				module.add(armyInfo.getState());// 部队状态，byte
+				if (armyInfo.getTime() != null) {
+					module.add(armyInfo.getTime()); // 部队晋级倒计时
+				}
 			}
 		}
 		module.add(city.getCityArmyConsume());
@@ -133,8 +196,16 @@ public class RoleArmyAgent implements Instances {
 	public void sendToClient(RespModuleSet rms,Role role) {
 		if (role == null){
 			role = world.getRole(uid);
+			if (role == null) {
+				GameLog.error("getRole is error uid = " + uid);
+				return;
+			}
 		}
 		RoleCityAgent agent = role.getCity(cityId);
+		if (agent == null) {
+			GameLog.error("getCity" + cityId + "is null where uid = " + role.getId());
+			return;
+		}
 		sendToClient(rms,agent);
 	}
 
@@ -170,6 +241,10 @@ public class RoleArmyAgent implements Instances {
 		Role role = world.getOnlineRole(uid);
 		if (role != null) {
 			RoleCityAgent agent = role.getCity(cityId);
+			if (agent == null) {
+				GameLog.error("getCity" + cityId + "is null where uid = " + role.getId());
+				return;
+			}
 			module.add(agent.getCityArmyConsume());
 		}
 		rms.addModule(module);
@@ -183,6 +258,7 @@ public class RoleArmyAgent implements Instances {
 	 */
 	public boolean checkArmysOut(List<ArmyInfo> armyLst) {
 		if (armysMap.size() == 0) {
+			GameLog.error("armysMap is null in checkArmysOut");
 			return false;
 		}
 		for (ArmyInfo need : armyLst) {
@@ -290,6 +366,7 @@ public class RoleArmyAgent implements Instances {
 	 */
 	public boolean updateArmysState(byte state, List<ArmyInfo> armyLst) {
 		if (armysMap.size() == 0) {
+			GameLog.error("armysMap is null in updateArmysState");
 			return false;
 		}
 		// 伤兵进医院，先检查医院存储上限,优先扣除低级兵
@@ -335,6 +412,54 @@ public class RoleArmyAgent implements Instances {
 	}
 
 	/**
+	 * 更新部队状态
+	 * 
+	 * @return
+	 */
+	public boolean updateArmysPromot(Role role, byte state, ArmyInfo bArmy, ArmyInfo aArmy) {
+		if (armysMap.size() == 0) {
+			GameLog.error("armysMap is null in updateArmysState");
+			return false;
+		}
+		//删除
+		Map<Byte, ArmyInfo> armyMap = armysMap.get(bArmy.getArmyId());
+		if (armyMap == null || armyMap.get(bArmy.getState()) == null) { // 没有空闲部队
+			return false;
+		}
+		ArmyInfo army = armyMap.get(bArmy.getState());
+		int num = army.getArmyNum() - bArmy.getArmyNum();
+		if (num < 0) {
+			return false;
+		} else if (num == 0) {
+			armyMap.remove(army.getState());
+			army.setState(ArmyState.ARMY_REMOVE.getValue());
+		} else {
+			army.setArmyNum(num);
+			armyMap.put(army.getState(), army);
+		}
+
+		// 添加
+		Map<Byte, ArmyInfo> map = armysMap.get(aArmy.getArmyId());
+		if (map == null) {
+			map = new HashMap<Byte, ArmyInfo>();
+		}
+		ArmyInfo add = map.get(state);
+		if (add == null) {
+			add = aArmy;
+			Army armyBase = dataManager.serach(Army.class, army.getArmyId());
+			add.setArmyBase(armyBase);
+			add.init(uid, cityId);
+			map.put(state, add);
+			armysMap.put(aArmy.getArmyId(), map);
+		} else {
+			add.setArmyNum(add.getArmyNum() + aArmy.getArmyNum());
+			map.put(state, add);
+		}
+		return true;
+	}
+	
+	
+	/**
 	 * 创建部队
 	 * 
 	 * @param armyId
@@ -354,8 +479,9 @@ public class RoleArmyAgent implements Instances {
 		return armyInfo;
 	}
 
-	/*
+	/**
 	 * 添加已存在兵种数量
+	 * 
 	 */
 	public void addOneArmy(String armyId, int num, byte state) { //
 		synchronized (armysMap) {
@@ -415,6 +541,7 @@ public class RoleArmyAgent implements Instances {
 		Map<Byte, ArmyInfo> armyMap = armysMap.get(armyId);
 		ArmyInfo army = armyMap.get(state);
 		if (army == null) {
+			GameLog.error("cannot create army,no army base information where armyId=" + armyId);
 			return false;
 		}
 		if (army.getArmyNum() - num <= 0) {
@@ -656,5 +783,199 @@ public class RoleArmyAgent implements Instances {
 		}
 		return num;
 	}
+	
+	/**
+	 * 晋级士兵
+	 * @param money
+	 * 0 -资源 1-金币2-资源不足，金币补充
+	 * @param armyId
+	 * @return
+	 */
+	public boolean promotArmy(Role role, String beforeArmy, int number, String afterArmy, int money) {
+
+		Map<Byte, ArmyInfo> armyMap = armysMap.get(beforeArmy);
+		if (armyMap == null || armyMap.get((byte) 0) == null) {
+			MessageSendUtil.sendNormalTip(role.getUserInfo(), I18nGreeting.MSG_ROLE_PROMOT_ARMY_NOEXIST);
+			return false;
+		}
+		RoleCityAgent agent = role.getCity(cityId);
+		Army before = dataManager.serach(Army.class, beforeArmy);
+		Army after = dataManager.serach(Army.class, afterArmy);
+		if (after == null) {
+			GameLog.error("cannot create army,no army base information where armyId=" + afterArmy);
+			return false;
+		}
+		// 检查当前兵种的解锁条件
+		List<String> condList = after.getUnlockLimitation();
+		if (!agent.checkTechLimition(condList)) {
+			MessageSendUtil.sendNormalTip(role.getUserInfo(), I18nGreeting.MSG_TECH_LIMITED, afterArmy);
+			return false;
+		}
+		// 检查资源或金币
+		int costMoney = 0;
+		List<String> resCostList = new ArrayList<String>();
+		List<String> beforeResCostList = before.getTrainCostList();
+		List<String> afterResCostList = after.getTrainCostList();
+		for (int i = 0; i < beforeResCostList.size(); i++) {
+			int count = 0;
+			String strRes = beforeResCostList.get(i);
+			String[] strArray = strRes.split(":");
+			if (strArray.length < 2) {
+				GameLog.error("Army json TrainCostList is error");
+				return false;
+			}
+			int resnum = Integer.parseInt(strArray[1]) * number;
+			for (int j = 0; j < afterResCostList.size(); j++) {
+				String res = afterResCostList.get(i);
+				String[] strArr = res.split(":");
+				if (strArr.length < 2) {
+					GameLog.error("Army json TrainCostList is error");
+					return false;
+				}
+				count = Integer.parseInt(strArr[1]) * number;
+				if (strArr[0].equals(strArr[0])) {
+					break;
+				}
+			}
+			String newStr = strArray[0] + ":" + (count - resnum);
+			resCostList.add(newStr);
+		}
+		// 计算训练时间
+		RoleBuild roleBuild = role.getCity(0).getBuildByArmyType(beforeArmy);
+		if (roleBuild == null) {
+			return false;
+		}
+		BuildComponentArmyTrain comArmyTrain = roleBuild.getComponent(BuildComponentType.BUILD_COMPONENT_ARMYTRAIN);
+		if (comArmyTrain == null) {
+			return false;
+		}
+		float buildBuff = 0;
+		String param = comArmyTrain.getBuildParams(roleBuild);
+		if (param != null) {
+			buildBuff = Float.parseFloat(param);
+		}
+		float buff1 = RoleArmyAttr.getEffVal(role, TargetType.T_A_RED_SPT, beforeArmy);
+		float buff2 = RoleArmyAttr.getEffVal(role, TargetType.T_A_RED_SPT, afterArmy);
+		double trainTime = ((after.getTrainTime() * (1.0f - buff1 - buildBuff))
+				- (before.getTrainTime() * (1.0f - buff2 - buildBuff))) * number + 0.5;
+		if (money > 0) {
+			if (money == 2) {
+				costMoney = agent.getCostMoney(role, resCostList, null, 0, (byte) 0);
+			} else {
+				costMoney = agent.getCostMoney(role, resCostList, null, (int) trainTime, (byte) 0);
+			}
+			if (costMoney > role.getMoney()) {
+				MessageSendUtil.sendNormalTip(role.getUserInfo(), I18nGreeting.MSG_ROLE_NO_MONEY, costMoney);
+				return false;
+			}
+		} else if (!agent.checkResConditions(role, resCostList)) {
+			return false;
+		}
+		// 扣除消耗
+		List<Object> resLst = agent.redCostResource(resCostList, costMoney, EventName.promotArmy.getName());
+		// 下发数据
+		TimerLast timer = new TimerLast(TimeUtils.nowLong() / 1000, (long) trainTime, TimerLastType.TIME_ARMY_PROMOT);
+		ArmyInfo bArmy = new ArmyInfo(beforeArmy, number, ArmyState.ARMY_IN_NORMAL.getValue());
+		ArmyInfo bbArmy = new ArmyInfo(beforeArmy, number, ArmyState.ARMY_PROMOT.getValue(), timer,afterArmy);
+		ArmyInfo aArmy = new ArmyInfo(afterArmy, number, ArmyState.ARMY_IN_NORMAL.getValue());
+		RespModuleSet rms1 = new RespModuleSet();
+		RespModuleSet rms2 = new RespModuleSet();
+		if (money == 1) {
+			role.redRoleMoney(costMoney);
+			role.sendRoleToClient(rms2);
+			role.getCity(cityId).getArmyAgent().updateArmysPromot(role,ArmyState.ARMY_IN_NORMAL.getValue(),bArmy,aArmy);
+		} else {
+			role.getCity(cityId).getArmyAgent().updateArmysPromot(role,ArmyState.ARMY_PROMOT.getValue(),bArmy,bbArmy);
+			if (money == 2) {
+				role.redRoleMoney(costMoney);
+				role.sendRoleToClient(rms2);
+			}
+			// 添加倒计时
+			timer.registTimeOver(new RolePromotArmyFinish(uid, cityId, bbArmy,aArmy));
+		}
+		RespModuleSet rms = new RespModuleSet();
+		sendToClient(rms, agent);// 下发城里士兵状态
+		MessageSendUtil.sendModule(rms,role.getUserInfo());
+		role.sendResourceToClient(rms1, cityId, resLst.toArray());
+		MessageSendUtil.sendModule(rms2,role.getUserInfo());
+		return true;
+	}
+	/**
+	 * 兵种晋级金币加速
+	 */
+	public boolean secondKill(Role role,String armyId) {
+		Map<Byte, ArmyInfo> armyMap = armysMap.get(armyId);
+		if (armyMap == null || armyMap.get(ArmyState.ARMY_PROMOT.getValue()) == null) {
+			MessageSendUtil.sendNormalTip(role.getUserInfo(), I18nGreeting.MSG_ROLE_PROMOT_ARMY_NOEXIST);
+			return false;
+		}
+		ArmyInfo armyInfo = armyMap.get(ArmyState.ARMY_PROMOT.getValue());
+		TimerLast timer = armyInfo.getTime();
+		// 检查金币是否足够
+		long remainTime = timer.getLast() - (TimeUtils.nowLong() / 1000 - timer.getStart());// 剩余时间
+		int costMoney = 0;
+		costMoney = role.timeChgMoney(remainTime, (byte) 0);
+		if (!role.redRoleMoney(costMoney)) {
+			MessageSendUtil.sendNormalTip(role.getUserInfo(), I18nGreeting.MSG_ROLE_NO_MONEY, costMoney);
+			return false;
+		}
+		timer.die();
+		timer = null;
+		RespModuleSet rms = new RespModuleSet();
+		role.sendRoleToClient(rms);
+		MessageSendUtil.sendModule(rms,role.getUserInfo());
+		return true;	
+	}
+	/**
+	 * 兵种晋级道具加速
+	 */
+	public boolean speedUp(Role role,String armyId,String itemId,int number) {
+		Item itemdata = dataManager.serach(Item.class, itemId);
+		// 使用道具后的效果
+		String buffId = itemdata.getBuffList();
+		Buff buffData = dataManager.serach(Buff.class, buffId);
+		TargetType active = null;
+		if (buffData != null) {
+			String[] paramLst = buffData.getBuffTarget().split(":");
+			active = TargetType.search(paramLst[1]);
+		}
+		String strEffect = itemdata.getEffectAfterUse();
+		if (!active.equals(TargetType.G_C_REDU_T) && !active.equals(TargetType.G_C_RED_ST)) {
+			GameLog.info("兵种晋级加速道具类型错误");
+			return false;
+		}
+		Map<Byte, ArmyInfo> armyMap = armysMap.get(armyId);
+		if (armyMap == null || armyMap.get(ArmyState.ARMY_PROMOT.getValue()) == null) {
+			MessageSendUtil.sendNormalTip(role.getUserInfo(), I18nGreeting.MSG_ROLE_PROMOT_ARMY_NOEXIST);
+			return false;
+		}
+		ArmyInfo armyInfo = armyMap.get(ArmyState.ARMY_PROMOT.getValue());
+		TimerLast timer = armyInfo.getTime();
+		long lastTime = timer.getLast() - Long.valueOf(strEffect) * number;
+		if (lastTime > 0) {
+			timer.setStart(timer.getStart() - Long.valueOf(strEffect) * number);
+			RespModuleSet rms = new RespModuleSet();
+			RoleCityAgent agent = role.getCity(cityId);
+			RoleArmyAgent roleArmyAgent = agent.getCityArmys();
+			roleArmyAgent.sendToClient(rms, agent);
+			MessageSendUtil.sendModule(rms, role);
+		} else {
+			timer.setLast(0);
+		}
+		ItemCell item = role.getBagAgent().getItemFromBag(itemId);
+		if (!role.getBagAgent().removeItems(itemId, number)) {
+			MessageSendUtil.sendNormalTip(role.getUserInfo(), I18nGreeting.MSG_ITEM_NOT_ENOUGH, itemId, number);
+			return false;
+		}
+		// 下发
+		RespModuleSet rms = new RespModuleSet();
+		List<ItemCell> items = new ArrayList<ItemCell>();
+		items.add(item);
+		ItemCell[] itemArray = items.toArray(new ItemCell[items.size()]);
+		role.getBagAgent().sendItemsToClient(rms, itemArray);
+		MessageSendUtil.sendModule(rms, role.getUserInfo());
+		return true;
+	}
+	
 
 }

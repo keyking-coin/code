@@ -116,6 +116,10 @@ public class FightSkill implements Instances{
 			GameLog.error("buff固化表又错了 >>>>" + buffId);
 			return;
 		}
+		if (!myself.couldCastInThisTurn(key)){
+			//本回合已经释放过这个技能了，主要是针对当我防御时的逻辑
+			return;
+		}
 		FightBuff buff = null;
 		switch (type){
 			case C_A_RED_BDMG_ALL://提升部队减伤
@@ -214,6 +218,7 @@ public class FightSkill implements Instances{
 		}
 		buff.setLastRound(lastRound);
 		buff.setBuffId(buffId);
+		buff.setSkillId(key);
 		SkillInfo si = null;
 		if (target == FightBuffTargetType.ONLY_MYSELF.ordinal()){
 			si = new SkillInfo(key,myself,myself);
@@ -258,5 +263,6 @@ public class FightSkill implements Instances{
 			//没有目标的技能释放不了
 			sis.add(si);
 		}
+		myself.addCastRecord(key);
 	}
 }

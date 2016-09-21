@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.joymeng.common.util.JsonUtil;
 import com.joymeng.common.util.MessageSendUtil;
+import com.joymeng.list.EventName;
 import com.joymeng.log.GameLog;
 import com.joymeng.log.LogManager;
 import com.joymeng.slg.dao.SqlData;
@@ -14,6 +15,7 @@ import com.joymeng.slg.domain.map.fight.result.ReportTitleType;
 import com.joymeng.slg.domain.map.impl.MapRoleInfo;
 import com.joymeng.slg.domain.map.impl.dynamic.ExpediteTroops;
 import com.joymeng.slg.domain.map.impl.dynamic.GarrisonTroops;
+import com.joymeng.slg.domain.map.impl.still.union.MapUnionCity;
 import com.joymeng.slg.domain.map.physics.MapCellType;
 import com.joymeng.slg.domain.map.spyreport.data.SpyType;
 import com.joymeng.slg.domain.object.role.Role;
@@ -21,6 +23,7 @@ import com.joymeng.slg.domain.timer.TimerLast;
 import com.joymeng.slg.domain.timer.TimerLastType;
 import com.joymeng.slg.domain.timer.TimerOver;
 import com.joymeng.slg.net.mod.RespModuleSet;
+import com.joymeng.slg.union.UnionBody;
 
 /**
  * 玩家迁城点
@@ -122,16 +125,40 @@ public class MapCityMove extends MapObject implements TimerOver{
 			expedite.tryToBackQuick(mapCity.getPosition(),3);
 		}
 		GarrisonTroops creater = getOwner();
+		Role role = world.getRole(info.getUid());
+		RespModuleSet rms = new RespModuleSet();
 		if (creater != null){//迁城部队回主城
-			Role role = world.getRole(info.getUid());
-			RespModuleSet rms = new RespModuleSet();
 			creater.getTroops().armyBack(rms,role);
 			MessageSendUtil.sendModule(rms,role.getUserInfo());
 			creater.remove();
 			role.handleEvent(GameEvent.TROOPS_SEND);
-			LogManager.mapLog(role, info.getPosition(), position, creater.getId(),"moveCityComplete");
+			LogManager.mapLog(role, info.getPosition(), position, creater.getId(),EventName.moveCityComplete.getName());
 		}
 		mapCity.moveToNewPlace(position);
+		// 更新联盟的位置
+		if (role.getUnionId() != 0) {
+			UnionBody unionBody = unionManager.search(role.getUnionId());
+			if (unionBody == null) {
+				GameLog.error(" unionManager.search is null unionId = " + role.getUnionId());
+				return;
+			}
+			if (unionBody.getLeader().getUid() == role.getId()) {
+				List<MapUnionCity> citys = mapWorld.searchUnionCity(role.getUnionId());
+				boolean isChange = true;
+				for (int i = 0; i < citys.size(); i++) {
+					MapUnionCity unionCity = citys.get(i);
+					if (unionCity == null) {
+						continue;
+					}
+					if (unionCity.getState() == 2) {
+						isChange = false;
+					}
+				}
+				if (isChange) {
+					unionBody.setUnionPosition();
+				}
+			}
+		}
 	}
 	
 	@Override

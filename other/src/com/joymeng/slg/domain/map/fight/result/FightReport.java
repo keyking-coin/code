@@ -1,16 +1,23 @@
 package com.joymeng.slg.domain.map.fight.result;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.joymeng.Instances;
 import com.joymeng.common.util.JsonUtil;
+import com.joymeng.log.GameLog;
 import com.joymeng.slg.domain.chat.ReportType;
 import com.joymeng.slg.domain.map.fight.obj.enumType.Side;
 import com.joymeng.slg.domain.map.impl.dynamic.ExpediteTroops;
 import com.joymeng.slg.domain.map.impl.dynamic.TroopsData;
+import com.joymeng.slg.domain.object.army.data.Army;
 import com.joymeng.slg.domain.object.build.RoleCityAgent;
 import com.joymeng.slg.domain.object.role.Role;
+import com.joymeng.slg.domain.timer.TimerLastType;
+import com.joymeng.slg.union.UnionBody;
+import com.joymeng.slg.union.impl.UnionMember;
 
 public class FightReport implements Instances{
 	byte type;//0战报,1未战战报
@@ -22,20 +29,20 @@ public class FightReport implements Instances{
 	Side peopleSide;//我的阵营
 	FightVersus people1;
 	FightVersus people2;
-	List<String> earnings  = new ArrayList<String>();//收益报告
+	List<String> earnings  = new ArrayList<String>();
 	List<String> fightResult1;//people1的战果
 	List<String> fightResult2;//people2的战果
 	List<String> troopsEff1 = new ArrayList<String>();//people1的部队属性
 	List<String> troopsEff2 = new ArrayList<String>();//people2的部队属性
 	List<SkillInfo> starts;//战吼技能
 	List<RoundData> rounds;//战斗详细过程
-	List<String> armyInfo1;//people1的兵种战果
-	List<String> armyInfo2;//people2的兵种战果
+	List<String> armyInfo1;//people1的兵种战果    （兵种|存活|损失|受伤|消灭  ****  monster_1_1_0|103|147|0|70 ）
+	List<String> armyInfo2;//people2的兵种战果   （兵种|存活|损失|受伤|消灭  ****  monster_1_1_0|103|147|0|70 ）
 	String noBattleTip;//未开战的提示
 	private RoleCityAgent city;
+	Map<String,Integer> myKills = new HashMap<String,Integer>();//我击杀的对象
 	
 	public FightReport() {
-		
 	}
 	
 	public FightReport(RoleCityAgent city) {
@@ -193,6 +200,64 @@ public class FightReport implements Instances{
 	public void setNoBattleTip(String noBattleTip) {
 		this.noBattleTip = noBattleTip;
 	}
+	
+	public void addMyKills(Map<String,Integer> maps){
+		if(maps==null)
+			return;
+		for(String key:maps.keySet()){
+			if(myKills.get(key) == null){
+				myKills.put(key, maps.get(key));
+			}else{
+				myKills.put(key, maps.get(key)+myKills.get(key));
+			}
+		}
+	}
+	
+	
+	/**
+	 * 计算联盟积分
+	* @Title: reportAllianceScore 
+	* @return void
+	 */
+	public int[] reportAllianceScore(){
+		//玩家
+		long uid = people1.getInfo().getUid();
+		Role role = world.getRole(uid);
+		if(role == null || role.getUnionId() <=0){
+			GameLog.info("<reportAllianceScore>uid="+uid+":玩家不存在或者没有联盟");
+			return null;
+		}
+		UnionBody union = unionManager.search(role.getUnionId());
+		if(union == null){
+			GameLog.info("<reportAllianceScore>union="+role.getUnionId()+":联盟不存在");
+			return null;
+		}
+		UnionMember member = union.getUnionMemberById(uid);
+		if(member == null){
+			GameLog.info("<reportAllianceScore>member="+uid+":联盟成员不不存在");
+			return null;
+		}
+		GameLog.info("reportAllianceScore----"+JsonUtil.ObjectToJsonString(myKills));
+		int[] allians = new int[]{0,0};
+		//计算我的贡献和联盟贡献
+		for(String key : myKills.keySet()){
+			//找到对应部队和数量
+			Army armyBase = dataManager.serach(Army.class, key);
+			if(armyBase == null)
+				continue;
+			List<String> alliancescore = armyBase.getAlliancescore();
+			int num = myKills.get(key);
+			if(alliancescore!= null && alliancescore.size()>1){
+				allians[0] += Integer.parseInt(alliancescore.get(0))*num;
+				allians[1] += Integer.parseInt(alliancescore.get(1))*num;
+			}
+		}
+		member.addUnionMemberScore(allians[0]);
+		union.setScore(union.getScore()+allians[1]);
+		GameLog.info("<reportAllianceScore>myscore="+allians[0]+"|union="+allians[1]);
+		earnings.add("union|" + allians[0] + "|" + allians[1] + "|0" );
+		return allians;
+	}
 
 	public void send(ExpediteTroops expediteTroops) {
 		long uid = people1.getInfo().getUid();
@@ -205,6 +270,8 @@ public class FightReport implements Instances{
 				troops.reportEarnings(earnings,city);
 			}
 		}
+		if(title != ReportTitleType.TITLE_TYPE_D_MONSTER)//去掉怪物攻城
+			reportAllianceScore();
 		String battleReport = JsonUtil.ObjectToJsonString(this);
 		Role role = world.getRole(uid);
 		chatMgr.creatBattleReportAndSend(battleReport,ReportType.TYPE_BATTLE_REPORT,null,role);

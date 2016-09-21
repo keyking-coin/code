@@ -24,7 +24,8 @@ public class NewLogManager implements Instances {
 		LOGGER_TYPE_UNION("unionOp"), //联盟埋点
 		LOGGER_TYPE_GAME("game"), //游戏启动埋点	
 		LOGGER_TYPE_ARMY("army"), //士兵数量变化日志
-		LOGGER_TYPE_CLIENT("client") //客户端错误信息记录日志	
+		LOGGER_TYPE_CLIENT("client"), //客户端错误信息记录日志	
+		LOGGER_TYPE_MISTAKE("mistake") //服务器错误信息记录日志	
 		;
 		private LoggerType(String key){
 			this.key = key;
@@ -246,6 +247,14 @@ public class NewLogManager implements Instances {
 	
 	public static void clientLog(Object... params) {  //客户端错误信息记录
 		Logger logger = loggers.get(LoggerType.LOGGER_TYPE_CLIENT);
+		if (logger == null){
+			return ;
+		}
+		info(logger,params);
+	}
+	
+	public static void misTakeLog(Object... params) {  //服务器错误信息记录
+		Logger logger = loggers.get(LoggerType.LOGGER_TYPE_MISTAKE);
 		if (logger == null){
 			return ;
 		}

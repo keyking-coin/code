@@ -18,6 +18,7 @@ import com.joymeng.Instances;
 import com.joymeng.common.util.JsonUtil;
 import com.joymeng.common.util.TimeUtils;
 import com.joymeng.log.GameLog;
+import com.joymeng.log.LogManager;
 import com.joymeng.services.core.buffer.JoyBuffer;
 import com.joymeng.slg.ServiceApp;
 import com.joymeng.slg.dao.DaoData;
@@ -577,6 +578,44 @@ public class RealtimeData implements Instances{
 			return;
 		}
 		getConnection(ls, "level_type");
+	}
+
+	public static void redUser() {
+		int serverId = ServiceApp.instanceId - GameConfig.SERVER_LIST_ID;
+		int appid = 1001;
+		List<SqlData> list = new ArrayList<SqlData>();
+		try {
+			list = dbMgr.getGameDao().getDatas(DaoData.TABLE_RED_ALERT_ROLE);
+			for (int i = 0; i < list.size(); i++) {
+				SqlData data = list.get(i);
+				long uid = data.getInt(DaoData.RED_ALERT_ROLE_ID);
+				SqlData sqlData = dbMgr.getGameDao().getData(DaoData.TABLE_RED_ALERT_CITY,DaoData.RED_ALERT_GENERAL_UID, uid);
+				String channelId = data.getString(DaoData.RED_ALERT_ROLE_CHANNELID);
+				String strVip = data.getString(DaoData.RED_ALERT_ROLE_VIPINFO);
+				String[] strText = strVip.split(";");
+				int vipLevel = Byte.parseByte(strText[0]);
+				int level = data.getInt(DaoData.RED_ALERT_GENERAL_LEVEL);
+				String reg_uid_time = data.getString(DaoData.RED_ALERT_ROLE_UID_REGIS);
+				String country = data.getString(DaoData.RED_ALERT_ROLE_INCOUNTRY);
+				String language = data.getString(DaoData.RED_ALERT_ROLE_LANGUAGE);
+				String uuid = data.getString(DaoData.RED_ALERT_ROLE_UUID);
+				String reg_uuid_time = data.getString(DaoData.RED_ALERT_ROLE_UID_REGIS);
+				String lastlogintime = TimeUtils.chDate(data.getLong(DaoData.RED_ALERT_ROLE_LAST_LOGIN));
+				int centerlevel = sqlData.getInt(DaoData.RED_ALERT_CITY_LEVEL);
+				int money = data.getInt(DaoData.RED_ALERT_ROLE_MONEY);
+				String resource = sqlData.getString(DaoData.RED_ALERT_CITY_RESOURCES);
+				Map<ResourceTypeConst, Long> resources = JSON.parseObject(resource,new TypeReference<Map<ResourceTypeConst, Long>>() {});
+				long food = resources.get(ResourceTypeConst.RESOURCE_TYPE_FOOD);
+				long metal = resources.get(ResourceTypeConst.RESOURCE_TYPE_METAL);
+				long oil = resources.get(ResourceTypeConst.RESOURCE_TYPE_OIL);
+				long alloy = resources.get(ResourceTypeConst.RESOURCE_TYPE_ALLOY);
+				int krypton = data.getInt(DaoData.RED_ALERT_ROLE_KRYPTON);
+				LogManager.userLog(serverId, appid, uid, channelId, vipLevel, level, reg_uid_time, country, language,
+						uuid, reg_uuid_time, lastlogintime, centerlevel, money, food, metal, oil, alloy, krypton);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 	
 	

@@ -11,6 +11,7 @@ import com.joymeng.common.util.I18nGreeting;
 import com.joymeng.common.util.JsonUtil;
 import com.joymeng.common.util.MessageSendUtil;
 import com.joymeng.common.util.StringUtils;
+import com.joymeng.list.EventName;
 import com.joymeng.log.GameLog;
 import com.joymeng.log.LogManager;
 import com.joymeng.log.NewLogManager;
@@ -67,9 +68,18 @@ public class BuildComponentCure implements BuildComponent, Instances {
 	public boolean cureArmys(Role role, int cityId, long buildId, List<String> cureArmys, int money) {
 		// 将受伤的军队列表存放在cureArmyInfo中
 		RoleCityAgent agent = role.getCity(cityId);
+		if (agent == null) {
+			GameLog.error("getCity" + cityId + "is null where uid = " + role.getId());
+			return false;
+		}
 		RoleArmyAgent roleArmyAgent = agent.getCityArmys();
+		if (roleArmyAgent == null) {
+			GameLog.error("getCity" + cityId + " 's roleArmyAgent is null where uid = " + role.getId());
+			return false;
+		}
 		cureArmyInfo.clear();
 		if (cureArmys.size() < 1) {
+			GameLog.error("cureArmys is null");
 			return false;
 		}
 		for (int i = 0; i < cureArmys.size(); i += 2) {
@@ -89,6 +99,10 @@ public class BuildComponentCure implements BuildComponent, Instances {
 			}
 		}
 		RoleBuild build = agent.searchBuildById(buildId);
+		if (build == null) {
+			GameLog.error("RoleBuild is null where buildId = " + buildId);
+			return false;
+		}
 		List<RoleBuild> buildList = agent.searchBuildByBuildId(build.getBuildId());
 		// 检查此医院的状态，0--空闲 1--升级 6--治疗使用
 		if (build.getState() == 6) {
@@ -128,6 +142,7 @@ public class BuildComponentCure implements BuildComponent, Instances {
 				String strRes = resCostListTemp.get(j);
 				String[] strArray = strRes.split(":");
 				if (strArray.length < 2) {
+					GameLog.error("Army json TrainCostList is error -- 固化表错误");
 					return false;
 				}
 				int num = (int) (Integer.parseInt(strArray[1]) * armyNum * Const.CURE_SOLDIER_COST_RATE);
@@ -160,9 +175,9 @@ public class BuildComponentCure implements BuildComponent, Instances {
 		// 计算治疗时间
 		if (money > 0) {
 			if (money == 2) {
-				costMoney = agent.getCostMoney(role, resCostList,null, 0, (byte) 1);
+				costMoney = agent.getCostMoney(role, resCostList,null, 0, (byte) 0);
 			} else {
-				costMoney = agent.getCostMoney(role, resCostList,null, cureTime, (byte) 1);
+				costMoney = agent.getCostMoney(role, resCostList,null, cureTime, (byte) 0);
 			}
 			if (costMoney > role.getMoney()) {
 				MessageSendUtil.sendNormalTip(role.getUserInfo(), I18nGreeting.MSG_ROLE_NO_MONEY, costMoney);
@@ -172,13 +187,11 @@ public class BuildComponentCure implements BuildComponent, Instances {
 			return false;
 		}
 		// 扣除消耗
-		List<Object> resLst = agent.redCostResource(resCostList, costMoney,"cureArmys");
+		List<Object> resLst = agent.redCostResource(resCostList, costMoney,EventName.cureArmys.getName());
 		// 下发数据
 		RespModuleSet rms = new RespModuleSet();
 		if (money > 0 && money != 2) {
 			role.redRoleMoney(costMoney);
-			String event = "cureArmys";
-			LogManager.goldConsumeLog(role, costMoney, event);
 			role.sendRoleToClient(rms);
 			for (int i = 0 ; i < buildList.size() ; i++){
 				RoleBuild tempBuild = buildList.get(i);
@@ -192,8 +205,6 @@ public class BuildComponentCure implements BuildComponent, Instances {
 		} else {
 			if (money == 2) {
 				role.redRoleMoney(costMoney);
-				String event = "cureArmys";
-				LogManager.goldConsumeLog(role, costMoney, event);
 				role.sendRoleToClient(rms);
 			}
 			state = 1;
@@ -204,7 +215,7 @@ public class BuildComponentCure implements BuildComponent, Instances {
 			// 设置所有的同类建筑状态
 			for (int i = 0 ; i < buildList.size() ; i++){
 				RoleBuild tempBuild = buildList.get(i);
-				if (tempBuild != null && tempBuild.getState() != 1) {
+				if (tempBuild != null && tempBuild.getState() == 0) {
 					tempBuild.setState((byte) 6);
 					TimerLast timer = tempBuild.addBuildTimer(cureTime, TimerLastType.TIME_CURE);
 					timer.registTimeOver(this);
@@ -212,6 +223,7 @@ public class BuildComponentCure implements BuildComponent, Instances {
 				}
 			}
 		}
+		LogManager.goldConsumeLog(role, costMoney, EventName.cureArmys.getName());
 		StringBuffer cure = new StringBuffer();
 		for(int k=0;k<cureArmys.size();k++){
 			String army = cureArmys.get(k);
@@ -332,13 +344,32 @@ public class BuildComponentCure implements BuildComponent, Instances {
 	public void finish() {
 		// 更新建筑的状态
 		Role role = world.getRole(uid);
+		if(role == null){
+			GameLog.error("getRole is null where uid = " + uid);
+			return;
+		}
 		RoleCityAgent cityAgent = role.getCity(cityId);
+		if(cityAgent == null){
+			GameLog.error("getCity is null where uid = " + uid + "cityId = " + cityId);
+			return;
+		}
 		RoleArmyAgent roleArmyAgent = cityAgent.getCityArmys();
+		if(roleArmyAgent == null){
+			GameLog.error("getCityArmys is null where uid = " + uid + "cityId = " + cityId);
+			return;
+		}
 		RoleBuild build = cityAgent.searchBuildById(buildId);
+		if(build == null){
+			GameLog.error("Rolebuild is null where buildId = " + buildId);
+			return;
+		}
 		List<RoleBuild> roleBuilds = cityAgent.searchBuildByBuildId(build.getBuildId());
 		RespModuleSet rms = new RespModuleSet();
 		for (int i = 0; i < roleBuilds.size(); i++) {
 			RoleBuild tempBuild = roleBuilds.get(i);
+			if (tempBuild == null) {
+				continue;
+			}
 			if (tempBuild.getId() == this.buildId) {
 				tempBuild.setState((byte) 0);
 				tempBuild.removeTimer(TimerLastType.TIME_CURE);
@@ -363,6 +394,12 @@ public class BuildComponentCure implements BuildComponent, Instances {
 	@Override
 	public void setBuildParams(RoleBuild build) {
 
+	}
+
+	@Override
+	public boolean isWorking(Role role, RoleBuild build) {
+		// TODO Auto-generated method stub
+		return false;
 	}
 
 }

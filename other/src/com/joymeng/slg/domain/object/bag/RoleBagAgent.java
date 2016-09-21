@@ -11,6 +11,7 @@ import com.joymeng.common.util.I18nGreeting;
 import com.joymeng.common.util.MathUtils;
 import com.joymeng.common.util.MessageSendUtil;
 import com.joymeng.common.util.TimeUtils;
+import com.joymeng.list.EventName;
 import com.joymeng.log.GameLog;
 import com.joymeng.log.LogManager;
 import com.joymeng.log.NewLogManager;
@@ -50,6 +51,8 @@ import com.joymeng.slg.domain.timer.TimerLast;
 import com.joymeng.slg.domain.timer.TimerLastType;
 import com.joymeng.slg.net.mod.AbstractClientModule;
 import com.joymeng.slg.net.mod.RespModuleSet;
+import com.joymeng.slg.union.UnionBody;
+import com.joymeng.slg.union.impl.UnionMember;
 
 public class RoleBagAgent implements Instances {
 	long uid;
@@ -373,6 +376,24 @@ public class RoleBagAgent implements Instances {
 	}
 
 	/**
+	 * 获取玩家装备删除(装备中、强化、重铸除外)
+	 */
+	public List<ItemCell> getEquipToRemove() {
+		Map<String, ItemCell> map = cells.get(EquipItem.class);
+		List<ItemCell> result = new ArrayList<>();
+		if (map != null && map.size() > 0) {
+			for (ItemCell item : map.values()) {
+				EquipItem equip = (EquipItem) item;
+				if (equip.getEquipState() == 0) {
+					item.setNum(0);
+					result.add(item);
+				}
+			}
+		}
+		return result;
+	}
+	
+	/**
 	 * 获取玩家指定状态的装备
 	 * 
 	 * @return
@@ -403,8 +424,7 @@ public class RoleBagAgent implements Instances {
 		Map<String, ItemCell> map = cells.get(EquipItem.class);
 		if (map == null) {
 			return 0;
-		}
-		
+		}	
 		int num = 0;
 		for (ItemCell tempItemCell : map.values()) {
 			EquipItem tempEquipItem = (EquipItem) tempItemCell;
@@ -592,7 +612,7 @@ public class RoleBagAgent implements Instances {
 		}
 		Equip equip = dataManager.serach(Equip.class, equipItem.getKey());
 		if (equip == null) {
-			GameLog.error("read base equip is fail");
+			GameLog.error("固化表错误 read base equip is fail");
 			return false;
 		}
 		if (role.getLevel() < equip.getUseLimitation()) {
@@ -684,10 +704,18 @@ public class RoleBagAgent implements Instances {
 	 * @return
 	 */
 	public boolean equipRefine(Role role, long equipId) {
-		EquipItem equipItem = getEquipById(equipId);
 		RoleCityAgent agent = role.getCity(0);
+		if(agent == null){
+			GameLog.error("getCity" + 0 + "is null where uid = " + role.getId());
+			return false;
+		}
 		RoleBagAgent bagAgent = role.getBagAgent();
+		if (bagAgent == null) {
+			GameLog.error("role.getBagAgent() is null role.uid = " + role.getId());
+			return false;
+		}
 		RespModuleSet rms = new RespModuleSet();
+		EquipItem equipItem = getEquipById(equipId);
 		if (equipItem == null || equipItem.getState() != 0) {
 			MessageSendUtil.sendNormalTip(role.getUserInfo(), I18nGreeting.MSG_EQUIP_UNUSED, equipId);
 			return false;
@@ -695,6 +723,10 @@ public class RoleBagAgent implements Instances {
 		String keyId = equipItem.getKey();
 		// 检查装备炼化条件
 		Equip equip = dataManager.serach(Equip.class, equipItem.getKey());
+		if (equip == null) {
+			GameLog.error("固化表错误read Equip is null equipId = " + equipItem.getKey());
+			return false;
+		}
 		List<String> costMaterialLst = equip.getRefineMaterial();// 花费的材料
 		// 检测金币
 		List<String> costItemList = equip.getRefineCost();
@@ -718,7 +750,7 @@ public class RoleBagAgent implements Instances {
 			}
 			num = (int) (num * (1.0f - resourceBuff));
 			if (!resourceId.equals("silver")) {
-				GameLog.error("equip base data gem is error");
+				GameLog.error("equip base data silver is error");
 				return false;
 			}
 			if (num > role.getSilver()) {
@@ -736,7 +768,7 @@ public class RoleBagAgent implements Instances {
 			int num = Integer.parseInt(costMaterialArray[1]);
 			Item material = dataManager.serach(Item.class, itemId);
 			if (material == null) {
-				GameLog.error("cannot find material from item base data!");
+				GameLog.error("cannot find material from item base data! itemId = " + itemId);
 				return false;
 			}
 			if (!bagAgent.checkItemFromBag(itemId, num)) {
@@ -766,14 +798,14 @@ public class RoleBagAgent implements Instances {
 			}
 			num = (int) (num * (1.0f - resourceBuff));
 			if (!resourceId.equals("silver")) {
-				GameLog.error("equip base data gem is error");
+				GameLog.error("equip base data silver is error");
 				return false;
 			}
 			if (role.redRoleSilver(num) == false) {
-				GameLog.error("gem is insufficient!");
+				GameLog.error("silver is insufficient error! 已经检测过");
 				return false;
 			}
-			LogManager.itemConsumeLog(role, num, "equipRefine", resourceId);
+			LogManager.itemConsumeLog(role, num, EventName.equipRefine.getName(), resourceId);
 		}
 		// 删除消耗的物品Material
 		ItemCell[] materials = new ItemCell[costMaterialLst.size()];
@@ -783,7 +815,7 @@ public class RoleBagAgent implements Instances {
 			int num = Integer.parseInt(costArray[1]);
 			ItemCell cell = bagAgent.getItemFromBag(itemId);
 			bagAgent.removeItems(itemId, num);
-			LogManager.itemConsumeLog(role, num, "equipRefine", itemId);
+			LogManager.itemConsumeLog(role, num, EventName.equipRefine.getName(), itemId);
 			ItemCell tempCell = bagAgent.getItemFromBag(itemId);
 			if (tempCell == null) {
 				tempCell = cell;
@@ -793,7 +825,7 @@ public class RoleBagAgent implements Instances {
 		}
 		List<String> randomBuffIdList = equipItem.randomBuffIdList(keyId);
 		if (randomBuffIdList == null) {
-			GameLog.error("randomBuffIdList is null!");
+			GameLog.error("randomBuffIdList is null! equipKeyId = " + keyId);
 			return false;
 		}
 		equipItem.setForgeAfterBuffIdLists(randomBuffIdList);
@@ -831,8 +863,8 @@ public class RoleBagAgent implements Instances {
 	 * @return
 	 */
 	public boolean equipBuffReplace(Role role, long equipId) {
-		EquipItem equipItem = getEquipById(equipId);
 		RespModuleSet rms = new RespModuleSet();
+		EquipItem equipItem = getEquipById(equipId);
 		if (equipItem == null || equipItem.getState() != 0) {
 			MessageSendUtil.sendNormalTip(role.getUserInfo(), I18nGreeting.MSG_EQUIP_UNUSED, equipId);
 			return false;
@@ -855,9 +887,9 @@ public class RoleBagAgent implements Instances {
 	 * @return
 	 */
 	public boolean equipDecompose(Role role, long equipId) {
-		EquipItem equipItem = getEquipById(equipId);
 		RoleBagAgent bagAgent = role.getBagAgent();
 		RespModuleSet rms = new RespModuleSet();
+		EquipItem equipItem = getEquipById(equipId);
 		if (equipItem == null || equipItem.getState() != 0) {
 			MessageSendUtil.sendNormalTip(role.getUserInfo(), I18nGreeting.MSG_EQUIP_UNUSED, equipId);
 			return false;
@@ -878,9 +910,8 @@ public class RoleBagAgent implements Instances {
 		int k = 0;
 		for (int i = 0; i < fuseMateriaList.size(); i++) { // 打包分解得到的材料并下发
 			bagAgent.addOther(fuseMateriaList.get(i), 1);
-			String event = "equipDecompose";
 			String itemst =fuseMateriaList.get(i);
-			LogManager.itemOutputLog(role, 1, event, itemst);
+			LogManager.itemOutputLog(role, 1, EventName.equipDecompose.getName(), itemst);
 			OtherItem changeOtherItem = new OtherItem();
 			changeOtherItem.init(uid, fuseMateriaList.get(i), 1);
 			int j = 0;
@@ -946,7 +977,6 @@ public class RoleBagAgent implements Instances {
 			return false;
 		}
 		OtherItem otherItem = (OtherItem) getItemFromBag(materialId);
-
 		String upgradeMaterialID = materials.getUpgradeMaterialID();
 		// 检测材料合成需要的材料及其个数
 		if (!bagAgent.checkItemFromBag(materialId, SYNTHESIS_MATERIAL_COUNT - 1)) { // 材料大于4个
@@ -958,7 +988,7 @@ public class RoleBagAgent implements Instances {
 			MessageSendUtil.sendNormalTip(role.getUserInfo(), I18nGreeting.MSG_MATERIAL_INSUFFICIENT, materialId);
 			return false;
 		}
-		LogManager.itemConsumeLog(role, SYNTHESIS_MATERIAL_COUNT, "materialSynthesis", materialId);
+		LogManager.itemConsumeLog(role, SYNTHESIS_MATERIAL_COUNT, EventName.materialSynthesis.getName(), materialId);
 		if (upgradeMaterialID.equals("0")) {
 			MessageSendUtil.sendNormalTip(role.getUserInfo(), I18nGreeting.MSG_MATERIAL_UNUPGRADE, materialId);
 			return false;
@@ -969,9 +999,8 @@ public class RoleBagAgent implements Instances {
 			tempOtherItem.setNum(0);
 		}
 		OtherItem upgradeOtherItem = (OtherItem) addOther(upgradeMaterialID, 1).get(0);
-		String event = "materialSynthesis";
-		String itemst =upgradeMaterialID;
-		LogManager.itemOutputLog(role, 1, event, itemst);
+		String itemst = upgradeMaterialID;
+		LogManager.itemOutputLog(role, 1, EventName.materialSynthesis.getName(), itemst);
 		if (upgradeOtherItem == null) {
 			GameLog.error("材料合成失败!" + materialId + "-->" + upgradeMaterialID);
 			return false;
@@ -1066,40 +1095,124 @@ public class RoleBagAgent implements Instances {
 		List<ItemCell> items = new ArrayList<ItemCell>();
 		RespModuleSet rms = new RespModuleSet();
 		switch (itemdata.getItemType()) {
+		case ItemType.TYPE_UNION_ITEM_MEMBER:// 联盟道具
+		{
+			if(role.getUnionId() <=0){
+				MessageSendUtil.sendNormalTip(role.getUserInfo(), I18nGreeting.MSG_NO_JOIN_UNION);
+				GameLog.error("[TYPE_UNION_ITEM]uid="+role.getJoy_id()+"|unionid="+role.getUnionId());
+				return false;
+			}
+			switch (active) {
+				case G_R_ADD_COU: {//添加联盟  个人积分
+					long effectValue = Long.parseLong(strEffect) * num;
+					UnionBody union = unionManager.search(role.getUnionId());
+					if(union == null){
+						GameLog.info("<useItem>union="+role.getUnionId()+":联盟不存在");
+						return false;
+					}
+					UnionMember member = union.getUnionMemberById(uid);
+					if(member == null){
+						GameLog.info("<useItem>member="+uid+":联盟成员不不存在");
+						return false;
+					}
+					member.addUnionMemberScore(effectValue);
+					member.sendToClient(rms, type);
+					
+					break;
+				}
+//				case G_R_ADD_ALL: {//添加联盟 贡献度
+//					long effectValue = Long.parseLong(strEffect) * num;
+//					UnionBody union = unionManager.search(role.getUnionId());
+//					if(union == null){
+//						GameLog.info("<reportAllianceScore>union="+role.getUnionId()+":联盟不存在");
+//						return false;
+//					}
+//					UnionMember member = union.getUnionMemberById(uid);
+//					if(member == null){
+//						GameLog.info("<reportAllianceScore>member="+uid+":联盟成员不不存在");
+//						return false;
+//					}
+//					member.addUnionMemberScore(effectValue);
+//					break;
+//				}
+				default:
+					GameLog.error("item: " + itemId + " TYPE_UNION_ITEM static data error.");
+					return false;
+			}
+			break;
+		}
+		case ItemType.TYPE_UNION_ITEM:// 联盟自身道具
+		{
+			if(role.getUnionId() <=0){
+				MessageSendUtil.sendNormalTip(role.getUserInfo(), I18nGreeting.MSG_NO_JOIN_UNION);
+				GameLog.error("[TYPE_UNION_ITEM_MEMBER]uid="+role.getJoy_id()+"|unionid="+role.getUnionId());
+				return false;
+			}
+			switch (active) {
+				case G_R_ADD_ALL: {//添加联盟 贡献度
+					long effectValue = Long.parseLong(strEffect) * num;
+					UnionBody union = unionManager.search(role.getUnionId());
+					if(union == null){
+						GameLog.info("<useItem>union="+role.getUnionId()+":联盟不存在");
+						return false;
+					}
+					union.setScore(union.getScore()+effectValue);
+					union.sendMeToAllMembers(0);
+//					long effectValue = Long.parseLong(strEffect) * num;
+//					UnionBody union = unionManager.search(role.getUnionId());
+//					if(union == null){
+//						GameLog.info("<useItem>union="+role.getUnionId()+":联盟不存在");
+//						return false;
+//					}
+//					UnionMember member = union.getUnionMemberById(uid);
+//					if(member == null){
+//						GameLog.info("<useItem>member="+uid+":联盟成员不不存在");
+//						return false;
+//					}
+//					member.addUnionMemberScore(effectValue);
+//					member.sendToClient(rms, type);
+					break;
+				}
+				default:
+					GameLog.error("item: " + itemId + " TYPE_UNION_ITEM_MEMBER static data error.");
+					return false;
+			}
+			break;
+		}
 		case ItemType.TYPE_CITY_RESOURCES:// 资源道具
 		{
 			if (active == null){
 				GameLog.error("use item itemId = " + itemId + " fail.");
 				return false;
 			}
-			String event ="useItem";
 			switch (active) {
+			
 			case G_C_ADD_A: {//添加合金资源，固定数量
 				long effectValue = Long.parseLong(strEffect) * num;
 				role.addResourcesToCity(0, ResourceTypeConst.RESOURCE_TYPE_ALLOY, effectValue);
 				String item = ResourceTypeConst.RESOURCE_TYPE_ALLOY.getKey();
-				LogManager.itemOutputLog(role, effectValue, event, item);
+				LogManager.itemOutputLog(role, effectValue, EventName.useItem.getName(), item);
 				break;
 			}
 			case G_C_ADD_O: {//添加石油资源，固定数量
 				long effectValue = Long.parseLong(strEffect) * num;
 				role.addResourcesToCity(0, ResourceTypeConst.RESOURCE_TYPE_OIL, effectValue);
 				String item = ResourceTypeConst.RESOURCE_TYPE_OIL.getKey();
-				LogManager.itemOutputLog(role, effectValue, event, item);
+				LogManager.itemOutputLog(role, effectValue, EventName.useItem.getName(), item);
 				break;
 			}
 			case G_C_ADD_M: {//添加金属资源，固定数量
 				long effectValue = Long.parseLong(strEffect) * num;
 				role.addResourcesToCity(0, ResourceTypeConst.RESOURCE_TYPE_METAL, effectValue);
 				String item = ResourceTypeConst.RESOURCE_TYPE_METAL.getKey();
-				LogManager.itemOutputLog(role, effectValue, event, item);
+				LogManager.itemOutputLog(role, effectValue, EventName.useItem.getName(), item);
 				break;
 			}
 			case G_C_ADD_F: {//添加食品资源，固定数量
 				long effectValue = Long.parseLong(strEffect) * num;
 				role.addResourcesToCity(0, ResourceTypeConst.RESOURCE_TYPE_FOOD, effectValue);
 				String item = ResourceTypeConst.RESOURCE_TYPE_FOOD.getKey();
-				LogManager.itemOutputLog(role, effectValue, event, item);
+				LogManager.itemOutputLog(role, effectValue, EventName.useItem.getName(), item);
 				break;
 			}
 			default:
@@ -1568,9 +1681,8 @@ public class RoleBagAgent implements Instances {
 		case ItemType.TYPE_GOLD: {
 			int value = (int) (Integer.parseInt(strEffect) * num);
 			role.addRoleMoney(value);
-			String event= "useItem";
 			role.sendRoleToClient(rms);
-			LogManager.goldOutputLog(role, value, event);
+			LogManager.goldOutputLog(role, value, EventName.useItem.getName());
 			break;
 		}
 		case ItemType.TYPE_GEM:
@@ -1578,9 +1690,8 @@ public class RoleBagAgent implements Instances {
 			int value = (int) (Integer.parseInt(strEffect) * num);
 			role.addRoleGem(value);
 			role.sendRoleToClient(rms);
-			String event ="useItem";
 			String item = "gem";
-			LogManager.itemOutputLog(role, value, event, item);
+			LogManager.itemOutputLog(role, value, EventName.useItem.getName(), item);
 			try {
 				if(type==0){
 					NewLogManager.baseEventLog(role, "add_gold_chips",item);
@@ -1597,9 +1708,8 @@ public class RoleBagAgent implements Instances {
 			int value = (int) (Integer.parseInt(strEffect) * num);
 			role.addRoleCopper(value);
 			role.sendRoleToClient(rms);
-			String event ="useItem";
 			String item = "copper";
-			LogManager.itemOutputLog(role, value, event, item);
+			LogManager.itemOutputLog(role, value, EventName.useItem.getName(), item);
 			try {
 				if(type==0){
 					NewLogManager.baseEventLog(role, "add_silver_chips",item);
@@ -1616,9 +1726,8 @@ public class RoleBagAgent implements Instances {
 			int value = (int) (Integer.parseInt(strEffect) * num);
 			role.addRoleSilver(value);
 			role.sendRoleToClient(rms);
-			String event ="useItem";
 			String item = "silver";
-			LogManager.itemOutputLog(role, value, event, item);
+			LogManager.itemOutputLog(role, value, EventName.useItem.getName(), item);
 			break;
 		}
 		case ItemType.TYPE_KRYPTON: 
@@ -1626,9 +1735,8 @@ public class RoleBagAgent implements Instances {
 			int value = (int) (Integer.parseInt(strEffect) * num);
 			role.addRoleKrypton(value);
 			role.sendRoleToClient(rms);
-			String event ="useItem";
 			String item = "krypton";
-			LogManager.itemOutputLog(role, value, event, item);
+			LogManager.itemOutputLog(role, value, EventName.useItem.getName(), item);
 			break;
 		}
 		case ItemType.TYPE_LEADER_EXP_ITEM: 
@@ -1665,8 +1773,7 @@ public class RoleBagAgent implements Instances {
 				return false;
 			}
 			role.redRoleMoney((int) (shopData.getNormalPrice() * num));
-			String event = "useItem";
-			LogManager.goldConsumeLog(role, shopData.getNormalPrice(), event);
+			LogManager.goldConsumeLog(role, shopData.getNormalPrice(), EventName.useItem.getName());
 			role.sendRoleToClient(rms);
 			MessageSendUtil.sendModule(rms, role.getUserInfo());
 			//任务事件
@@ -1678,7 +1785,7 @@ public class RoleBagAgent implements Instances {
 		// 下发
 		sendItemsToClient(rms, itemArray);
 		MessageSendUtil.sendModule(rms, role.getUserInfo());
-		LogManager.itemConsumeLog(role, num, "useItem", itemId);
+		LogManager.itemConsumeLog(role, num, EventName.useItem.getName(), itemId);
 		//任务事件
 		if(type == 0){
 			role.handleEvent(GameEvent.TASK_CHECK_EVENT, new TaskEventDelay(), ConditionType.C_ITEM_USE, itemId, num);
@@ -1723,7 +1830,7 @@ public class RoleBagAgent implements Instances {
 								List<ItemCell> newCells = this.addEquip(itemId, 1);
 								items.addAll(getNewListNum((byte)1, newCells));
 								cells.addAll(newCells);
-								LogManager.itemOutputLog(role, 1, "useItem", itemId);
+								LogManager.itemOutputLog(role, 1, EventName.useItem.getName(), itemId);
 								LogManager.equipLog(role, itemEquip.getEquipType(), itemEquip.getBeizhuname(), "开启宝箱");
 							}
 						}
@@ -1732,12 +1839,12 @@ public class RoleBagAgent implements Instances {
 								List<ItemCell> newCells = this.addOther(itemId, 1);
 								items.addAll(getNewListNum((byte)2, newCells));
 								cells.addAll(newCells);
-								LogManager.itemOutputLog(role, 1, "useItem", itemId);
+								LogManager.itemOutputLog(role, 1, EventName.useItem.getName(), itemId);
 							}else{
 								List<ItemCell> newCells = this.addGoods(itemId, 1);
 								items.addAll(getNewListNum((byte)0, newCells));
 								cells.addAll(newCells);
-								LogManager.itemOutputLog(role, 1, "useItem", itemId);
+								LogManager.itemOutputLog(role, 1, EventName.useItem.getName(), itemId);
 							}
 						}
 						break;
@@ -1756,7 +1863,7 @@ public class RoleBagAgent implements Instances {
 							List<ItemCell> newCells = this.addEquip(itemId, itemnum);
 							items.addAll(getNewListNum((byte)1, newCells));
 							cells.addAll(newCells);
-							LogManager.itemOutputLog(role, 1, "useItem", itemId);
+							LogManager.itemOutputLog(role, 1, EventName.useItem.getName(), itemId);
 							LogManager.equipLog(role, itemEquip.getEquipType(), itemEquip.getBeizhuname(), "开启宝箱");
 						}
 					}
@@ -1768,7 +1875,7 @@ public class RoleBagAgent implements Instances {
 							cells.addAll(newItems);
 						} else {
 							List<ItemCell> newItems = this.addGoods(itemId, itemnum);
-							LogManager.itemOutputLog(role, 1, "useItem", itemId);
+							LogManager.itemOutputLog(role, 1, EventName.useItem.getName(), itemId);
 							items.addAll(getNewListNum((byte)0, newItems, itemnum));
 							cells.addAll(newItems);
 						}
@@ -1809,15 +1916,23 @@ public class RoleBagAgent implements Instances {
 		return cells;
 	}
 	
-	public List<ItemCell> removeColumn(Class<? extends ItemCell> type){
+	public List<ItemCell> removeColumn(Class<? extends ItemCell> type) {
 		List<ItemCell> result = new ArrayList<ItemCell>();
-		Map<String, ItemCell> temp = cells.remove(type);
-		if (temp != null){
-			for (ItemCell ic : temp.values()){
-				ic.setNum(0);
-				result.add(ic);
+		if (type.equals(EquipItem.class)) {
+			result = getEquipToRemove();
+			for (int i = 0; i < result.size(); i++) {
+				ItemCell it = result.get(i);
+				removeEquip(String.valueOf(it.getId()));
 			}
-			temp.clear();
+		} else {
+			Map<String, ItemCell> temp = cells.remove(type);
+			if (temp != null) {
+				for (ItemCell ic : temp.values()) {
+					ic.setNum(0);
+					result.add(ic);
+				}
+				temp.clear();
+			}
 		}
 		return result;
 	}

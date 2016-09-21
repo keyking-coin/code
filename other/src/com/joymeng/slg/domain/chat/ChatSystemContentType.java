@@ -25,8 +25,9 @@ public class ChatSystemContentType {
 	public static final String CONTENT_TYPE_ALLIAN_CHANGE_NOTICE = "alliance_change_notice";
 	// {0}已修改群组名称为{1}
 	public static final String CONTENT_TYPE_GROUP_CHANGE_NAME = "group_change_name";
-	
-	
 	//人员变更
 	public static final String UNION_ALL_MAILS_MEMBER_TITLE_CHANGE = "union_all_mails_member_title_change";
+	//{0}领取了{1}的红包
+	public static final String CONTENT_TYPE_REDPACKET_GOT_INFO = "content_type_redpacket_got_info";
+	
 }

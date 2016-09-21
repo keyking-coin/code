@@ -15,6 +15,8 @@ import com.joymeng.slg.domain.object.build.impl.BuildComponentResearch;
 import com.joymeng.slg.domain.object.role.Role;
 import com.joymeng.slg.domain.object.role.RoleIcon;
 import com.joymeng.slg.domain.object.technology.Technology;
+import com.joymeng.slg.domain.object.technology.data.Tech;
+import com.joymeng.slg.domain.object.technology.data.Techupgrade;
 import com.joymeng.slg.domain.timer.TimerLastType;
 import com.joymeng.slg.domain.timer.TimerLast;
 import com.joymeng.slg.net.SerializeEntity;
@@ -161,10 +163,23 @@ public class MemberAssistance implements SerializeEntity,Instances{
 			}
 		} else if (timer.getType() == TimerLastType.TIME_RESEARCH) {
 			des = I18nGreeting.DES_ASSISTANCE_BUILD_RESEARCH;
+			String techName = "";
+			int techLevel = 1;
 			BuildComponentResearch researchComponent = build.getComponent(BuildComponentType.BUILD_COMPONENT_RESEARCH);
 			Technology tech = researchComponent.getResearchingTechnology(city);
-			params.add(tech.getTechName());
-			params.add(tech.getLevel() + 1);
+			if (tech == null) {
+				Tech t = dataManager.serach(Tech.class, researchComponent.getsTechId());
+				if (t == null) {
+					GameLog.error("init tech help is fail");
+					return false;
+				}
+				techName = t.getName();
+			} else {
+				techName = tech.getTechName();
+				techLevel = tech.getLevel() + 1;
+			}
+			params.add(techName);
+			params.add(techLevel);
 		}else{
 			GameLog.error("error timer type = " + timer.getType().toString());
 			return false;

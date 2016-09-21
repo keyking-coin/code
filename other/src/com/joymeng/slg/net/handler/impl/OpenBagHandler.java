@@ -1,6 +1,7 @@
 package com.joymeng.slg.net.handler.impl;
 
 import com.joymeng.common.util.MessageSendUtil;
+import com.joymeng.log.NewLogManager;
 import com.joymeng.services.core.buffer.JoyBuffer;
 import com.joymeng.services.core.message.JoyNormalMessage.UserInfo;
 import com.joymeng.services.core.message.JoyProtocol;
@@ -22,12 +23,15 @@ public class OpenBagHandler extends ServiceHandler{
 		CommunicateResp resp = newResp(info);
 		Role role = world.getRole(info.getUid());
 		if (role == null){
+			NewLogManager.misTakeLog("OpenBagHandler getRole is null");
 			resp.fail();
 			return resp;
 		}
 		RoleBagAgent bagAgent = role.getBagAgent();
 		if(bagAgent == null){
+			NewLogManager.misTakeLog("OpenBagHandler getRoleBagAgent is null");
 			resp.fail();
+			return resp;
 		}
 		RespModuleSet rms = new RespModuleSet();
 		bagAgent.sendBagToClient(rms);

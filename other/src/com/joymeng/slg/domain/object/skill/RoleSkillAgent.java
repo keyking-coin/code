@@ -11,6 +11,7 @@ import com.joymeng.common.util.I18nGreeting;
 import com.joymeng.common.util.JsonUtil;
 import com.joymeng.common.util.MessageSendUtil;
 import com.joymeng.common.util.TimeUtils;
+import com.joymeng.list.EventName;
 import com.joymeng.log.GameLog;
 import com.joymeng.log.LogManager;
 import com.joymeng.log.NewLogManager;
@@ -222,11 +223,13 @@ public class RoleSkillAgent implements Instances{
 	 */
 	public boolean useSkill(Role role, final String skillId){
 		RoleSkill roleSkill = skillMap.get(skillId);
-		if(roleSkill == null || !roleSkill.checkIsCanUse()){
+		if (roleSkill == null || !roleSkill.checkIsCanUse()) {
+			MessageSendUtil.sendNormalTip(role.getUserInfo(), I18nGreeting.MSG_ROLE_SKILL_CANNOT_USE, skillId);
 			return false;
 		}
 		Tech tech = dataManager.serach(Tech.class, skillId);
 		if(tech == null || tech.getSkillType() == 1){
+			GameLog.error("read tech is error ,skillId = " + skillId);
 			return false;
 		}
 		if(roleSkill.isActive()){//主动技能
@@ -256,7 +259,18 @@ public class RoleSkillAgent implements Instances{
 		}
 		case HIGHEST_ALERT:
 		{
-			updateHighestAlert(skillId, false);
+			addSkillBuff(role,roleSkill);
+//			updateHighestAlert(skillId, false);
+//			for (int i = 0 ; i < role.getCityAgents().size() ; i++){
+//				RoleCityAgent agent = role.getCityAgents().get(i);
+//				Map<ResourceTypeConst, Long> resMap = agent.getCityCurrentRes();
+//				List<Object> resLst = new ArrayList<Object>();
+//				for(Map.Entry<ResourceTypeConst, Long> res : resMap.entrySet()){
+//					resLst.add(res.getKey());
+//					resLst.add(res.getValue()*6);
+//				}
+//				role.addResourcesToCity(agent.getId(), resLst.toArray());
+//			}
 			break;
 		}
 		case RES_PROTECT:
@@ -295,11 +309,11 @@ public class RoleSkillAgent implements Instances{
 		case URGENCY_PROD://加6小时资源产量
 			for (int i = 0 ; i < role.getCityAgents().size() ; i++){
 				RoleCityAgent agent = role.getCityAgents().get(i);
-				Map<ResourceTypeConst, Long> resMap = agent.getCityCurrentRes();
+				Map<ResourceTypeConst, Long> resMap = agent.getCityTimesRes(6);
 				List<Object> resLst = new ArrayList<Object>();
 				for(Map.Entry<ResourceTypeConst, Long> res : resMap.entrySet()){
 					resLst.add(res.getKey());
-					resLst.add(res.getValue()*6);
+					resLst.add(res.getValue());
 				}
 				role.addResourcesToCity(agent.getId(), resLst.toArray());
 			}
@@ -496,8 +510,7 @@ public class RoleSkillAgent implements Instances{
 				return false;
 			}
 			role.redRoleMoney(shopData.getNormalPrice());
-			String event = "resetSkills";
-			LogManager.goldConsumeLog(role, shopData.getNormalPrice(), event);
+			LogManager.goldConsumeLog(role, shopData.getNormalPrice(), EventName.resetSkills.getName());
 			role.sendRoleToClient(rms);
 		}else if(type == 1){
 			RoleBagAgent agent = role.getBagAgent();

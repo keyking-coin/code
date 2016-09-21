@@ -1,5 +1,6 @@
 package com.joymeng.http.handler.impl.gm;
 
+import java.awt.Event;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,8 +11,12 @@ import com.joymeng.common.util.TimeUtils;
 import com.joymeng.http.handler.HttpHandler;
 import com.joymeng.http.request.HttpRequestMessage;
 import com.joymeng.http.response.HttpResponseMessage;
+import com.joymeng.list.EventName;
 import com.joymeng.log.LogManager;
+import com.joymeng.log.NewLogManager;
 import com.joymeng.slg.ServiceApp;
+import com.joymeng.slg.domain.actvt.ActvtManager;
+import com.joymeng.slg.domain.actvt.impl.RushSevenDay;
 import com.joymeng.slg.domain.data.SearchFilter;
 import com.joymeng.slg.domain.map.fight.obj.enumType.ArmyType;
 import com.joymeng.slg.domain.object.army.ArmyInfo;
@@ -26,6 +31,7 @@ import com.joymeng.slg.domain.object.bag.data.ItemType;
 import com.joymeng.slg.domain.object.bag.impl.EquipItem;
 import com.joymeng.slg.domain.object.bag.impl.GoodsItem;
 import com.joymeng.slg.domain.object.bag.impl.OtherItem;
+import com.joymeng.slg.domain.object.build.BuildName;
 import com.joymeng.slg.domain.object.build.RoleBuild;
 import com.joymeng.slg.domain.object.build.RoleCityAgent;
 import com.joymeng.slg.domain.object.build.data.Building;
@@ -70,8 +76,7 @@ public class HttpGmRoleMgr extends HttpHandler {
 				}
 				int money = Integer.parseInt(nStr);
 				role.addRoleMoney(money);
-				String event= "HttpGmRoleMgr";
-				LogManager.goldOutputLog(role, money, event);
+			    LogManager.goldOutputLog(role, money, EventName.HttpGmRoleMgr.getName());
 				if (role.isOnline()){
 					RespModuleSet rms = new RespModuleSet();
 					role.sendRoleToClient(rms);
@@ -93,8 +98,7 @@ public class HttpGmRoleMgr extends HttpHandler {
 					return false;
 				}
 				role.redRoleMoney(role.getMoney());
-				String event = "HttpGmRoleMgr";
-				LogManager.goldConsumeLog(role, role.getMoney(), event);
+				LogManager.goldConsumeLog(role, role.getMoney(), EventName.HttpGmRoleMgr.getName());
 				if (role.isOnline()){
 					RespModuleSet rms = new RespModuleSet();
 					role.sendRoleToClient(rms);
@@ -124,7 +128,6 @@ public class HttpGmRoleMgr extends HttpHandler {
 				int num = Integer.parseInt(nStr);
 				RespModuleSet rms = new RespModuleSet();
 				List<ItemCell> cells = new ArrayList<ItemCell>();
-				String event = "HttpGmRoleMgr";
 				if (key.equals("all_items")){
 					List<Item> items = dataManager.serachList(Item.class);
 					for (int i = 0 ; i < items.size() ; i++){
@@ -135,11 +138,14 @@ public class HttpGmRoleMgr extends HttpHandler {
 							continue;
 						}
 						List<ItemCell> temp = role.getBagAgent().addGoods(item.getId(),num);
-						LogManager.itemOutputLog(role, num, event, item.getId());
+						LogManager.itemOutputLog(role, num, EventName.HttpGmRoleMgr.getName(), item.getId());
+						if (temp == null) {
+							continue;
+						}
 						cells.addAll(temp);
 					}
 				}else{
-					LogManager.itemOutputLog(role,num,event, key);
+					LogManager.itemOutputLog(role,num,EventName.HttpGmRoleMgr.getName(), key);
 					cells.addAll(role.getBagAgent().addGoods(key,num));
 				}
 				if (cells.size() == 0){
@@ -174,18 +180,17 @@ public class HttpGmRoleMgr extends HttpHandler {
 				RespModuleSet rms = new RespModuleSet();
 				int num = Integer.parseInt(nStr);
 				List<ItemCell> cells = new ArrayList<ItemCell>();
-				String event = "HttpGmRoleMgr";
 				if (key.equals("all_equips")){
 					List<Equip> equips = dataManager.serachList(Equip.class);
 					for (int i = 0 ; i < equips.size() ; i++){
 						Equip equip = equips.get(i);
 						List<ItemCell> temp = role.getBagAgent().addEquip(equip.getId(),num);
-						LogManager.itemOutputLog(role, num, event,equip.getId());
+						LogManager.itemOutputLog(role, num, EventName.HttpGmRoleMgr.getName(),equip.getId());
 						LogManager.equipLog(role,equip.getEquipType(),equip.getBeizhuname(),"后台添加");
 						cells.addAll(temp);
 					}
 				}else{
-					LogManager.itemOutputLog(role,num,event,key);
+					LogManager.itemOutputLog(role,num,EventName.HttpGmRoleMgr.getName(),key);
 					cells.addAll(role.getBagAgent().addEquip(key,num));
 				}
 				if (cells.size() == 0){
@@ -220,7 +225,6 @@ public class HttpGmRoleMgr extends HttpHandler {
 				int num = Integer.parseInt(nStr);
 				RespModuleSet rms = new RespModuleSet();
 				List<ItemCell> cells = new ArrayList<ItemCell>();
-				String event = "HttpGmRoleMgr";
 				if (key.equals("all_stones")){
 					List<Item> items = dataManager.serachList(Item.class);
 					for (int i = 0 ; i < items.size() ; i++){
@@ -229,11 +233,11 @@ public class HttpGmRoleMgr extends HttpHandler {
 							continue;
 						}
 						List<ItemCell> temp = role.getBagAgent().addOther(item.getId(),num);
-						LogManager.itemOutputLog(role, num, event,item.getId());
+						LogManager.itemOutputLog(role, num, EventName.HttpGmRoleMgr.getName(),item.getId());
 						cells.addAll(temp);
 					}
 				}else{
-					LogManager.itemOutputLog(role,num,event,key);
+					LogManager.itemOutputLog(role,num,EventName.HttpGmRoleMgr.getName(),key);
 					cells.addAll(role.getBagAgent().addOther(key,num));
 				}
 				if (cells.size() == 0){
@@ -390,22 +394,30 @@ public class HttpGmRoleMgr extends HttpHandler {
 						}
 						int cityId = Integer.parseInt(sCity);
 						RoleCityAgent city = role.getCity(cityId);
+						long result = 0;
 						if (city == null){
 							message(response,"错误的城市编号");
 							return false;
-						}
-						if (clear){
-							num = (int)city.getResource(type);
-							city.redResource(type,num);
-							num *= -1;
-						}else{
-							city.addResource(type,num,role);
-						}
-						role.sendResourceToClient(null,cityId,type,num);
+						}						
+					    if (op.equals("red")) {
+						    city.redResource(type, num*(-1));
+						    result = num;
+					    }else{
+					    	if (clear){
+								num = (int)city.getResource(type);
+								city.redResource(type,num);
+								result = num *(-1);
+							}else{
+								long first = city.getResource(type);
+								city.addResource(type,num,role);
+								long last = city.getResource(type);
+								result =last-first;
+							}
+					    }					
+						role.sendResourceToClient(null,cityId,type,result);
 					}
-					String event = "HttpGmRoleMgr";
 					String item  = type.getKey();
-					LogManager.itemOutputLog(role, num, event, item);
+					LogManager.itemOutputLog(role, num, EventName.HttpGmRoleMgr.getName(), item);
 					message(response,"修改成功");
 				}else{
 					message(response,"修改失败");
@@ -424,6 +436,57 @@ public class HttpGmRoleMgr extends HttpHandler {
 				}else{
 					message(response,"失败");
 				}
+				break;
+			}
+			//rkilltime
+			case "rkilltime":{
+				String uStr = request.getParameter("rbuild_uid");
+				if (StringUtils.isNull(uStr)){
+					message(response,"用户编号不能为空");
+					return false;
+				}
+				long uid = Long.parseLong(uStr);
+				Role role = world.getRole(uid);
+				if (role == null){
+					message(response,"错误的用户编号");
+					return false;
+				}
+				String sCity  = request.getParameter("rbuild_cityId");
+				if (StringUtils.isNull(sCity)){
+					message(response,"城市编号不能为空");
+					return false;
+				}
+				int cityId = Integer.parseInt(sCity);
+				RoleCityAgent agent = role.getCity(cityId);
+				if (agent == null){
+					message(response,"城市编号不对");
+					return false;
+				}
+				String nStr = request.getParameter("rbuild_num");
+				if (StringUtils.isNull(nStr)){
+					message(response,"加速时间");
+					return false;
+				}
+//				String operate = request.getParameter("rbuild_operation");
+				List<RoleBuild> builds = agent.searchBuildByBuildId("TradeCenter");
+				if(builds == null || builds.size() <=0){
+					message(response,"建筑不存在");
+					break;
+				}
+				for(RoleBuild build : builds){
+					TimerLast timer = build.getBuildTimer();
+					if(timer != null){
+						long times = (int) (timer.getLast() - Integer.parseInt(nStr));
+						timer.setLast(times >0 ?times : 0);
+						//build.killTimerGM(role, timer);
+					}
+				}
+				if (role.isOnline()){
+					RespModuleSet rms = new RespModuleSet();
+					agent.sendToClient(rms, true);
+					MessageSendUtil.sendModule(rms,role.getUserInfo());
+				}
+				message(response,"加速成功");
 				break;
 			}
 			case "buildUp":{
@@ -502,13 +565,21 @@ public class HttpGmRoleMgr extends HttpHandler {
 					return false;
 				}
 				int num = Integer.parseInt(nStr);
-				role.addSkillPoints(num);
-				if (role.isOnline()){
-					RespModuleSet rms = new RespModuleSet();
-					role.sendRoleToClient(rms);
-					MessageSendUtil.sendModule(rms,role.getUserInfo());
+				RushSevenDay rsd = (RushSevenDay)ActvtManager.getInstance().getFirstActvt("RushSevenDay");
+				if (rsd != null) {
+					rsd.cheatDay(uid, num);
+					message(response,"修改成功");
 				}
-				message(response,"修改技能点成功");
+				else {
+					message(response,"修改失败");
+				}
+//				role.addSkillPoints(num);
+//				if (role.isOnline()){
+//					RespModuleSet rms = new RespModuleSet();
+//					role.sendRoleToClient(rms);
+//					MessageSendUtil.sendModule(rms,role.getUserInfo());
+//				}
+//				message(response,"修改技能点成功");
 				break;
 			}
 			case "changeVip": {
@@ -539,6 +610,90 @@ public class HttpGmRoleMgr extends HttpHandler {
 					MessageSendUtil.sendModule(rms, role.getUserInfo());
 				}
 				message(response, "修改VIP时间成功");
+				break;
+			}
+			case "changeRPru": {
+				String uStr = request.getParameter("rPru_uid");
+				if (StringUtils.isNull(uStr)) {
+					message(response, "用户编号不能为空");
+					return false;
+				}
+				long uid = Long.parseLong(uStr);
+				Role role = world.getRole(uid);
+				if (role == null) {
+					message(response, "错误的用户编号");
+					return false;
+				}
+				String nStr = request.getParameter("rPru_num");
+				if (StringUtils.isNull(nStr)) {
+					message(response, "资源生产的时间不能为空");
+					return false;
+				}
+				int num = Integer.parseInt(nStr);
+				RoleCityAgent agent = role.getCity(0);
+				List<RoleBuild> builds = agent.searchBuildByBuildId(BuildName.ORE_PURIFIER.getKey());
+				if (builds.size() < 1){
+					message(response, "异常错误,请重试");
+					return false;
+				}
+				for (int i = 0; i < builds.size(); i++) {
+					RoleBuild build = builds.get(i);
+					if (build == null) {
+						continue;
+					}
+					if(build.getTimerSize() == 0){
+						message(response, "倒计时不存在!");
+						return false;
+					}
+					TimerLast timer = build.searchTimer(TimerLastType.TIME_PD_GEM);
+					long times = timer.getLast() - num;
+					timer.setLast(times > 0 ? times : 0);
+					if (role.isOnline()) {
+						RespModuleSet rms = new RespModuleSet();
+						build.sendToClient(rms);
+						MessageSendUtil.sendModule(rms, role.getUserInfo());
+					}
+				}
+				message(response, "修改资源生产的时间成功");
+				break;
+			}
+			case "changeUDonate": {
+				String uStr = request.getParameter("uDonate_uid");
+				if (StringUtils.isNull(uStr)) {
+					message(response, "用户编号不能为空");
+					return false;
+				}
+				long uid = Long.parseLong(uStr);
+				Role role = world.getRole(uid);
+				if (role == null) {
+					message(response, "错误的用户编号");
+					return false;
+				}
+				String nStr = request.getParameter("uDonate_num");
+				if (StringUtils.isNull(nStr)) {
+					message(response, "减少的时间不能为空");
+					return false;
+				}
+				int num = Integer.parseInt(nStr);
+				UnionBody unionBody = unionManager.search(role.getUnionId());
+				if(unionBody == null){
+					message(response, "未加入联盟");
+					return false;
+				}
+				UnionMember member = unionBody.searchMember(role.getId());
+				if(member == null){
+					message(response, "未加入联盟");
+					return false;
+				}
+				TimerLast timer = member.getTimer();
+				if (timer == null) {
+					message(response, "不存在倒计时");
+					return false;
+				}
+				long times = timer.getLast() - num;
+				timer.setLast(times > 0 ? times : 0);
+				unionBody.sendMeToAllMembers(0);
+				message(response, "修改时间成功");
 				break;
 			}
 			case "clcGuides": {
@@ -635,8 +790,16 @@ public class HttpGmRoleMgr extends HttpHandler {
 				}
 				if (op.equals("red")){//减少
 					armyAgent.removeClassArmys(armys);
+					for (int i = 0; i < armys.size(); i++) {
+						ArmyInfo army = armys.get(i);
+						NewLogManager.armyLog(role, EventName.gmRedArmy.getName(), army.getArmyId(), army.getArmyNum());
+					}
 				}else{//增加
 					armyAgent.addClassArmys(armys);
+					for (int i = 0; i < armys.size(); i++) {
+						ArmyInfo army = armys.get(i);
+						NewLogManager.armyLog(role, EventName.gmAddArmy.getName(), army.getArmyId(), army.getArmyNum());
+					}
 				}
 				RespModuleSet rms = new RespModuleSet();
 				armyAgent.sendToClient(rms,city);//下发城里士兵状态

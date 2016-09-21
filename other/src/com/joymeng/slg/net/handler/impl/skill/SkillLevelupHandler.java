@@ -28,6 +28,7 @@ public class SkillLevelupHandler extends ServiceHandler{
 		int points = params.get(1);
 		if(!role.getSkillAgent().skillLevelup(role, skillId, points)){
 			resp.fail();
+			return resp;
 		}
 		return resp;
 	}

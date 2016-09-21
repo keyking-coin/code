@@ -46,6 +46,12 @@ public class ParametersEntity {
 			byte[] objs = (byte[])obj;
 			out.putInt(objs.length);
 			out.put(objs);
+		}else if (obj instanceof Float){
+			Float objs = (Float)obj;
+			out.putFloat(objs);
+		}else if (obj instanceof Double){
+			Double objs = (Double)obj;
+			out.putDouble(objs);
 		}else if (obj instanceof SerializeEntity){
 			SerializeEntity serialize = (SerializeEntity)obj;
 			serialize.serialize(out);

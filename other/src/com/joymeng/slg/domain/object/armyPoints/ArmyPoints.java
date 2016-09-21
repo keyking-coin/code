@@ -11,6 +11,7 @@ import com.joymeng.common.util.I18nGreeting;
 import com.joymeng.common.util.JsonUtil;
 import com.joymeng.common.util.MessageSendUtil;
 import com.joymeng.common.util.StringUtils;
+import com.joymeng.list.EventName;
 import com.joymeng.log.GameLog;
 import com.joymeng.log.LogManager;
 import com.joymeng.log.NewLogManager;
@@ -178,6 +179,7 @@ public class ArmyPoints implements Instances {
 		int buildLevel = 0;
 		List<RoleBuild> builds = role.getCity(cityId).searchBuildByBuildId(buildId);
 		if (builds == null) {
+			GameLog.error("searchBuildByBuildId is null cityId = " + cityId + "buildId = " + buildId);
 			return false;
 		}
 		for (int i = 0 ; i < builds.size() ; i++){
@@ -251,8 +253,7 @@ public class ArmyPoints implements Instances {
 				return false;
 			}
 			role.redRoleMoney(item.getNormalPrice());
-			String event = "resetArmysPoints";
-			LogManager.goldConsumeLog(role, item.getNormalPrice(), event);
+			LogManager.goldConsumeLog(role, item.getNormalPrice(), EventName.resetArmysPoints.getName());
 			role.sendRoleToClient(rms);
 		}
 		//

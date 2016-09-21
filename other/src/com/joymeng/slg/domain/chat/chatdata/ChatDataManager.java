@@ -12,10 +12,6 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
-import redis.clients.jedis.Jedis;
-import redis.clients.jedis.JedisPool;
-import redis.clients.jedis.JedisPoolConfig;
-
 import com.alibaba.fastjson.JSONArray;
 import com.joymeng.Const;
 import com.joymeng.Instances;
@@ -26,7 +22,13 @@ import com.joymeng.slg.domain.chat.ChatMsg;
 import com.joymeng.slg.domain.chat.NoticeMsg;
 import com.joymeng.slg.domain.chat.RoleChatMail;
 import com.joymeng.slg.domain.chat.UnionChatMsg;
+import com.joymeng.slg.domain.object.redpacket.Redpacket;
+import com.joymeng.slg.world.GameConfig;
 import com.joymeng.slg.world.TaskPool;
+
+import redis.clients.jedis.Jedis;
+import redis.clients.jedis.JedisPool;
+import redis.clients.jedis.JedisPoolConfig;
 /**
  * 聊天的数据管理
  * @author houshanping
@@ -49,6 +51,10 @@ public class ChatDataManager implements Instances{
 	String groupsIdKey = prefix + "groupsId";
 	String groupsKey = prefix + "groups";
 	String roleMailKey = prefix + "roleMail";
+	String redpacketIdKey = prefix + "roleRedpacketId";
+	String returnRedpacketIdKey = prefix + "returnRedpacketId";
+	String deleteRedpacketIdKey = prefix + "deleteRedpacketId";
+	String redpacketKey = prefix + "roleRedpacket";
 	long saveStartTime;
 	long saveEndTime;
 	long loadStartTime;
@@ -76,6 +82,8 @@ public class ChatDataManager implements Instances{
 		}
 		loadData(); //加载聊天消息
 		beginSave(); //定期保存
+		beginReturnRedpacket();//开始启动红包返还刷新的时间
+		beginDeleteRedpacket();//开始启动红包删除刷新的时间
 	}
 	
 	private void beginSave() {
@@ -84,7 +92,25 @@ public class ChatDataManager implements Instances{
 			public void run() {
 				save();
 			}
-		}, 10*TaskPool.SECONDS_PER_MINTUE,10*TaskPool.SECONDS_PER_MINTUE,TimeUnit.SECONDS);
+		}, 1*TaskPool.SECONDS_PER_MINTUE,10*TaskPool.SECONDS_PER_MINTUE,TimeUnit.SECONDS);
+	}
+	
+	private void beginReturnRedpacket() {
+		taskPool.scheduleAtFixedRate(null, new Runnable() {
+			@Override
+			public void run() {
+				rpManager.returnRedpacket();
+			}
+		}, TaskPool.SECONDS_PER_SECOND, GameConfig.ROLE_REDPACKET_SCAN_RETURN_TIME, TimeUnit.SECONDS);
+	}
+
+	private void beginDeleteRedpacket() {
+		taskPool.scheduleAtFixedRate(null, new Runnable() {
+			@Override
+			public void run() {
+				rpManager.deleteRedpacket();
+			}
+		}, TaskPool.SECONDS_PER_MINTUE, GameConfig.ROLE_REDPACKET_SCAN_DELETE_TIME, TimeUnit.SECONDS);
 	}
 	
 	/**
@@ -176,7 +202,11 @@ public class ChatDataManager implements Instances{
 		for (String string : roleMailIds) {
 			long uid = Long.valueOf(string);
 			RoleChatMail roleChatMail =  JsonUtil.JsonToObject(jedis.hget(roleMailKey, string), RoleChatMail.class);
+			if (roleChatMail == null) {
+				continue;
+			}
 			RoleChatMail ResultRoleChatMail = new RoleChatMail();
+			ResultRoleChatMail.setRoleChatMailId(roleChatMail.getRoleChatMailId());
 			if (roleChatMail.getRoleChatMails().size() > 0) {
 				Set<Long> roleChatMailIds = roleChatMail.getRoleChatMails().keySet();
 				List<Long> roleChatMailListIds = new ArrayList<Long>(roleChatMailIds);
@@ -189,10 +219,27 @@ public class ChatDataManager implements Instances{
 				for (int i = 0 ; i < roleChatMailListIds.size() ; i++){
 					Long roleChatMailId = roleChatMailListIds.get(i);
 					ChatMsg chatMsg = roleChatMail.getRoleChatMails().get(roleChatMailId);
-					ResultRoleChatMail.addRoleMail(chatMsg);
+					ResultRoleChatMail.firstAddMail(chatMsg);
 				}
 				chatMgr.addRoleMail(uid, ResultRoleChatMail);
 			}
+		}
+		// 用户红包的Id的加载
+		String redpacketIdStr = jedis.get(redpacketIdKey);
+		rpManager.setRedpacketId(Long.valueOf(redpacketIdStr == null ? "1" : redpacketIdStr));
+		String returnRedpacketIdStr = jedis.get(returnRedpacketIdKey);
+		rpManager.setReturnRedpacketId(Long.valueOf(returnRedpacketIdStr == null ? "1" : returnRedpacketIdStr));
+		String deleteRedpacketIdStr = jedis.get(deleteRedpacketIdKey);
+		rpManager.setDeleteRedpacketId(Long.valueOf(deleteRedpacketIdStr == null ? "1" : deleteRedpacketIdStr));
+		// 用户红包
+		Set<String> redpacketIds = jedis.hkeys(redpacketKey);
+		for (String string : redpacketIds) {
+			long uid = Long.valueOf(string);
+			Redpacket redpacket = JsonUtil.JsonToObject(jedis.hget(redpacketKey, string), Redpacket.class);
+			if (redpacket == null) {
+				continue;
+			}
+			rpManager.firstAddRoleRedpacket(uid, redpacket);
 		}
 		release(jedis);
 	}
@@ -207,6 +254,7 @@ public class ChatDataManager implements Instances{
 		Map<Long, UnionChatMsg> unionMsgs = chatMgr.getUnionMsgs();
 		Map<Long, ChatGroup> groups = chatMgr.getGroups();
 		Map<Long, RoleChatMail> roleMail = chatMgr.getRoleMail();
+		Map<Long, Redpacket> roleRPs = rpManager.getAllRedpacket();
 		//公告
 		List<NoticeMsg> datas = new ArrayList<>();
 		for (NoticeMsg noticeMsg : worldNotices) {
@@ -230,7 +278,7 @@ public class ChatDataManager implements Instances{
 			jedis.hset(unionMsgsKey, hashKey, hashValue);
 		}
 		//写入群组的ID
-		jedis.set(groupsIdKey, String.valueOf(chatKeyData.getGroupId() - 1));
+		jedis.set(groupsIdKey, String.valueOf(chatKeyData.getGroupId()));
 		//群组的对象
 		for (long hKey : groups.keySet()) {
 			String hashKey = String.valueOf(hKey);
@@ -242,6 +290,16 @@ public class ChatDataManager implements Instances{
 			String hashKey = String.valueOf(hKey);
 			String hashValue = JsonUtil.ObjectToJsonString(roleMail.get(hKey));
 			jedis.hset(roleMailKey, hashKey, hashValue);
+		}
+		//写入红包的ID
+		jedis.set(redpacketIdKey, String.valueOf(rpManager.getRedpacketId()));
+		jedis.set(returnRedpacketIdKey, String.valueOf(rpManager.getReturnRedpacketId()));
+		jedis.set(deleteRedpacketIdKey, String.valueOf(rpManager.getDeleteRedpacketId()));
+		//所有红包数据
+		for (long hKey : roleRPs.keySet()) {
+			String hashKey = String.valueOf(hKey);
+			String hashValue = JsonUtil.ObjectToJsonString(roleRPs.get(hKey));
+			jedis.hset(redpacketKey, hashKey, hashValue);
 		}
 		release(jedis);
 	}	

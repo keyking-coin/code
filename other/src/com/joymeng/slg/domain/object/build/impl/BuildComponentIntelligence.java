@@ -1,5 +1,6 @@
 package com.joymeng.slg.domain.object.build.impl;
 
+import com.joymeng.Const;
 import com.joymeng.slg.domain.object.build.BuildComponent;
 import com.joymeng.slg.domain.object.build.BuildComponentType;
 import com.joymeng.slg.domain.object.build.RoleBuild;
@@ -51,6 +52,13 @@ public class BuildComponentIntelligence implements BuildComponent {
 	@Override
 	public void setBuildParams(RoleBuild build) {
 		
+	}
+
+
+	@Override
+	public boolean isWorking(Role role, RoleBuild build) {
+		// TODO Auto-generated method stub
+		return false;
 	}
 
 }

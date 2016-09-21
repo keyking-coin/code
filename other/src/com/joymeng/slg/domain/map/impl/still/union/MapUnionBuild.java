@@ -50,6 +50,7 @@ public abstract class MapUnionBuild extends MapObject implements TimerOver{
 	protected List<TroopsData> defenders = new ArrayList<TroopsData>();//npc守卫
 	TimerLast monsterRebirthTimer;//守卫重生时间
 	MapUnionCity unionCity = null;
+	protected boolean _const = false;//固定的城市建筑
 	
 	public void init(){
 		//初始化怪物
@@ -74,6 +75,7 @@ public abstract class MapUnionBuild extends MapObject implements TimerOver{
 	public abstract void _init();
 	
 	public void die(){
+		//这个需要特殊处理
 		remove();
 	}
 	
@@ -97,6 +99,14 @@ public abstract class MapUnionBuild extends MapObject implements TimerOver{
 
 	public void setBuildKey(String buildKey) {
 		this.buildKey = buildKey;
+	}
+
+	public boolean isConst() {
+		return _const;
+	}
+
+	public void setConst(boolean _const) {
+		this._const = _const;
 	}
 
 	@Override
@@ -172,6 +182,11 @@ public abstract class MapUnionBuild extends MapObject implements TimerOver{
 		}
 	}
 	
+	@Override
+	public void save() {
+		super.save();
+	}
+
 	@Override
 	public String table() {
 		return TABLE_RED_ALERT_UNION_BUILD;
@@ -332,6 +347,11 @@ public abstract class MapUnionBuild extends MapObject implements TimerOver{
 				MapUtil.spyResport(SpyType.SPY_TYPE_UNION_BUILD, expedite, this);
 				logSpy(expedite);
 			}else if(expedite.getTimer().getType() == TimerLastType.TIME_EXPEDITE_FIGHT){
+				if (_const){//固定建筑无法被攻击
+					expedite.setNoBattleTip(I18nGreeting.MSG_UNION_BUILD_NO_FIGHT);
+					expedite.goBackNoFight();
+					return;
+				}
 				StringBuffer sb = new StringBuffer();
 				List<TroopsData> teams  = expedite.getTeams();
 				for(int i=0;i<teams.size();i++){
@@ -480,5 +500,14 @@ public abstract class MapUnionBuild extends MapObject implements TimerOver{
 			monsterRebirthTimer = null;
 			sendChange();
 		}
+	}
+	
+	@Override
+	public boolean destroy(String buffStr){
+		if (_const){
+			//特效建筑需要处理核弹的效果，暂时未处理策划没有说怎么处理
+			return true;
+		}
+		return super.destroy(buffStr);
 	}
 }

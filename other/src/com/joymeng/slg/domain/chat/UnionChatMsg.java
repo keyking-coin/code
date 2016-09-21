@@ -5,7 +5,11 @@ import java.util.Map;
 
 import com.joymeng.Instances;
 import com.joymeng.slg.world.GameConfig;
-
+/**
+ * 联盟消息体
+ * @author houshanping
+ *
+ */
 public class UnionChatMsg implements Instances {
 
 	public long unionId;

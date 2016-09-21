@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.joymeng.Const;
 import com.joymeng.Instances;
 import com.joymeng.common.util.I18nGreeting;
 import com.joymeng.common.util.JsonUtil;
@@ -12,6 +13,7 @@ import com.joymeng.common.util.MessageSendUtil;
 import com.joymeng.common.util.StringUtils;
 import com.joymeng.common.util.TimeUtils;
 import com.joymeng.list.BuildOperation;
+import com.joymeng.list.EventName;
 import com.joymeng.log.GameLog;
 import com.joymeng.log.LogManager;
 import com.joymeng.log.NewLogManager;
@@ -100,7 +102,7 @@ public class RoleBuild implements Instances {
 		state = RoleBuildState.COND_NORMAL.getKey();
 		List<String> lis = building.getBuildingComponent();
 		if (lis != null) {
-			for (int i = 0 ; i < lis.size() ; i++){
+			for (int i = 0; i < lis.size(); i++) {
 				String componentKey = lis.get(i);
 				BuildComponent component = createComponent(componentKey);
 				if (component != null) {
@@ -109,6 +111,29 @@ public class RoleBuild implements Instances {
 			}
 		}
 	}
+	
+	/**
+	 * 
+	* @Title: initPowerRatio 
+	* @Description: 初始化所有组件电力调控数据
+	* 
+	* @return void
+	* @param agent
+	* @param building
+	 */
+	public void initPowerRatio(RoleCityAgent agent) {
+		if (components != null) {
+			for (int i = 0; i < components.size(); i++) {
+				BuildComponent component = components.get(i);
+				if (component != null) {
+					if(ElectricalAdjustAgent.isPowerType(component)){
+						agent.geteAgent().addElectricalComponents(agent.geteAgent().createElectricalComponent(this.id, component.getBuildComponentType()));
+					}
+				}
+			}
+		}
+	}
+	
 
 	private void initPointsAgent() {
 		BuildName name = BuildName.search(buildId);
@@ -234,7 +259,7 @@ public class RoleBuild implements Instances {
 	}
 
 	public boolean checkTimerType(TimerLastType type) {
-		for (int i = 0 ; i < timers.size() ; i++){
+		for (int i = 0; i < timers.size(); i++) {
 			TimerLast time = timers.get(i);
 			String key = time.getType().getKey();
 			if (key.equals(type.getKey())) {
@@ -246,7 +271,7 @@ public class RoleBuild implements Instances {
 
 	// 初始化所有组件
 	public void initComponents() {
-		for (int i = 0 ; i < components.size() ; i++){
+		for (int i = 0; i < components.size(); i++) {
 			BuildComponent com = components.get(i);
 			com.init(uid, cityId, id, buildId);
 		}
@@ -254,11 +279,11 @@ public class RoleBuild implements Instances {
 
 	public TimerLast getBuildTimer() {
 
-		if (timers.size() > 1) { //资源交易倒计时
+		if (timers.size() > 1) { // 资源交易倒计时
 			for (int i = 0; i < timers.size(); i++) {
 				TimerLast time = timers.get(i);
 				if (!time.getType().equals(TimerLastType.TIME_CITY_TRADE_CD)) {
-					return timers.get(i);
+					return time;
 				}
 			}
 		}
@@ -296,8 +321,12 @@ public class RoleBuild implements Instances {
 		} else {
 			int costMoney = 0;
 			if (timer.getType().ordinal() == TimerLastType.TIME_CREATE.ordinal()
-				|| timer.getType().ordinal() == TimerLastType.TIME_LEVEL_UP.ordinal()) {
+					|| timer.getType().ordinal() == TimerLastType.TIME_LEVEL_UP.ordinal()) {
 				costMoney = role.timeChgMoney(remainTime, (byte) 1);
+			} else if (timer.getType().ordinal() == TimerLastType.TIME_PD_GEM.ordinal()) {
+				BuildComponentGem buildCom = getComponent(BuildComponentType.BUILD_COMPONENT_GEM);
+				costMoney = buildCom.tickUpdateExpirationTime(false);
+				GameLog.info("[secondKill]uid=" + role.getJoy_id() + "|cost=" + costMoney);
 			} else {
 				costMoney = role.timeChgMoney(remainTime, (byte) 0);
 			}
@@ -305,54 +334,60 @@ public class RoleBuild implements Instances {
 				MessageSendUtil.sendNormalTip(role.getUserInfo(), I18nGreeting.MSG_ROLE_NO_MONEY, costMoney);
 				return false;
 			}
+			if (timer.getType().ordinal() == TimerLastType.TIME_PD_GEM.ordinal()) {
+				BuildComponentGem buildCom = getComponent(BuildComponentType.BUILD_COMPONENT_GEM);
+				buildCom.buyAccelerate();// 次数++
+				GameLog.info("[secondKill]uid=" + role.getJoy_id() + "|buyAccelerate,cost="
+						+ buildCom.tickUpdateExpirationTime(false));
+			}
 			cost = costMoney;
 			RespModuleSet rms = new RespModuleSet();
 			role.sendRoleToClient(rms);
-			MessageSendUtil.sendModule(rms,role.getUserInfo());
-			String event = "secondKill";
-			LogManager.goldConsumeLog(role,costMoney,event);
-			//任务事件
-			role.handleEvent(GameEvent.TASK_CHECK_EVENT, new TaskEventDelay(), ConditionType.C_ACC_BUILD,timer.getType());
+			MessageSendUtil.sendModule(rms, role.getUserInfo());
+			LogManager.goldConsumeLog(role, costMoney, EventName.secondKill.getName());
+			// 任务事件
+			role.handleEvent(GameEvent.TASK_CHECK_EVENT, new TaskEventDelay(), ConditionType.C_ACC_BUILD,
+					timer.getType());
 		}
-		role.handleEvent(GameEvent.ACTIVITY_EVENTS,ActvtEventType.ACCELERATE,remainTime);
-		
+		role.handleEvent(GameEvent.ACTIVITY_EVENTS, ActvtEventType.ACCELERATE, remainTime);
+
 		try {
 			switch (timer.getType()) {
 			case TIME_CREATE:
-				NewLogManager.buildLog(role, "build_accelerate",buildId,cost);
-				if(cost==0){
-					NewLogManager.buildLog(role, "building_free_complete",buildId);     
+				NewLogManager.buildLog(role, "build_accelerate", buildId, cost);
+				if (cost == 0) {
+					NewLogManager.buildLog(role, "building_free_complete", buildId);
 				}
 				break;
 			case TIME_LEVEL_UP:
-				NewLogManager.buildLog(role, "upgrade_accelerate",buildId,cost);
+				NewLogManager.buildLog(role, "upgrade_accelerate", buildId, cost);
 				break;
 			case TIME_TRAIN:
-				NewLogManager.buildLog(role, "train_accelerate",buildId,cost);
+				NewLogManager.buildLog(role, "train_accelerate", buildId, cost);
 				break;
 			case TIME_RESEARCH:
-				NewLogManager.buildLog(role, "study_accelerate",buildId,cost);
+				NewLogManager.buildLog(role, "study_accelerate", buildId, cost);
 				break;
 			case TIME_CURE:
-				NewLogManager.buildLog(role, "cure_accelerate",buildId,cost);
+				NewLogManager.buildLog(role, "cure_accelerate", buildId, cost);
 				break;
 			case TIME_PD_GEM:
-				NewLogManager.buildLog(role, "mining_accelerate",cost);
-				break;	
+				NewLogManager.buildLog(role, "mining_accelerate", cost);
+				break;
 			default:
 				break;
 			}
 		} catch (Exception e) {
 			GameLog.info("埋点错误");
 		}
-		return killTimer(role,timer);
+		return killTimer(role, timer);
 	}
 
 	private synchronized boolean killTimer(Role role, TimerLast timer) {
 		try {
 			timer.die();
 		} catch (Exception e) {
-			GameLog.error("build timer over error : " + timer.getType(),e);
+			GameLog.error("build timer over error : " + timer.getType(), e);
 		}
 		linkQueue.removeQueue(id);
 		timers.remove(timer);
@@ -364,7 +399,7 @@ public class RoleBuild implements Instances {
 		}
 		// 建造或升级时下发电力和buildQueue更新,城市状态更新
 		if (timer.getType() == TimerLastType.TIME_CREATE || timer.getType() == TimerLastType.TIME_LEVEL_UP
-			|| timer.getType() == TimerLastType.TIME_REMOVE || timer.getType() == TimerLastType.TIME_CURE) {
+				|| timer.getType() == TimerLastType.TIME_REMOVE || timer.getType() == TimerLastType.TIME_CURE) {
 			RoleCityAgent agent = role.getCity(cityId);
 			agent.sendToClient(rms, false);
 		}
@@ -374,28 +409,71 @@ public class RoleBuild implements Instances {
 		return true;
 	}
 
+	/**
+	 * 清除交易CD
+	 */
+	public boolean clearTranCd(Role role) {
+		BuildComponentDeal deal = getComponent(BuildComponentType.BUILD_COMPONENT_DEAL);
+		if (deal == null) {
+			return false;
+		}
+		TimerLast timer = getCDTime();
+		if (timer == null) {
+			return false;
+		}
+		int count = deal.getCount();
+		// 检查金币是否足够
+		int costMoney = 0;
+		costMoney = deal.getMoney(count);
+		if (!role.redRoleMoney(costMoney)) {
+			MessageSendUtil.sendNormalTip(role.getUserInfo(), I18nGreeting.MSG_ROLE_NO_MONEY, costMoney);
+			return false;
+		}
+		if (!killTimer(role, timer)) {
+			return false;
+		}
+		deal.addCount();
+		RespModuleSet rms = new RespModuleSet();
+		role.sendRoleToClient(rms);
+		MessageSendUtil.sendModule(rms, role.getUserInfo());
+		return true;
+	}
+	
+	public TimerLast getCDTime() {
+		for (int i = 0; i < timers.size(); i++) {
+			TimerLast time = timers.get(i);
+			if (time.getType().equals(TimerLastType.TIME_CITY_TRADE_CD)) {
+				return time;
+			}
+		}
+		return null;
+	}
+	
+	
 	public synchronized void runTimers(RoleCityAgent city,Role role,long now) {
 		for (int i = 0; i < timers.size();) {
 			TimerLast timer = timers.get(i);
 			if (timer != null && timer.over(now)) {
-				killTimer(role,timer);
-				if (timer.getType() == TimerLastType.TIME_CITY_FIRE){
-					if (role.isOnline()){
+				killTimer(role, timer);
+				if (timer.getType() == TimerLastType.TIME_CITY_FIRE) {
+					if (role.isOnline()) {
 						RespModuleSet rms = new RespModuleSet();
-						city.sendToClient(rms,false);
-						MessageSendUtil.sendModule(rms,role);
+						city.sendToClient(rms, false);
+						MessageSendUtil.sendModule(rms, role);
 					}
 				}
 			} else {
-				//最后5分钟免费加速提示
+				// 最后5分钟免费加速提示
 				long timeLeave = now / 1000 - timer.getStart();
-				if (state != RoleBuildState.COND_UPGRADEFREE.getKey() && timer.getLast() <= role.getFreeTime() + timeLeave) {
-					if (timer.getType() == TimerLastType.TIME_CREATE || timer.getType() == TimerLastType.TIME_LEVEL_UP) {
+				if (state != RoleBuildState.COND_UPGRADEFREE.getKey()
+						&& timer.getLast() <= role.getFreeTime() + timeLeave) {
+					if (timer.getType() == TimerLastType.TIME_CREATE
+							|| timer.getType() == TimerLastType.TIME_LEVEL_UP) {
 						state = RoleBuildState.COND_UPGRADEFREE.getKey();// 可以免费完成剩余时间
-						if (role.isOnline()){
+						if (role.isOnline()) {
 							RespModuleSet rms = new RespModuleSet();
 							sendToClient(rms);// 下发建筑
-							MessageSendUtil.sendModule(rms,role.getUserInfo());
+							MessageSendUtil.sendModule(rms, role.getUserInfo());
 						}
 					}
 				}
@@ -404,16 +482,16 @@ public class RoleBuild implements Instances {
 		}
 	}
 
-	public void tick(RoleCityAgent city,Role role,long now) {
-		runTimers(city,role,now);
-		for (int i = 0 ; i < components.size() ; i++){
+	public void tick(RoleCityAgent city, Role role, long now) {
+		runTimers(city, role, now);
+		for (int i = 0; i < components.size(); i++) {
 			BuildComponent component = components.get(i);
-			component.tick(role,this,now);
+			component.tick(role, this, now);
 		}
 	}
 
 	public void initComponentInfo(Role role, boolean isLoad) {
-		for (int i = 0 ; i < components.size() ; i++){
+		for (int i = 0; i < components.size(); i++) {
 			BuildComponent com = components.get(i);
 			if (com.getBuildComponentType() == BuildComponentType.BUILD_COMPONENT_PRODUCTION && isLoad) {
 				BuildComponentProduction pCom = (BuildComponentProduction) com;
@@ -422,6 +500,8 @@ public class RoleBuild implements Instances {
 			if (com.getBuildComponentType() == BuildComponentType.BUILD_COMPONENT_WALL && !isLoad) {
 				BuildComponentWall pCom = (BuildComponentWall) com;
 				pCom.initWallStatus(role, this);
+				pCom.redDefence(30); // 熊大 让初始的是不满的
+				pCom.setState((byte) 2);
 			}
 		}
 	}
@@ -429,21 +509,21 @@ public class RoleBuild implements Instances {
 	public void serialize(JoyBuffer out) {
 		out.putLong(id);
 		out.putLong(uid);
-		out.putPrefixedString(buildId,JoyBuffer.STRING_TYPE_SHORT);
-		out.putPrefixedString(name,JoyBuffer.STRING_TYPE_SHORT);
+		out.putPrefixedString(buildId, JoyBuffer.STRING_TYPE_SHORT);
+		out.putPrefixedString(name, JoyBuffer.STRING_TYPE_SHORT);
 		out.put(level);
-		out.putPrefixedString(slotID,JoyBuffer.STRING_TYPE_SHORT);
+		out.putPrefixedString(slotID, JoyBuffer.STRING_TYPE_SHORT);
 		out.putInt(cityId);
 		out.put(state);
 		String str = JsonUtil.ObjectToJsonString(timers);
-		out.putPrefixedString(str,JoyBuffer.STRING_TYPE_SHORT);
+		out.putPrefixedString(str, JoyBuffer.STRING_TYPE_SHORT);
 		str = saveComponents();
-		out.putPrefixedString(str,JoyBuffer.STRING_TYPE_SHORT);
+		out.putPrefixedString(str, JoyBuffer.STRING_TYPE_SHORT);
 		if (hasArmyPoints) {
-			out.putPrefixedString("ArmyPoints",JoyBuffer.STRING_TYPE_SHORT);
+			out.putPrefixedString("ArmyPoints", JoyBuffer.STRING_TYPE_SHORT);
 			pointsAgent.serializeEntiy(out);
 		} else {
-			out.putPrefixedString("null",JoyBuffer.STRING_TYPE_SHORT);
+			out.putPrefixedString("null", JoyBuffer.STRING_TYPE_SHORT);
 		}
 	}
 
@@ -497,7 +577,7 @@ public class RoleBuild implements Instances {
 			}
 		}
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	public void loadComponents(String str) {
 		if (StringUtils.isNull(str)) {
@@ -509,11 +589,11 @@ public class RoleBuild implements Instances {
 			for (String key : map.keySet()) {
 				Class<? extends BuildComponent> clazz = (Class<? extends BuildComponent>) Class.forName(key);
 				List<String> lis = map.get(key);
-				for (int i = 0 ; i < lis.size() ; i++){
+				for (int i = 0; i < lis.size(); i++) {
 					String bcs = lis.get(i);
 					BuildComponent component = clazz.newInstance();
-					component.init(uid,cityId,id,buildId);
-					component.deserialize(bcs,this);
+					component.init(uid, cityId, id, buildId);
+					component.deserialize(bcs, this);
 					components.add(component);
 				}
 			}
@@ -521,10 +601,10 @@ public class RoleBuild implements Instances {
 			e.printStackTrace();
 		}
 	}
-	
+
 	public String saveComponents() {
 		Map<String, List<String>> map = new HashMap<String, List<String>>();
-		for (int i = 0 ; i < components.size() ; i++){
+		for (int i = 0; i < components.size(); i++) {
 			BuildComponent component = components.get(i);
 			String key = component.getClass().getName();
 			List<String> lis = map.get(key);
@@ -537,7 +617,6 @@ public class RoleBuild implements Instances {
 		String str = JsonUtil.ObjectToJsonString(map);
 		return str;
 	}
-
 
 	public void sendToClient() {
 		Role role = world.getOnlineRole(uid);
@@ -589,7 +668,7 @@ public class RoleBuild implements Instances {
 			}
 		}
 		module.add(components.size());// 功能组件个数
-		for (int i = 0 ; i < components.size() ; i++){
+		for (int i = 0; i < components.size(); i++) {
 			BuildComponent component = components.get(i);
 			component.sendToClient(module.getParams());// 各个功能模块的数据
 		}
@@ -607,8 +686,8 @@ public class RoleBuild implements Instances {
 		}
 		return building.getMaxBuildCount() == 1;
 	}
-	
-	public boolean updateUnionHelperList(Role role, TimerLast timer,long time) {
+
+	public boolean updateUnionHelperList(Role role, TimerLast timer, long time) {
 		UnionBody union = unionManager.search(role.getUnionId());
 		if (union == null) {
 			GameLog.error("unionManager.search is fail!");
@@ -631,7 +710,8 @@ public class RoleBuild implements Instances {
 	public synchronized TimerLast addBuildTimer(long last, TimerLastType type) {
 		TimerLast timer = new TimerLast(TimeUtils.nowLong() / 1000, last, type);
 		timers.add(timer);
-		if (type == TimerLastType.TIME_CREATE || type == TimerLastType.TIME_LEVEL_UP || type == TimerLastType.TIME_REMOVE) {
+		if (type == TimerLastType.TIME_CREATE || type == TimerLastType.TIME_LEVEL_UP
+				|| type == TimerLastType.TIME_REMOVE) {
 			linkQueue.addBuildQueue(id);
 		} else if (type == TimerLastType.TIME_RESEARCH) {
 			linkQueue.addResearchQueue(id);
@@ -640,7 +720,7 @@ public class RoleBuild implements Instances {
 	}
 
 	public synchronized TimerLast searchTimer(TimerLastType type) {
-		for (int i = 0 ; i < timers.size() ; i++){
+		for (int i = 0; i < timers.size(); i++) {
 			TimerLast timer = timers.get(i);
 			if (timer.getType().equals(type)) {
 				return timer;
@@ -648,9 +728,9 @@ public class RoleBuild implements Instances {
 		}
 		return null;
 	}
-	
+
 	public synchronized void removeTimer(TimerLastType type) {
-		for (int i = 0 ; i < timers.size() ; i++){
+		for (int i = 0; i < timers.size(); i++) {
 			TimerLast timer = timers.get(i);
 			if (timer.getType().equals(type)) {
 				timers.remove(timer);
@@ -707,11 +787,11 @@ public class RoleBuild implements Instances {
 		}
 		MessageSendUtil.sendModule(rms, role);
 	}
-	
+
 	// 时间加速
-	public synchronized boolean redBuildTimer(Role role,long time, TimerLastType type) {
+	public synchronized boolean redBuildTimer(Role role, long time, TimerLastType type) {
 		boolean bSuc = false;
-		for (int i = 0 ; i < timers.size() ; i++){
+		for (int i = 0; i < timers.size(); i++) {
 			TimerLast timer = timers.get(i);
 			if (type == null) {
 				if (timer.getType() == TimerLastType.TIME_CREATE || timer.getType() == TimerLastType.TIME_TRAIN
@@ -754,10 +834,10 @@ public class RoleBuild implements Instances {
 			// 任务事件
 			if (role != null) {
 				role.handleEvent(GameEvent.TASK_CHECK_EVENT, new TaskEventDelay(), ConditionType.C_ACC_BUILD, type);
-				role.handleEvent(GameEvent.ACTIVITY_EVENTS,ActvtEventType.ACCELERATE,time);
+				role.handleEvent(GameEvent.ACTIVITY_EVENTS, ActvtEventType.ACCELERATE, time);
 			}
-			//同步治疗建筑的时间
-			if(type == TimerLastType.TIME_CURE){
+			// 同步治疗建筑的时间
+			if (type == TimerLastType.TIME_CURE) {
 				synCureBuildTimer(role);
 			}
 		}
@@ -774,7 +854,7 @@ public class RoleBuild implements Instances {
 	 * @return
 	 */
 	public synchronized boolean modifyTimer(long time, TimerLastType type, boolean bCancel) {
-		for (int i = 0 ; i < timers.size() ; i++){
+		for (int i = 0; i < timers.size(); i++) {
 			TimerLast timer = timers.get(i);
 			if (timer.getType() == type) {
 				if (bCancel) {
@@ -815,11 +895,11 @@ public class RoleBuild implements Instances {
 	public Buildinglevel getBuildingLevel() {
 		return getBuildingLevel(level);
 	}
-	
+
 	public Buildinglevel getBuildingLevel(int level) {
 		return getBuildinglevelByCondition(buildId, level);
 	}
-	
+
 	/**
 	 * 建筑完成可能要重新计算战斗力还有一些其他操作
 	 */
@@ -897,7 +977,7 @@ public class RoleBuild implements Instances {
 		level += 1;
 		state = RoleBuildState.COND_NORMAL.getKey();
 		Role role = world.getObject(Role.class, uid);
-		if(role == null){
+		if (role == null) {
 			GameLog.error("leveupFinish  getRole is fail ");
 			return;
 		}
@@ -907,16 +987,17 @@ public class RoleBuild implements Instances {
 			syncHospitalOrRepairer(role);
 			sendToClient();
 		}
-		for (int i = 0 ; i < components.size() ; i++){
+		for (int i = 0; i < components.size(); i++) {
 			BuildComponent bCom = components.get(i);
 			bCom.setBuildParams(this);
 		}
 		if (role != null) {
 			// 建筑升级完成事件添加
 			// Task Event
-			role.handleEvent(GameEvent.TASK_CHECK_EVENT, new TaskEventDelay(), ConditionType.COND_BUILD, cityId,buildId, level);
-			role.handleEvent(GameEvent.ACTIVITY_EVENTS,ActvtEventType.UPGRADE_BUILD,buildId,(int)level);
-			
+			role.handleEvent(GameEvent.TASK_CHECK_EVENT, new TaskEventDelay(), ConditionType.COND_BUILD, cityId,
+					buildId, level);
+			role.handleEvent(GameEvent.ACTIVITY_EVENTS, ActvtEventType.UPGRADE_BUILD, buildId, (int) level);
+
 			if (buildId.equals(BuildName.CITY_CENTER.getKey())) {
 				role.handleEvent(GameEvent.CENTER_LEVE_UP, level);
 				role.handleEvent(GameEvent.RANK_ROLECITYLEVEL_CHANGE, new TaskEventDelay());
@@ -932,7 +1013,7 @@ public class RoleBuild implements Instances {
 		if (hasArmyPoints) {
 			pointsAgent.addTechTreePoints(level);
 		}
-		//重置该建筑的联盟被帮助的列表
+		// 重置该建筑的联盟被帮助的列表
 		role.clearBuildHelpers(0, id);
 	}
 
@@ -943,7 +1024,7 @@ public class RoleBuild implements Instances {
 				state = RoleBuildState.COND_UPGRADE.getKey();
 				return;
 			}
-		}
+		}	
 		state = RoleBuildState.COND_NORMAL.getKey();
 	}
 
@@ -970,8 +1051,9 @@ public class RoleBuild implements Instances {
 		state = RoleBuildState.COND_DELETED.getKey();// 删除flag
 		Role role = world.getObject(Role.class, uid);
 		LogManager.buildLog(role, slotID, buildId, level, BuildOperation.removeFinish.getKey());
-		role.handleEvent(GameEvent.TASK_CHECK_EVENT, new TaskEventDelay(), ConditionType.COND_BUILD, cityId, buildId,(byte) 0);
-		role.handleEvent(GameEvent.ACTIVITY_EVENTS,ActvtEventType.UPGRADE_BUILD,buildId,(int)level);
+		role.handleEvent(GameEvent.TASK_CHECK_EVENT, new TaskEventDelay(), ConditionType.COND_BUILD, cityId, buildId,
+				(byte) 0);
+		role.handleEvent(GameEvent.ACTIVITY_EVENTS, ActvtEventType.UPGRADE_BUILD, buildId, (int) level);
 	}
 
 	/**
@@ -1004,6 +1086,7 @@ public class RoleBuild implements Instances {
 			component = new BuildComponentStorage();
 		} else if (type == BuildComponentType.BUILD_COMPONENT_DEAL) {
 			component = new BuildComponentDeal();
+			System.out.println("交易组件！！！！！！！");
 		} else if (type == BuildComponentType.BUILD_COMPONENT_WALL) {
 			component = new BuildComponentWall();
 		} else if (type == BuildComponentType.BUILD_COMPONENT_WAR) {
@@ -1022,7 +1105,7 @@ public class RoleBuild implements Instances {
 	 */
 	@SuppressWarnings("unchecked")
 	public <T extends BuildComponent> T getComponent(BuildComponentType type) {
-		for (int i = 0 ; i < components.size() ; i++){
+		for (int i = 0; i < components.size(); i++) {
 			BuildComponent bCom = components.get(i);
 			if (bCom.getBuildComponentType() == type) {
 				return (T) bCom;
@@ -1030,6 +1113,8 @@ public class RoleBuild implements Instances {
 		}
 		return null;
 	}
+	
+	
 
 	/**
 	 * 返回建筑中文说明
@@ -1069,7 +1154,7 @@ public class RoleBuild implements Instances {
 	 * 
 	 * @return
 	 */
-	public int getCostPower() {
+	public int getCostPower(RoleCityAgent agent) {
 		boolean isBuilding = false; // 是否处于建造状态
 		for (int i = 0; i < timers.size(); i++) {
 			TimerLast time = timers.get(i);
@@ -1085,12 +1170,68 @@ public class RoleBuild implements Instances {
 			boolean isLevelUpIng = state == 1 || state == 2; // 升级和免费升级状态
 			buildLevel = getBuildingLevel(isLevelUpIng ? level + 1 : level);
 		}
-		if (buildLevel != null) {
-			return buildLevel.getPower();
+		if (buildLevel != null) {// 电力条件比例
+			float value = 0;
+			for (BuildComponent com : components) {
+				if(com.getBuildComponentType() == BuildComponentType.BUILD_COMPONENT_ELECTRICAL)
+					continue;
+				value += buildLevel.getPower() * agent.geteAgent().searchPoweRatio(this.id, com.getBuildComponentType().getKey());
+			}
+			return (int) value;
 		}
 		return 0;
 	}
-
+	
+	public float getCostPowerRatio() {
+		float powerRatio = 0;
+		RoleCityAgent agent = null;
+		Role role = world.getOnlineRole(uid);
+		if (role != null) {
+			agent = role.getCity(cityId);
+		}
+		for (BuildComponent com : components) {
+			if(com.getBuildComponentType() == BuildComponentType.BUILD_COMPONENT_ELECTRICAL)
+				continue;
+			if(agent != null)
+				powerRatio +=  agent.geteAgent().searchPoweRatio(this.id, com.getBuildComponentType().getKey());
+			else
+				powerRatio +=  Const.DEFAULT_CONSUMPTION;
+		}
+		return powerRatio;
+	}
+	
+	public int getCostPowerModify(RoleCityAgent agent,String key,float powerRatio) {
+		boolean isBuilding = false; // 是否处于建造状态
+		for (int i = 0; i < timers.size(); i++) {
+			TimerLast time = timers.get(i);
+			if (time.getType().equals(TimerLastType.TIME_CREATE)) {
+				isBuilding = true;
+				break;
+			}
+		}
+		Buildinglevel buildLevel = null;
+		if (isBuilding) {
+			buildLevel = getBuildingLevel(level);
+		} else {
+			boolean isLevelUpIng = state == 1 || state == 2; // 升级和免费升级状态
+			buildLevel = getBuildingLevel(isLevelUpIng ? level + 1 : level);
+		}
+		if (buildLevel != null) {// 电力条件比例
+			float value = 0;
+			for (BuildComponent com : components) {
+				if(com.getBuildComponentType() == BuildComponentType.BUILD_COMPONENT_ELECTRICAL)
+					continue;
+				if(key.equals(com.getBuildComponentType().getKey())){
+					value += buildLevel.getPower() * powerRatio;
+					continue;
+				}
+				value += buildLevel.getPower() * agent.geteAgent().searchPoweRatio(this.id, com.getBuildComponentType().getKey());
+			}
+			return (int) value;
+		}
+		return 0;
+	}
+	
 	/**
 	 * 建筑产生电力
 	 * 
@@ -1098,7 +1239,7 @@ public class RoleBuild implements Instances {
 	 */
 	public int getProductePower() {
 		boolean flag = false;
-		for (int i = 0 ; i < components.size() ; i++){
+		for (int i = 0; i < components.size(); i++) {
 			BuildComponent component = components.get(i);
 			if (component.getBuildComponentType() == BuildComponentType.BUILD_COMPONENT_ELECTRICAL) {
 				flag = true;

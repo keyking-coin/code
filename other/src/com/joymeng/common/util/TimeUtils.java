@@ -315,6 +315,21 @@ public class TimeUtils {
 		return new Timestamp(paramLong + paramInt*1000);
 	}
 	
+    /**
+	 * 得到今天24点
+	 * @param hour
+	 * @return
+	 */
+	public static long getToday24Time(){
+		Calendar c = Calendar.getInstance();
+		c.set(Calendar.DATE, c.get( Calendar.DATE ));
+        c.set(Calendar.HOUR_OF_DAY, 23);
+        c.set(Calendar.MINUTE, 59);
+        c.set(Calendar.SECOND, 59);
+        
+        return c.getTimeInMillis() + Const.SECOND;
+	}
+	
 	/**
 	 * 判断当前时间是否在两个时间段内 
 	 * @param time
@@ -356,6 +371,10 @@ public class TimeUtils {
 		String yesterday = new SimpleDateFormat("yyyy-MM-dd ").format(cal
 				.getTime());
 		return yesterday;
+	}
+	
+	public static void main(String[] args) {
+		System.out.println(formatYear(getToday24Time()));
 	}
 	
 }

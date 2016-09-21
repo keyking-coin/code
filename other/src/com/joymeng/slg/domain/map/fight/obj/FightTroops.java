@@ -19,7 +19,7 @@ import com.joymeng.slg.domain.map.fight.result.HookAttackInfo;
 import com.joymeng.slg.domain.object.army.data.Army;
 import com.joymeng.slg.domain.object.army.data.Skill;
 
-public class FightTroops implements Instances{
+public class FightTroops implements Instances,Comparable<FightTroops>{
 	int fightId;
 	FightTroopAttribute attribute = new FightTroopAttribute();
 	Side side;
@@ -34,7 +34,8 @@ public class FightTroops implements Instances{
 	List<FightBuff> fightBuffs = new ArrayList<FightBuff>();//战斗加成，兵种自己的技能
 	List<FightSkill> skills = new ArrayList<FightSkill>();
 	long buildId = 0;
-
+	List<String> records = new ArrayList<String>();
+	
 	public int getFightId() {
 		return fightId;
 	}
@@ -261,7 +262,7 @@ public class FightTroops implements Instances{
 		if (cover){//覆盖的话移除旧的buff
 			for (int i = 0 ; i < fightBuffs.size();i++){
 				FightBuff fb = fightBuffs.get(i);
-				if (fb.getBuffId() != null && fb.getBuffId().equals(buff.getBuffId())){
+				if (fb.getBuffId().equals(buff.getBuffId()) && fb.getSkillId().equals(buff.getSkillId())){
 					target = fb;
 					break;
 				}
@@ -498,5 +499,28 @@ public class FightTroops implements Instances{
 		return number > 0;
 	}
 
+	@Override
+	public int compareTo(FightTroops o) {
+		float a = o.attribute.getPower() * o.number;
+		float b = attribute.getPower() * number;
+		return Float.compare(a,b);
+	}
+
+	public void  clearCastRecord(){
+		records.clear();
+	}
 	
+	public void  addCastRecord(String key){
+		records.add(key);
+	}
+	
+	public boolean couldCastInThisTurn(String key) {
+		for (int i = 0 ; i < records.size() ; i++){
+			String sk = records.get(i);
+			if (sk.equals(key)){
+				return false;
+			}
+		}
+		return true;
+	}
 }

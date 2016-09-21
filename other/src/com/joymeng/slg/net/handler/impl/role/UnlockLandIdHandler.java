@@ -2,6 +2,7 @@ package com.joymeng.slg.net.handler.impl.role;
 
 import com.joymeng.common.util.I18nGreeting;
 import com.joymeng.common.util.MessageSendUtil;
+import com.joymeng.list.EventName;
 import com.joymeng.log.GameLog;
 import com.joymeng.log.LogManager;
 import com.joymeng.log.NewLogManager;
@@ -65,9 +66,7 @@ public class UnlockLandIdHandler extends ServiceHandler{
 			resp.fail();
 			return resp;
 		}
-		
-		String event ="UnlockLandIdHandler";
-		LogManager.goldConsumeLog(role, baseland.getUnlockPrice(), event);
+		LogManager.goldConsumeLog(role, baseland.getUnlockPrice(), EventName.UnlockLandIdHandler.getName());
 		try {
 			NewLogManager.buildLog(role, "unlock_field",landId,baseland.getUnlockPrice());
 		} catch (Exception e) {

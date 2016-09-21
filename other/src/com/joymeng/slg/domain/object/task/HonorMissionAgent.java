@@ -8,6 +8,7 @@ import java.util.Map;
 import com.joymeng.Instances;
 import com.joymeng.common.util.I18nGreeting;
 import com.joymeng.common.util.MessageSendUtil;
+import com.joymeng.list.EventName;
 import com.joymeng.log.GameLog;
 import com.joymeng.log.LogManager;
 import com.joymeng.log.NewLogManager;
@@ -78,12 +79,13 @@ public class HonorMissionAgent implements Instances {
 		}
 		for (RoleHonor rh : falgMap.values()) {
 			if (rh.getId().equals(honorMId)) {
-				rh.setReNum(rh.getReNum() + 1);  	// 改变金币奖励领取的次数
+				int reNum = rh.getReNum();
+				rh.setReNum((reNum + 1) > 5 ? 5 : (reNum + 1)); // 改变金币奖励领取的次数
 				break;
 			}
 		}
 		honorWallTask(role);
-		String reward = hreward.get(count-1);
+		String reward = hreward.get(count - 1);
 		String[] rw = reward.split(":");
 		int num = Integer.parseInt(rw[1]);
 		if (num > 0) {
@@ -91,7 +93,7 @@ public class HonorMissionAgent implements Instances {
 			RespModuleSet rms = new RespModuleSet();
 			role.sendRoleToClient(rms);
 			MessageSendUtil.sendModule(rms, role.getUserInfo());
-			LogManager.goldOutputLog(role, num, "getHonorReward");
+			LogManager.goldOutputLog(role, num, EventName.getHonorReward.getName());
 			try {
 				NewLogManager.baseEventLog(role, "get_task_reward",honorMId,num);
 			} catch (Exception e) {

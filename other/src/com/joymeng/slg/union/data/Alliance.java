@@ -11,6 +11,12 @@ public class Alliance implements DataKey {
 	int expend;
 	int num;
 	List<String> members;
+	//固定任务类型
+	List<String> fixedtask;
+	//随机数量
+	int randomnumber;
+	//随机权重
+	List<String> randomtask;
 
 	public String getId() {
 		return id;

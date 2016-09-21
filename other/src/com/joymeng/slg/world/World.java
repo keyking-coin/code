@@ -80,6 +80,7 @@ public class World implements Instances {
 		ServiceHandler.registerHandlers();
 		dbMgr.init();
 		nameManager.load();
+		advSgr.load();
 		dataManager.load(true);
 		RoleBlackMarketAgent.startInit();//加载黑市数据
 		RoleShopAgent.load();//服务器限购数据加载
@@ -89,11 +90,13 @@ public class World implements Instances {
 		unionManager.load();
 		rankManager.load();
 		worldSInfo.load();
+		forbidden.loadForbidden();
 		ActvtManager.getInstance().init();
 		mapWorld.load();
 		FeedBackManager.getInstance().load();
 		ServiceApp.FREEZE = false;
 		taskPool.start();//启动系统主线程和其他功能线程
+		
 	}
 
 	public void tick(long now) {
@@ -114,6 +117,7 @@ public class World implements Instances {
 				obj.tick(now);
 			}
 		}
+		advSgr._tick();
 	}
 	
 	boolean tryToLogin(){
@@ -168,7 +172,7 @@ public class World implements Instances {
 		taskPool.getSaveThread().gameShutDown();
 	}
 	
-	public void save(){
+	private void save(){
 		saveAllRole();
 		saveAllUnion();
 		chatDataManager.save();
@@ -211,50 +215,49 @@ public class World implements Instances {
 	 * 玩家删号
 	 */
 	public boolean removeRole(long uid) {
-		boolean succeed = false;
 		Role role = getRole(uid);
 		if (role == null) {
-			succeed = false;
+			return false;
 		}
-		if (!role.isOnline()) {
-			role.handleEvent(GameEvent.REMOVE_ROLE);
-			UnionBody union = unionManager.search(role.getUnionId());
-			if (union != null) {
-				if (union.checkLeader(role.getId())) {
-					if (union.getMembers().size() > 1) {
-						// 需禅让
-						long roleId = union.getMemberDemise();
-						union.tryToAppoint(role, roleId, 1);
-					} else {
-						union.dissolve();
-					}
+		role.handleEvent(GameEvent.REMOVE_ROLE);
+		UnionBody union = unionManager.search(role.getUnionId());
+		if (union != null) {
+			if (union.checkLeader(role.getId())) {
+				if (union.getMembers().size() > 1) {
+					// 需禅让
+					long roleId = union.getMemberDemise();
+					union.tryToAppoint(role, roleId, 1);
 				} else {
-					union.memberExit(role.getId());
+					union.dissolve();
 				}
+			} else {
+				union.memberExit(role.getId());
 			}
-			StringBuffer rolebuffer = new StringBuffer(256);
-			rolebuffer.append("delete  from role where role.joy_id =" + uid);
-			String rolesq = rolebuffer.toString();
-			dbMgr.getGameDao().getSimpleJdbcTemplate().update(rolesq, new HashMap<>());
-
-			StringBuffer citybuffer = new StringBuffer(256);
-			citybuffer.append("delete  from city where city.uid =" + uid);
-			String citysq = citybuffer.toString();
-			dbMgr.getGameDao().getSimpleJdbcTemplate().update(citysq, new HashMap<>());
-			
-			StringBuffer dailybuffer = new StringBuffer(256);
-			dailybuffer.append("delete  from dailyTask where dailyTask.uid =" + uid);
-			String dailysq = citybuffer.toString();
-			dbMgr.getGameDao().getSimpleJdbcTemplate().update(dailysq, new HashMap<>());
-			
-			StringBuffer rankbuffer = new StringBuffer(256);
-			rankbuffer.append("delete  from rank where rank.uid =" + uid);
-			String ranksq = rankbuffer.toString();
-			dbMgr.getGameDao().getSimpleJdbcTemplate().update(ranksq, new HashMap<>());
-			
-	        GameLog.info("删除 player"+uid+"完成");
 		}
-		return succeed;    
+		kick(uid);
+		StringBuffer rolebuffer = new StringBuffer(256);
+		rolebuffer.append("delete  from role where role.joy_id =" + uid);
+		String rolesq = rolebuffer.toString();
+		dbMgr.getGameDao().getSimpleJdbcTemplate().update(rolesq, new HashMap<>());
+
+		StringBuffer citybuffer = new StringBuffer(256);
+		citybuffer.append("delete  from city where city.uid =" + uid);
+		String citysq = citybuffer.toString();
+		dbMgr.getGameDao().getSimpleJdbcTemplate().update(citysq, new HashMap<>());
+
+		StringBuffer dailybuffer = new StringBuffer(256);
+		dailybuffer.append("delete  from dailyTask where dailyTask.uid =" + uid);
+		String dailysq = citybuffer.toString();
+		dbMgr.getGameDao().getSimpleJdbcTemplate().update(dailysq, new HashMap<>());
+
+		StringBuffer rankbuffer = new StringBuffer(256);
+		rankbuffer.append("delete  from rank where rank.uid =" + uid);
+		String ranksq = rankbuffer.toString();
+		dbMgr.getGameDao().getSimpleJdbcTemplate().update(ranksq, new HashMap<>());
+
+		GameLog.info("删除 player:" + uid + "完成");
+
+		return true;
 	}
 	
 	/*

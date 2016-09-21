@@ -1,15 +1,18 @@
 package com.joymeng.slg.domain.object.build.impl;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.joymeng.Const;
 import com.joymeng.Instances;
 import com.joymeng.common.util.I18nGreeting;
 import com.joymeng.common.util.JsonUtil;
 import com.joymeng.common.util.MathUtils;
 import com.joymeng.common.util.MessageSendUtil;
 import com.joymeng.common.util.StringUtils;
+import com.joymeng.list.EventName;
 import com.joymeng.log.GameLog;
 import com.joymeng.log.LogManager;
 import com.joymeng.log.NewLogManager;
@@ -121,8 +124,16 @@ public class BuildComponentForging implements BuildComponent, Instances {
 				return false;
 			}
 		}
+		// 处理材料的重复项
+		List<String> temps = removeMaterialIdSame(costMaterialLst, "\\|", "|");
+		costMaterialLst.clear();
+		costMaterialLst.addAll(temps);
+		// 检测需要的
+		List<String> baseMaterials = new ArrayList<>();
+		temps = removeMaterialIdSame(eq.getUpgradeMaterial(), ":", ":");
+		baseMaterials.clear();
+		baseMaterials.addAll(temps);
 		// 检测材料
-		List<String> baseMaterials = eq.getUpgradeMaterial();
 		if (baseMaterials.size() != costMaterialLst.size()) {
 			MessageSendUtil.sendNormalTip(role.getUserInfo(), I18nGreeting.MSG_MATERIAL_INSUFFICIENT);
 			return false;
@@ -159,7 +170,7 @@ public class BuildComponentForging implements BuildComponent, Instances {
 				return false;
 			}
 		}
-		//扣除金币
+		//扣除氪金
 		for (int i = 0 ; i < costLst.size() ; i++){
 			String cost = costLst.get(i);
 			String[] costArray = cost.split(":");
@@ -177,14 +188,12 @@ public class BuildComponentForging implements BuildComponent, Instances {
 					resourceBuff = Float.valueOf(hb.getParamList().get(1));
 				}
 			}
-			num = (int) (num * (1.0f - resourceBuff));
+			num = Math.round(num * (1.0f - resourceBuff));
 			if (role.redRoleKrypton(num) == false) {
 				GameLog.error("krypton is insufficient!");
 				return false;
 			}
-			String event = "upgradeEquipment";
-			String items ="krypton";
-			LogManager.itemConsumeLog(role, num, event, items);
+			LogManager.itemConsumeLog(role, num, EventName.upgradeEquipment.getName(), "krypton");
 		}
 		// 删除消耗-材料
 		ItemCell[] materials = new ItemCell[costMaterialLst.size()];
@@ -194,7 +203,7 @@ public class BuildComponentForging implements BuildComponent, Instances {
 			int num = Integer.parseInt(baseMaterials.get(i).split(":")[1]);
 			ItemCell cell = bagAgent.getItemFromBag(itemId);
 			bagAgent.removeItems(itemId, num);
-			LogManager.itemConsumeLog(role, num, "upgradeEquipment", itemId);
+			LogManager.itemConsumeLog(role, num, EventName.upgradeEquipment.getName(), itemId);
 			ItemCell tempCell = bagAgent.getItemFromBag(itemId);
 			if (tempCell == null) {
 				tempCell = cell;
@@ -235,6 +244,35 @@ public class BuildComponentForging implements BuildComponent, Instances {
 		//任务事件
 		role.handleEvent(GameEvent.TASK_CHECK_EVENT, new TaskEventDelay(), ConditionType.COND_EQUIP_LVLUP);
 		return true;
+	}
+
+	private List<String> removeMaterialIdSame(final List<String> costMaterialLst,String splitS,String splitR) {
+		List<String> temps = new ArrayList<>();
+		for (int i = 0; i < costMaterialLst.size(); i++) {
+			String cost = costMaterialLst.get(i);
+			if (StringUtils.isNull(cost)) {
+				continue;
+			}
+			String[] costMaterialArray = cost.split(splitS);
+			boolean isC = false;
+			for (int j = 0; j < temps.size(); j++) {
+				String tempStr = temps.get(j);
+				if (StringUtils.isNull(tempStr)) {
+					continue;
+				}
+				String[] tempsMaterialArray = tempStr.split(splitS);
+				if (tempsMaterialArray[0].equals(costMaterialArray[0])) {
+					isC = true;
+					String element = tempsMaterialArray[0] + splitR
+							+ (Integer.valueOf(tempsMaterialArray[1]) + Integer.valueOf(costMaterialArray[1]));
+					temps.set(j, element);
+				}
+			}
+			if (!isC) {
+				temps.add(cost);
+			}
+		}
+		return temps;
 	}
 
 	/**
@@ -309,9 +347,8 @@ public class BuildComponentForging implements BuildComponent, Instances {
 			materialId = equipItem.getUpgradeMaterialLists().get(0).split("\\|")[0];
 			state = 4;
 			agent.addOther(materialId, 1);
-			String event = "EquipUpgradeOver";
 			String itemst =materialId;
-			LogManager.itemOutputLog(role, 1, event,itemst);
+			LogManager.itemOutputLog(role, 1, EventName.EquipUpgradeOver.getName(),itemst);
 			otherItem.init(uid, materialId, 1);
 			equipItem.setEquipState((byte) 0);
 			//agent.sendShowItemsToClient(rms, equipItem, otherItem);
@@ -461,6 +498,12 @@ public class BuildComponentForging implements BuildComponent, Instances {
 
 	@Override
 	public void setBuildParams(RoleBuild build) {
+	}
+
+	@Override
+	public boolean isWorking(Role role, RoleBuild build) {
+		// TODO Auto-generated method stub
+		return false;
 	}
 
 }

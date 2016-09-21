@@ -16,8 +16,8 @@ import com.joymeng.slg.domain.object.role.Role;
 import com.joymeng.slg.domain.object.role.imp.RoleStatisticInfo;
 import com.joymeng.slg.domain.object.task.ConditionType;
 import com.joymeng.slg.domain.object.task.MissionManager;
-import com.joymeng.slg.domain.object.task.TaskEventDelay;
 import com.joymeng.slg.domain.object.task.RoleTaskType.TaskConditionType;
+import com.joymeng.slg.domain.object.task.TaskEventDelay;
 import com.joymeng.slg.domain.timer.TimerLastType;
 import com.joymeng.slg.union.UnionBody;
 import com.joymeng.slg.union.impl.UnionMember;
@@ -246,6 +246,11 @@ public class TaskEvent extends AbstractGameEvent{
 					{
 						int num = sInfo.getBuildFortNum();
 						sInfo.setBuildFortNum(num + 1);
+						
+//						RespModuleSet rms = new RespModuleSet();
+//						role.sendGameConfigToClient(rms);
+//						MessageSendUtil.sendModule(rms,role.getUserInfo());
+						
 						taskAgent.checkTaskConditions(role,TaskConditionType.C_FORT_NUM, newParams);//当前
 						taskAgent.checkTaskConditions(role,TaskConditionType.C_BD_FT_NUM, newParams);//累计
 						break;
@@ -263,6 +268,22 @@ public class TaskEvent extends AbstractGameEvent{
 						taskAgent.checkTaskConditions(role,TaskConditionType.C_RESS_CLT, resType.getKey(), (long)num);
 						break;
 					}
+					
+					case C_RESS_ROB:   //19	      掠夺某种资源达到多少	
+					{
+						ResourceTypeConst resType = get(params[2]);
+						int num = get(params[3]);
+						Map<ResourceTypeConst, Long> robsMap = sInfo.getRobsMap();
+						if (robsMap.get(resType) == null) {
+							robsMap.put(resType, (long) num);
+						} else {
+							robsMap.put(resType, (long) num + robsMap.get(resType));
+						}
+						taskAgent.checkTaskConditions(role,TaskConditionType.C_RESS_ROB, resType.getKey(), (long)num);
+						break;
+					}
+					
+					
 					case C_ATK_WIN:		//20 自己进攻玩家基地的战斗			参数：战斗结果
 					{
 						boolean isWin = get(params[2]);
@@ -367,23 +388,24 @@ public class TaskEvent extends AbstractGameEvent{
 					}
 					case C_FIGHT_BACK://所有战斗部队返回基地    参数：抢夺资源类型，数量
 					{
-						sInfo.updataRoleArmyFight(role);
-						if(params.length > 0){
-							for (int index = 0; index < params.length; index++) {
-								if (params[index] instanceof ResourceTypeConst) {
-									ResourceTypeConst resType = get(params[index]);
-									index++;
-									long num = get(params[index]);
-									Map<ResourceTypeConst, Long> robsMap = sInfo.getRobsMap();
-									if (robsMap.get(resType) == null) {
-										robsMap.put(resType, num);
-									} else {
-										robsMap.put(resType, num + robsMap.get(resType));
-									}
-									taskAgent.checkTaskConditions(role,TaskConditionType.C_RESS_ROB, resType.getKey(), num);
-								}
-							}
-						}
+						sInfo.updataRoleArmyFight(role);	
+//						if (params.length > 0) {
+//							List<Object> reses = get(params[2]);
+//							for (int i = 0; i < reses.size();) {
+//								String resource = (String) reses.get(i);
+//								ResourceTypeConst resType = ResourceTypeConst.search(resource);
+//								i++;
+//								int num = (int) reses.get(i);
+//								Map<ResourceTypeConst, Long> robsMap = sInfo.getRobsMap();
+//								if (robsMap.get(resType) == null) {
+//									robsMap.put(resType, (long) num);
+//								} else {
+//									robsMap.put(resType, (long) num + robsMap.get(resType));
+//								}
+//								taskAgent.checkTaskConditions(role, TaskConditionType.C_RESS_ROB, resType.getKey(), num);
+//								i++;
+//							}
+//						}
 						//战斗力更新
 						taskAgent.checkTaskConditions(role,TaskConditionType.C_RL_FF_A);// 部队战斗力
 						taskAgent.checkTaskConditions(role,TaskConditionType.C_RL_FF);// 玩家总战斗力
@@ -418,9 +440,12 @@ public class TaskEvent extends AbstractGameEvent{
 						taskAgent.checkTaskConditions(role,TaskConditionType.C_A_TECH_LVL, newParams);
 						break;
 					}
-					case COND_ALLI_SCORE://玩家的联盟积分
+					case COND_ALLI_SCORE://玩家的联盟贡献度
 					{
-						taskAgent.checkTaskConditions(role,TaskConditionType.C_ALLI_HN, newParams);
+						int score = (int) newParams[0];
+						int league = role.getRoleStatisticInfo().getLeagueGlory();
+						role.getRoleStatisticInfo().setLeagueGlory(league + score);
+						taskAgent.checkTaskConditions(role,TaskConditionType.C_ALLI_HN);
 						break;
 					}
 					case COND_ALLI_BUILD://联盟建筑升级

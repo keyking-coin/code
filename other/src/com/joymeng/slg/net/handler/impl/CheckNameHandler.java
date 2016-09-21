@@ -43,6 +43,13 @@ public class CheckNameHandler extends ServiceHandler {
 				return resp;
 			}
 			break;
+		case CheckNameType.UNION_TITLE_NAME_TYPE:
+			if (!nameManager.isNameLegal(data)) {
+				MessageSendUtil.sendNormalTip(info, I18nGreeting.MSG_DATA_NAME_ILLEGAL);
+				resp.fail();
+				return resp;
+			}
+			break;
 		default:
 			break;
 		}

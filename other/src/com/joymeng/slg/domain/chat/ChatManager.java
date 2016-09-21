@@ -129,6 +129,7 @@ public class ChatManager implements Instances {
 			long roleUid = uids.get(i).longValue();
 			Role temp = world.getRole(roleUid);
 			if (temp == null) {
+				GameLog.info("getRole is null , has continued , uid = " + roleUid);
 				continue;
 			}
 			ChatAgent chatAgent = temp.getChatAgent();
@@ -180,8 +181,8 @@ public class ChatManager implements Instances {
 	 */
 	public synchronized ChatMsg generateOneMsgsToGroup(ChatGroup group, String chatContent) {
 		ChannelType channelType = ChannelType.GROUP; // 频道为聊天组频道
-		ChatMsg msg = new ChatMsg(chatContent, MsgTextColorType.COLOR_BLACK, channelType, MsgType.TYPE_SYSTEM, (byte) 0,
-				null, null);
+		ChatMsg msg = new ChatMsg(chatContent, MsgTextColorType.COLOR_BLACK, channelType, MsgType.TYPE_SYSTEM,
+				ReportType.TYPE_DEFAULT, null, null);
 		msg.setGroupId(group.getId()); // 设置消息的组的Id
 		return msg;
 	}
@@ -193,12 +194,26 @@ public class ChatManager implements Instances {
 	 */
 	public synchronized void generateOneMsgsToUnionAndSend(long unionId, String chatContent) {
 		ChannelType channelType = ChannelType.GUILD; // 频道为聊天组频道
-		ChatMsg msg = new ChatMsg(chatContent,MsgTextColorType.COLOR_BLACK,  channelType, MsgType.TYPE_SYSTEM, (byte) 0, null, null);
+		ChatMsg msg = new ChatMsg(chatContent, MsgTextColorType.COLOR_BLACK, channelType, MsgType.TYPE_SYSTEM,
+				ReportType.TYPE_DEFAULT, null, null);
 		addUnionChat(unionId, msg);
 		UnionBody unionBody = world.getObject(UnionBody.class, unionId);
 		if (unionBody != null) {
 			sendUnionChatMsgsUpdate(unionBody, msg);
 		}
+	}
+	
+	/**
+	 * 创建并发送一条世界系统消息
+	 * @param unionId
+	 * @param chatContent
+	 */
+	public synchronized void generateOneMsgsToWorldAndSend(String chatContent) {
+		ChannelType channelType = ChannelType.WORLD; // 频道为聊天组频道
+		ChatMsg msg = new ChatMsg(chatContent, MsgTextColorType.COLOR_BLACK, channelType, MsgType.TYPE_SYSTEM,
+				ReportType.TYPE_DEFAULT, null, null);
+		addWorldChat(msg);
+		sendWorldChatMsgsUpdate(msg);
 	}
 	
 	/**
@@ -271,6 +286,7 @@ public class ChatManager implements Instances {
 	/**
 	 * 首次登陆发送的消息
 	 * @return
+	 * @param role
 	 */
 	public boolean firstSendMsgs(Role role) {
 		SendOneSuitWorldMsgs(role,worldMsgsIdMax(),10);
@@ -410,7 +426,7 @@ public class ChatManager implements Instances {
 	 * @param battleReportContent
 	 * @param role
 	 */
-	public void creatBattleReportAndSend(String reportContent, byte reportType, Role role, Role otherRole) {
+	public void creatBattleReportAndSend(String reportContent, ReportType reportType, Role role, Role otherRole) {
 		RespModuleSet rms = new RespModuleSet();
 		ChannelType channelType = ChannelType.SYSTEM_REPORT;
 		ChatMsg msg = new ChatMsg();
@@ -507,6 +523,7 @@ public class ChatManager implements Instances {
 	 */
 	public void sendGroupChatMsgsUpdate(ChatGroup group,ChatMsg tempMsg){
 		if (group == null) {
+			GameLog.error("sendGroupChatMsgsUpdate is error , group is null!");
 			return;
 		}
 		List<ChatRole> roles = group.getRoles();
@@ -734,6 +751,7 @@ public class ChatManager implements Instances {
 	 */
 	public void SendRoleGroupsUpdate(ChatGroup chatGroup) {
 		if (chatGroup == null) {
+			GameLog.error("SendRoleGroupsUpdate is error , chatGroup is null!");
 			return;
 		}
 		RespModuleSet rms = new RespModuleSet();
@@ -743,6 +761,7 @@ public class ChatManager implements Instances {
 			ChatRole chatRole = roles.get(i);
 			Role role  = world.getRole(chatRole.getUid());
 			if (role == null) {
+				GameLog.info("getRole is null ,uid = " + chatRole.getUid());
 				continue;
 			}
 			if (role.isOnline()) {
@@ -760,7 +779,7 @@ public class ChatManager implements Instances {
 	public synchronized boolean removeRoleMailMsgs(Role role,List<Long> roleMailMsgIds) {
 		RoleChatMail roleChatMail = roleMail.get(role.getId());
 		if (roleChatMail == null) {
-			GameLog.error("get role mail mags is fail from roleMail");
+			GameLog.error("get role mail mags is fail from roleMail , uid = " + role.getId());
 			return false;
 		}
 		Map<Long, ChatMsg> roleMailMsgsMap = roleChatMail.getRoleChatMails();
@@ -775,6 +794,7 @@ public class ChatManager implements Instances {
 				for (Long tempId : roleMailMsgsMap.keySet()) {
 					ChatMsg tempChatMsg = roleMailMsgsMap.get(tempId);
 					if (tempChatMsg == null) {
+						GameLog.info("roleMailMsgsMap dont has chatMsgId= " + tempId);
 						continue;
 					}
 					if (tempChatMsg.getId() == tempRoleMailMsgIds) {
@@ -804,7 +824,6 @@ public class ChatManager implements Instances {
 			unionMsgs.put(unionId, unionChatMsg);
 		}
 		unionChatMsg.addUnionChat(unionId, msg);
-		//System.out.println("Add After:" + unionMsgs.get(unionId).getUnionMsgs().size());
 	}
 	
 	/**
@@ -878,6 +897,7 @@ public class ChatManager implements Instances {
 			}
 			Role tempRole = world.getRole(unionMember.getUid());
 			if (tempRole == null) {
+				GameLog.info("getRole is null ,uid = " + unionMember.getUid());
 				continue;
 			}
 			creatBattleReportAndSend(msgText, ReportType.TYPE_UNION_NOTICE, role, tempRole);
@@ -977,7 +997,7 @@ public class ChatManager implements Instances {
 	public synchronized void generateSystemMsgsToRole(String reportContent, String msgColor, Role aimRole) {
 		RespModuleSet rms = new RespModuleSet();
 		ChannelType channelType = ChannelType.WORLD;
-		ChatMsg msg = new ChatMsg(reportContent, msgColor, channelType, MsgType.TYPE_SYSTEM_MSG, (byte) 0, null, null);
+		ChatMsg msg = new ChatMsg(reportContent, msgColor, channelType, MsgType.TYPE_SYSTEM_MSG, ReportType.TYPE_DEFAULT, null, null);
 		RoleChatMail roleMails = roleMail.get(aimRole.getId());
 		if (roleMails == null) {
 			roleMails = new RoleChatMail();
@@ -1008,10 +1028,12 @@ public class ChatManager implements Instances {
 		ChatRole sys = new ChatRole();
 		sys.setUid(-1L);
 		sys.setName("系统公告");
-		ChatMsg msg = new ChatMsg(("5" + content), MsgTextColorType.COLOR_BLACK, ChannelType.MAIL_SYSTEM, (byte) 3,
-				(byte) 0, sys, null);
+		ChatMsg msg = new ChatMsg(("5" + content), MsgTextColorType.COLOR_BLACK, ChannelType.MAIL_SYSTEM, MsgType.TYPE_HORN,
+				ReportType.TYPE_DEFAULT, sys, null);
 		// 添加世界公告
-		addSystemNotice(msg, priorityLevel);
+		if (priorityLevel != -1) {
+			addSystemNotice(msg, priorityLevel);
+		}
 		// 发送世界聊天频道
 		if (needSendWorld) {
 			addWorldChat(msg);

@@ -18,10 +18,33 @@ public class PointVector {
 	}
 	
 	public int getPosition(){
-		return (int)y * GameConfig.MAP_WIDTH + (int)x;
+		return getPosition(x,y);
 	}
 
-
+	public static int getPosition(float x,float y){
+		return getPosition((int)x,(int)y);
+	}
+	
+	public static int getPosition(int x,int y){
+		return y * GameConfig.MAP_WIDTH + x;
+	}
+	
+	public static int getX(float pos){
+		return getX((int)pos);
+	}
+	
+	public static int getX(int pos){
+		return pos % GameConfig.MAP_WIDTH;
+	}
+	
+	public static int getY(float pos){
+		return getY((int)pos);
+	}
+	
+	public static int getY(int pos){
+		return pos / GameConfig.MAP_WIDTH;
+	}
+	
 	public PointVector center(PointVector point){
 		float nx = x + point.x;
 		float ny = y + point.y;

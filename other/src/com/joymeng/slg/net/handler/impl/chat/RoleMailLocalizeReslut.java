@@ -3,6 +3,7 @@ package com.joymeng.slg.net.handler.impl.chat;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.joymeng.log.NewLogManager;
 import com.joymeng.services.core.buffer.JoyBuffer;
 import com.joymeng.services.core.message.JoyNormalMessage.UserInfo;
 import com.joymeng.services.core.message.JoyProtocol;
@@ -28,7 +29,10 @@ public class RoleMailLocalizeReslut extends ServiceHandler{
 		CommunicateResp resp = newResp(info);
 		Role role = getRole(info);
 		if (role == null) {
+			NewLogManager.misTakeLog("Userinfo : " + info, "uid : " + info.getUid(),
+					"className : " + this.getClass().getName(), "params : " + params);
 			resp.fail();
+			return resp;
 		}
 		int size = params.get(0);
 		List<Long> mailMsgs = new ArrayList<Long>();
@@ -37,6 +41,7 @@ public class RoleMailLocalizeReslut extends ServiceHandler{
 		}
 		if (!chatMgr.removeRoleMailMsgs(role, mailMsgs)) {
 			resp.fail();
+			return resp;
 		}
 		return resp;
 	}

@@ -21,6 +21,7 @@ public class HttpGetPropList extends AbstractHandler {
 	public String logic(HttpRequestMessage request) {
 		long userId = GameConfig.SYSTEM_TRANFOEM_ID; 
 		final int serverId = ServerManager.getInstance().getOnlineServerId();
+//		final int serverId = 12293;
 		UserInfo targetInfo = new UserInfo();
 		targetInfo.setUid(userId);
 		targetInfo.setCid(serverId); // 服务器,http传过来的服务器编号，你要访问哪个服务器

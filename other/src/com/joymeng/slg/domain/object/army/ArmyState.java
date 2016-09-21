@@ -8,6 +8,7 @@ public enum ArmyState {
 	ARMY_IN_ALLY((byte)3,"集结状态"), 
 	ARMY_OUT_ALLY((byte)4,"名字重复"),
 	ARMY_DIED((byte)5,"战死"),
+	ARMY_PROMOT((byte)88,"晋级"),
 	ARMY_REMOVE((byte)99,"删除")
 	;
 	private byte value;

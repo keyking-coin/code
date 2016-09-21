@@ -9,6 +9,7 @@ import com.joymeng.common.util.I18nGreeting;
 import com.joymeng.common.util.JsonUtil;
 import com.joymeng.common.util.MessageSendUtil;
 import com.joymeng.common.util.StringUtils;
+import com.joymeng.list.EventName;
 import com.joymeng.log.GameLog;
 import com.joymeng.log.LogManager;
 import com.joymeng.log.NewLogManager;
@@ -180,8 +181,14 @@ public class UnionUIHandler extends ServiceHandler {
 				}
 				if (role.getUnionId() != 0) {
 					unionIds.add(role.getUnionId());
-				}				
-				List<UnionBody> unions = unionManager.search(unionIds,needBackNum);
+				}
+				if (role.getCity(0) == null) {
+					GameLog.error("getCity is fail , role.id = " + role.getId());
+					resp.fail();
+					return resp;
+				}
+				int myPosition = role.getCity(0).getPosition();
+				List<UnionBody> unions = unionManager.search(myPosition,unionIds,needBackNum);
 				resp.add(unions.size());
 				for (int i = 0 ; i < unions.size() ; i++){
 					UnionBody union = unions.get(i);
@@ -205,6 +212,11 @@ public class UnionUIHandler extends ServiceHandler {
 			case UNION_UI_UNION_JION:{
 				long unionId = params.get(1);
 				UnionBody union = unionManager.search(role.getUnionId());
+				if (!role.isCanJoinUnion()) {
+					MessageSendUtil.sendNormalTip(info,I18nGreeting.MSG_DONT_JOIN_UNION_HAVE_CD);
+					resp.fail();
+					return resp;
+				}
 				if (union != null){
 					MessageSendUtil.sendNormalTip(info,I18nGreeting.MSG_UNION_CREATE_ROLE_HAVE_IN);
 					resp.fail();
@@ -221,7 +233,7 @@ public class UnionUIHandler extends ServiceHandler {
 					return resp;
 				}
 			    String parameter = role.getId()+"|"+"申请加入";
-				LogManager.unionLog(role, union.getName(),"applyJoinUnion",parameter);
+				LogManager.unionLog(role, union.getName(),EventName.applyJoinUnion.getName(),parameter);
 				break;
 			}
 			case UNION_UI_UNION_VERIFICATION:{
@@ -252,15 +264,19 @@ public class UnionUIHandler extends ServiceHandler {
 						return resp;
 					}
 					String parameter = role.getId()+"|"+union.getName()+"|"+union.getShortName();
-					LogManager.unionLog(role, union.getName(), "dissolveUnion",parameter);
+					LogManager.unionLog(role, union.getName(), EventName.dissolveUnion.getName(),parameter);
 					union.dissolve();
 				}else{
 					if (!union.memberExit(role.getId())){
 						resp.fail();
 						return resp;
 					}
+					role.addJoinUnionTimer();// 主动退出增加加入所需要的倒计时
+					RespModuleSet rms = new RespModuleSet();
+					role.sendRoleToClient(rms);
+					MessageSendUtil.sendModule(rms, role);
 					String parameter = role.getId()+"|"+"自己退出";
-					LogManager.unionLog(role, union.getName(), "exitUnion",parameter);
+					LogManager.unionLog(role, union.getName(), EventName.exitUnion.getName(),parameter);
 				}
 				break;
 			}
@@ -279,27 +295,73 @@ public class UnionUIHandler extends ServiceHandler {
 				}
 				Map<Integer, String> title = union.getUnionTitle();
 				String parameter = role.getId()+"|"+uid+"|"+title.get(index);
-				LogManager.unionLog(role, union.getName(), "memberAppoint",parameter);
+				LogManager.unionLog(role, union.getName(), EventName.memberAppoint.getName(),parameter);
 				break;
 			}
 			case UNION_UI_NAME_CHANGE:
 			{				
 				byte changeType = params.get(1);
 				String name = params.get(2);
-				if (changeType == 0 && !nameManager.isNameLegal(name) && unionManager.search(name) != null) {
-					MessageSendUtil.sendNormalTip(info,I18nGreeting.MSG_UNION_CREATE_NAME_HAVE_USED,name);
-					resp.fail();
-					return resp;
+				if (changeType == 0) { //联盟简称
+					if (StringUtils.countStringLength(name) != GameConfig.UNION_SHORTNAME_LIMIT) {
+						MessageSendUtil.sendNormalTip(info, I18nGreeting.MSG_UNION_SHORTNAME_ILLEGALITY_LENGTH);
+						resp.fail();
+						return resp;
+					}
+					if (!nameManager.isNameCharLegal(name, GameConfig.REGEX_UPPER_LETTER_NUMBER)
+							|| !nameManager.isNameLegal(name)) {
+						MessageSendUtil.sendNormalTip(info, I18nGreeting.MSG_UNION_NAME_OR_SHORTNAME_ILLEGALITY_SENSITIVE);
+						resp.fail();
+					}
+					if (unionManager.searchShortName(name) != null) {
+						MessageSendUtil.sendNormalTip(info, I18nGreeting.MSG_UNION_CREATE_NAME_HAVE_USED, name);
+						resp.fail();
+						return resp;
+					}
 				}
-				if (changeType == 1 && !nameManager.isNameLegal(name) && unionManager.searchShortName(name) != null) {
-					MessageSendUtil.sendNormalTip(info,I18nGreeting.MSG_UNION_CREATE_NAME_HAVE_USED,name);
-					resp.fail();
-					return resp;
+				if (changeType == 1) {//联盟名称
+					if (StringUtils.countStringLength(name) < GameConfig.UNION_NAME_MIN
+							|| StringUtils.countStringLength(name) > GameConfig.UNION_NAME_MAX) {
+						MessageSendUtil.sendNormalTip(info, I18nGreeting.MSG_UNION_NAME_ILLEGALITY_LENGTH);
+						resp.fail();
+						return resp;
+					}
+					if (!nameManager.isNameCharLegal(name, GameConfig.REGEX_CHINESE_AND_NUMBER_AND_ALL_LETTER)
+							|| !nameManager.isNameLegal(name)) {
+						MessageSendUtil.sendNormalTip(info, I18nGreeting.MSG_UNION_NAME_OR_SHORTNAME_ILLEGALITY_SENSITIVE);
+						resp.fail();
+					}
+					if (unionManager.search(name) != null) {
+						MessageSendUtil.sendNormalTip(info, I18nGreeting.MSG_UNION_CREATE_NAME_HAVE_USED, name);
+						resp.fail();
+						return resp;
+					}
 				}
-				if (changeType == 2 && !nameManager.isNameLegal(name)) {
-					MessageSendUtil.sendNormalTip(info,I18nGreeting.MSG_UNION_NOTICE_ILLEGALITY_SENSITIVE);
-					resp.fail();
-					return resp;
+				if (changeType == 2) {//联盟宣言
+					if (StringUtils.countStringLength(name) < GameConfig.UNION_NOTICE_MIN
+							|| StringUtils.countStringLength(name) > GameConfig.UNION_NOTICE_MAX) {
+						MessageSendUtil.sendNormalTip(info, I18nGreeting.MSG_UNION_NOTICE_ILLEGALITY_LENGTH);
+						resp.fail();
+						return resp;
+					}
+					if (!nameManager.isNameLegal(name)) {
+						MessageSendUtil.sendNormalTip(info,I18nGreeting.MSG_UNION_NOTICE_ILLEGALITY_SENSITIVE);
+						resp.fail();
+						return resp;
+					}
+				}
+				if (changeType == 3) {//联盟宣言
+					if (StringUtils.countStringLength(name) < GameConfig.UNION_NOTICE_MIN
+							|| StringUtils.countStringLength(name) > GameConfig.UNION_NOTICE_MAX) {
+						MessageSendUtil.sendNormalTip(info, I18nGreeting.MSG_UNION_IN_NOTICE_ILLEGALITY_LENGTH);
+						resp.fail();
+						return resp;
+					}
+					if (!nameManager.isNameLegal(name)) {
+						MessageSendUtil.sendNormalTip(info,I18nGreeting.MSG_UNION_IN_NOTICE_ILLEGALITY_SENSITIVE);
+						resp.fail();
+						return resp;
+					}
 				}
 				UnionBody union = unionManager.search(role.getUnionId());
 				if (union == null){
@@ -307,25 +369,27 @@ public class UnionUIHandler extends ServiceHandler {
 					resp.fail();
 					return resp;
 				}
-				String event = null;
 				String parameter =null;
 				switch (changeType) {
 				case 0:
-					event = "changeUnionShort";
 				    parameter = union.getShortName()+"|"+name;
+					LogManager.unionLog(role, union.getName(), EventName.changeUnionShort.getName(), parameter);
 					break;
 				case 1:
-					event = "changeUnionName";
 					parameter = union.getName()+"|"+name;
+					LogManager.unionLog(role, union.getName(), EventName.changeUnionName.getName(), parameter);
 					break;
 				case 2:
-					event = "changeUnionDeclar";
 					parameter = union.getNotice()+"|"+name;
+					LogManager.unionLog(role, union.getName(), EventName.changeUnionDeclar.getName(), parameter);
+					break;
+				case 3:
+					parameter = union.getInNotice()+"|"+name;
+					LogManager.unionLog(role, union.getName(), EventName.changeUnionDeclar.getName(), parameter);
 					break;
 				default:
 					break;
 				}
-				LogManager.unionLog(role, union.getName(), event, parameter);
 				if (!union.tryToChangeName(role,changeType,name)){
 					resp.fail();
 				}
@@ -346,9 +410,9 @@ public class UnionUIHandler extends ServiceHandler {
 					return resp;
 				}
 				if(union.getRecruits().equals("")){
-					LogManager.unionLog(role, union.getName(), "changeRecruit","公开招募");
+					LogManager.unionLog(role, union.getName(), EventName.changeRecruit.getName(),"公开招募");
 				}else{
-					LogManager.unionLog(role, union.getName(), "changeRecruit","非公开招募");	
+					LogManager.unionLog(role, union.getName(), EventName.changeRecruit.getName(),"非公开招募");	
 				}
 				break;
 			}
@@ -387,7 +451,7 @@ public class UnionUIHandler extends ServiceHandler {
 				}
 				if(allow){
 					String parameter = flag+"|"+union.getIcon();
-					LogManager.unionLog(role, union.getName(), "changeFlag",parameter);	
+					LogManager.unionLog(role, union.getName(), EventName.changeFlag.getName(),parameter);	
 				}
 				break;
 			}
@@ -416,7 +480,7 @@ public class UnionUIHandler extends ServiceHandler {
 					resp.fail();
 					return resp;
 				}
-				LogManager.unionLog(role, union.getName(), "levelUpUnion",String.valueOf(union.getLevel()));
+				LogManager.unionLog(role, union.getName(), EventName.levelUpUnion.getName(),String.valueOf(union.getLevel()));
 				break;
 			}
 			case UNION_UI_KICK_MEMBER:
@@ -433,7 +497,7 @@ public class UnionUIHandler extends ServiceHandler {
 					return resp;
 				}
 				String parameter = memberId+"|"+"被踢出";
-				LogManager.unionLog(role, union.getName(), "kickMember",parameter);
+				LogManager.unionLog(role, union.getName(), EventName.kickMember.getName(),parameter);
 				break;
 			}
 			case UNION_UI_INVITE_MEMBER_LIST:{
@@ -497,7 +561,6 @@ public class UnionUIHandler extends ServiceHandler {
 				if (result.size() < 1) {
 					MessageSendUtil.sendNormalTip(info,I18nGreeting.MSG_NO_SEARCH_MEMBER);
 				}
-//				LogManager.unionLog(role, union.getName(), "invitMemberSearch");
 				break;
 			}
 			case UNION_UI_INVITE_MEMBER_IN:{
@@ -539,7 +602,7 @@ public class UnionUIHandler extends ServiceHandler {
 				chatMgr.creatBattleReportAndSend(unionInvite,ReportType.TYPE_UNION_INVITE,null,other);
 				union.addInvitesList(uid);
 				String parameter = role.getId()+"|"+uid;
-				LogManager.unionLog(role, union.getName(), "inviteMemberIn",parameter);
+				LogManager.unionLog(role, union.getName(), EventName.inviteMemberIn.getName(),parameter);
 				NewLogManager.unionLog(role, "alliance_invite",uid);
 				break;
 			}
@@ -548,6 +611,11 @@ public class UnionUIHandler extends ServiceHandler {
 				long inviteUid = params.get(2);
 				long unionId = params.get(3); // 同意加入的联盟Id
 				RespModuleSet rms = new RespModuleSet();
+				if (!role.isCanJoinUnion()) {
+					MessageSendUtil.sendNormalTip(info,I18nGreeting.MSG_DONT_JOIN_UNION_HAVE_CD);
+					resp.fail();
+					return resp;
+				}
 				if (unionManager.search(role.getUnionId()) != null) {
 					MessageSendUtil.sendNormalTip(info, I18nGreeting.MSG_JOINED_IN_UNION);
 					resp.fail();
@@ -587,7 +655,7 @@ public class UnionUIHandler extends ServiceHandler {
 					union.redInvitesList(role.getId());
 				}
 				String parameter = role.getId()+"|"+inviteUid;
-				LogManager.unionLog(role, union.getName(), "acceptJionIn",parameter);
+				LogManager.unionLog(role, union.getName(), EventName.acceptJionIn.getName(),parameter);
 				break;
 			}
 			case UNION_UI_ASSISTANCE_ADD:{
@@ -616,7 +684,7 @@ public class UnionUIHandler extends ServiceHandler {
 					return resp;
 				}
 				String parameter = role.getId() + "|" + build.getBuildId();
-				LogManager.unionLog(role, union.getName(), "addAssistance", parameter);
+				LogManager.unionLog(role, union.getName(), EventName.addAssistance.getName(), parameter);
 				try {
 					TimerLast timer = build.getBuildTimer();
 					switch (timer.getType()) {
@@ -624,6 +692,9 @@ public class UnionUIHandler extends ServiceHandler {
 						NewLogManager.buildLog(role, "ask_help_for_build",build.getBuildId());
 						break;
 					case TIME_LEVEL_UP:
+						NewLogManager.buildLog(role, "ask_help_for_upgrade",build.getBuildId());
+						break;
+					case TIME_RESEARCH:
 						NewLogManager.buildLog(role, "ask_help_for_upgrade",build.getBuildId());
 						break;
 					default:
@@ -682,7 +753,7 @@ public class UnionUIHandler extends ServiceHandler {
 					return resp;
 				}
 				String parameter = role.getId()+"|"+unionTechId;
-				LogManager.unionLog(role, unionBody.getName(),"techDonate",parameter);
+				LogManager.unionLog(role, unionBody.getName(),EventName.techDonate.getName(),parameter);
 				//任务事件
 				role.handleEvent(GameEvent.TASK_CHECK_EVENT, new TaskEventDelay(), ConditionType.C_ALLI_JX, 0);
 				break;
@@ -700,7 +771,7 @@ public class UnionUIHandler extends ServiceHandler {
 					return resp;
 				}
 				String parameter = role.getId()+"|"+unionTechId;
-				LogManager.unionLog(role, unionBody.getName(), "techUpgrade",parameter);
+				LogManager.unionLog(role, unionBody.getName(), EventName.techUpgrade.getName(),parameter);
 				break;
 			}
 			case UNION_UI_CONVERT_GOODS:{
@@ -717,7 +788,7 @@ public class UnionUIHandler extends ServiceHandler {
 					return resp;
 				}
 				String parameter = role.getId()+"|"+itemId;
-				LogManager.unionLog(role, unionBody.getName(), "convertGoods",parameter);
+				LogManager.unionLog(role, unionBody.getName(), EventName.convertGoods.getName(),parameter);
 			    NewLogManager.unionLog(role, "alliance_shop_put", itemId, num);
 				break;
 			}
@@ -735,7 +806,7 @@ public class UnionUIHandler extends ServiceHandler {
 					return resp;
 				}
 				String parameter = role.getId()+"|"+itemId+num;
-				LogManager.unionLog(role, unionBody.getName(), "buyGoods",parameter);
+				LogManager.unionLog(role, unionBody.getName(), EventName.buyGoods.getName(),parameter);
 				NewLogManager.unionLog(role, "alliance_shop_buy",itemId,num);
 				break;
 			}
@@ -747,6 +818,11 @@ public class UnionUIHandler extends ServiceHandler {
 					String title = params.get(index++);
 					changeTitle.put(rank, title);
 				}
+				if (role.getMoney() < GameConfig.CHANGE_UNION_TITLE_PRICE) {
+					MessageSendUtil.sendNormalTip(info,I18nGreeting.MSG_ROLE_NO_MONEY,GameConfig.CHANGE_UNION_TITLE_PRICE);
+					resp.fail();
+					return resp;
+				}
 				UnionBody unionBody = unionManager.search(role.getUnionId());
 				if (unionBody == null){
 					MessageSendUtil.sendNormalTip(info,I18nGreeting.MSG_UNION_NOT_FIND);
@@ -757,15 +833,29 @@ public class UnionUIHandler extends ServiceHandler {
 					resp.fail();
 					return resp;
 				}
+				if(!role.redRoleMoney(GameConfig.CHANGE_UNION_TITLE_PRICE)){
+					resp.fail();
+					return resp;
+				}
+				RespModuleSet rms = new RespModuleSet();
+				role.sendRoleToClient(rms);
+				MessageSendUtil.sendModule(rms, role);
                 for(String str:changeTitle.values()){
-    				LogManager.unionLog(role, unionBody.getName(), "changeTitle",str);
+    				LogManager.unionLog(role, unionBody.getName(), EventName.changeFlag.getName(),str);
                 }
 				break;
 			}
 			case UNION_UI_GET_UNIONMEMBER_BY_UNIONID:{
 				long unionId = params.get(1);
 				UnionBody unionBody = unionManager.search(unionId);
-				if (unionBody != null) {
+				if (unionBody != null && unionBody.getUnionTitle().size() > 0) {
+					resp.add(unionBody.getLevel());//int 联盟的等级
+					for (int i = 1; i <= 4; i++) {
+						if (StringUtils.isNull(unionBody.getUnionTitle().get(i))) {
+							continue;
+						}
+						resp.add(unionBody.getUnionTitle().get(i));//String "0/1|***" 0:固化数据(读取StringContent) 1:用户自定义
+					}
 					List<UnionMember> unionMembers = unionBody.getMembers();
 					resp.add(unionMembers);
 				}
@@ -790,7 +880,7 @@ public class UnionUIHandler extends ServiceHandler {
 					return resp;
 				}
 			    String parameter = role.getId() + "|" + itemId + num;
-				LogManager.unionLog(role, unionBody.getName(), "removeItemTo",parameter);
+				LogManager.unionLog(role, unionBody.getName(), EventName.removeItemTo.getName(),parameter);
 				break;
 			}
 			case UNION_UI_LOOK_MANOR_BUILD:{

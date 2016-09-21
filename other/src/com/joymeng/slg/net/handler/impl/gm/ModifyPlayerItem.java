@@ -1,11 +1,14 @@
 package com.joymeng.slg.net.handler.impl.gm;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.joymeng.common.util.JsonUtil;
 import com.joymeng.common.util.MessageSendUtil;
 import com.joymeng.http.HtppOprateType;
+import com.joymeng.list.EventName;
 import com.joymeng.log.LogManager;
 import com.joymeng.services.core.buffer.JoyBuffer;
 import com.joymeng.services.core.message.JoyNormalMessage.UserInfo;
@@ -72,28 +75,24 @@ public class ModifyPlayerItem extends ServiceHandler{
 			 
 			/* Item it=dataManager.serach(Item.class, itemId);
 			 byte itemType =it.getItemType();*/
-	
+			List<ItemCell> aList = new ArrayList<>();
 			ItemCell ic=role.getBagAgent().getItemFromBag(itemId);
 			byte state =ic.getType();
 			switch (state) {
 			case 0:
-				role.getBagAgent().addGoods(itemId, Integer.valueOf(number));
-				String event = "ModifyPlayerItem";
-				String itemst  = itemId;
-				LogManager.itemOutputLog(role, Integer.valueOf(number), event, itemst);
+				aList = role.getBagAgent().addGoods(itemId, Integer.valueOf(number));
+				LogManager.itemOutputLog(role, Integer.valueOf(number), EventName.ModifyPlayerItem.getName(), itemId);
 				break;
 			case 2:
-				role.getBagAgent().addOther(itemId, Integer.valueOf(number));
-				String event1 = "ModifyPlayerItem";
-				String itemst1 =itemId;
-				LogManager.itemOutputLog(role, Integer.valueOf(number), event1, itemst1);
+				aList = role.getBagAgent().addOther(itemId, Integer.valueOf(number));
+				LogManager.itemOutputLog(role, Integer.valueOf(number), EventName.ModifyPlayerItem.getName(), itemId);
 				break;
 			default:
 				break;
 			}
 			if(role.isOnline()){
 				RespModuleSet rms = new RespModuleSet();
-				role.getBagAgent().sendBagToClient(rms);
+				role.getBagAgent().sendItemsToClient(rms, aList);
 				MessageSendUtil.sendModule(rms,role.getUserInfo());
 			}
 			Map<String,Object> map =new HashMap<String,Object>();

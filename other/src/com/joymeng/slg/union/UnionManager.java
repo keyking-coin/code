@@ -1,14 +1,18 @@
 package com.joymeng.slg.union;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import com.joymeng.Instances;
+import com.joymeng.common.util.I18nGreeting;
 import com.joymeng.common.util.MathUtils;
 import com.joymeng.common.util.MessageSendUtil;
 import com.joymeng.common.util.TimeUtils;
+import com.joymeng.list.EventName;
 import com.joymeng.log.GameLog;
 import com.joymeng.log.LogManager;
 import com.joymeng.services.core.buffer.JoyBuffer;
@@ -16,6 +20,7 @@ import com.joymeng.slg.dao.DaoData;
 import com.joymeng.slg.dao.SqlData;
 import com.joymeng.slg.domain.data.SearchFilter;
 import com.joymeng.slg.domain.evnt.EvntManager;
+import com.joymeng.slg.domain.map.MapUtil;
 import com.joymeng.slg.domain.map.impl.dynamic.ExpediteTroops;
 import com.joymeng.slg.domain.map.impl.dynamic.GarrisonTroops;
 import com.joymeng.slg.domain.map.impl.dynamic.GridType;
@@ -56,9 +61,14 @@ public class UnionManager implements Instances{
 	}
 	
 	public synchronized UnionBody create(Role role,String name,String shortName){
+		if (role.getUnionId() != 0) {
+			MessageSendUtil.sendNormalTip(role.getUserInfo(), I18nGreeting.MSG_JOINED_IN_UNION); // 提示创建成功
+			return null;
+		}
 		UnionBody union = new UnionBody();
 		union.setName(name);
 		union.setShortName(shortName);
+		union.setPosition(role.getCity(0).getPosition());
 		union.setLanguage(role.getRoleSetting().getLanguage());
 		String time = TimeUtils.nowStr();
 		union.setCreateTime(time);
@@ -80,7 +90,7 @@ public class UnionManager implements Instances{
 			MessageSendUtil.sendModule(rms,role.getUserInfo());
 		}
 		String parameter = role.getId() + "|" + name + "|" + shortName;
-		LogManager.unionLog(role, name, "creatUnion", parameter);
+		LogManager.unionLog(role, name, EventName.creatUnion.getName(), parameter);
 	    EvntManager.getInstance().Notify("createUnion", "");
 		return union;
 	}
@@ -131,21 +141,51 @@ public class UnionManager implements Instances{
 		return num;
 	}
 	
-	public List<UnionBody> search(List<Long> ids,int max){
+	public List<UnionBody> search(final int myPosition, List<Long> ids, int max) {
 		List<UnionBody> result = new ArrayList<UnionBody>();
-		List<UnionBody> temp   = world.getListObjects(UnionBody.class);
-		while (temp.size() > 0){
-			int index = MathUtils.random(temp.size());
-			UnionBody union = temp.get(index);
-			temp.remove(index);
-			if (ids.contains(union.getId()) || union.isRemoving() || union.getMembers().size() < 1){
+		List<UnionBody> full = new ArrayList<UnionBody>();
+		List<UnionBody> temp = world.getListObjects(UnionBody.class);
+		Collections.sort(temp, new Comparator<UnionBody>() {
+			@Override
+			public int compare(UnionBody o1, UnionBody o2) {
+				float a = MapUtil.computePointsDistance(myPosition, o1.getPosition());
+				float b = MapUtil.computePointsDistance(myPosition, o2.getPosition());
+				return a == b ? 0 : a > b ? 1 : -1;
+			}
+		});
+		for (int i = 0; i < max && i < temp.size();) {
+			if (temp.get(i).isFull()) {
+				full.add(temp.get(i++));
 				continue;
 			}
-			result.add(union);
-			if (result.size() == max){
-				break;
-			}
+			result.add(temp.get(i++));
 		}
+		int index = temp.size();
+		int j = 0;
+		while (index < max && j < full.size()) {
+			if (full.get(j) == null) {
+				continue;
+			}
+			result.add(full.get(j++));
+			index++;
+		}
+//		int t = 0;
+//		while (temp.size() > 0){
+//			int index = MathUtils.random(temp.size());
+//			UnionBody union = temp.get(index);
+//			if (t < 3 && union.isFull()) {
+//				continue;
+//			}
+//			t++;
+//			temp.remove(index);
+//			if (ids.contains(union.getId()) || union.isRemoving() || union.getMembers().size() < 1){
+//				continue;
+//			}
+//			result.add(union);
+//			if (result.size() == max){
+//				break;
+//			}
+//		}
 		return result;
 	}
 

@@ -2,6 +2,7 @@ package com.joymeng.slg.net.handler.impl.build;
 
 import com.joymeng.common.util.I18nGreeting;
 import com.joymeng.common.util.MessageSendUtil;
+import com.joymeng.log.NewLogManager;
 import com.joymeng.services.core.buffer.JoyBuffer;
 import com.joymeng.services.core.message.JoyNormalMessage.UserInfo;
 import com.joymeng.services.core.message.JoyProtocol;
@@ -28,6 +29,7 @@ public class BuildAddGemHandler extends ServiceHandler{
 		CommunicateResp resp = newResp(info);
 		Role role = getRole(info);
 		if (role == null){
+			NewLogManager.misTakeLog("BuildAddGemHandler getRole is null where uid = " + info.getUid());
 			resp.fail();
 			return resp;
 		}

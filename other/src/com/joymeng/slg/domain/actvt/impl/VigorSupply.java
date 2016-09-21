@@ -1,45 +1,124 @@
 package com.joymeng.slg.domain.actvt.impl;
 
+import java.text.MessageFormat;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
+import org.w3c.dom.Element;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
-import com.joymeng.log.GameLog;
-import com.joymeng.log.NewLogManager;
+import com.joymeng.services.utils.XmlUtils;
 import com.joymeng.slg.dao.SqlData;
 import com.joymeng.slg.domain.actvt.Actvt;
 import com.joymeng.slg.domain.actvt.ActvtCommonState;
 import com.joymeng.slg.domain.actvt.ClientMod;
-import com.joymeng.slg.domain.actvt.DTManager.SearchFilter;
-import com.joymeng.slg.domain.actvt.data.Activity;
-import com.joymeng.slg.domain.actvt.data.Activity_reward;
-import com.joymeng.slg.domain.actvt.data.Activity_vigorsupply;
+import com.joymeng.slg.domain.actvt.data.ActvtCommon;
+import com.joymeng.slg.domain.actvt.data.ActvtReward;
 import com.joymeng.slg.domain.object.role.Role;
 
-public class VigorSupply extends Actvt {
-
+public class VigorSupply extends Actvt 
+{
 	private Map<Long, Integer> receivePlayers = new HashMap<Long, Integer>(); 
 	private boolean[] receiveAbles = {false, false};
 	
-	private Activity_vigorsupply vigorSupply;
-	private Activity_reward reward1;
-	private Activity_reward reward2;
+	private ActvtReward reward1;
+	private ActvtReward reward2;
+	private String time1;
+	private String time2;
+	private DateTime start1;
+	private DateTime end1;
+	private DateTime start2;
+	private DateTime end2;
+
+	@Override
+	public void end()
+	{
+		super.end();
+		
+		stopInnerTimer("start1");
+		stopInnerTimer("end1");
+		stopInnerTimer("start2");
+		stopInnerTimer("end2");
+	}
 	
 	@Override
-	public boolean init(Activity activity)
+	public void start()
 	{
-		if (!super.init(activity)) {
-			return false;
-		}
-		load();
+		super.start();
 		
-		return true;
+		if (DateTime.now().isAfter(start1) && DateTime.now().isBefore(end1)) {
+			receiveAbles[0] = true;
+		}
+		
+		String cron = MessageFormat.format("0 {0} {1} * * ?", start1.getMinuteOfHour(), start1.getHourOfDay());
+		stopInnerTimer("start1");
+		startInnerTimer(cron, "start1");
+		
+		cron = MessageFormat.format("0 {0} {1} * * ?", end1.getMinuteOfHour(), end1.getHourOfDay());
+		stopInnerTimer("end1");
+		startInnerTimer(cron, "end1");
+		
+		if (DateTime.now().isAfter(start2) && DateTime.now().isBefore(end2)) {
+			receiveAbles[1] = true;
+		}
+		
+		cron = MessageFormat.format("0 {0} {1} * * ?", start2.getMinuteOfHour(), start2.getHourOfDay());
+		stopInnerTimer("start2");
+		startInnerTimer(cron, "start2");
+		
+		cron = MessageFormat.format("0 {0} {1} * * ?", end2.getMinuteOfHour(), end2.getHourOfDay());
+		stopInnerTimer("start2");
+		startInnerTimer(cron, "end2");
+	}
+	
+	@Override
+	public void load(Element element) throws Exception
+	{
+		super.load(element);
+		
+		Element eleSpecial = XmlUtils.getChildByName(element, "Special");
+		
+		time1 = eleSpecial.getAttribute("time1");
+		String[] time1s = time1.split("-");
+		start1 = parseDateTime(time1s[0]);
+		end1 = parseDateTime(time1s[1]);
+		if (!start1.isBefore(end1)) {
+			throw new Exception("id="+getId()+" special startTime1 is not before endTime1");
+		}
+		
+		time2 = eleSpecial.getAttribute("time2");
+		String[] time2s = time2.split("-");
+		start2 = parseDateTime(time2s[0]);
+		end2 = parseDateTime(time2s[1]);
+		if (!start2.isBefore(end2)) {
+			throw new Exception("id="+getId()+" special startTime2 is not before endTime2");
+		}
+
+		reward1 = getReward(eleSpecial.getAttribute("reward1"));
+		reward2 = getReward(eleSpecial.getAttribute("reward2"));
+	}
+	
+	@Override
+	public void innerTimerCB(String tag)
+	{
+		if (tag.equals("start1")) {
+			receivePlayers.clear();
+			receiveAbles[0] = true;
+		}
+		else if (tag.equals("end1")) {
+			receiveAbles[0] = false;
+		}
+		else if (tag.equals("start2")) {
+			receivePlayers.clear();
+			receiveAbles[1] = true;
+		}
+		else if (tag.equals("end2")) {
+			receiveAbles[1] = false;
+		}
 	}
 	
 	public int getRewardState(Role role, int index)
@@ -55,7 +134,7 @@ public class VigorSupply extends Actvt {
 		}
 		return ActvtCommonState.RECEIVED.ordinal();
 	}
-
+	
 	public boolean canReceive(long joyId, int index) 
 	{
 		if (!isRuning()) {
@@ -64,85 +143,41 @@ public class VigorSupply extends Actvt {
 		return receiveAbles[index] && !receivePlayers.containsKey(joyId);
 	}
 	
-	public void checkValideReward(String value, String data)
-	{
-		
-	}
-	
-	public void valideReward(String value, String data) {
-		GameLog.info("valideReward, " + value + ", " + data);
-		
-		String[] values = value.split("#");
-		if (values.length < 1) {
-			return; //SN 错误处理
-		}
-		
-		try {
-			int index = Integer.valueOf(values[0]);
-			int valide = Integer.valueOf(values[1]);
-			receiveAbles[index-1] = (valide == 1);
-		}
-		catch (Exception e) {
-			//SN 异常报错的LOG记录
-		}
-	}
-	
-	public void clearReceiveStats(String value, String data) {
-		GameLog.info("clearReceiveStats, " + value + ", " + data);
-		
-		receivePlayers.clear();
-	}
-	
-	public void receiveStats(String value, String data) {
-		GameLog.info("receiveStats, " + value + ", " + data);
-		Role role = getRole(data);
-		if (role != null) {
-			receivePlayers.put(role.getId(), 1);
-		}
-		else {
-			//SN 错误处理
-		}
-	}
-	
 	@Override
-	public boolean receiveReward(Role role, int index) {
+	public boolean receiveReward(Role role, int index) 
+	{
 		if (!canReceive(role.getId(), index)) {
 			return false;
 		}
-      
-		// TEST11  定时领取 	String sID; 	int num;
-	
+		
 		if (index == 0) {
-			rewardPlayer(role, reward1.toString());
-			String str = reward1.getsID()+"|"+reward1.getNum();
-			NewLogManager.activeLog(role, "activity_timing_reward",str);
+			rewardPlayer(role, reward1.getItems());
 		}
 		else {
-			rewardPlayer(role, reward2.toString());
-			String str = reward2.getsID()+"|"+reward2.getNum();
-			NewLogManager.activeLog(role, "activity_timing_reward",str);
+			rewardPlayer(role, reward2.getItems());
 		}
-
 		receivePlayers.put(role.getId(), 1);
 		return true;
 	}
 	
 	@Override
-	public void makeUpDetailModule(ClientMod module, Role role) {
-		Activity activity = getActivity();
-		module.add(activity.getType());
-		module.add(activity.getName());
-		module.add(activity.getDetailDesc());
+	public void makeUpDetailModule(ClientMod module, Role role) 
+	{
+		ActvtCommon commonData = getCommonData();
+		module.add(commonData.getType());
+		module.add(commonData.getName());
+		module.add(commonData.getDetailDesc());
 
-		module.add(vigorSupply.getStartTime1()+"-"+vigorSupply.getEndTime1());
-		module.add(reward1.getsID());
-		module.add(reward1.getNum());
+		module.add(time1);
+		module.add(reward1.getItemId(0));
+		module.add(reward1.getItemNum(0));
 		module.add(getRewardState(role, 0));
 		
-		module.add(vigorSupply.getStartTime2()+"-"+vigorSupply.getEndTime2());
-		module.add(reward2.getsID());
-		module.add(reward2.getNum());
+		module.add(time2);
+		module.add(reward2.getItemId(0));
+		module.add(reward2.getItemNum(0));
 		module.add(getRewardState(role, 1));
+
 //		System.out.println(module.getParams().toString());
 	}
 	
@@ -157,51 +192,6 @@ public class VigorSupply extends Actvt {
 		receivePlayers = JSON.parseObject(strs[0], new TypeReference<Map<Long, Integer>>(){});
 	}
 
-	@Override
-	public void load()
-	{
-//		vigorSupply = actvtMgr.serach(Activity_vigorsupply.class, "1");
-		vigorSupply = actvtMgr.serach(Activity_vigorsupply.class, new SearchFilter<Activity_vigorsupply>() {
-			@Override
-			public boolean filter(Activity_vigorsupply data) {
-				return data.getTypeId().equals(getActivity().getTypeId());
-			}
-		});
-		
-		List<Activity_reward> rewardList = actvtMgr.serachList(Activity_reward.class, new SearchFilter<Activity_reward>() {
-			@Override
-			public boolean filter(Activity_reward data) {
-				return data.getrID().equals(getActivity().getTypeId()+"_r1");
-			}
-		});
-		reward1 = rewardList.get(0);
-		
-		rewardList = actvtMgr.serachList(Activity_reward.class, new SearchFilter<Activity_reward>() {
-			@Override
-			public boolean filter(Activity_reward data) {
-				return data.getrID().equals(getActivity().getTypeId()+"_r2");
-			}
-		});
-		reward2 = rewardList.get(0);
-		
-//		reward1 = actvtMgr.getReward(vigorSupply.getReward1()).get(0);
-//		reward2 = actvtMgr.getReward(vigorSupply.getReward2()).get(0);
-		
-		DateTime dt1 = parseDateTime(vigorSupply.getStartTime1());
-		DateTime dt2 = parseDateTime(vigorSupply.getEndTime1());
-		if (DateTime.now().isAfter(dt1) && DateTime.now().isBefore(dt2)) {
-			receiveAbles[0] = true;
-		}
-		else {
-			dt1 = parseDateTime(vigorSupply.getStartTime2());
-			dt2 = parseDateTime(vigorSupply.getEndTime2());
-			if (DateTime.now().isAfter(dt1) && DateTime.now().isBefore(dt2)) {
-				receiveAbles[1] = true;
-			}
-		}
-//		vigorSupply.getStartTime1()
-	}
-	
 	private DateTime parseDateTime(String timestr)
 	{
 		DateTimeFormatter formatter = DateTimeFormat.forPattern("HH:mm");

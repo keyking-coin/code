@@ -15,6 +15,7 @@ import com.joymeng.common.util.TimeUtils;
 import com.joymeng.log.GameLog;
 import com.joymeng.slg.world.thread.BroadcastThread;
 import com.joymeng.slg.world.thread.DailyRunable;
+import com.joymeng.slg.world.thread.DataTransformThread;
 import com.joymeng.slg.world.thread.EnterGameThread;
 import com.joymeng.slg.world.thread.HourRunable;
 import com.joymeng.slg.world.thread.MapThread;
@@ -84,6 +85,8 @@ public class TaskPool {
 	
 	public EnterGameThread enterThread = new EnterGameThread();
 	
+	public DataTransformThread dataTransform = new DataTransformThread();
+	
 	public void start() {
 		GameLog.info("start all thread");
 		mainThread.start();
@@ -93,12 +96,13 @@ public class TaskPool {
 		worldNoticeThread.start();
 		//pushThread.start();
 		enterThread.start();
+		dataTransform.start();
 		long delay = MathUtils.getSecondsToClock(23,59) + 61;//第二天的第一秒
 		scheduleAtFixedRate(null, new DailyRunable(),delay,SECONDS_PER_DAY,TimeUnit.SECONDS);
 		DateTime time = TimeUtils.now();
 		long hour = MathUtils.getSecondsToClock(time.getHourOfDay(),59);//每个小时的第59分
 		scheduleAtFixedRate(null, new HourRunable(),hour,SECONDS_PER_HOUR,TimeUnit.SECONDS);
-		long day = MathUtils.getSecondsToClock(23,59);//每天的23:59
+		long day = MathUtils.getSecondsToClock(23,50);//每天的23:50 写入玩家当天总在线时长和全部玩家状态信息
 		scheduleAtFixedRate(null, new OnlineRunnable(),day,SECONDS_PER_DAY,TimeUnit.SECONDS);
 	}
 

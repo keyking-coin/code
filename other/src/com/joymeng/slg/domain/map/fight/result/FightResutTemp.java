@@ -5,10 +5,10 @@ import java.util.Map;
 import com.joymeng.slg.domain.map.fight.obj.FightTroops;
 
 public class FightResutTemp {
-	int alive;
-	int injurie;
-	int die;
-	Map<String,Integer> kills;
+	int alive;//存活
+	int injurie;//损伤
+	int die;//死亡
+	Map<String,Integer> kills;//
 	
 	public FightResutTemp(FightTroops troops,int alive,int injurie,int die){
 		this.alive = alive;

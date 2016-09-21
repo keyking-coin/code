@@ -492,7 +492,7 @@ public class RoleMission implements Instances {
 				} else {
 					String resType = (String) params[0];
 					if (resType.equals(cResType.getKey())) {
-						long num = (long) params[1];
+						long num = (long)params[1];
 						schedule += num;
 						if (schedule >= cNum) {
 							schedule = (int) cNum;
@@ -1280,19 +1280,14 @@ public class RoleMission implements Instances {
 			case C_ALLI_HN:// 61 获得X点联盟个人荣誉度
 			{
 				long cNum = Long.parseLong(condition.get(0));
-				if (params.length == 0) {
-					if (role.getUnionId() != 0) {
-						UnionBody ubody = unionManager.search(role.getUnionId());
-						if (ubody != null) {
-							UnionMember member = ubody.getUnionMemberById(role.getId());
-							if (member.getScoreRecord() > schedule) {
-								schedule = (int) member.getScoreRecord();
-							}
-							if (schedule >= cNum) {
-								schedule = (int) cNum;
-								awardStatus = 1;
-							}
-						}
+				if (params.length == 0) {					
+					int num = role.getRoleStatisticInfo().getLeagueGlory();
+					if (num > schedule) {
+						schedule = num;
+					}
+					if (schedule >= cNum) {
+						schedule = (int) cNum;
+						awardStatus = 1;
 					}
 				} else {
 					long num = (long) params[0];

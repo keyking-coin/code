@@ -5,11 +5,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.joymeng.Const;
 import com.joymeng.Instances;
 import com.joymeng.common.util.I18nGreeting;
 import com.joymeng.common.util.JsonUtil;
 import com.joymeng.common.util.MessageSendUtil;
 import com.joymeng.common.util.StringUtils;
+import com.joymeng.list.EventName;
 import com.joymeng.log.GameLog;
 import com.joymeng.log.LogManager;
 import com.joymeng.log.NewLogManager;
@@ -37,7 +39,8 @@ public class BuildComponentDefense implements BuildComponent,Instances {
 	long uid;
 	int cityId;
 	long buildId;
-	
+	//维修的血量
+	int repair = 0;
 	public BuildComponentDefense(){
 		buildComType = BuildComponentType.BUILD_COMPONENT_DEFENSE;
 	}
@@ -50,19 +53,29 @@ public class BuildComponentDefense implements BuildComponent,Instances {
 		state = 0;
 	}
 	
+	
+	
 	/**
 	 * 更新buff
 	 * @param preMax
 	 */
-	public void updateBuffValue(int preMax){
-		int nowMax = getDefenceHPVal();
-		int change = nowMax - preMax;
-		defenseValue += change;
-		defenseValue = Math.max(0,defenseValue);
-		defenseValue = Math.min(nowMax,defenseValue);
-	}
+//	public void updateBuffValue(int preMax){
+//		int nowMax = defenseStaticValue;
+//		int change = nowMax - preMax;
+//		defenseValue += change;
+//		defenseValue = Math.max(0,defenseValue);
+//		defenseValue = Math.min(nowMax,defenseValue);
+//	}
 	
-	public int getDefenceHPVal(){
+	/**
+	 * 
+	* @Title: getCurrentDefenceHPValFinal 
+	* @Description: 当前防御值
+	* 
+	* @return int
+	* @return
+	 */
+	public int getCurrentDefenceHP(){
 		float effect = 0;
 		Role role = world.getRole(uid);
 		if (role != null){
@@ -81,8 +94,112 @@ public class BuildComponentDefense implements BuildComponent,Instances {
 				}
 			}
 		}
-		return (int) (defenseStaticValue + effect * defenseStaticValue);
+		GameLog.info("[getCurrentDefenceHPValFinal]uid="+uid+"|defenseValue="+getDefenseValue()+"|effect="+effect * getDefenseStaticValue());
+		//如果buff 效果失效，defenseValue 最小值会改变
+		int value = (int) (getDefenseValue() + effect * getDefenseStaticValue());
+		if(value < 0){
+			setDefenseValue((int) (0-effect * getDefenseStaticValue()));
+			value = 0;
+		}
+		isNeedRepair("getCurrentDefenceHP");
+		return value;
 	}
+	
+	/**
+	 * 
+	* @Title: getMinDefenceHP 
+	* @Description: 当前学历最低值 
+	* 
+	* @return int
+	* @return
+	 */
+	public int getMinDefenceHP(){
+		float effect = 0;
+		Role role = world.getRole(uid);
+		if (role != null){
+			RoleCityAgent city = role.getCity(cityId);
+			if (city != null){
+				RoleBuild build = city.searchBuildById(buildId);
+				if (build != null){
+					Map<String, BuffObject> buffs = city.getCityBuffs().get(build.getBuildId());
+					if (buffs != null){
+						String key = TargetType.T_A_IMP_AHP.getName();
+						BuffObject bo = buffs.get(key);
+						if (bo != null){
+							effect = bo.getRate();
+						}
+					}
+				}
+			}
+		}
+		GameLog.info("[getMinDefenceHP]uid="+uid+"|defenseStaticValue="+getDefenseStaticValue()+"|effect="+effect * getDefenseStaticValue());
+		return (int) (0- effect * getDefenseStaticValue());
+	}
+	/**
+	 * 
+	* @Title: getDefenceHPValFinal 
+	* @Description: 总防御值
+	* 
+	* @return int
+	* @return
+	 */
+	public int getMaxDefenceHP(){
+		float effect = 0;
+		Role role = world.getRole(uid);
+		if (role != null){
+			RoleCityAgent city = role.getCity(cityId);
+			if (city != null){
+				RoleBuild build = city.searchBuildById(buildId);
+				if (build != null){
+					Map<String, BuffObject> buffs = city.getCityBuffs().get(build.getBuildId());
+					if (buffs != null){
+						String key = TargetType.T_A_IMP_AHP.getName();
+						BuffObject bo = buffs.get(key);
+						if (bo != null){
+							effect = bo.getRate();
+						}
+					}
+				}
+			}
+		}
+		GameLog.info("[getMaxDefenceHP]uid="+uid+"|defenseStaticValue="+getDefenseStaticValue()+"|effect="+effect * getDefenseStaticValue());
+		return (int) (getDefenseStaticValue() + effect * getDefenseStaticValue());
+	}
+	
+	
+	/**
+	 * 
+	* @Title: getDefenceHPVal 
+	* @Description: 总防御值 
+	* 
+	* @return int
+	* @return
+	 */
+//	public int getDefenceHPVal(){
+//		float effect = 0;
+//		Role role = world.getRole(uid);
+//		if (role != null){
+//			RoleCityAgent city = role.getCity(cityId);
+//			if (city != null){
+//				RoleBuild build = city.searchBuildById(buildId);
+//				if (build != null){
+//					Map<String, BuffObject> buffs = city.getCityBuffs().get(build.getBuildId());
+//					if (buffs != null){
+//						String key = TargetType.T_A_IMP_AHP.getName();
+//						BuffObject bo = buffs.get(key);
+//						if (bo != null){
+//							effect = bo.getRate();
+//						}
+//					}
+//				}
+//			}
+//		}
+//		return (int) (defenseStaticValue + effect * defenseStaticValue);
+//		
+//	}
+	
+	
+	
 	
 	/**
 	 * 防御型建筑修理，光棱塔，磁暴线圈等
@@ -110,11 +227,14 @@ public class BuildComponentDefense implements BuildComponent,Instances {
 		}
 		//防御建筑修理成本=(0.2*损失的生命值/最大生命值)*本级建造成本
 		//防御建筑修理时间=(0.2*损失的生命值/最大生命值)*本级建造时间
-		int maxHp  = getDefenceHPVal();
-		int dropHp = maxHp - defenseValue;
+		//new motify 2016-09-13
+//		防御建筑修理成本=(0.2*(最大生命值-当前生命值)/最大生命值)*本级建造成本
+//		防御建筑修理时间=(0.1*(最大生命值-当前生命值)/最大生命值)*本级建造时间+10
+		int maxHp  = getMaxDefenceHP();
+		int dropHp = maxHp - getCurrentDefenceHP();
 		float rate1 = 0.2f * dropHp / maxHp;
-		float rate2 = 0.2f * dropHp / maxHp;
-		long time = (long)(rate2 * buildLevel.getTime());
+		float rate2 = 0.1f * dropHp / maxHp;
+		long time = (long)(rate2 * buildLevel.getTime()+10);
 		int costMoney = 0;
 		List<String> resCostList = buildLevel.getBuildCostList();
 		List<String> newCostList = new ArrayList<String>();
@@ -137,27 +257,24 @@ public class BuildComponentDefense implements BuildComponent,Instances {
 			return false;
 		}
 		//扣除消耗
-		List<Object> resLst = cityAgent.redCostResource(newCostList,costMoney,"repairDefenseArmys");
+		List<Object> resLst = cityAgent.redCostResource(newCostList,costMoney,EventName.repairDefenseArmys.getName());
 		RespModuleSet rms = new RespModuleSet();
 		if (money == 1){
-			state = 0;
-			setDefenseValue(getDefenceHPVal());
+			repairOver();
 			role.redRoleMoney(costMoney);
-			String event ="repairDefenseArmys";
-			LogManager.goldConsumeLog(role,costMoney,event);
 			role.sendRoleToClient(rms);
 		}else{
 			 if (money == 2){
 				role.redRoleMoney(costMoney);
-				String event ="repairDefenseArmys";
-				LogManager.goldConsumeLog(role,costMoney,event);
 				role.sendRoleToClient(rms);
 			}
 	    	//添加时间队列
 	    	TimerLast timer = build.addBuildTimer(time,TimerLastType.TIME_REP_DEFENSE);
 	    	timer.registTimeOver(this);
 	    	state = 1;
+	    	repair = dropHp;
 		}
+		LogManager.goldConsumeLog(role,costMoney,EventName.repairDefenseArmys.getName());
 		build.sendToClient(rms);
 		role.sendResourceToClient(rms,cityId,resLst.toArray());
 		try {
@@ -170,9 +287,12 @@ public class BuildComponentDefense implements BuildComponent,Instances {
 		return true;
 	}
 	
+	public int getDefenseStaticValue() {
+		return defenseStaticValue;
+	}
+
 	@Override
 	public void tick(Role role,RoleBuild build,long now) {
-		
 	}
 
 	@Override
@@ -182,6 +302,10 @@ public class BuildComponentDefense implements BuildComponent,Instances {
 		}
 		Map<String,String> map = JsonUtil.JsonToObjectMap(str,String.class,String.class);
 		state = Byte.parseByte(map.get("state"));
+		if(map.get("repair") != null)
+			repair = Integer.parseInt(map.get("repair"));
+		else 
+			repair= 0;
 		armyId = map.get("armyId");
 		if (StringUtils.isNull(armyId)){
 			armyId = "";
@@ -192,15 +316,17 @@ public class BuildComponentDefense implements BuildComponent,Instances {
 		if (timer != null) {
 			timer.registTimeOver(this);
 		}
+		//
 	}
 
 	@Override
 	public String serialize(RoleBuild build) {
 		Map<String,String> map = new HashMap<String,String>();
 		map.put("state", String.valueOf(state));
-		map.put("defenseValue", String.valueOf(defenseValue));
+		map.put("defenseValue", String.valueOf(getDefenseValue()));
 		map.put("armyId", StringUtils.isNull(armyId) ? "null" : armyId);
 		map.put("defenseStaticValue", String.valueOf(defenseStaticValue));
+		map.put("repair", String.valueOf(repair));
 		String result = JsonUtil.ObjectToJsonString(map);
 		return result;
 	}
@@ -209,7 +335,7 @@ public class BuildComponentDefense implements BuildComponent,Instances {
 	public void sendToClient(ParametersEntity params) {
 		params.put(buildComType.getKey());//String
 		params.put(state);//byte 建筑状态
-		params.put(defenseValue);//int 当前建筑生命值
+		params.put(getCurrentDefenceHP());//int 当前建筑生命值  所有效果结合后的数据
 		params.put(defenseStaticValue);//int 建筑生命总值
 	}
 
@@ -220,35 +346,53 @@ public class BuildComponentDefense implements BuildComponent,Instances {
 	
 	@Override
 	public void finish() {
-		defenseValue = getDefenceHPVal();
+		repairOver();
+	}
+	public void isNeedRepair(String res){
+		if (state== 0 && getDefenseValue() < getDefenseStaticValue()){//城池状态更新
+			state = 2;//破损
+			GameLog.info("<isNeedRepair>uid="+this.uid+"|build="+this.buildId+"|state=2|re="+res);
+			//rms更新
+			Role role = world.getRole(uid);
+			if (role != null){
+				RoleCityAgent city = role.getCity(cityId);
+				if (city != null){
+					RoleBuild build = city.searchBuildById(buildId);
+					if (build != null){
+						build.sendToClient();
+					}
+				}
+			}
+		}
+	}
+	public void repairOver(){
+		setDefenseValue(getDefenseValue()+repair);
+		repair = 0;
 		state = 0;
+		isNeedRepair("repairOver");
 	}
 	
-	public synchronized void setDefenseValue(int newValue){
-		defenseValue = newValue;
-		defenseValue = Math.min(defenseValue,getDefenceHPVal());
-		defenseValue = Math.max(0,defenseValue);
+	private synchronized void setDefenseValue(int newValue){
+		defenseValue = Math.min(newValue,getDefenseStaticValue());
+		int value = getMinDefenceHP();//血量最小值
+		if(defenseValue < value)
+			defenseValue = value;
 	}
 	
 	public synchronized void change(int value){
-		int max = getDefenceHPVal();
-		defenseValue += value;
-		defenseValue = Math.min(defenseValue,max);
-		defenseValue = Math.max(0,defenseValue);
-		if (defenseValue < max){//城池状态更新
-			state = 2;//破损
-		}
+		setDefenseValue(getDefenseValue()+value);
+		isNeedRepair("change");
 	}
 
-	public int getDefenseValue() {
+	private int getDefenseValue() {
 		return defenseValue;
 	}
 	
 	public DefenseArmyInfo getDefenseArmy(){
-		if(armyId == null || defenseValue == 0){
+		if(armyId == null || getCurrentDefenceHP() == 0){
 			return null;
 		}
-		DefenseArmyInfo armyInfo = DefenseArmyInfo.create(armyId,1,defenseValue);
+		DefenseArmyInfo armyInfo = DefenseArmyInfo.create(armyId,1,getCurrentDefenceHP());
 		armyInfo.setBuildId(buildId);
 		return armyInfo;
 	}
@@ -271,13 +415,22 @@ public class BuildComponentDefense implements BuildComponent,Instances {
 			GameLog.error("canot find defense build army static data armyId=" + armyId);
 		    return;
 		}
-		int max = getDefenceHPVal();
-		int breakValue =  max - defenseValue;//损耗的血量
+		int breakValue =  getMaxDefenceHP() - getCurrentDefenceHP();//损耗的血量
+		int oldStaticValue = getDefenseStaticValue();
 		defenseStaticValue = (int) armydata.getHitPoints();
-		defenseValue = getDefenceHPVal() - breakValue;
+		setDefenseValue(defenseStaticValue-breakValue);
+		if(repair > 0)
+			repair +=  getDefenseStaticValue() - oldStaticValue;
 	}
 	
 	public String getArmyId() {
 		return armyId;
+	}
+
+
+	@Override
+	public boolean isWorking(Role role, RoleBuild build) {
+		// TODO Auto-generated method stub
+		return false;
 	}
 }

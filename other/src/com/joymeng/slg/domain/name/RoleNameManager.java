@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import com.joymeng.Instances;
 import com.joymeng.common.util.StringUtils;
@@ -82,23 +84,30 @@ public class RoleNameManager implements Instances {
 		}
 	}
 
-	public boolean isNameLegal(String name) {
+	public boolean isNameLegal(final String name) {
 		synchronized (disallows) {
-			int len = name.length();
+			String temp = name.replace(" ", "");
+			int len = temp.length();
 			while (len > 0) {
 				List<String> lis = disallows.get(len);
 				if (lis != null) {
 					for (int i = 0; i < lis.size(); i++) {
 						String str = lis.get(i);
-						if (name.contains(str)) {
+						if (temp.contains(str)) {
 							return false;
 						}
 					}
 				}
 				len--;
 			}
-			return !StringUtils.isNull(name);
+			return !StringUtils.isNull(temp);
 		}
+	}
+	
+	public boolean isNameCharLegal(final String name,String regEx) {
+		Pattern pattern = Pattern.compile(regEx);
+	    Matcher matcher = pattern.matcher(name);
+		return matcher.matches();
 	}
 
 	public String chatWordsValid(String text) {

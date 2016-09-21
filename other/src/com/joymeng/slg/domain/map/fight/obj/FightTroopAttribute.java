@@ -25,6 +25,7 @@ public class FightTroopAttribute {
     byte boiType;//选择目标概率用
     int range;
     int space;
+    float power;
     List<Float> damageRates  =  new ArrayList<Float>();
     List<ArmyType> targets   = new ArrayList<ArmyType>();
     Map<Byte,Integer> radoms = new HashMap<Byte,Integer>();
@@ -44,6 +45,7 @@ public class FightTroopAttribute {
 		armyType = army.getArmyType();
 		boiType  = army.getBioType();
 		space    = army.getSpace();
+		power    = army.getFightingForce();
 		List<String> tempDamage = army.getDamageRates();
 		for (int i = 0 ; i < tempDamage.size() ; i++){
 			String str = tempDamage.get(i);
@@ -220,6 +222,14 @@ public class FightTroopAttribute {
 
 	public void setcHp(int cHp) {
 		this.cHp = cHp;
+	}
+
+	public float getPower() {
+		return power;
+	}
+
+	public void setPower(float power) {
+		this.power = power;
 	}
 
 	public boolean checkAttack(FightTroops enemy) {

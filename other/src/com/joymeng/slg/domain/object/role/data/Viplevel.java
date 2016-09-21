@@ -25,7 +25,17 @@ public class Viplevel implements DataKey, Comparable<Viplevel>{
 	int TroopsLimit;//增加出征队伍数量
 	float SoldLimit;//增加出征队伍空间
 	float ReduProdTime;//减少部队生产时间
-
+	float FreeBuildSpeed;//增加建造免费加速时间
+	float FreeResearchSpeed;//增加研究免费加速时间	
+	float ReduHospTime;//伤兵医疗加速
+	float ReduRepaTime;//机械维修加速
+	float ReduHospRes;//降低治疗伤兵的资源
+	float ReduRepaRes;//降低维修机械的资源
+	float AddHospCapa;//增加医院伤兵总容量
+	float AddRepaCapa;//增加受损机械总容量
+	
+	
+	
 	public String getId() {
 		return id;
 	}
@@ -157,6 +167,55 @@ public class Viplevel implements DataKey, Comparable<Viplevel>{
 	}
 	public void setReduProdTime(float reduProdTime) {
 		ReduProdTime = reduProdTime;
+	}
+	
+	public float getFreeBuildSpeed() {
+		return FreeBuildSpeed;
+	}
+	public void setFreeBuildSpeed(float freeBuildSpeed) {
+		FreeBuildSpeed = freeBuildSpeed;
+	}
+	public float getFreeResearchSpeed() {
+		return FreeResearchSpeed;
+	}
+	public void setFreeResearchSpeed(float freeResearchSpeed) {
+		FreeResearchSpeed = freeResearchSpeed;
+	}
+	public float getReduHospTime() {
+		return ReduHospTime;
+	}
+	public void setReduHospTime(float reduHospTime) {
+		ReduHospTime = reduHospTime;
+	}
+	public float getReduRepaTime() {
+		return ReduRepaTime;
+	}
+	public void setReduRepaTime(float reduRepaTime) {
+		ReduRepaTime = reduRepaTime;
+	}
+	public float getReduHospRes() {
+		return ReduHospRes;
+	}
+	public void setReduHospRes(float reduHospRes) {
+		ReduHospRes = reduHospRes;
+	}
+	public float getReduRepaRes() {
+		return ReduRepaRes;
+	}
+	public void setReduRepaRes(float reduRepaRes) {
+		ReduRepaRes = reduRepaRes;
+	}
+	public float getAddHospCapa() {
+		return AddHospCapa;
+	}
+	public void setAddHospCapa(float addHospCapa) {
+		AddHospCapa = addHospCapa;
+	}
+	public float getAddRepaCapa() {
+		return AddRepaCapa;
+	}
+	public void setAddRepaCapa(float addRepaCapa) {
+		AddRepaCapa = addRepaCapa;
 	}
 	@Override
 	public Object key() {

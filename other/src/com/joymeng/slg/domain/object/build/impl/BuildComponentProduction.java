@@ -1,5 +1,6 @@
 package com.joymeng.slg.domain.object.build.impl;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -10,6 +11,7 @@ import com.joymeng.common.util.JsonUtil;
 import com.joymeng.common.util.MessageSendUtil;
 import com.joymeng.common.util.StringUtils;
 import com.joymeng.common.util.TimeUtils;
+import com.joymeng.list.EventName;
 import com.joymeng.log.GameLog;
 import com.joymeng.log.LogManager;
 import com.joymeng.log.NewLogManager;
@@ -21,6 +23,7 @@ import com.joymeng.slg.domain.object.build.RoleBuild;
 import com.joymeng.slg.domain.object.build.RoleCityAgent;
 import com.joymeng.slg.domain.object.build.data.Buildinglevel;
 import com.joymeng.slg.domain.object.build.data.RoleBuildState;
+import com.joymeng.slg.domain.object.effect.BuffTypeConst.TargetType;
 import com.joymeng.slg.domain.object.effect.Effect;
 import com.joymeng.slg.domain.object.resource.ResourceTypeConst;
 import com.joymeng.slg.domain.object.role.Role;
@@ -30,8 +33,10 @@ import com.joymeng.slg.domain.timer.TimerLast;
 import com.joymeng.slg.domain.timer.TimerLastType;
 import com.joymeng.slg.net.ParametersEntity;
 import com.joymeng.slg.net.mod.RespModuleSet;
+
 /**
  * 资源生成组件
+ * 
  * @author tanyong
  *
  */
@@ -50,7 +55,7 @@ public class BuildComponentProduction implements BuildComponent, Instances {
 	// 基础最大储存上限
 	long resBaseMaxNum = 0;
 	// 当前产出
-	long resOutput = 0;
+//	long resOutput = 0;
 	// 基础产出
 	long resBaseOutput = 0;
 	// 道具指定建筑加成
@@ -59,17 +64,17 @@ public class BuildComponentProduction implements BuildComponent, Instances {
 	String itemId;
 	boolean isSpeedup = false;
 	//
-	float itemBuff = 0f;
-	float techBuff = 0f;
-	float skillBuff = 0f;
-	float vipBuff = 0f;
-	float equipBuff = 0f;
-
-	long itemNumBuff = 0;
-	long techNumBuff = 0;
-	long skillNumBuff = 0;
-	long vipNumBuff = 0;
-	long equipNumBuff = 0;
+	// float itemBuff = 0f;
+	// float techBuff = 0f;
+	// float skillBuff = 0f;
+	// float vipBuff = 0f;
+	// float equipBuff = 0f;
+	//
+	// long itemNumBuff = 0;
+	// long techNumBuff = 0;
+	// long skillNumBuff = 0;
+	// long vipNumBuff = 0;
+	// long equipNumBuff = 0;
 
 	long uid;
 	int cityId;
@@ -151,102 +156,208 @@ public class BuildComponentProduction implements BuildComponent, Instances {
 	 * 
 	 * @return
 	 */
-	public float getAllRateBuff() {
-		return techBuff + itemBuff + skillBuff + vipBuff + equipBuff;
+	// public float getAllRateBuff() {
+	// return techBuff + itemBuff + skillBuff + vipBuff + equipBuff;
+	// }
+	//
+	// public long getAllNumBuff() {
+	// return techNumBuff + itemNumBuff + skillNumBuff + vipNumBuff +
+	// equipNumBuff;
+	// }
+
+	private List<Effect> getEffectByBuildId() {
+		List<Effect> effects = new ArrayList<Effect>();
+		Role role = world.getOnlineRole(uid);
+		if (role != null) {
+			RoleBuild build = null;
+			RoleCityAgent cityAgent = role.getCity(cityId);
+			if (cityAgent != null)
+				build = cityAgent.searchBuildById(buildId);
+			if (build != null && build.getState() != RoleBuildState.COND_DELETED.getKey()) {
+				if (build.getBuildId().equals(BuildName.FOOD_FACT.getKey())) {
+					effects = role.getEffectAgent().searchBuffByTargetType(TargetType.T_B_IMP_FP,
+							TargetType.B_ADD_FOOD_PROD);
+				} else if (build.getBuildId().equals(BuildName.SMELTER.getKey())) {
+					effects = role.getEffectAgent().searchBuffByTargetType(TargetType.T_B_IMP_MP,
+							TargetType.B_ADD_METAL_PROD);
+				} else if (build.getBuildId().equals(BuildName.REFINERY.getKey())) {
+					effects = role.getEffectAgent().searchBuffByTargetType(TargetType.T_B_IMP_OP,
+							TargetType.B_ADD_OIL_PROD);
+				} else if (build.getBuildId().equals(BuildName.TITANIUM_PLANT.getKey())) {
+					effects = role.getEffectAgent().searchBuffByTargetType(TargetType.T_B_IMP_AP,
+							TargetType.B_ADD_ALLOY_PROD);
+				} else {
+					// 核弹减产
+					effects = role.getEffectAgent().searchBuffByTargetType(TargetType.C_A_RED_RES);
+					for (Effect eff : effects) {
+						if (eff.isPercent()) {
+							eff.setRate(eff.getRate() * (-1));
+						} else {
+							eff.setNum(eff.getNum() * (-1));
+						}
+					}
+				}
+			}
+		}
+		return effects;
 	}
 
-	public long getAllNumBuff() {
-		return techNumBuff + itemNumBuff + skillNumBuff + vipNumBuff + equipNumBuff;
+	public float[] getAllRateBuff() {
+		float[] value = new float[] { 0, 0, 0, 0, 0 ,0};
+		List<Effect> effects = getEffectByBuildId();
+		for (Effect eff : effects) {
+			switch (eff.getsType()) {
+			case EFF_TECH:
+				value[0] += eff.getRate();
+				break;
+			case EFF_EQUIP:
+				value[1] += eff.getRate();
+				break;
+			case EFF_ITEM:
+				value[2] += eff.getRate();
+				break;
+			case EFF_SKILL:
+				value[3] += eff.getRate();
+				break;
+			case EFF_VIP:
+				value[4] += eff.getRate();
+				break;
+			case EFF_UCITY:
+				value[5] += eff.getRate();
+				break;
+			default:
+				break;
+			}
+		}
+		if(specialTimer != null && isRate)
+			value[2] += (float) specialTimer.getParam();
+//		GameLog.info(
+//				"[getAllRateBuff]uid=" + this.uid + "|cityId=" + cityId + "|buildid=" + buildId + "|rate=" + (value[0]+":"+value[1]+":"+value[2]+":"+value[3]+":"+value[4])+
+//				"|specialTimer="+((specialTimer != null && isRate) ? specialTimer.getParam() : 0 ));
+		return value;
 	}
 
-	public void updateResBuffRate(boolean isRemove, Effect e) {
-//		long now = TimeUtils.nowLong() / 1000;
-//		resNum += calcResourceNum();
-//		timer = now;
-		switch (e.getsType()) {
-		case EFF_TECH: {
-			if (e.isPercent()) {
-				if (isRemove) {
-					techBuff -= e.getRate();
-				} else {
-					techBuff += e.getRate();
-				}
-			} else {
-				if (isRemove) {
-					techNumBuff -= e.getNum();
-				} else {
-					techNumBuff += e.getNum();
-				}
+	public long[] getAllNumBuff() {
+		long[] value = new long[] { 0, 0, 0, 0, 0, 0 };
+		List<Effect> effects = getEffectByBuildId();
+		for (Effect eff : effects) {
+			switch (eff.getsType()) {
+			case EFF_TECH:
+				value[0] += eff.getNum();
+				break;
+			case EFF_EQUIP:
+				value[1] += eff.getNum();
+				break;
+			case EFF_ITEM:
+				value[2] += eff.getNum();
+				break;
+			case EFF_SKILL:
+				value[3] += eff.getNum();
+				break;
+			case EFF_VIP:
+				value[4] += eff.getNum();
+			case EFF_UCITY:
+				value[5] += eff.getNum();
+				break;
+			default:
+				break;
 			}
 		}
-			break;
-		case EFF_EQUIP: {
-			if (e.isPercent()) {
-				if (isRemove) {
-					equipBuff -= e.getRate();
-				} else {
-					equipBuff += e.getRate();
-				}
-			} else {
-				if (isRemove) {
-					equipNumBuff -= e.getNum();
-				} else {
-					equipNumBuff += e.getNum();
-				}
-			}
-		}
-			break;
-		case EFF_ITEM: {
-			if (e.isPercent()) {
-				if (isRemove) {
-					itemBuff -= e.getRate();
-				} else {
-					itemBuff -= e.getRate();
-				}
-			} else {
-				if (isRemove) {
-					itemNumBuff -= e.getNum();
-				} else {
-					itemNumBuff -= e.getNum();
-				}
-			}
-		}
-			break;
-		case EFF_SKILL: {
-			if (e.isPercent()) {
-				if (isRemove) {
-					skillBuff -= e.getRate();
-				} else {
-					skillBuff += e.getRate();
-				}
-			} else {
-				if (isRemove) {
-					skillNumBuff -= e.getNum();
-				} else {
-					skillNumBuff += e.getNum();
-				}
-			}
-		}
-			break;
-		case EFF_VIP: {
-			if (e.isPercent()) {
-				if (isRemove) {
-					vipBuff -= e.getRate();
-				} else {
-					vipBuff += e.getRate();
-				}
-			} else {
-				if (isRemove) {
-					vipNumBuff -= e.getNum();
-				} else {
-					vipNumBuff += e.getNum();
-				}
-			}
-		}
-			break;
-		default:
-			break;
-		}
+		if(specialTimer != null && !isRate)
+			value[2] += (long) specialTimer.getParam();
+//		GameLog.info(
+//				"[getAllRateBuff]uid=" + this.uid + "|cityId=" + cityId + "|buildid=" + buildId + "|num=" + (value[0]+":"+value[1]+":"+value[2]+":"+value[3]+":"+value[4])+"|specialTimer="+((specialTimer != null && !isRate) ? specialTimer.getParam() : 0 ));
+		return value;
+	}
+
+	public void updateResBuffRate() {
+		// long now = TimeUtils.nowLong() / 1000;
+		// resNum += calcResourceNum();
+		// timer = now;
+//		switch (e.getsType()) {
+//		case EFF_TECH: {
+//			if (e.isPercent()) {
+//				if (isRemove) {
+//					techBuff -= e.getRate();
+//				} else {
+//					techBuff += e.getRate();
+//				}
+//			} else {
+//				if (isRemove) {
+//					techNumBuff -= e.getNum();
+//				} else {
+//					techNumBuff += e.getNum();
+//				}
+//			}
+//		}
+//			break;
+//		case EFF_EQUIP: {
+//			if (e.isPercent()) {
+//				if (isRemove) {
+//					equipBuff -= e.getRate();
+//				} else {
+//					equipBuff += e.getRate();
+//				}
+//			} else {
+//				if (isRemove) {
+//					equipNumBuff -= e.getNum();
+//				} else {
+//					equipNumBuff += e.getNum();
+//				}
+//			}
+//		}
+//			break;
+//		case EFF_ITEM: {
+//			if (e.isPercent()) {
+//				if (isRemove) {
+//					itemBuff -= e.getRate();
+//				} else {
+//					itemBuff -= e.getRate();
+//				}
+//			} else {
+//				if (isRemove) {
+//					itemNumBuff -= e.getNum();
+//				} else {
+//					itemNumBuff -= e.getNum();
+//				}
+//			}
+//		}
+//			break;
+//		case EFF_SKILL: {
+//			if (e.isPercent()) {
+//				if (isRemove) {
+//					skillBuff -= e.getRate();
+//				} else {
+//					skillBuff += e.getRate();
+//				}
+//			} else {
+//				if (isRemove) {
+//					skillNumBuff -= e.getNum();
+//				} else {
+//					skillNumBuff += e.getNum();
+//				}
+//			}
+//		}
+//			break;
+//		case EFF_VIP: {
+//			if (e.isPercent()) {
+//				if (isRemove) {
+//					vipBuff -= e.getRate();
+//				} else {
+//					vipBuff += e.getRate();
+//				}
+//			} else {
+//				if (isRemove) {
+//					vipNumBuff -= e.getNum();
+//				} else {
+//					vipNumBuff += e.getNum();
+//				}
+//			}
+//		}
+//			break;
+//		default:
+//			break;
+//		}
 		updateResOutput();
 		Role role = world.getOnlineRole(uid);
 		if (role == null) {
@@ -258,19 +369,44 @@ public class BuildComponentProduction implements BuildComponent, Instances {
 		build.sendToClient(rms);
 		MessageSendUtil.sendModule(rms, role.getUserInfo());
 	}
+	
+	public float getPowerRatio(){
+		float powerRatio = Const.DEFAULT_CONSUMPTION;
+		Role role = world.getOnlineRole(uid);
+		if (role != null) {
+			RoleCityAgent agent = role.getCity(cityId);
+			if(agent != null)
+				powerRatio = agent.geteAgent().searchPoweRatio(buildId, this.getBuildComponentType().getKey());
+		}
+		return powerRatio;
+	}
+	
+	/**
+	 * 
+	* @Title: getresOutPutFinal 
+	* @Description: 得到最终产出
+	* 
+	* @return long
+	* @return
+	 */
+	public long getOutput(){
+		float[] rate = getAllRateBuff();
+		long[] num = getAllNumBuff();
+		long finals =   (long) (resBaseOutput + resBaseOutput * (rate[0]+rate[1]+rate[2]+rate[3]+rate[4]+rate[5]) + (num[0]+num[1]+num[2]+num[3]+num[4]+num[5]));
+		finals = (long) (finals * getPowerRatio());
+		return finals;
+	}
+	
 
 	private void updateResOutput() {
-		resOutput = (long) (resBaseOutput + resBaseOutput * getAllRateBuff() + getAllNumBuff());
+		long resOutput = getOutput();
 		// 任务事件
 		Role role = world.getObject(Role.class, uid);
 		if (role != null) {
 			role.handleEvent(GameEvent.TASK_CHECK_EVENT, new TaskEventDelay(), ConditionType.COND_RESOURCE, cityId,
 					resType.getKey(), resOutput);
 		}
-	}
-
-	public long getOutput() {
-		return resOutput;
+		GameLog.info("[updateResOutput]uid="+uid+"|resOutput="+resOutput);
 	}
 
 	public long getBaseOutput() {
@@ -278,23 +414,39 @@ public class BuildComponentProduction implements BuildComponent, Instances {
 	}
 
 	public long getTechBuffOutput() {
-		return (long) (techBuff * resBaseOutput + techNumBuff);
+		float[] rate = getAllRateBuff();
+		long[] num = getAllNumBuff();
+		return (long) (rate[0] * resBaseOutput + num[0]);
 	}
 
 	public long getItemBuffOutput() {
-		return (long) (itemBuff * resBaseOutput + itemNumBuff);
+		float[] rate = getAllRateBuff();
+		long[] num = getAllNumBuff();
+		return (long) (rate[2] * resBaseOutput + num[2]);
 	}
 
 	public long getSkillBuffOutput() {
-		return (long) (skillBuff * resBaseOutput + skillNumBuff);
+		float[] rate = getAllRateBuff();
+		long[] num = getAllNumBuff();
+		return (long) (rate[3] * resBaseOutput + num[3]);
 	}
 
 	public long getVipBuffOutput() {
-		return (long) (vipBuff * resBaseOutput + vipNumBuff);
+		float[] rate = getAllRateBuff();
+		long[] num = getAllNumBuff();
+		return (long) (rate[4] * resBaseOutput + num[4]);
+	}
+
+	public long getEquipBuffOutput() {
+		float[] rate = getAllRateBuff();
+		long[] num = getAllNumBuff();
+		return (long) (rate[1] * resBaseOutput + num[1]);
 	}
 	
-	public long getEquipBuffOutput() {
-		return (long) (equipBuff * resBaseOutput + equipNumBuff);
+	public long getUnionCitysBuffOutput() {
+		float[] rate = getAllRateBuff();
+		long[] num = getAllNumBuff();
+		return (long) (rate[5] * resBaseOutput + num[5]);
 	}
 
 	/**
@@ -315,6 +467,7 @@ public class BuildComponentProduction implements BuildComponent, Instances {
 
 	/**
 	 * 计算当前可收获资源数量
+	 * 
 	 * @return
 	 */
 	public long calcResourceNum() {
@@ -324,15 +477,26 @@ public class BuildComponentProduction implements BuildComponent, Instances {
 				return (long) result;
 			}
 		} else {
-			long newTimer = TimeUtils.nowLong() / 1000; 
+			long newTimer = TimeUtils.nowLong() / 1000;
 			long lastTime = newTimer - timer;
 			if (lastTime > 0) {
 				// 计算产量
-				result = (double) resOutput * lastTime / Const.ONE_HOUR_TIME;
+				result = (double) getOutput() * lastTime / Const.ONE_HOUR_TIME;
 			}
 		}
 		result += resNum;
 		result = (result > resMaxNum) ? resMaxNum : result;
+		return (long) result;
+	}
+	
+	public long calcResourceNumTimes(int hour) {
+		double result = 0.0D;
+		if (hour > 0) {
+			// 计算产量
+			result = (double) getOutput() * hour;
+		}
+//		result += resNum;
+//		result = (result > resMaxNum) ? resMaxNum : result;
 		return (long) result;
 	}
 
@@ -345,6 +509,7 @@ public class BuildComponentProduction implements BuildComponent, Instances {
 		if (state == 4) {
 			return false;
 		}
+		//GameLog.info("[IsCanStateChange]uid="+uid+"|build="+this.buildId+"|state="+state);
 		long num = calcResourceNum();
 		if (num + resNum >= resMaxNum) {// 停止增长
 			if (state == 2) {
@@ -390,7 +555,7 @@ public class BuildComponentProduction implements BuildComponent, Instances {
 			long lastTime = newTimer - timer;
 			if (lastTime > 0) {
 				// 计算产量
-				double result = (double) resOutput * lastTime / Const.ONE_HOUR_TIME;
+				double result = calcResourceNum();
 				resNum += (long) result;
 			}
 			if (resNum < 1) {
@@ -406,13 +571,12 @@ public class BuildComponentProduction implements BuildComponent, Instances {
 		RespModuleSet rms = new RespModuleSet();
 		build.sendToClient(rms);
 		role.addResourcesToCity(rms, cityId, resType, collectNum);
-		String event = "collectResource";
 		String item = resType.getKey();
-		LogManager.itemOutputLog(role, collectNum, event, item);
+		LogManager.itemOutputLog(role, collectNum, EventName.collectResource.getName(), item);
 		try {
-			NewLogManager.buildLog(role, "collect_resources",item,collectNum);
-			NewLogManager.buildLog(role, "grain_resource",item,collectNum);
-			} catch (Exception e) {
+			NewLogManager.buildLog(role, "collect_resources", item, collectNum);
+			NewLogManager.buildLog(role, "grain_resource", item, collectNum);
+		} catch (Exception e) {
 			GameLog.info("埋点错误");
 		}
 		// 任务事件
@@ -421,15 +585,17 @@ public class BuildComponentProduction implements BuildComponent, Instances {
 		return collectNum;
 	}
 
+	public static long TIME_NOW = 0l;
 	@Override
-	public void tick(Role role, RoleBuild build,long now) {
-		if (specialTimer != null && specialTimer.over(now)) {		
+	public void tick(Role role, RoleBuild build, long now) {
+		if (specialTimer != null && specialTimer.over(now)) {
 			specialTimer.die();
 			build.sendToClient();
 		}
 		if (IsCanStateChange()) {
 			build.sendToClient();
 		}
+		
 	}
 
 	private void updateParams(Role role, RoleBuild build) {
@@ -506,7 +672,7 @@ public class BuildComponentProduction implements BuildComponent, Instances {
 		map.put("timer", String.valueOf(timer));
 		map.put("resNum", String.valueOf(resNum));
 		map.put("resBaseOutput", String.valueOf(resBaseOutput));
-		map.put("resOutput", String.valueOf(resOutput));
+		map.put("resOutput", String.valueOf(getOutput()));
 		map.put("resBaseMaxNum", String.valueOf(resBaseMaxNum));
 		map.put("resMaxNum", String.valueOf(resMaxNum));
 		map.put("isRate", isRate ? "true" : "false");
@@ -535,7 +701,7 @@ public class BuildComponentProduction implements BuildComponent, Instances {
 		timer = Long.parseLong(map.get("timer"));
 		resNum = Long.parseLong(map.get("resNum"));
 		resBaseOutput = Long.parseLong(map.get("resBaseOutput"));
-		resOutput = Long.parseLong(map.get("resOutput"));
+		 Long.parseLong(map.get("resOutput"));
 		resBaseMaxNum = Long.parseLong(map.get("resBaseMaxNum"));
 		resMaxNum = Long.parseLong(map.get("resMaxNum"));
 		itemId = map.get("itemId");
@@ -553,11 +719,11 @@ public class BuildComponentProduction implements BuildComponent, Instances {
 			specialTimer = new TimerLast(start, last, TimerLastType.TIME_ITEM_IMP_RES);
 			if (isRate) {
 				float rate = Float.parseFloat(param);
-				itemBuff += rate;
+				//itemBuff += rate;
 				specialTimer.setParam(rate);
 			} else {
 				long rate = Long.parseLong(param);
-				itemNumBuff += rate;
+				//itemNumBuff += rate;
 				specialTimer.setParam(rate);
 			}
 			specialTimer.registTimeOver(this);
@@ -570,7 +736,7 @@ public class BuildComponentProduction implements BuildComponent, Instances {
 		params.put(buildComType.getKey());// String, 功能组件名称
 		IsCanStateChange();
 		params.put(state); // byte 状态
-		params.put(resOutput);// long 当前产量
+		params.put(getOutput());// long 当前产量
 		params.put(resMaxNum);// long 当前容量
 		params.put(isSpeedup ? (byte) 1 : (byte) 0);// 是否道具加速
 	}
@@ -582,17 +748,28 @@ public class BuildComponentProduction implements BuildComponent, Instances {
 
 	@Override
 	public void finish() {
-		if (isRate) {
-			itemBuff -= (float) specialTimer.getParam();
-		} else {
-			itemNumBuff -= (long) specialTimer.getParam();
-		}
+//		if (isRate) {
+//			itemBuff -= (float) specialTimer.getParam();
+//		} else {
+//			itemNumBuff -= (long) specialTimer.getParam();
+//		}
 		specialTimer = null;
 		isSpeedup = false;
 		updateResOutput();
 	}
 
-	// 特殊道具加成
+	/**
+	 *  特殊道具加成
+	* @Title: addSpecialItemBuff 
+	* 
+	* @return boolean
+	* @param itemId
+	* @param start
+	* @param last
+	* @param value
+	* @param isRate
+	* @return
+	 */
 	public boolean addSpecialItemBuff(String itemId, long start, long last, String value, boolean isRate) {
 		if (specialTimer == null) {
 			this.isRate = isRate;
@@ -600,10 +777,10 @@ public class BuildComponentProduction implements BuildComponent, Instances {
 			this.specialTimer = new TimerLast(TimeUtils.nowLong() / 1000, last, TimerLastType.TIME_ITEM_IMP_RES);
 			specialTimer.registTimeOver(this);
 			if (isRate) {
-				itemBuff += Float.parseFloat(value);
+//				itemBuff += Float.parseFloat(value);
 				specialTimer.setParam(Float.parseFloat(value));
 			} else {
-				itemNumBuff += Long.parseLong(value);
+//				itemNumBuff += Long.parseLong(value);
 				specialTimer.setParam(Long.parseLong(value));
 			}
 			isSpeedup = true;
@@ -616,57 +793,64 @@ public class BuildComponentProduction implements BuildComponent, Instances {
 	// 创建时同步当前buff
 	public void initProductEffect(Role role) {
 		if (role != null) {
-			List<Effect> effects = role.getEffectAgent().searchProductEffs(resType);
-			if (effects.size() > 0) {
-				for (int i = 0; i < effects.size(); i++) {
-					Effect e = effects.get(i);
-					switch (e.getsType()) {
-					case EFF_TECH: {
-						if (e.isPercent()) {
-							techBuff += e.getRate();
-						} else {
-							techNumBuff += e.getNum();
-						}
-						break;
-					}
-					case EFF_EQUIP: {
-						if (e.isPercent()) {
-							equipBuff += e.getRate();
-						} else {
-							equipNumBuff += e.getNum();
-						}
-						break;
-					}
-					case EFF_ITEM: {
-						if (e.isPercent()) {
-							itemBuff -= e.getRate();
-						} else {
-							itemNumBuff -= e.getNum();
-						}
-						break;
-					}
-					case EFF_SKILL: {
-						if (e.isPercent()) {
-							skillBuff += e.getRate();
-						} else {
-							skillNumBuff += e.getNum();
-						}
-						break;
-					}
-					case EFF_VIP: {
-						if (e.isPercent()) {
-							vipBuff += e.getRate();
-						} else {
-							vipNumBuff += e.getNum();
-						}
-						break;
-					}
-					default:
-						break;
-					}
-					updateResOutput();
-				}
-			}
+			updateResOutput();
+//			List<Effect> effects = role.getEffectAgent().searchProductEffs(resType);
+//			if (effects.size() > 0) {
+//				for (int i = 0; i < effects.size(); i++) {
+//					Effect e = effects.get(i);
+//					switch (e.getsType()) {
+//					case EFF_TECH: {
+//						if (e.isPercent()) {
+//							techBuff += e.getRate();
+//						} else {
+//							techNumBuff += e.getNum();
+//						}
+//						break;
+//					}
+//					case EFF_EQUIP: {
+//						if (e.isPercent()) {
+//							equipBuff += e.getRate();
+//						} else {
+//							equipNumBuff += e.getNum();
+//						}
+//						break;
+//					}
+//					case EFF_ITEM: {
+//						if (e.isPercent()) {
+//							itemBuff -= e.getRate();
+//						} else {
+//							itemNumBuff -= e.getNum();
+//						}
+//						break;
+//					}
+//					case EFF_SKILL: {
+//						if (e.isPercent()) {
+//							skillBuff += e.getRate();
+//						} else {
+//							skillNumBuff += e.getNum();
+//						}
+//						break;
+//					}
+//					case EFF_VIP: {
+//						if (e.isPercent()) {
+//							vipBuff += e.getRate();
+//						} else {
+//							vipNumBuff += e.getNum();
+//						}
+//						break;
+//					}
+//					default:
+//						break;
+//					}
+//					updateResOutput();
+//				}
+//			}
 		}
+	}
+
+	@Override
+	public boolean isWorking(Role role, RoleBuild build) {
+		// TODO Auto-generated method stub
+		return false;
 	}
 }

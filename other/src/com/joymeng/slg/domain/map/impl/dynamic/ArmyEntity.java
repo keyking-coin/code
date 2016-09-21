@@ -1,16 +1,19 @@
 package com.joymeng.slg.domain.map.impl.dynamic;
 
+import java.util.Map;
+
 import com.joymeng.slg.domain.object.army.data.Army;
 
 public class ArmyEntity {
 	int id = -1;//战斗编号，临时属性
 	String key;
 	int sane;
-	int injurie;
-	int died;
+	int injurie;//损伤
+	int died;//死亡
 	String pos;
 	Army temp;
-	
+	Map<String,Integer> myKills;//我击杀的对象
+
 	public ArmyEntity() {
 		
 	}
@@ -70,11 +73,21 @@ public class ArmyEntity {
 	public void setTemp(Army temp) {
 		this.temp = temp;
 	}
+	
+
+	public Map<String, Integer> getMyKills() {
+		return myKills;
+	}
+
+	public void setMyKills(Map<String, Integer> myKills) {
+		this.myKills = myKills;
+	}
 
 	public void reset(){
 		sane    = sane + injurie + died;
 		injurie = 0;
 		died    = 0;
+		myKills = null;
 	}
 
 	public void copy(ArmyEntity ae) {
@@ -84,6 +97,7 @@ public class ArmyEntity {
 		injurie = ae.injurie;
 		died = ae.died;
 		pos = ae.pos;
+		myKills = ae.myKills;
 	}
 	
 	

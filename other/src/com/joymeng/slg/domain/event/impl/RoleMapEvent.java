@@ -2,8 +2,13 @@ package com.joymeng.slg.domain.event.impl;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import com.joymeng.common.util.MessageSendUtil;
+import com.joymeng.log.GameLog;
+import com.joymeng.slg.domain.chat.ChatAgent;
+import com.joymeng.slg.domain.chat.ChatGroup;
+import com.joymeng.slg.domain.chat.ChatRole;
 import com.joymeng.slg.domain.event.AbstractGameEvent;
 import com.joymeng.slg.domain.event.GameEvent;
 import com.joymeng.slg.domain.map.MapObject;
@@ -14,6 +19,7 @@ import com.joymeng.slg.domain.map.impl.still.res.MapResource;
 import com.joymeng.slg.domain.map.impl.still.role.MapCity;
 import com.joymeng.slg.domain.map.impl.still.role.MapFortress;
 import com.joymeng.slg.domain.map.impl.still.union.impl.MapUnionResource;
+import com.joymeng.slg.domain.map.physics.PointVector;
 import com.joymeng.slg.domain.object.IObject;
 import com.joymeng.slg.domain.object.build.RoleCityAgent;
 import com.joymeng.slg.domain.object.role.Role;
@@ -21,7 +27,6 @@ import com.joymeng.slg.net.mod.AbstractClientModule;
 import com.joymeng.slg.net.mod.RespModuleSet;
 import com.joymeng.slg.union.UnionBody;
 import com.joymeng.slg.union.impl.UnionMember;
-import com.joymeng.slg.world.GameConfig;
 
 public class RoleMapEvent extends AbstractGameEvent{
 
@@ -103,8 +108,8 @@ public class RoleMapEvent extends AbstractGameEvent{
 					module.add(objs.size());
 					for (int i = 0 ; i < objs.size() ; i++){
 						MapObject obj = objs.get(i);
-						int col = obj.getPosition() % GameConfig.MAP_WIDTH;
-						int row = obj.getPosition() / GameConfig.MAP_WIDTH;
+						int col = PointVector.getX(obj.getPosition());
+						int row = PointVector.getY(obj.getPosition());
 						module.add(col);//int 在地图格子坐标x
 						module.add(row);//int 在地图格子坐标y
 						module.add(obj.getId());//long 在地图格子坐标x
@@ -179,6 +184,30 @@ public class RoleMapEvent extends AbstractGameEvent{
 					obj.getInfo().setName(name);
 					obj.getInfo().getIcon().copy(role.getIcon());
 				}
+				//更新群组用户的名字
+				ChatAgent chatAgent = role.getChatAgent();
+				if (chatAgent == null || chatAgent.getChat_groups() ==null ) {
+					GameLog.error("role chatagent is null role.id = " + uid);
+					return;
+				}
+				Map<Long, byte[]> chatGroups = chatAgent.getChat_groups();
+				for (Long groupId : chatGroups.keySet()) {
+					ChatGroup group = chatMgr.getChatGroupByGroupId(groupId);
+					if (group == null) {
+						continue;
+					}
+					for (int i = 0; i < group.getRoles().size(); i++) {
+						ChatRole chatRole = group.getRoles().get(i);
+						if (chatRole == null) {
+							continue;
+						}
+						if (chatRole.getUid() == uid) {
+							chatRole.setName(name);
+							break;
+						}
+					}
+					chatMgr.SendRoleGroupsUpdate(group);
+				}
 				break;
 			}
 			case GameEvent.ROLE_RES_BUFF_CHANGE:{
@@ -194,6 +223,22 @@ public class RoleMapEvent extends AbstractGameEvent{
 				for (int i = 0 ; i < murs.size() ; i++){
 					MapUnionResource mur = murs.get(i);
 					mur.updateCollecteBuff(role);
+				}
+				break;
+			}
+			case GameEvent.ROLE_RES_BUFF_CHANGE_1:{
+				long uid = role.getId();
+				List<MapResource> reses = world.getListObjects(MapResource.class);
+				for (int i = 0 ; i < reses.size() ; i++){
+					MapResource res = reses.get(i);
+					if (res.getInfo().getUid() == uid){
+						res.updateCollecteBuffNoRecive(role);
+					}
+				}
+				List<MapUnionResource> murs = world.getListObjects(MapUnionResource.class);
+				for (int i = 0 ; i < murs.size() ; i++){
+					MapUnionResource mur = murs.get(i);
+					mur.updateCollecteBuffNoRecive(role);
 				}
 				break;
 			}

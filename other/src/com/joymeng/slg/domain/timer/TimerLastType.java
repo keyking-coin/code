@@ -62,14 +62,16 @@ public enum TimerLastType {
 	TIME_BACK_SPY("BACKSPY",true),//侦查回城
 	TIME_BLACK_MARKET_REFRESH("MARKET_REFRESH",true),//黑市刷新倒计时
 	TIME_OBJ_AUTO_DIE("AUTO_DIE",true),//自动死亡倒计时
-	TIME_OBJ_REBIRTH("AUTO_REBIRTH",true),//怪物死亡自动刷新
+	TIME_OBJ_REBIRTH("AUTO_REBIRTH",true),//死亡自动刷新
 	TIME_UNION_DONATE("UNION_DONATE",true),//联盟捐赠倒计时
 	TIME_CITY_VIEW_BUFF("CITY_VIEW_BUFF",true),//城市视野buff
 	TIME_FORT_VIEW_BUFF("FORT_VIEW_BUFF",true),//要塞视野buff
-	TIME_CITY_TRADE_CD("TRADE_CD_CITY",true),//资源交易cd时间
+	TIME_CITY_TRADE_CD("TRADE_CD_CITY",true),//资源交易CD时间
 	TIME_GO_TO_ECTYPE("GO_TO_ECTYPE",true),//去副本的路上
 	TIME_AT_ECTYPE("AT_ECTYPE",false),//在副本待着
-	TIME_MONSTER_ATTACK("MONSTER_ATTACK",true)//怪物攻城
+	TIME_MONSTER_ATTACK("MONSTER_ATTACK",true),//怪物攻城
+	TIME_ARMY_PROMOT("ARMY_PROMOT",true),//兵种晋级
+	TIME_JOIN_UNION("JOIN_UNION",true)//加入联盟需要的CD
 	;
 	
 	String key;

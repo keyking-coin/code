@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.w3c.dom.Element;
 
+import com.joymeng.common.util.StringUtils;
 import com.joymeng.services.utils.XmlUtils;
 
 public class Server {
@@ -12,6 +13,7 @@ public class Server {
 	int newNum;
 	int normalNum;
 	int fullNum;
+	int priority;
 	String openTime;
 	String openTimeShow;
 	List<String> filters = new ArrayList<String>();
@@ -33,6 +35,14 @@ public class Server {
 		return fullNum;
 	}
 	
+	public int getPriority() {
+		return priority;
+	}
+
+	public void setPriority(int priority) {
+		this.priority = priority;
+	}
+
 	public String getOpenTime() {
 		return openTime;
 	}
@@ -54,6 +64,11 @@ public class Server {
 		newNum    = Integer.parseInt(server.getAttribute("newNum"));
 		normalNum = Integer.parseInt(server.getAttribute("normalNum"));
 		fullNum   = Integer.parseInt(server.getAttribute("fullNum"));
+		if (StringUtils.isNull(server.getAttribute("priority"))) {
+			priority = 0;
+		} else {
+			priority = Integer.parseInt(server.getAttribute("priority"));
+		}
 		openTime  = server.getAttribute("openTime");
 		openTimeShow  = server.getAttribute("openTimeShow");
 		Element[] fes = XmlUtils.getChildrenByName(server,"ChannelFilter");

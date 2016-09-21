@@ -6,6 +6,7 @@ import java.util.List;
 import org.w3c.dom.Element;
 
 import com.joymeng.common.util.StringUtils;
+import com.joymeng.list.EventName;
 import com.joymeng.log.LogManager;
 import com.joymeng.services.core.buffer.JoyBuffer;
 import com.joymeng.slg.domain.activity.data.Activity;
@@ -47,6 +48,14 @@ public class Banner extends RowElement {
 
 	public void setProductId(String productId) {
 		this.productId = productId;
+	}
+
+	public String getPrice() {
+		return price;
+	}
+
+	public void setPrice(String price) {
+		this.price = price;
 	}
 
 	@Override
@@ -232,7 +241,7 @@ public class Banner extends RowElement {
 						if (temp.size() > 0){
 							cells.addAll(temp);
 						}
-						LogManager.itemOutputLog(role, num, "_buyOk", ss[1]);
+						LogManager.itemOutputLog(role, num, EventName._buyOk.getName(), ss[1]);
 						break;
 					}
 					case RESOURCE_TYPE_EQUIP:{
@@ -241,7 +250,7 @@ public class Banner extends RowElement {
 						if (temp.size() > 0){
 							cells.addAll(temp);
 						}
-						LogManager.itemOutputLog(role, num, "_buyOk", ss[1]);
+						LogManager.itemOutputLog(role, num, EventName._buyOk.getName(), ss[1]);
 						Equip  equip = dataManager.serach(Equip.class, ss[1]);
 						LogManager.equipLog(role, equip.getEquipType(), equip.getBeizhuname(), "充值购买");
 						break;
@@ -252,14 +261,14 @@ public class Banner extends RowElement {
 						if (temp.size() > 0){
 							cells.addAll(temp);
 						}
-						LogManager.itemOutputLog(role, num, "_buyOk", ss[1]);
+						LogManager.itemOutputLog(role, num, EventName._buyOk.getName(), ss[1]);
 						break;
 					}
 					case RESOURCE_TYPE_GOLD:{
 						int money = Integer.parseInt(ss[1]);
 						role.addRoleMoney(money);
 						role.sendRoleToClient(rms);
-						LogManager.goldOutputLog(role, money, "_buyOk");
+						LogManager.goldOutputLog(role, money, EventName._buyOk.getName());
 						break;
 					}
 					case RESOURCE_TYPE_MONTH_CARD:{//月卡逻辑

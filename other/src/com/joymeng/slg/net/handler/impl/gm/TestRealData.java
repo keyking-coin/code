@@ -52,6 +52,8 @@ public class TestRealData extends ServiceHandler {
 //			RealtimeData.levelLoss();
 //			RealtimeData.levelOther();
 //			RealtimeData.levelType();
+//			RealtimeData.redUser();
+//			forbidden.save();
 			new Thread(new DailyRunable()).start();
 			resp.getParams().put("ok");
 			return resp;

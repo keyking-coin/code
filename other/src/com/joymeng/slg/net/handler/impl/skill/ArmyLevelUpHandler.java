@@ -1,5 +1,6 @@
 package com.joymeng.slg.net.handler.impl.skill;
 
+import com.joymeng.log.GameLog;
 import com.joymeng.services.core.buffer.JoyBuffer;
 import com.joymeng.services.core.message.JoyNormalMessage.UserInfo;
 import com.joymeng.services.core.message.JoyProtocol;
@@ -32,8 +33,14 @@ public class ArmyLevelUpHandler extends ServiceHandler{
 		String armyId = params.get(2);
 		int level = 1;
 		RoleCityAgent agent = role.getCity(cityId);
+		if(agent == null){
+			GameLog.error("getCity" + cityId + "is null where uid = " + role.getId());
+			resp.fail();
+			return resp;
+		}
 		RoleBuild build = agent.searchBuildById(buildId);
 		if(build == null || build.getPointsAgent() == null){
+			GameLog.error("agent.searchBuildById is null buildId = " + buildId);
 			resp.fail();
 			return resp;
 		}

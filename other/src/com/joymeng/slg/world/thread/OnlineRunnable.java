@@ -7,6 +7,7 @@ import java.util.Map;
 import com.joymeng.Const;
 import com.joymeng.Instances;
 import com.joymeng.common.util.TimeUtils;
+import com.joymeng.list.RealtimeData;
 import com.joymeng.log.GameLog;
 import com.joymeng.log.LogManager;
 import com.joymeng.slg.domain.object.role.Role;
@@ -16,24 +17,25 @@ public class OnlineRunnable  implements Runnable, Instances{
     static Map<Long,RoleOnlineTime> map = new HashMap<Long,RoleOnlineTime>();
 	@Override
 	public void run() {
-		GameLog.info("Do things at 23:59 every day");
+		GameLog.info("Do things at 23:50 every day");
 		synchronized (map) {
 			List<Role> roleList = world.getOnlineRoles();
-			for (int i = 0 ; i < roleList.size() ; i++){
+			for (int i = 0; i < roleList.size(); i++) {
 				Role role = roleList.get(i);
 				long uid = role.getId();
 				long total = map.get(uid).getTotal();
-				LogManager.onlineLog(role,total/Const.SECOND);  
+				LogManager.onlineLog(role, total / Const.SECOND);
 			}
 			map.clear();
-			for (int i = 0 ; i < roleList.size() ; i++){
+			for (int i = 0; i < roleList.size(); i++) {
 				Role role = roleList.get(i);
 				long uid = role.getId();
 				map.put(uid, new RoleOnlineTime());
-				RoleOnlineTime  time = map.get(uid);
+				RoleOnlineTime time = map.get(uid);
 				time.setLogin(TimeUtils.nowLong());
 			}
 		}
+		RealtimeData.redUser();// 玩家状态日志写入
 	}
     
 	public static void recordTime(Role role,byte op){ //op 1 登录  2 退出

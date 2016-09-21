@@ -68,28 +68,14 @@ public class BuffObject implements Instances {
 		this.buildId = buildId;
 	}
 
-	public void updateValues(boolean isRemove, byte type, int val, float rate) {
-		if (!isRemove) {
-			if (type == 0) {
-				this.rate += rate;
-			} else {
-				this.value += val;
-			}
-			if (type != valueType) {
-				valueType = 2;
-			}
+	public void updateValues(byte type, int val, float rate) {
+		if (type == 0) {
+			this.rate += rate;
 		} else {
-			if (type == 0) {
-				this.rate -= rate;
-				if (rate < 0) {
-					rate = 0;
-				}
-			} else {
-				this.value -= val;
-				if (value < 0) {
-					value = 0;
-				}
-			}
+			this.value += val;
+		}
+		if (type != valueType) {
+			valueType = 2;
 		}
 	}
 

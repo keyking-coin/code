@@ -1,6 +1,8 @@
 package com.joymeng.slg.net.handler.impl.gm;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.joymeng.common.util.JsonUtil;
@@ -10,6 +12,7 @@ import com.joymeng.log.LogManager;
 import com.joymeng.services.core.buffer.JoyBuffer;
 import com.joymeng.services.core.message.JoyNormalMessage.UserInfo;
 import com.joymeng.services.core.message.JoyProtocol;
+import com.joymeng.slg.domain.object.bag.ItemCell;
 import com.joymeng.slg.domain.object.bag.data.Equip;
 import com.joymeng.slg.domain.object.role.Role;
 import com.joymeng.slg.net.ParametersEntity;
@@ -63,12 +66,13 @@ public class ModifyAddEquip extends ServiceHandler{
 			resp.getParams().put(serverId);
 		 
 		    //equipId 装备 number 数量
-			role.getBagAgent().addEquip(equipId, Integer.valueOf(number));
+			List<ItemCell> aList = new ArrayList<>();
+			aList = role.getBagAgent().addEquip(equipId, Integer.valueOf(number));
 			Equip  equip = dataManager.serach(Equip.class, equipId);
 			LogManager.equipLog(role, equip.getEquipType(), equip.getBeizhuname(), "后台添加");
 			if(role.isOnline()){
 				RespModuleSet rms = new RespModuleSet();
-				role.getBagAgent().sendBagToClient(rms);
+				role.getBagAgent().sendItemsToClient(rms, aList);
 				MessageSendUtil.sendModule(rms,role.getUserInfo());
 			}
 			

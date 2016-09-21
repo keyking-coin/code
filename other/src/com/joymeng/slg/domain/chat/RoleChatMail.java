@@ -3,7 +3,11 @@ package com.joymeng.slg.domain.chat;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
+/**
+ * 用户邮箱
+ * @author houshanping
+ *
+ */
 public class RoleChatMail {
 	
 	Long roleChatMailId = new Long(1L);	
@@ -18,6 +22,21 @@ public class RoleChatMail {
 		this.roleChatMails = roleChatMails;
 	}
 	
+	public Long getRoleChatMailId() {
+		return roleChatMailId;
+	}
+
+	public void setRoleChatMailId(Long roleChatMailId) {
+		this.roleChatMailId = roleChatMailId;
+	}
+
+	/**
+	 *启动服务器是时候第一次加载邮件
+	 * @param msg
+	 */
+	public synchronized void firstAddMail(ChatMsg msg){
+		roleChatMails.put(msg.getId(), msg);
+	}
 	/**
 	 * 加入用户邮箱
 	 * @param msg

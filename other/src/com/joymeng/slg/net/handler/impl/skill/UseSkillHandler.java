@@ -28,6 +28,7 @@ public class UseSkillHandler extends ServiceHandler{
 		String skillId = params.get(0);
 		if(!role.getSkillAgent().useSkill(role, skillId)){
 			resp.fail();
+			return resp;
 		}
 		try {
 			NewLogManager.baseEventLog(role, "active_skills",skillId);

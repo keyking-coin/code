@@ -1,5 +1,6 @@
 package com.joymeng.slg.net.handler.impl;
 
+import com.joymeng.log.NewLogManager;
 import com.joymeng.services.core.buffer.JoyBuffer;
 import com.joymeng.services.core.message.JoyNormalMessage.UserInfo;
 import com.joymeng.services.core.message.JoyProtocol;
@@ -26,12 +27,14 @@ public class UseItemhandler extends ServiceHandler{
 		long targetId = params.get(3); 
 		Role role = world.getRole(info.getUid());
 		if (role == null){
+			NewLogManager.misTakeLog("UseItemhandler getRole is null where uid = " + info.getUid());
 			resp.fail();
 			return resp;
 		}
 		resp.add(itemId);
 		if(!role.getBagAgent().useItem(role, itemId, num, type, targetId)){
 			resp.fail();
+			return resp;
 		}
 		return resp;
 	}

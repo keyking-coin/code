@@ -41,6 +41,7 @@ public class NoticeManager implements Instances {
 
 	public void tick(long now) {
 		synchronized (timeNotice) {
+			List<Integer> list = new ArrayList<Integer>();
 			for (Integer inter : timeNotice.keySet()) {
 				NoticeInfo notice = timeNotice.get(inter);
 				if (notice != null) {
@@ -49,8 +50,13 @@ public class NoticeManager implements Instances {
 					String startTime = notice.getStartTime();
 					if (now >= TimeUtils.getTimes(startTime)) {
 						tryToTail(serverId, noticeContent);
-						timeNotice.remove(inter);
+						list.add(inter);
 					}
+				}
+			}
+			if (list.size() != 0) {
+				for (int i = 0; i < list.size(); i++) {
+					timeNotice.remove(list.get(i));
 				}
 			}
 		}

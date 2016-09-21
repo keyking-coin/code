@@ -1,10 +1,10 @@
 package com.joymeng.slg.domain.map.impl.still.moster;
 
 import java.util.List;
+import java.util.Map;
 
-import com.joymeng.common.util.JsonUtil;
-import com.joymeng.common.util.StringUtils;
 import com.joymeng.common.util.TimeUtils;
+import com.joymeng.list.EventName;
 import com.joymeng.log.GameLog;
 import com.joymeng.log.LogManager;
 import com.joymeng.log.NewLogManager;
@@ -20,6 +20,7 @@ import com.joymeng.slg.domain.map.impl.dynamic.ArmyEntity;
 import com.joymeng.slg.domain.map.impl.dynamic.ExpediteTroops;
 import com.joymeng.slg.domain.map.impl.dynamic.TroopsData;
 import com.joymeng.slg.domain.map.impl.still.MapRefreshObj;
+import com.joymeng.slg.domain.map.impl.still.RebirthLogic;
 import com.joymeng.slg.domain.map.physics.MapCellType;
 import com.joymeng.slg.domain.map.physics.PointVector;
 import com.joymeng.slg.domain.object.role.Role;
@@ -27,16 +28,13 @@ import com.joymeng.slg.domain.object.task.ConditionType;
 import com.joymeng.slg.domain.object.task.TaskEventDelay;
 import com.joymeng.slg.domain.timer.TimerLast;
 import com.joymeng.slg.domain.timer.TimerLastType;
-import com.joymeng.slg.domain.timer.TimerOver;
 
 /**
  * 大地图没有AI的怪
  * @author tanyong
  *
  */
-public class MapMonster extends MapRefreshObj implements TimerOver{
-	
-	TimerLast autoDie = null;//自动消失倒计时
+public class MapMonster extends MapRefreshObj {
 	
 	@Override
 	public MapCellType cellType() {
@@ -48,12 +46,6 @@ public class MapMonster extends MapRefreshObj implements TimerOver{
 		
 	}
 
-	@Override
-	public void _tick(long now) {
-		if (autoDie != null && autoDie.over(now)){
-			autoDie.die();
-		}
-	}
 	
 	@Override
 	public String table() {
@@ -62,18 +54,12 @@ public class MapMonster extends MapRefreshObj implements TimerOver{
 
 	@Override
 	public void _loadFromData(SqlData data) {
-		String str = data.getString(RED_ALERT_MONSTER_AUTO_DIE);
-		if (!StringUtils.isNull(str)){
-			autoDie = JsonUtil.JsonToObject(str,TimerLast.class);
-			autoDie.registTimeOver(this);
-			taskPool.mapTread.addObj(this,autoDie);
-		}
+		
 	}
 
 	@Override
 	public void _saveToData(SqlData data) {
-		String str = autoDie == null ? "null" : JsonUtil.ObjectToJsonString(autoDie);
-		data.put(RED_ALERT_MONSTER_AUTO_DIE,str);
+		
 	}
 
 	public Monster getData(){
@@ -103,18 +89,21 @@ public class MapMonster extends MapRefreshObj implements TimerOver{
 			if (monster != null){
 				TroopsData defender = TroopsData.create(monster,position);
 				boolean isWin = attackMonster(defender,expedite,false,ReportTitleType.TITLE_TYPE_MONSTER);
+				Role role =world.getRole(expedite.getLeader().getInfo().getUid());
 				if (isWin){
 					MapUtil.drop(monster,expedite);//掉落后在发战报
+					Map<Byte, Map<String, Integer>> packages = expedite.getLeader().getPackages();
+					MapUtil.recordDropItems(role, key, packages);
 					die();
 					GameLog.info(expedite.getLeader().getInfo().getUid() + " attack monster<" + key + "> successful and destroy it at " + position);
 				}else{
+					LogManager.pveLog(role, EventName.RebelForces.getName(), key, (byte)0, EventName.RebelForces.getName(), "0", 0);
 					GameLog.info(expedite.getLeader().getInfo().getUid() + " attack monster<" + key + "> fail at " + position);
 				}
 				expedite.goBackToCome();
 				//任务事件
-				Role role = world.getRole(expedite.getLeader().getInfo().getUid());
 				role.handleEvent(GameEvent.TASK_CHECK_EVENT, new TaskEventDelay(),ConditionType.C_FIT_MST_T, isWin, monster.getId());
-				LogManager.mapLog(role, expedite.getStartPosition(), expedite.getTargetPosition(), expedite.getId(), "endOfBattle");
+				LogManager.mapLog(role, expedite.getStartPosition(), expedite.getTargetPosition(), expedite.getId(), EventName.endOfBattle.getName());
 				try {
 					PointVector point = MapUtil.getPointVector(position);
 					StringBuffer sb = new StringBuffer();
@@ -145,28 +134,11 @@ public class MapMonster extends MapRefreshObj implements TimerOver{
 		//其他刷新逻辑
 		Monsterrefresh mf = dataManager.serach(Monsterrefresh.class,refreshId);
 		if (mf != null && mf.getDeathRefresh() > 0){//死亡重生逻辑
-			RebirthLogic rl = RebirthLogic.create(this,refreshId);
+			RebirthLogic rl = RebirthLogic.create(RebirthLogic.REBIRTH_TYPE_MONSTER,refreshId);
 			TimerLast timer = new TimerLast(TimeUtils.nowLong() / 1000,mf.getDeathRefresh(),TimerLastType.TIME_OBJ_REBIRTH);
 			rl.registTimer(timer);
 			rl.addSelf();
 		}
 		remove();
-	}
-	
-	/**
-	 * 注册自动死亡倒计时
-	 * @param time
-	 */
-	public void registAutoDie(long time) {
-		if (time > 0){//自动死亡
-			autoDie = new TimerLast(TimeUtils.nowLong() / 1000,time,TimerLastType.TIME_OBJ_AUTO_DIE);
-			autoDie.registTimeOver(this);
-			taskPool.mapTread.addObj(this,autoDie);
-		}
-	}
-	
-	@Override
-	public void finish() {
-		die();
 	}
 }

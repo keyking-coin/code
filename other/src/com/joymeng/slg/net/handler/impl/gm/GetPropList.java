@@ -75,7 +75,9 @@ public class GetPropList extends ServiceHandler{
 			}
 			for (int k = 0; k < armyList.size(); k++) {
 				Army army = armyList.get(k);
-				armyMap.put(army.getId(), army.getBattleName());
+				if (army.getArmycamp() == 0) {
+					armyMap.put(army.getId(), army.getBattleName());
+				}
 			}
 			resMap.put("goldcoin", "金币");
 			resMap.put("food", "食品");

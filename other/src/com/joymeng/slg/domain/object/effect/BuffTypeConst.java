@@ -100,7 +100,7 @@ public class BuffTypeConst {
 		G_R_ADD_ALL(95,"R_All",1),//增加主角的联盟贡献度
 		G_R_ADD_COU(96,"R_Cou",1),//增加主角的国家贡献度
 		G_R_ADD_GY(97,"R_Glory",1),//增加主角的军衔荣誉值
-		G_C_ADD_RES(98,"C_AddRes",1),	//立即获得6小时的资源建筑的产出
+		G_C_ADD_RES(98,"C_AddRes",1),	//立即获得6小时的资源建筑的产出 TODO
 		G_R_SKILL(99, "R_Skill",1),//重置主角技能
 		G_R_NAME(100, "R_Name",1),//更改主角名称
 		G_R_IMAGE(101, "R_Image",1),//更改主角形象
@@ -234,6 +234,7 @@ public class BuffTypeConst {
 		EFF_SKILL(4,"roleSkill"),//玩家技能
 		EFF_ALLY(5,"ally"),//联盟科技
 		EFF_VIP(6,"vip"),//vip特效
+		EFF_UCITY(7,"unioncity"),//联盟城市特效
 		;
 		private int value;
 		private String name;

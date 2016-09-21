@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.lang.reflect.Field;
 import java.sql.Timestamp;
 import java.util.Properties;
+import java.util.concurrent.TimeUnit;
 
 import com.joymeng.Const;
 import com.joymeng.log.GameLog;
@@ -26,23 +27,25 @@ public class GameConfig {
 	public static byte BATTLE_FIELD_COL = 1;
 	public static byte BATTLE_FIELD_ROW = 5;
 	public static int BASE_TRAIN_SPACE = 10;//基础训练空间
-	public static int UNION_CHAT_MES_MAX_NUM = 1000;//联盟聊天内容最大保存数量
-	public static int WORLD_CHAT_MES_MAX_NUM = 1000;//世界聊天内容最大保存数量
+	public static int UNION_CHAT_MES_MAX_NUM = 2000;//联盟聊天内容最大保存数量
+	public static int WORLD_CHAT_MES_MAX_NUM = 5000;//世界聊天内容最大保存数量
 	public static int GROUP_CHAT_ROLE_MAX_NUM = 100;//群组人数最大数量
 	public static long CHAT_MULTI_OLD_CLEAR = 24*60*60*1000;//多人聊天保存记录时间
 	public static long CHAT_PRIVATE_OLD_CLEAR = 24*60*60*1000;//私聊保存记录时间
 	public static long CHAT_INTERVAL_SECOND = 3;//聊天间隔3秒
 	public static int BUILD_ASSISTANCE_MAX_NUM = 5;//玩家帮组次数
 	public static int BUILD_ASSISTANCE_EFFECT = 60;//玩家帮组的效果
+	public static int EXIT_UNION_TO_JOIN_CD_TIME = 6*60*60;	//退出后再加入需要的倒计时时长
 	public static int UNION_NAME_MIN = 4;			//联盟名字的最小字符数
 	public static int UNION_NAME_MAX = 12;			//联盟名字的最大字符数
+	public static int UNION_NOTICE_MIN = 4;			//联盟公告(内/外)的最小字符数
+	public static int UNION_NOTICE_MAX = 140;		//联盟公告(内/外)的最大字符数
 	public static int UNION_SHORTNAME_LIMIT = 3;	//联盟简称的限制字符数
 	public static int UNION_CHANGE_FLAG_PRICE = 1000;//修改联盟旗帜的价格
 	public static int UNION_TITLE_MIN = 2;			//联盟称谓的最小字符数
 	public static int UNION_TITLE_MAX = 10;			//联盟称谓的最大字符数
 	public static float MAP_SPEED_SLOW = 0.5f;    //减速因子
 	public static float EXPEDITE_SPEED_EFFECT = 0.0008f;//行军速度因子
-	public static int GROUP_NAME_MAX = 16;		//讨论的名称字符限制
 	public static short CHAT_MIN_LEVEL = 1;		//聊天的最低等级限制
 	public static int FORTRESS_LEVEL_MAX = 5;	//要塞的最高等级
 	public static short EXPEDITE_TROOPS_NUM = 2;		//出征队伍数量初始值
@@ -64,9 +67,11 @@ public class GameConfig {
 	public static int BLACK_MARKET_CELL_NUM = 4;//黑市刷新格子数
 	public static int CHANGE_UNION_NAME_PRICE = 500;//修改联盟名称所需金币
 	public static int CHANGE_UNION_SHORTNAME_PRICE = 100;//修改联盟简称所需金币
-	public static boolean BIG_MAP_USE_NEW_MONSTER = false;//使用新的刷新规则
+	public static int CHANGE_UNION_TITLE_PRICE = 100;//修改联盟称谓所需金币
+	public static boolean BIG_MAP_USE_NEW_MONSTER = true;//使用新的刷新规则
 	public static long WORLD_NOTICE_REFRESH_TIME = 20;//世界公告消息刷新的时长 (s秒)
 	public static long UNION_DONATE_MAX_NUM = 20;// 联盟捐赠进入休息的最大次数
+	public static long UNION_DONATE_MAX_TIME = 2*60*60;// 联盟捐赠进入休息的最大时间
 	public static long UNION_DONATE_TIME_PER = 300;// 单次捐赠休息的时长
 	public static String APK_VERSION  = "1.0.1";//apk版本号
 	public static String CODE_VERSION = "5";//代码版本号
@@ -76,8 +81,31 @@ public class GameConfig {
 	public static int RELIC_MAX_ITEM_RESET_NUM = 3;// 最大副本道具重置次数
 	public static int FORTRESS_NAME_MIN = 2;// 要塞名字的最小
 	public static int FORTRESS_NAME_MAX = 10;// 要塞名字的最大
-	public static String CHARGE_SHOP_TIP = "msg_rechargeShopView_no_open";//充值商店是否开启提示语
+	public static int ROLE_NAME_MIN = 4;// 用户名字的最小
+	public static int ROLE_NAME_MAX = 12;// 用户名字的最大
+	public static int GROUP_NAME_MIN = 4;// 聊天组名字的最小
+	public static int GROUP_NAME_MAX = 12;// 聊天组名字的最大
+	public static String CHARGE_SHOP_TIP = "null";//充值商店是否开启提示语
 	public static boolean ATTACK_CITY_MUST_WIN = false;
+	public static String REGEX_CHINESE_AND_NUMBER_AND_ALL_LETTER = "^[A-Za-z0-9\u4e00-\u9fa5]+$"; // 判断字符串是否只包含数字、字母和汉字
+	public static String REGEX_NUMBER_AND_ALL_LETTER = "^[A-Za-z0-9]+$";// 判断字符串是否只包含数字和字母
+	public static String REGEX_UPPER_LETTER_NUMBER = "^[A-Z0-9]+$";// 判断字符串是否只包含大写字母和数字
+	public static String REGEX_NUMBER = "^[0-9]+$";// 判断字符串是否只包含数字
+	
+	public static int ROLE_REDPACKET_CITY_LV_LIMITE = 8;// 用户红包城市等级限制为>=8级
+	public static long ROLE_REDPACKET_GOLD_MIN = 1000;// 用户红包的下限
+	public static long ROLE_REDPACKET_GOLD_MAX = 100000;// 用户红包的上限
+	public static int ROLE_REDPACKET_NUM_WORLD_MIN = 100;// 用户红包的上限
+	public static int ROLE_REDPACKET_NUM_UNION_MIN = 30;// 用户红包的上限
+	public static int ROLE_REDPACKET_GREETING_LENGTH = 60;// 用户红包的祝福语的长度(30个汉字)
+	public static float ROLE_REDPACKET_GOLD_FACTOR = 0.8f;// 用户红包生成小红包金额的最小值和最大值的波动系数
+	public static int ROLE_REDPACKET_GOT_DAILY_MAX = 1000;// 每日最大红包领取上限
+	public static long ROLE_REDPACKET_SCAN_RETURN_TIME = TimeUnit.MINUTES.toSeconds(1);// 红包返还扫描的时间周期(s/秒) 1分钟
+	public static long ROLE_REDPACKET_SCAN_DELETE_TIME = TimeUnit.MINUTES.toSeconds(1);// 红包删除扫描的时间周期(s/秒) 1分钟
+	public static long ROLE_REDPACKET_RETURN_TIME = 3 * Const.HOUR;// 红包返还时间间隔(ms/毫秒) 3小时
+	public static long ROLE_REDPACKET_DELETE_TIME = 24 * Const.HOUR;// 红包删除的时间间隔(ms/毫秒) 24小时
+	public static int ROLE_REDPACKET_RECORD_MAX = 4;// 用户红包记录的大小
+	public static long BUILD_TRAND_CD = 12 * Const.ONE_HOUR_TIME;// 资源交易CD
 	
 	public static void load() throws Exception{
 		Properties properties = new Properties();

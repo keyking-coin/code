@@ -2,6 +2,7 @@ package com.joymeng.slg.net.handler.impl.chat;
 
 import com.joymeng.common.util.I18nGreeting;
 import com.joymeng.common.util.MessageSendUtil;
+import com.joymeng.log.NewLogManager;
 import com.joymeng.services.core.buffer.JoyBuffer;
 import com.joymeng.services.core.message.JoyNormalMessage.UserInfo;
 import com.joymeng.services.core.message.JoyProtocol;
@@ -23,10 +24,11 @@ public class ChatMsgsGetOneSuit extends ServiceHandler{
 
 	@Override
 	public JoyProtocol handle(UserInfo info, ParametersEntity params) throws Exception {
-		// TODO Auto-generated method stub
 		CommunicateResp resp = newResp(info);
 		Role role = getRole(info);
 		if (role == null) {
+			NewLogManager.misTakeLog("Userinfo : " + info, "uid : " + info.getUid(),
+					"className : " + this.getClass().getName(), "params : " + params);
 			resp.fail();
 			return resp;
 		}

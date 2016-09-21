@@ -5,6 +5,8 @@ import org.quartz.JobDataMap;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 
+import com.joymeng.log.GameLog;
+
 public class ActvtTickJob implements Job 
 {
 	@Override
@@ -13,7 +15,11 @@ public class ActvtTickJob implements Job
 		JobDataMap dataMap = context.getJobDetail().getJobDataMap();
 		int actvtId = dataMap.getInt("actvtId");
 		Actvt actvt = ActvtManager.getInstance().getActvt(actvtId);
-		actvt.tick();
+		if (actvt != null) {
+			actvt.tick();
+		}
+		else {
+			GameLog.error("ActvtTickJob actvtId="+actvtId+" not exist");
+		}
 	}
-	
 }

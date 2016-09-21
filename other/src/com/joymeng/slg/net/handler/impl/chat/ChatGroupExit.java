@@ -1,5 +1,6 @@
 package com.joymeng.slg.net.handler.impl.chat;
 
+import com.joymeng.log.NewLogManager;
 import com.joymeng.services.core.buffer.JoyBuffer;
 import com.joymeng.services.core.message.JoyNormalMessage.UserInfo;
 import com.joymeng.services.core.message.JoyProtocol;
@@ -21,12 +22,15 @@ public class ChatGroupExit extends ServiceHandler {
 		CommunicateResp resp = newResp(info);
 		Role role = getRole(info);
 		if (role == null) {
+			NewLogManager.misTakeLog("Userinfo : " + info, "uid : " + info.getUid(),
+					"className : " + this.getClass().getName(), "params : " + params);
 			resp.fail();
 			return resp;
 		}
 		long groupId = params.get(0);
 		if (!chatMgr.exitChatGroup(role, groupId)) {
 			resp.fail();
+			return resp;
 		}
 		resp.add(groupId); //成功的情况下 返回给客户端groupId
 		return resp;

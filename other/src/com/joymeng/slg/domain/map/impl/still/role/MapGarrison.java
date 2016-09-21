@@ -8,6 +8,7 @@ import com.alibaba.fastjson.JSON;
 import com.joymeng.common.util.JsonUtil;
 import com.joymeng.common.util.StringUtils;
 import com.joymeng.common.util.TimeUtils;
+import com.joymeng.list.EventName;
 import com.joymeng.log.GameLog;
 import com.joymeng.log.LogManager;
 import com.joymeng.services.core.buffer.JoyBuffer;
@@ -111,7 +112,7 @@ public class MapGarrison extends MapObject {
 			if (expedite.getTimer().getType() == TimerLastType.TIME_EXPEDITE_GARRISON){
 				info.copy(expedite.getLeader().getInfo());
 				garrison(expedite);
-				LogManager.mapLog(role, start, end,expedite.getId(), "arriveAtGarrisonPoint");
+				LogManager.mapLog(role, start, end,expedite.getId(), EventName.arriveAtGarrisonPoint.getName());
 			} else if (expedite.getTimer().getType() == TimerLastType.TIME_EXPEDITE_SPY) {
 				MapUtil.spyResport(SpyType.SPY_TYPE_GARRISON, expedite, this);
 				logSpy(role,start, end,expedite.getId());
@@ -130,7 +131,7 @@ public class MapGarrison extends MapObject {
 				fortress.setName(fortressName);
 				_remove();
 				mapWorld.forceInsert(this,fortress,position);
-				LogManager.mapLog(role, start, end, expedite.getId(),"startBuildFortres");
+				LogManager.mapLog(role, start, end, expedite.getId(),EventName.startBuildFortres.getName());
 			}else if (expedite.getTimer().getType() == TimerLastType.TIME_EXPEDITE_FIGHT){
 				List<GarrisonTroops> defenders = getDefencers();//防守者
 				boolean isWin = attackDefenders(defenders,expedite,ReportTitleType.TITLE_TYPE_A_GARRISON,ReportTitleType.TITLE_TYPE_D_GARRISON);
@@ -142,7 +143,7 @@ public class MapGarrison extends MapObject {
 				}
 				//记录战斗次数
 				role.handleEvent(GameEvent.TASK_CHECK_EVENT, new TaskEventDelay(),ConditionType.C_ATK_WIN, isWin);
-				LogManager.mapLog(role, start, end, expedite.getId(),"endOfBattle");
+				LogManager.mapLog(role, start, end, expedite.getId(),EventName.endOfBattle.getName());
 				expedite.goBackToCome();
 			}
 		}

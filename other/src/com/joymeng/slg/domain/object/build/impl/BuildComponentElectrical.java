@@ -60,5 +60,10 @@ public class BuildComponentElectrical implements BuildComponent {
 		// TODO Auto-generated method stub
 		
 	}
+	@Override
+	public boolean isWorking(Role role, RoleBuild build) {
+		// TODO Auto-generated method stub
+		return false;
+	}
 
 }

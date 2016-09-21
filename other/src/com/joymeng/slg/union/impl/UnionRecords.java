@@ -49,8 +49,10 @@ public class UnionRecords {
 	public static final String CONTENT_TYPE_ALLIAN_CHANGE_NAME = "alliance_change_name";
 	// 联盟简称修改为{0}
 	public static final String CONTENT_TYPE_ALLIAN_CHANGE_SHORTNAME = "alliance_change_shortname";
-	// 联盟公告修改为{0}
+	// 联盟宣言修改为{0}
 	public static final String CONTENT_TYPE_ALLIAN_CHANGE_NOTICE = "alliance_change_notice";
+	// 联盟公告修改为{0}
+	public static final String CONTENT_TYPE_ALLIAN_CHANGE_IN_NOTICE = "alliance_change_in_notice";
 	//联盟占领{0}级城市{1}座  TODO
 	public static final String CONTENT_TYPE_ALLIAN_OCP_CITY = "alliance_ocp_city";
 	//联盟总杀兵数{0} TODO

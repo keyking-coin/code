@@ -11,6 +11,7 @@ import com.joymeng.common.util.I18nGreeting;
 import com.joymeng.common.util.JsonUtil;
 import com.joymeng.common.util.MessageSendUtil;
 import com.joymeng.common.util.StringUtils;
+import com.joymeng.list.EventName;
 import com.joymeng.log.GameLog;
 import com.joymeng.log.LogManager;
 import com.joymeng.log.NewLogManager;
@@ -65,6 +66,14 @@ public class BuildComponentResearch implements BuildComponent, Instances {
 		this.buildId = buildId;
 	}
 	
+	public String getsTechId() {
+		return sTechId;
+	}
+
+	public void setsTechId(String sTechId) {
+		this.sTechId = sTechId;
+	}
+
 	@Override
 	public void setBuildParams(RoleBuild build) {
 
@@ -167,7 +176,10 @@ public class BuildComponentResearch implements BuildComponent, Instances {
 			buffTime = Float.parseFloat(pararm);
 		}
 		buffTime += agent.getCityAttr().getImpResSpeed();
-		long researchTime = (long) (techUpgrade.getResearchTime() * (1.0f - buffTime) + 0.5f);
+		long researchTimeOld = (long) (techUpgrade.getResearchTime() * (1.0f - buffTime) + 0.5f);
+		float powerRaito = agent.geteAgent().searchPoweRatio(buildId, this.getBuildComponentType().getKey());
+		long researchTime = (long) (researchTimeOld*1.0/powerRaito);
+		GameLog.info("[upgradeTech]uid="+role.getJoy_id()+"|techId="+techId+"|buff1="+buffTime+"|buildBuf2f="+agent.getCityAttr().getImpResSpeed()+"|researchTimeOld="+researchTimeOld+"|powerRaito="+powerRaito+"|researchTime="+researchTime);
 		// 计算金币
 		int costMoney = 0;
 		if (money > 0) {
@@ -184,7 +196,7 @@ public class BuildComponentResearch implements BuildComponent, Instances {
 			return false;
 		}
 		// 扣除资源
-		List<Object> resLst = agent.redCostResource(costList, costMoney,"upgradeTech");
+		List<Object> resLst = agent.redCostResource(costList, costMoney,EventName.upgradeTech.getName());
 		sTechId = techId;
 		// 下发数据
 		RespModuleSet rms = new RespModuleSet();
@@ -192,8 +204,7 @@ public class BuildComponentResearch implements BuildComponent, Instances {
 			techAgent.techLevelup(role,techId);
 			role.redRoleMoney(costMoney);
 			role.getRoleStatisticInfo().updataRoleTechFight(role);
-			String event = "upgradeTech";
-			LogManager.goldConsumeLog(role, costMoney, event);
+			LogManager.goldConsumeLog(role, costMoney, EventName.upgradeTech.getName());
 			// 更新技能树
 			techAgent.sendToClient(rms);
 			role.sendRoleToClient(rms);
@@ -294,7 +305,7 @@ public class BuildComponentResearch implements BuildComponent, Instances {
 			if (type != null && need > 0){
 				costs.add(type);
 				costs.add(need);
-				LogManager.itemOutputLog(role,need,"cancelUpgradeTech", cs[0]);
+				LogManager.itemOutputLog(role,need,EventName.cancelUpgradeTech.getName(), cs[0]);
 			}
 		}
 		state = 0;
@@ -369,6 +380,8 @@ public class BuildComponentResearch implements BuildComponent, Instances {
 		int level = techAgent.getTechLevel(sTechId);
 		role.handleEvent(GameEvent.TASK_CHECK_EVENT, new TaskEventDelay(), ConditionType.COND_RESEARCH, sTechId, level, cityId, isMaxPoint(level));
 		role.handleEvent(GameEvent.ACTIVITY_EVENTS,ActvtEventType.RESEARCH_SCIENCE,sTechId);
+		// 重置该建筑的联盟被帮助的次数为0
+		role.clearBuildHelpers(0, buildId);
 	}
 
 	@Override
@@ -390,6 +403,14 @@ public class BuildComponentResearch implements BuildComponent, Instances {
 			return false;
 		}
 		if(tech.getMaxPoints() == level){
+			return true;
+		}
+		return false;
+	}
+
+	@Override
+	public boolean isWorking(Role role, RoleBuild build) {
+		if (build.getTimerSize() > 0) {
 			return true;
 		}
 		return false;

@@ -266,7 +266,7 @@ public class VipInfo implements TimerOver, Instances {
 				case "ImpDef":
 					value = vl.getImpDef();
 					break;
-				case "ReduBearDMG_All":
+				case "ReduBearDMGAll":
 					value = vl.getReduBearDMGAll();
 					break;
 				case "ImpAlloyProd":
@@ -280,6 +280,30 @@ public class VipInfo implements TimerOver, Instances {
 					break;
 				case "ReduProdTime":
 					value = vl.getReduProdTime();
+					break;
+				case "FreeBuildSpeed":
+					value = vl.getFreeBuildSpeed();
+					break;
+				case "FreeResearchSpeed":
+					value = vl.getFreeResearchSpeed();
+					break;
+				case "ReduHospTime":
+					value = vl.getReduHospTime();
+					break;
+				case "ReduRepaTime":
+					value = vl.getReduRepaTime();
+					break;
+				case "ReduHospRes":
+					value = vl.getReduHospRes();
+					break;
+				case "ReduRepaRes":
+					value = vl.getReduRepaRes();
+					break;
+				case "AddHospCapa":
+					value = vl.getAddHospCapa();
+					break;
+				case "AddRepaCapa":
+					value = vl.getAddRepaCapa();
 					break;
 				default:
 					break;

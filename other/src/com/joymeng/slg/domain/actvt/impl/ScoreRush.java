@@ -7,34 +7,41 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.w3c.dom.Element;
+
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
 import com.joymeng.log.GameLog;
-import com.joymeng.log.NewLogManager;
+import com.joymeng.services.utils.XmlUtils;
 import com.joymeng.slg.dao.SqlData;
 import com.joymeng.slg.domain.actvt.Actvt;
 import com.joymeng.slg.domain.actvt.ActvtCommonState;
 import com.joymeng.slg.domain.actvt.ClientMod;
-import com.joymeng.slg.domain.actvt.DTManager.SearchFilter;
-import com.joymeng.slg.domain.actvt.data.Activity;
-import com.joymeng.slg.domain.actvt.data.Activity_reward;
-import com.joymeng.slg.domain.actvt.data.Activity_scorerush;
-import com.joymeng.slg.domain.actvt.data.Activity_task;
+import com.joymeng.slg.domain.actvt.data.ActvtCommon;
+import com.joymeng.slg.domain.actvt.data.ActvtReward;
+import com.joymeng.slg.domain.actvt.data.ActvtTask;
 import com.joymeng.slg.domain.event.impl.ActvtEvent.ActvtEventType;
+import com.joymeng.slg.domain.evnt.EvntManager;
 import com.joymeng.slg.domain.object.role.Role;
 
 public class ScoreRush extends Actvt 
 {
+	private static final int SCORE_STAGE_NUM = 3;
+	
 	private Map<Long, Integer> scores = new HashMap<Long, Integer>();
 	private Map<Long, Long> rewardFlags = new HashMap<Long, Long>();
 	
 	private List<Long> ranks = new ArrayList<Long>();
-	private Activity_scorerush scoreRush;
-	private List<List<Activity_reward>> rewards = new ArrayList<List<Activity_reward>>();
-	private Map<Integer, List<Activity_reward>> rankRewards = new HashMap<Integer, List<Activity_reward>>();
-	private Map<String, Activity_task> tasks = new HashMap<String, Activity_task>();
-	private List<Activity_task> taskList;
-	private List<Activity_task> taskListShow = new ArrayList<Activity_task>();
+	
+	private List<ActvtReward> rewards = new ArrayList<ActvtReward>();
+	private List<ActvtReward> rankRewards = new ArrayList<ActvtReward>();
+	private List<Integer> scoreStages = new ArrayList<Integer>();
+	private List<Integer> accTimes = new ArrayList<Integer>();
+	private List<Integer> accScores = new ArrayList<Integer>();
+	private String scoreItemsDesc;
+	
+	private List<ActvtTask> taskListShow = new ArrayList<ActvtTask>();
+	private List<String> eventArgs = new ArrayList<String>();
 
 	class ScoreComparator implements Comparator<Long> {
 		@Override
@@ -50,63 +57,129 @@ public class ScoreRush extends Actvt
 	}
 	private ScoreComparator scoreComparator = new ScoreComparator();
 	
-	class TaskComparator implements Comparator<Activity_task> 
-	{
-		@Override
-		public int compare(Activity_task task1, Activity_task task2) 
-		{
-			if (task1.getRank() > task2.getRank()) {
-				return 1;
-			}
-			if (task1.getRank() < task2.getRank()) {
-				return -1;
-			}
-			return 0;
-			
-			
-//			if (task1.getType().compareTo(task2.getType()) == 0) 
-//			{
-//				if (task1.getDestID().compareTo(task2.getDestID()) == 0)
-//				{
-//					if (task1.getNumber() > task2.getNumber()) {
-//						return 1;
-//					}
-//					if (task1.getNumber() < task2.getNumber()) {
-//						return -1;
-//					}
-//					return 0;
-//				}
-//				else {
-//					return task1.getDestID().compareTo(task2.getDestID());
-//				}
-//			} 
-//			else {
-//				return task1.getType().compareTo(task2.getType());
-//			}
-		}
-	}
-	private TaskComparator taskComparator = new TaskComparator();
-
 	@Override
-	public boolean init(Activity actvt) {
-		if (!super.init(actvt)) {
-			return false;
+	public void start()
+	{
+		super.start();
+		
+		EvntManager.getInstance().Remove(this);
+		List<ActvtTask> taskList = getTaskList();
+		for (int i = 0; i < taskList.size(); i++)
+		{
+			ActvtTask task = taskList.get(i);
+			EvntManager.getInstance().Listen(task.getType(), this);
 		}
-		load();
-
-		return true;
+		EvntManager.getInstance().Listen("taskEvent", this);
 	}
 	
-	public void accelerate(String value, String data)
+	@Override
+	public void end()
 	{
-		if (!isRuning()) {
-			return;
+		super.end();
+		rewardScoreRushRank();
+	}
+	
+	@Override
+	public void load(Element element) throws Exception
+	{
+		super.load(element);
+		
+		Element eleSpecial = XmlUtils.getChildByName(element, "Special");
+		String str = eleSpecial.getAttribute("scoreStages");
+		String[] strs = str.split(",");
+		if (strs.length != SCORE_STAGE_NUM) {
+			throw new Exception("id="+getId()+" scores num is not 3");
 		}
 		
-		boolean flag = true;
-		for (Map.Entry<String, Activity_task> entry : tasks.entrySet()) 
+		scoreStages.clear();
+		for (int i = 0; i < strs.length; i++) {
+			scoreStages.add(Integer.parseInt(strs[i]));
+		}
+		scoreItemsDesc = eleSpecial.getAttribute("scoreItemsDesc");
+		
+		accTimes.clear();
+		str = eleSpecial.getAttribute("accTimes");
+		if (!str.isEmpty()) 
 		{
-			Activity_task task = entry.getValue();
+			strs = str.split(",");
+			for (int i = 0; i < strs.length; i++) {
+				accTimes.add(Integer.parseInt(strs[i]));
+			}
+		}
+		
+		accScores.clear();
+		str = eleSpecial.getAttribute("accScores");
+		if (!str.isEmpty())
+		{
+			strs = str.split(",");
+			for (int i = 0; i < strs.length; i++) {
+				accScores.add(Integer.parseInt(strs[i]));
+			}
+		}
+		
+		if (accTimes.size() != accScores.size()) {
+			throw new Exception("id="+getId()+" accTimes and accScores is not same");
+		}
+		
+		String str1 = eleSpecial.getAttribute("reward1");
+		String str2 = eleSpecial.getAttribute("reward2");
+		String str3 = eleSpecial.getAttribute("reward3");
+		rewards.clear();
+		rewards.add(getReward(str1));
+		rewards.add(getReward(str2));
+		rewards.add(getReward(str3));
+		
+		int rank = 1;
+		rankRewards.clear();
+		List<ActvtReward> rewardList = getRewardList();
+		for (int i = 0; i < rewardList.size(); i++)
+		{
+			ActvtReward reward = rewardList.get(i);
+			String id = reward.getId();
+			if (id.equals(str1) || id.equals(str2) || id.equals(str3)) {
+				continue;
+			}
+			String[] ids = id.split("-");
+			if (ids.length == 1) {
+				if (rank == Integer.parseInt(ids[0])) {
+					rankRewards.add(reward);
+					rank++;
+				}
+				else {
+					throw new Exception("id="+getId()+" rank rewards not continuous");
+				}
+			}
+			else {
+				int min = Integer.parseInt(ids[0]);
+				int max = Integer.parseInt(ids[1]);
+				if (rank != min) {
+					throw new Exception("id="+getId()+" rank rewards not continuous");
+				}
+				for (int r = min; r <= max; r++) {
+					rankRewards.add(reward);
+				}
+				rank = max + 1;
+			}
+		}
+		
+		taskListShow.clear();
+		List<ActvtTask> taskList = getTaskList();
+		for (int i = 0; i < taskList.size(); i++)
+		{
+			ActvtTask task = taskList.get(i);
+			if (task.isShow()) {
+				taskListShow.add(task);
+			}
+		}
+	}
+	
+	public void accelerate(Object... datas)
+	{
+		boolean flag = true;
+		List<ActvtTask> taskList = getTaskList();
+		for (int i = 0; i < taskList.size(); i++)
+		{
+			ActvtTask task = taskList.get(i);
 			if (task.getType().equals(ActvtEventType.ACCELERATE.getName())) {
 				flag = false;
 				break;
@@ -116,12 +189,9 @@ public class ScoreRush extends Actvt
 			return;
 		}
 		
-		String[] strs = data.split("#");
-		long joyId = Long.parseLong(strs[0]);
-		long time = Long.parseLong(strs[1]) / 60;
+		long joyId = Long.parseLong(datas[0].toString());
+		long time = Long.parseLong(datas[1].toString()) / 60;
 		
-		List<Integer> accTimes = scoreRush.getAccTimes();
-		List<Integer> accScores = scoreRush.getAccScores();
 		int score = 0;
 		for (int i = 0; i < accTimes.size(); i++)
 		{
@@ -131,12 +201,28 @@ public class ScoreRush extends Actvt
 		
 		addScore(joyId, score);
 	}
+	
+	@Override
+	public void execute(String event, Object... datas)
+	{
+		if (!isRuning()) { 
+			return;
+		}
+		
+		if (event.equals("accelerate")) {
+			accelerate(datas);
+		}
+		else if (event.equals("taskEvent")) {
+			taskEvent(datas);
+		}
+	}
 
 	@Override
-	public void makeUpDetailModule(ClientMod module, Role role) {
-		Activity activity = getActivity();
-		module.add(activity.getType());
-		module.add(activity.getName());
+	public void makeUpDetailModule(ClientMod module, Role role) 
+	{
+		ActvtCommon commonData = getCommonData();
+		module.add(commonData.getType());
+		module.add(commonData.getName());
 
 		long joyId = role.getId();
 		module.add(getScore(joyId));
@@ -145,79 +231,57 @@ public class ScoreRush extends Actvt
 		module.add(getTheScore(1));
 		module.add(getTheScore(2));
 
-		for (int i = 0; i < 3; i++) {
+		for (int i = 0; i < SCORE_STAGE_NUM; i++) {
 			module.add(getTheScore(i));
-			module.add(Activity_reward.toString(rewards.get(i)));
+			module.add(rewards.get(i).getItems());
 			module.add(getFlagState(joyId, i));
 		}
 		
-		module.add(scoreRush.getScoreItems());
-		if (activity.getTypeId().equals("ScoreRush2") || activity.getTypeId().equals("ScoreRush3")) {
-			module.add(scoreRush.getScoreDesc());
-		}
-		else {
-			module.add("");
-		}
-
+		module.add("");
+		module.add(scoreItemsDesc);
 		module.add(taskListShow.size());
 		for (int i = 0; i < taskListShow.size(); i++) 
 		{
-			Activity_task task = taskListShow.get(i);
-			module.add(task.getContent());
-			module.add(String.valueOf(task.getNumber()));
+			ActvtTask task = taskListShow.get(i);
+			module.add(task.getDesc());
+			module.add(String.valueOf(task.getNum()));
 		}
-//		module.add(tasks.size());
-//		for (Map.Entry<String, Activity_task> entry : tasks.entrySet())
-//		{
-//			Activity_task task = entry.getValue();
-//			module.add(task.getContent());
-//			module.add(String.valueOf(task.getNumber()));
-//		}
 
-		int num = scoreRush.getRankNum();
-//		num = num>20?20:num;
-		module.add(num);
-		for (int i = 1; i <= num; i++)
+		module.add(rankRewards.size());
+		for (int i = 0; i < rankRewards.size(); i++)
 		{
-			List<Activity_reward> rewards = rankRewards.get(i);
-			module.add(Activity_reward.toString(rewards));
+			ActvtReward reward = rankRewards.get(i);
+			module.add(reward.getItems());
 		}
-
 //		System.out.println(module.getParams().toString());
 	}
 
 	@Override
-	public boolean receiveReward(Role role, int index) {
+	public boolean receiveReward(Role role, int index) 
+	{
+		if (state == ActvtState.PREPARE) {
+			return false;
+		}
+		
 		if (getFlagState(role.getId(), index) != ActvtCommonState.FINISH.ordinal()) {
 			return false;
 		}
-		rewardPlayer(role, Activity_reward.toString(rewards.get(index)));
+		
+		rewardPlayer(role, rewards.get(index).getItems());
 		setFlag(role.getId(), index, 1);
-		// TEST11 积分活动奖励  领取  rewards
-		List<Activity_reward> rew = rewards.get(index);
-		StringBuffer sb = new StringBuffer();
-		sb.append(getActivity().getTypeId()).append(GameLog.SPLIT_CHAR);
-		sb.append("receive"+index).append(GameLog.SPLIT_CHAR);
-		for(int j=0;j<rew.size();j++){
-			Activity_reward reward = rew.get(j);
-			sb.append(reward.getsID());
-			sb.append(GameLog.SPLIT_CHAR);
-			sb.append(reward.getNum());
-			sb.append(GameLog.SPLIT_CHAR);
-		}
-		String newStr = sb.toString().substring(0, sb.toString().length() - 1);
-		NewLogManager.activeLog(role, "activity_integration_reward",newStr);
 		return true;
 	}
 
-	public int getScore(long joyId) {
+	public int getScore(long joyId) 
+	{
 		if (scores.containsKey(joyId)) {
 			return scores.get(joyId);
 		}
 		return 0;
 	}
 
-	public int getRank(long joyId) {
+	public int getRank(long joyId) 
+	{
 //		refreshRank();
 		for (int i = 0; i < ranks.size(); i++) {
 			if (ranks.get(i) == joyId) {
@@ -228,26 +292,24 @@ public class ScoreRush extends Actvt
 	}
 	
 	@Override
-	public void taskEvent(String value, String data)
+	public void taskEvent(Object... datas)
 	{
-		if (!isRuning()) {
-			return;
-		}
-		
 		try {
-			String[] strs = data.split("#");
-			long joyId = Long.parseLong(strs[0]);		
-			String taskID = strs[1];
-			int num = 1;
-			if (strs.length > 2) {
-				num = Integer.parseInt(strs[2]);
+			long joyId = Long.parseLong(datas[0].toString());
+			String taskID = datas[1].toString();
+			int num = Integer.parseInt(datas[2].toString());
+			
+			eventArgs.clear();
+			for (int i = 3; i < datas.length; i++) {
+				eventArgs.add(datas[i].toString());
 			}
-
-			for (Map.Entry<String, Activity_task> entry : tasks.entrySet()) 
+			
+			List<ActvtTask> taskList = getTaskList();
+			for (int i = 0; i < taskList.size(); i++) 
 			{
-				Activity_task task = entry.getValue();
-				if (task.getTaskID().equals(taskID)) {
-					addScore(joyId, num * task.getNumber());
+				ActvtTask task = taskList.get(i);
+				if (task.check(taskID, eventArgs)) {
+					addScore(joyId, num * task.getNum());
 				}
 			}
 		} catch (Exception e) {
@@ -256,6 +318,9 @@ public class ScoreRush extends Actvt
 	}
 	
 	private int getFlagState(long joyId, int index) {
+		if (!isRuning()) {
+			ActvtCommonState.NOT_FINISH.ordinal();
+		}
 		if (getFlag(joyId, index, 1) == 1) {
 			return ActvtCommonState.RECEIVED.ordinal();
 		}
@@ -265,7 +330,8 @@ public class ScoreRush extends Actvt
 		return ActvtCommonState.NOT_FINISH.ordinal();
 	}
 
-	public void addScore(long joyId, int add) {
+	public void addScore(long joyId, int add) 
+	{
 		int score = 0;
 		if (scores.containsKey(joyId)) {
 			score = scores.get(joyId);
@@ -274,11 +340,12 @@ public class ScoreRush extends Actvt
 		score += add;
 		scores.put(joyId, score);
 
-		for (int i = 0; i < 3; i++) {
+		for (int i = 0; i < 3; i++) 
+		{
 			int dstScore = getTheScore(i);
-			if (oldScore < dstScore && score >= dstScore) {
+			if (oldScore < dstScore && score >= dstScore) 
+			{
 				setFlag(joyId, i, 0);
-//				Notify(scoreTags[i], String.valueOf(joyId));
 				if (i == 2) {
 					ranks.add(joyId);
 				}
@@ -289,21 +356,10 @@ public class ScoreRush extends Actvt
 	// 获取排行榜列表和最终发奖时，排序
 	private void refreshRank() {
 		Collections.sort(ranks, scoreComparator);
-		
-		for (int i = 0; i < ranks.size(); ) 
-		{
-			long joyId = ranks.get(i);
-			Role role = world.getRole(joyId);
-			if (role == null) {
-				ranks.remove(i);
-			}
-			else {
-				i++;
-			}
-		}
 	}
 
-	private long getFlag(long joyId, int index, int receive) {
+	private long getFlag(long joyId, int index, int receive) 
+	{
 		if (!rewardFlags.containsKey(joyId)) {
 			return 0;
 		} else {
@@ -312,7 +368,8 @@ public class ScoreRush extends Actvt
 		}
 	}
 
-	private void setFlag(long joyId, int index, int receive) {
+	private void setFlag(long joyId, int index, int receive) 
+	{
 		long flag = 0;
 		if (rewardFlags.containsKey(joyId)) {
 			flag = rewardFlags.get(joyId);
@@ -325,74 +382,48 @@ public class ScoreRush extends Actvt
 		}
 	}
 
-	private int getTheScore(int index) {
-		if (index == 0) {
-			return scoreRush.getScoreI();
-		}
-		if (index == 1) {
-			return scoreRush.getScoreII();
-		}
-		return scoreRush.getScoreIII();
-	}
-	
-	@Override
-	public void hotLoadEnd()
+	private int getTheScore(int index) 
 	{
-		super.hotLoadEnd();
-		rewardScoreRushRank("", "");
+		if (index >= scoreStages.size()) {
+			GameLog.error("ScoreRush id="+getId()+" getTheScore index="+index+" out of bounds");
+			return 0;
+		}
+		return scoreStages.get(index);
 	}
 
-	public void rewardScoreRushRank(String value, String data) {
+	public void rewardScoreRushRank() 
+	{
 		refreshRank();
-		for (int i = 0; i < scoreRush.getRankNum() && i < ranks.size(); i++)
+		ActvtCommon commonData = getCommonData();
+		for (int i = 0; i < rankRewards.size() && i < ranks.size(); i++)
 		{
 			int rank = i + 1;
 			long joyId = ranks.get(i);
-			List<Activity_reward> rewards = rankRewards.get(rank);
-//			rewardPlayer(joyId, Activity_reward.toString(rewards));
-			sendEmail(joyId, String.format("恭喜你在“%s”活动中获得“第%d名”，获得以下奖励。", getActivity().getName(), rank), rewards);
-			
-			// TEST11 积分活动奖励  排行奖励  rewards
-			StringBuffer sb = new StringBuffer();
-			sb.append(getActivity().getTypeId()).append(GameLog.SPLIT_CHAR);
-			sb.append(i+1).append(GameLog.SPLIT_CHAR);
-			for(int j=0;j<rewards.size();j++){
-				Activity_reward reward = rewards.get(j);
-				sb.append(reward.getsID());
-				sb.append(GameLog.SPLIT_CHAR);
-				sb.append(reward.getNum());
-				sb.append(GameLog.SPLIT_CHAR);
-			}
-			String newStr = sb.toString().substring(0, sb.toString().length() - 1);
-			Role role = world.getRole(joyId);
-			NewLogManager.activeLog(role, "activity_integration_reward",newStr);
+			ActvtReward reward = rankRewards.get(rank);
+			sendEmail(joyId, String.format("恭喜你在“%s”活动中获得“第%d名”，获得以下奖励。", commonData.getName(), rank), reward);		
 		}
-
-//		long joyId = ranks.get(0);
-//		for (int i = 0; i < scoreRush.getRankNum(); i++)
-//		{
-//			int rank = i + 1;
-//			List<Activity_reward> rewards = rankRewards.get(rank);
-//			sendEmail(joyId, String.format("恭喜你在“%s”活动中获得“第%d名”，获得以下奖励。", getActivity().getName(), rank), rewards);
-//		}
 	}
 
 	@Override
-	public boolean makeUpActvtRankListModule(ClientMod module, Role role) {
+	public boolean makeUpActvtRankListModule(ClientMod module, Role role) 
+	{
 		refreshRank();
 
 		long joyId = role.getId();
+		int rankNum = 1;
+		module.add(rankNum);
+		
 		module.add(getScore(joyId));
 		module.add(getRank(joyId));
 		module.add("当你达到目标3的时候，就可以参与排名，获得排名奖励");
 
 		int num = ranks.size();
-		if (ranks.size() > scoreRush.getRankNum()) {
-			num = scoreRush.getRankNum();
+		if (ranks.size() > rankRewards.size()) {
+			num = rankRewards.size();
 		}
 		module.add(num);
-		for (int i = 0; i < num; i++) {
-			long id = ranks.get(i);
+		for (int j = 0; j < num; j++) {
+			long id = ranks.get(j);
 			String name = world.getRole(id).getName(); // SN 耗时的查询操作
 			int score = getScore(id);
 			module.add(name);
@@ -404,97 +435,27 @@ public class ScoreRush extends Actvt
 
 	@Override
 	public String getStateStr() {
-		return JSON.toJSONString(scores) + SPCH + JSON.toJSONString(rewardFlags);
+		return JSON.toJSONString(scores) + STATE_STR_SPLIT_CH + JSON.toJSONString(rewardFlags);
 	}
 
 	@Override
-	public void loadFromData(SqlData data) {
+	public void loadFromData(SqlData data) 
+	{
 		String[] strs = getStateStrs(data);
 		
 		scores = JSON.parseObject(strs[0], new TypeReference<Map<Long, Integer>>(){});
 		rewardFlags = JSON.parseObject(strs[1], new TypeReference<Map<Long, Long>>(){});
 		
-		ranks.clear();
 		int score3 = getTheScore(2);
 		for (Map.Entry<Long, Integer> entry : scores.entrySet())
 		{
 			long joyId = entry.getKey();
 			int score = entry.getValue();
-			if (score >= score3) {
+			if (score > score3) {
 				ranks.add(joyId);
 			}
 		}
-		
-		Collections.sort(ranks, scoreComparator);
-	}
-
-	@Override
-	public void load() {
-//		scoreRush = actvtMgr.serach(Activity_scorerush.class, "1");
-		scoreRush = actvtMgr.serach(Activity_scorerush.class, new SearchFilter<Activity_scorerush>() {
-			@Override
-			public boolean filter(Activity_scorerush data) {
-				return data.getTypeId().equals(getActivity().getTypeId());
-			}
-		});
-
-		rewards.clear();
-		String typeId = getActivity().getTypeId();
-		String[] rewardIds = {typeId+"_r1", typeId+"_r2", typeId+"_r3"};
-		for (int i = 0; i < rewardIds.length; i++) 
-		{
-			final String rewardId = rewardIds[i];
-			List<Activity_reward> rewardList = actvtMgr.serachList(Activity_reward.class, new SearchFilter<Activity_reward>() {
-				@Override
-				public boolean filter(Activity_reward data) {
-					return data.getrID().equals(rewardId);
-				}
-			});
-			rewards.add(rewardList);
-			Collections.sort(rewardList, rewardComparator);
-		}
-//		rewards.add(actvtMgr.getReward(scoreRush.getReward1()));
-//		rewards.add(actvtMgr.getReward(scoreRush.getReward2()));
-//		rewards.add(actvtMgr.getReward(scoreRush.getReward3()));
-		
-		rankRewards.clear();
-		for (int i = 0; i < scoreRush.getRankNum(); i++) 
-		{
-			final int rank = i+1;
-			List<Activity_reward> rewardList = actvtMgr.serachList(Activity_reward.class, new SearchFilter<Activity_reward>() {
-				@Override
-				public boolean filter(Activity_reward data) {
-					return data.getrID().equals(getActivity().getTypeId()+"_"+rank);
-				}
-			});
-//			List<Activity_reward> rewardList = actvtMgr.getReward(getActivity().getTypeId()+"_"+(i+1));
-			rankRewards.put(rank, rewardList);
-			Collections.sort(rewardList, rewardComparator);
-		}
-		
-		taskList = actvtMgr.serachList(Activity_task.class, new SearchFilter<Activity_task>() {
-			@Override
-			public boolean filter(Activity_task data) {
-//				return data.gettID().startsWith(getActivity().getTypeId());
-				return data.getActivity().equals(getActivity().getTypeId());
-			}
-		});
-		tasks.clear();
-		for (int i = 0; i < taskList.size(); i++)
-		{
-			Activity_task task = taskList.get(i);
-			tasks.put(task.gettID(), task);
-		}
-		Collections.sort(taskList, taskComparator);
-		
-		taskListShow.clear();
-		for (int i = 0; i < taskList.size(); i++)
-		{
-			Activity_task task = taskList.get(i);
-			if (task.getIsShow() == 1) {
-				taskListShow.add(task);
-			}
-		}
+		refreshRank();
 	}
 
 	@Override
@@ -509,21 +470,4 @@ public class ScoreRush extends Actvt
 		}
 		return num;
 	}
-	
-//	public static void main(String[] args)
-//	{
-//		List<Integer> tlist = new ArrayList<>(Arrays.asList(1,2,3,4,5,6,7,8,9,0));
-//		System.out.println(tlist.toString());
-//		
-//		for (int i = 0; i < tlist.size(); )
-//		{
-//			if (tlist.get(i)%2 == 1) {
-//				tlist.remove(i);
-//			}
-//			else {
-//				i++;
-//			}
-//		}
-//		System.out.println(tlist.toString());
-//	}
 }

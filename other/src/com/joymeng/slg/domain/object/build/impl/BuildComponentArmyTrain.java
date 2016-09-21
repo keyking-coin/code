@@ -11,6 +11,7 @@ import com.joymeng.common.util.I18nGreeting;
 import com.joymeng.common.util.JsonUtil;
 import com.joymeng.common.util.MessageSendUtil;
 import com.joymeng.common.util.StringUtils;
+import com.joymeng.list.EventName;
 import com.joymeng.log.GameLog;
 import com.joymeng.log.LogManager;
 import com.joymeng.log.NewLogManager;
@@ -29,6 +30,7 @@ import com.joymeng.slg.domain.object.build.data.Buildinglevel;
 import com.joymeng.slg.domain.object.effect.BuffTypeConst.TargetType;
 import com.joymeng.slg.domain.object.resource.ResourceTypeConst;
 import com.joymeng.slg.domain.object.role.Role;
+import com.joymeng.slg.domain.object.role.RoleArmyAttr;
 import com.joymeng.slg.domain.object.task.ConditionType;
 import com.joymeng.slg.domain.object.task.TaskEventDelay;
 import com.joymeng.slg.domain.timer.TimerLast;
@@ -42,7 +44,7 @@ import com.joymeng.slg.net.mod.RespModuleSet;
  * @author tanyong
  *
  */
-public class BuildComponentArmyTrain implements BuildComponent, Instances {
+public class BuildComponentArmyTrain implements BuildComponent,Instances {
 	// 组件类型
 	private BuildComponentType buildComType;
 	// 0空闲，1标示训练中，2训练结束
@@ -54,7 +56,6 @@ public class BuildComponentArmyTrain implements BuildComponent, Instances {
 	long uid;
 	int cityId;
 	long buildId;
-
 	public BuildComponentArmyTrain() {
 		state = (byte) 0;
 		buildComType = BuildComponentType.BUILD_COMPONENT_ARMYTRAIN;
@@ -72,7 +73,7 @@ public class BuildComponentArmyTrain implements BuildComponent, Instances {
 
 	}
 
-	private String getBuildParams(RoleBuild build) {
+	public String getBuildParams(RoleBuild build) {
 		if (build != null) {
 			Buildinglevel buildLevel = RoleBuild.getBuildinglevelByCondition(build.getBuildId(), build.getLevel());
 			if (buildLevel.getParamList().size() > 0) {
@@ -99,8 +100,16 @@ public class BuildComponentArmyTrain implements BuildComponent, Instances {
 	 */
 	public boolean trainArmy(Role role, int cityId, long buildId, String armyId, int num, int money) {
 		RoleCityAgent agent = role.getCity(cityId);
+		if(agent == null){
+			GameLog.error("getCity" + cityId + "is null where uid = " + role.getId());
+			return false;
+		}
 		// 倒计时检查，一个建筑同时只能有一个倒计时
 		RoleBuild build = agent.searchBuildById(buildId);
+		if (build == null) {
+			GameLog.error("RoleBuild is null where buildId = " + buildId);
+			return false;
+		}
 		if (build.getTimerSize() > 0) {
 			MessageSendUtil.sendNormalTip(role.getUserInfo(), I18nGreeting.MSG_BUILD_TIMER_UNUSED, build.getId());
 			return false;
@@ -135,6 +144,7 @@ public class BuildComponentArmyTrain implements BuildComponent, Instances {
 			String strRes = resCostListTemp.get(i);
 			String[] strArray = strRes.split(":");
 			if (strArray.length < 2) {
+				GameLog.error("Army json TrainCostList is error -- 固化表错误");
 				return false;
 			}
 			int resnum = Integer.parseInt(strArray[1]) * num;
@@ -147,8 +157,11 @@ public class BuildComponentArmyTrain implements BuildComponent, Instances {
 		if (param != null) {
 			buildBuff = Float.parseFloat(param);
 		}
-		float buff = role.getArmyAttr().getEffVal(TargetType.T_A_RED_SPT, armyId);
-		double trainTime = armyBase.getTrainTime() * num * (1.0f - buff - buildBuff) + 0.5;// +0.5方便后面取整
+		float buff = RoleArmyAttr.getEffVal(role,TargetType.T_A_RED_SPT, armyId);
+		double trainTimeOld = armyBase.getTrainTime() * num * (1.0f - buff - buildBuff) + 0.5;// +0.5方便后面取整
+		float powerRatio = agent.geteAgent().searchPoweRatio(buildId, this.getBuildComponentType().getKey());
+		double trainTime = trainTimeOld/powerRatio;
+		GameLog.info("[trainArmy]uid="+role.getJoy_id()+"|armyId="+armyId+"|T_A_RED_SPT=buff="+buff+"|buildBuff="+buildBuff+"|trainTimeOld="+trainTimeOld+"|powerRaito="+powerRatio+"|trainTime="+trainTime);
 		if (money > 0) {
 			if (money == 2) {
 				costMoney = agent.getCostMoney(role, resCostList,null,0, (byte) 0);
@@ -163,7 +176,7 @@ public class BuildComponentArmyTrain implements BuildComponent, Instances {
 			return false;
 		}
 		// 扣除消耗
-		List<Object> resLst = agent.redCostResource(resCostList,costMoney,"trainArmy");
+		List<Object> resLst = agent.redCostResource(resCostList,costMoney,EventName.trainArmy.getName());
 		changeState(armyId, num);
 		// 下发数据
 		RespModuleSet rms = new RespModuleSet();
@@ -171,8 +184,6 @@ public class BuildComponentArmyTrain implements BuildComponent, Instances {
 			state = 2;
 			// 添加士兵训练完成事件
 			role.redRoleMoney(costMoney);
-			String event ="trainArmy";
-			LogManager.goldConsumeLog(role, costMoney, event);
 			role.sendRoleToClient(rms);
 			//任务事件
 			role.handleEvent(GameEvent.TASK_CHECK_EVENT, new TaskEventDelay(), ConditionType.C_ACC_BUILD, TimerLastType.TIME_TRAIN);
@@ -180,8 +191,6 @@ public class BuildComponentArmyTrain implements BuildComponent, Instances {
 		} else {
 			if (money == 2) {
 				role.redRoleMoney(costMoney);
-				String event ="trainArmy";
-				LogManager.goldConsumeLog(role, costMoney, event);
 				role.sendRoleToClient(rms);
 			}
 			// 添加时间队列
@@ -189,6 +198,7 @@ public class BuildComponentArmyTrain implements BuildComponent, Instances {
 			timer.registTimeOver(this);
 			state = 1;
 		}
+		LogManager.goldConsumeLog(role, costMoney, EventName.trainArmy.getName());
 		try {
 			if(money==1){
 				NewLogManager.buildLog(role, "train_unit",armyId,true,costMoney);
@@ -223,7 +233,7 @@ public class BuildComponentArmyTrain implements BuildComponent, Instances {
 		build.sendToClient(rms);
 		role.sendResourceToClient(rms, cityId, resLst.toArray());
 		role.handleEvent(GameEvent.ACTIVITY_EVENTS,ActvtEventType.TRAIN_SOLDIER,armyId,num);
-		NewLogManager.armyLog(role, "训练士兵", armyId, num);
+		NewLogManager.armyLog(role, EventName.trainArmy.getName(), armyId, num);
 		return true;
 	}
 
@@ -268,7 +278,7 @@ public class BuildComponentArmyTrain implements BuildComponent, Instances {
 			if (type != null && need > 0){
 				costs.add(type);
 				costs.add(need);
-				LogManager.itemOutputLog(role,need,"cancelTrainArmy", cs[0]);
+				LogManager.itemOutputLog(role,need,EventName.cancelTrainArmy.getName(), cs[0]);
 			}
 		}
 		// 下发数据
@@ -315,7 +325,7 @@ public class BuildComponentArmyTrain implements BuildComponent, Instances {
 		build.sendToClient(rms);
 		// 下发
 		MessageSendUtil.sendModule(rms, role.getUserInfo());
-		NewLogManager.armyLog(role, "收获士兵", armyId, trainNum);
+		NewLogManager.armyLog(role, EventName.harvestSoldiers.getName(), armyId, trainNum);
 		return true;
 	}
 
@@ -369,6 +379,14 @@ public class BuildComponentArmyTrain implements BuildComponent, Instances {
 	@Override
 	public BuildComponentType getBuildComponentType() {
 		return buildComType;
+	}
+
+	@Override
+	public boolean isWorking(Role role,RoleBuild build) {
+		if (build.getTimerSize() > 0) {
+			return true;
+		}
+		return false;
 	}
 
 }

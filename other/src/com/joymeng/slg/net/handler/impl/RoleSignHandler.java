@@ -27,13 +27,14 @@ public class RoleSignHandler extends ServiceHandler {
 		if (signType == 0) {
 			if (!role.getSevenSignIn().signIn(role)) {
 				resp.fail();
+				return resp;
 			}
 		} else if (signType == 1) {
 			if (!role.getThirtySignIn().signIn(role)) {
 				resp.fail();
+				return resp;
 			}
 		}
-
 		return resp;
 	}
 

@@ -13,7 +13,7 @@ public class GetActvtRankListHandler extends ServiceHandler {
 
 	@Override
 	public void _deserialize(JoyBuffer in, ParametersEntity params) {
-		params.put(in.getInt()); // actvt id
+		params.put(in.getInt());
 	}
 
 	@Override
@@ -30,7 +30,6 @@ public class GetActvtRankListHandler extends ServiceHandler {
 		int actvtId = params.get(0);
 		if (!ActvtManager.getInstance().sendActvtRankListReq(role, actvtId)) {
 			resp.fail();
-			return resp;
 		}
 		return resp;
 	}

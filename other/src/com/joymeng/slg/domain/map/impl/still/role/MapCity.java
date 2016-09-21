@@ -11,6 +11,7 @@ import com.joymeng.common.util.I18nGreeting;
 import com.joymeng.common.util.MessageSendUtil;
 import com.joymeng.common.util.StringUtils;
 import com.joymeng.common.util.TimeUtils;
+import com.joymeng.list.EventName;
 import com.joymeng.log.GameLog;
 import com.joymeng.log.LogManager;
 import com.joymeng.log.NewLogManager;
@@ -365,9 +366,10 @@ public class MapCity extends MapObject implements TimerOver{
 			if (expedite.getTimer().getType() == TimerLastType.TIME_ARMY_BACK){
 				//回城操作,部队回营
 				RespModuleSet rms = new RespModuleSet();
+				RespModuleSet rm = new RespModuleSet();
 				//部队回营
 				expedite.armyBack(rms,role);
-				expedite.packageBack(rms,role);
+				expedite.packageBack(rm,role);
 				MapCell comeCell = mapWorld.getMapCell(expedite.getStartPosition());
 				if (comeCell.getTypeKey() == MapFortress.class || comeCell.getTypeKey() == MapBarracks.class){
 					MapFortress fortress = mapWorld.searchObject(comeCell);
@@ -415,7 +417,7 @@ public class MapCity extends MapObject implements TimerOver{
 						if (couldNotify){
 							String aName = "0$" + aUnion.getName();
 							String dName = "0$" + dUnion.getName();
-							chatMgr.addStringContentNotice(5,true,I18nGreeting.MSG_UNION_ATTCK_UNION_ING,aName,dName);
+							chatMgr.addStringContentNotice(-1,true,I18nGreeting.MSG_UNION_ATTCK_UNION_ING,aName,dName);
 							dUnion.getNotifyTimes().put(attInfo.getUnionId(),now);
 						}
 					}
@@ -437,12 +439,12 @@ public class MapCity extends MapObject implements TimerOver{
 						}
 						role.handleEvent(GameEvent.TASK_CHECK_EVENT, new TaskEventDelay(),ConditionType.C_DEF_WIN, true);
 						if (!expedite.isWin){//连驻防者都没有干过
-							LogManager.mapLog(aRole,expedite.getStartPosition(),expedite.getTargetPosition(), expedite.getId(),"endOfBattle");
+							LogManager.mapLog(aRole,expedite.getStartPosition(),expedite.getTargetPosition(), expedite.getId(),EventName.endOfBattle.getName());
 							GameLog.info(expedite.getLeader().getInfo().getUid() + " attack " + info.getUid() + "'s allyers fail at " + position);
 							return;
 						}
 						GameLog.info(expedite.getLeader().getInfo().getUid() + " attack " + info.getUid() + "'s allyers successful at " + position);
-						LogManager.mapLog(aRole, expedite.getStartPosition(), expedite.getTargetPosition(), expedite.getId(), "endOfBattle");
+						LogManager.mapLog(aRole, expedite.getStartPosition(), expedite.getTargetPosition(), expedite.getId(), EventName.endOfBattle.getName());
 					}
 				}
 				RoleCityAgent city = role.getCity(info.getCityId());
@@ -501,23 +503,28 @@ public class MapCity extends MapObject implements TimerOver{
 							GameLog.info(expedite.getLeader().getInfo().getUid() + " attack " + info.getUid() + "'s allyers successful at " + position);
 						}else{
 							GameLog.info(expedite.getLeader().getInfo().getUid() + " attack " + info.getUid() + "'s allyers fail at " + position);
-							LogManager.pvpLog(role, group_id, (byte)0, "0", 0);
+							LogManager.pvpLog(aRole, group_id, EventName.AllianceWar.getName(),EventName.OffensivePlayerCity.getName(),(byte)0, "0", 0);
 						}
 						createUnionBattleRecord(expedite.isWin,expedite.isMass(),attInfo,info);
-						LogManager.mapLog(role, start, end, expedite.getId(), "endOfBattle");
+						LogManager.mapLog(aRole, start, end, expedite.getId(), EventName.endOfBattle.getName());
 					}else{
 						createUnionBattleRecord(true,expedite.isMass(),attInfo,info);	
 						couldLoot=  true;
-						LogManager.mapLog(role, start, end, expedite.getId(), "endOfBattle");
+						LogManager.mapLog(aRole, start, end, expedite.getId(), EventName.endOfBattle.getName());
 						GameLog.info(expedite.getLeader().getInfo().getUid() + " attack " + info.getUid() + "'s city successful at " + position);
 					}
 				}else{
 					MapUtil.report(expedite,this,false,battle,record,defenceBuilds,attackersResult,defencerResult,city);
 					createUnionBattleRecord(false,expedite.isMass(),attInfo,info);
 					GameLog.info(expedite.getLeader().getInfo().getUid() + " attack " + info.getUid() + "'s city fail at " + position);
-					LogManager.mapLog(role, start, end, expedite.getId(), "endOfBattle");
-					LogManager.pvpLog(role, group_id, (byte)0, "0", 0);
+					LogManager.mapLog(aRole, start, end, expedite.getId(), EventName.endOfBattle.getName());
+					if(expedite.isMass()){
+						LogManager.pvpLog(aRole, group_id, EventName.AllianceWar.getName(),EventName.OffensivePlayerCity.getName(), (byte) 0, "0", 0);
+					}else{
+						LogManager.pvpLog(aRole, group_id, EventName.PersonalChallenge.getName(),EventName.OffensivePlayerCity.getName(), (byte) 0, "0", 0);
+					}
 				}
+				
 				if (couldLoot){//计算掠夺的资源
 					//对城墙造成50点伤害
 					List<RoleBuild> builds = city.searchBuildByBuildId(BuildName.FENCE.getKey());
@@ -545,6 +552,8 @@ public class MapCity extends MapObject implements TimerOver{
 				}else{
 					expedite.goBackToCome();
 				}
+				//更新防守方的部队战斗力数值
+				role.getRoleStatisticInfo().updataRoleArmyFight(role);
 				if (role.isOnline()){
 					MessageSendUtil.sendModule(role.sendToClient(3),role.getUserInfo());
 				}
@@ -585,8 +594,6 @@ public class MapCity extends MapObject implements TimerOver{
 					garrison.getTroops().setLeader(false);
 					mass.changeGrid(expedite,garrison);
 					role.handleEvent(GameEvent.UNION_FIGHT_CHANGE,false);//联盟战斗变化
-					//role = world.getRole(expedite.getLeader().getInfo().getUid());
-					//role.handleEvent(GameEvent.ACTIVITY_EVENTS,ActvtEventType.ASSEMBLE);//活动参加集结
 				} else {
 					expedite.goBackToCome();
 				}
@@ -656,15 +663,13 @@ public class MapCity extends MapObject implements TimerOver{
 					if (winnerSide != null && winnerSide.ordinal() == Side.ATTACK.ordinal()){
 						isWin = true;
 						createUnionBattleRecord(true,expedite.isMass(),attInfo,info);	
-						LogManager.mapLog(role, start, end, expedite.getId(), "endOfBattle");
 						GameLog.info(expedite.getLeader().getInfo().getName() + " attack " + info.getUid() + "'s city successful at " + position);
 					}else{
+						isWin = false;
 						createUnionBattleRecord(false,expedite.isMass(),attInfo,info);
 						GameLog.info(expedite.getLeader().getInfo().getName() + " attack " + info.getUid() + "'s city fail at " + position);
-						LogManager.mapLog(role, start, end, expedite.getId(), "endOfBattle");
-						LogManager.pvpLog(role, group_id, (byte)0,"0",0);
 					}
-					MapUtil.report(expedite,this,true,battle,record,defenceBuilds,attackersResult,defencerResult,city);
+					MapUtil.report(expedite,this,isWin,battle,record,defenceBuilds,attackersResult,defencerResult,city);
 					MapUtil.triggerAE_monster_act_role(role,isWin,defencerResult.values());
 				}
 			}

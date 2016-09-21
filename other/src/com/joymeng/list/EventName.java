@@ -13,7 +13,10 @@ public enum EventName {
 	BuildLevelup("升级建筑"),                 
 	createBuild("建造建筑"),                  
 	removeBuild("拆除建筑"),                  
-	trainArmy("训练士兵"),                    
+	trainArmy("训练士兵"), 
+	harvestSoldiers("收获士兵"),
+	gmAddArmy("后台增加兵种"),
+	gmRedArmy("后台减少兵种"),
 	cureArmys("治疗伤兵"),                   
 	repairDefenseArmys("维修防御设施"),        
 	buyItemSize("矿石精炼厂购买格子"),           
@@ -109,7 +112,15 @@ public enum EventName {
 	Garrison("行军转固定"),
 	Expedite("固定转行军"),
 	BackCity("部队回城"),
-	BackFortress("部队会要塞")
+	BackFortress("部队会要塞"),
+	promotArmy("士兵晋级"),
+	PersonalChallenge("个人挑战"),
+    AllianceWar("联盟战争"),
+    OffensivePlayerCity("进攻玩家城市"),
+    OffensiveNPCCity("进攻NPC城市"),
+    ReplicaRuins("废墟副本"),
+    RebelForces("叛军"),
+    ResourceCollection("资源采集")
 	;
 	private String name;
 

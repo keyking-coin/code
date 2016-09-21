@@ -34,10 +34,6 @@ public class MapUnionResource extends MapUnionBuild {
 	boolean nextAllGoBack = false;//下个循环需要让所有采集部队回家
 	boolean nextDie = false;//下个循环死亡
 	
-	public MapUnionResource(){
-		
-	}
-	
 	@Override
 	public void _init(){
 		TimerLast timer = buildTimer;
@@ -237,6 +233,19 @@ public class MapUnionResource extends MapUnionBuild {
 				collecter.addBuff(collectTime,have,collectSpeed,value);
 				int garrisonTime = (int)(rate * total / (collectSpeed * (1 + value)));
 				troops.getTimer().resetLastAt(now,garrisonTime);//修改持续时间
+			}
+		}
+	}
+	
+	public void updateCollecteBuffNoRecive(Role role) {
+		for (int i = 0 ; i < collecters.size() ; i++){
+			ResourceCollecter collecter = collecters.get(i);
+			GarrisonTroops troops = collecter.troops();
+			if (troops != null && troops.getTroops().getInfo().getUid() == role.getId()){
+				Resourcestype rType = getResourceType();
+				float value = MapUtil.updateCollecter(this,collecter,role,troops.getTroops().getInfo().getCityId());
+				float collectSpeed = troops.getTroops().computeCollectSpeed(role,rType.getId(),value);
+				collecter.motifyBuff(collectSpeed,value);
 			}
 		}
 	}

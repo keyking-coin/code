@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 
 public class StringUtils {
@@ -25,6 +26,20 @@ public class StringUtils {
 	public static boolean isNull(String str){
 		if (str == null || str.equals("") || str.equals("null")) {
 			return true;
+		}
+		return false;
+	}
+	
+	/**
+	 * 是否整形
+	 * 
+	 * @param str
+	 * @return
+	 */
+	public static boolean isNumber(String str) {
+		if (!isNull(str)) {
+			Pattern pattern = Pattern.compile("^(-)?\\d+(\\d+)?$");
+			return pattern.matcher(str).matches();
 		}
 		return false;
 	}

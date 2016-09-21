@@ -16,7 +16,9 @@ import com.joymeng.common.util.MathUtils;
 import com.joymeng.common.util.MessageSendUtil;
 import com.joymeng.common.util.StringUtils;
 import com.joymeng.common.util.TimeUtils;
+import com.joymeng.list.EventName;
 import com.joymeng.log.GameLog;
+import com.joymeng.log.LogManager;
 import com.joymeng.slg.dao.DaoData;
 import com.joymeng.slg.domain.actvt.impl.NewServerBuff;
 import com.joymeng.slg.domain.actvt.impl.NewServerBuff.BuffTag;
@@ -87,18 +89,20 @@ import com.joymeng.slg.world.GameConfig;
 public class MapUtil implements Instances{
 	
 	public static PointVector getPointVector(int position){
-		int row = position / GameConfig.MAP_WIDTH;
-		int col = position % GameConfig.MAP_WIDTH;
+		int row = PointVector.getY(position);
+		int col = PointVector.getX(position);
 		return new PointVector(col,row);
 	}
 	
 	public static PointVector getPointVectorF(float position){
-		int iPos = (int)position;
-		int row = iPos / GameConfig.MAP_WIDTH;
-		int col = iPos % GameConfig.MAP_WIDTH;
-		return new PointVector(col,row);
+		return getPointVector((int)position);
 	}
 	
+	public static float computePointsDistance(int pos1,int pos2) {
+		PointVector p1 = getPointVector(pos1);
+		PointVector p2 = getPointVector(pos2);
+		return p1.distance(p2);
+	}
 	
 	public static String getStrPosition(int position){
 		PointVector pv =getPointVector(position);
@@ -115,11 +119,11 @@ public class MapUtil implements Instances{
 			String[] st = position.split("：");
 			x = Integer.valueOf(st[0]);
 			y = Integer.valueOf(st[1]);
-			pos = y * GameConfig.MAP_WIDTH + x;
+			pos = PointVector.getPosition(x, y);
 		} else {
 			x = Integer.valueOf(str[0]);
 			y = Integer.valueOf(str[1]);
-			pos = y * GameConfig.MAP_WIDTH + x;
+			pos = PointVector.getPosition(x, y);
 		}
 		return pos;
 	}
@@ -233,6 +237,17 @@ public class MapUtil implements Instances{
 		return (long)time;
 	}
 	
+	/**
+	 * 
+	* @Title: computeFightResult 
+	* @Description: 计算战斗结果
+	* 
+	* @return Map<Integer,FightResutTemp>
+	* @param troopses
+	* @param troopsData
+	* @param dieRate
+	* @return
+	 */
 	public static Map<Integer,FightResutTemp> computeFightResult(List<FightTroops> troopses , TroopsData troopsData,float dieRate){
 		Map<Integer,FightResutTemp> result = new HashMap<Integer,FightResutTemp>();
 		for (int i = 0 ; i <  troopses.size(); i++){
@@ -253,10 +268,23 @@ public class MapUtil implements Instances{
 			entity.setSane(newNormalNum);
 			entity.setInjurie(newInjurieNum);
 			entity.setDied(newDieNum);
+			
+			Map<String,Integer> thisKills = frt.getKills();
+			entity.setMyKills(thisKills);
 		}
 		return result;
 	}
 	
+	/**
+	 * 
+	* @Title: computeFightResult 
+	* @Description: 计算战斗结果
+	* 
+	* @return Map<Integer,FightResutTemp>
+	* @param troopses
+	* @param troopsData
+	* @return
+	 */
 	public static Map<Integer,FightResutTemp> computeFightResult(List<FightTroops> troopses,TroopsData troopsData){
 		long uid = troopsData.getInfo().getUid();
 		Role role = null;
@@ -266,23 +294,37 @@ public class MapUtil implements Instances{
 		Map<Integer,FightResutTemp> save = new HashMap<Integer,FightResutTemp>();
 		for (int i = 0 ; i <  troopses.size(); i++){
 			FightTroops fightTroops =  troopses.get(i);
+			//死亡总人数
 			int dieAll = fightTroops.getDieNum();
+			dieAll = Math.max(0,dieAll);
+			//获取伤兵率
 			float injurieRate = role == null ? 0 : role.getFightInjurieRate(troopsData.getInfo().getCityId(),fightTroops.getAttribute().getArmyType());
+			//得到可医疗的人数
 			int injurieNum = Math.round(dieAll * injurieRate);
+			injurieNum = Math.max(0,injurieNum);
+			//最终死亡人数
 			int die = dieAll - injurieNum;
+			die = Math.max(0,die);
+			//兵种实体
 			ArmyEntity entity = troopsData.search(fightTroops.getFightId());
 			if (entity == null){
 				continue;
 			}
 			int newNormalNum  = entity.getSane() - dieAll;
+			//最终存活人数
 			newNormalNum = Math.max(0,newNormalNum);
+			//最终医疗人数
 			int newInjurieNum = entity.getInjurie() + injurieNum;
+			//最终死亡人数
 			int newDieNum     = entity.getDied() + die;
 			FightResutTemp frt = new FightResutTemp(fightTroops,newNormalNum,entity.getInjurie(),entity.getDied());
 			save.put(fightTroops.getFightId(),frt);
 			entity.setSane(newNormalNum);
 			entity.setInjurie(newInjurieNum);
 			entity.setDied(newDieNum);
+			
+			Map<String,Integer> thisKills = frt.getKills();
+			entity.setMyKills(thisKills);
 		}
 		return save;
 	}
@@ -306,9 +348,9 @@ public class MapUtil implements Instances{
 					needContinue = true;
 					int a = fightTroops.getAttribute().getbHp() + fightTroops.getAttribute().getcHp();
 					int change = fightTroops.getAttribute().getHp() - a;
-					int pre  = defenseComponent.getDefenseValue();
+					int pre  = defenseComponent.getCurrentDefenceHP();
 					defenseComponent.change(change);//战斗后设置防御型建筑的耐久
-					int now = defenseComponent.getDefenseValue();
+					int now = defenseComponent.getCurrentDefenceHP();
 					FightResutTemp frt = new FightResutTemp(fightTroops,1,pre,now);
 					result.put(armyId + "@" + build.getId() , frt);
 					break;
@@ -365,7 +407,7 @@ public class MapUtil implements Instances{
 			float speed = armyBase.getSpeed() * (1 + buff);
 			minSpeed = Math.min(speed,minSpeed);
 		}
-		return minSpeed;
+		return minSpeed*5;
 	}
 	
 	private static void computeExpedites(int position,List<ExpediteTroops> expedites){
@@ -487,6 +529,24 @@ public class MapUtil implements Instances{
 		drop(dropId,expedite.getLeader().getPackages());
 	}
 	
+	/**
+	 * 怪物掉落日志记录
+	 */
+	public static void recordDropItems(Role role, String key, Map<Byte, Map<String, Integer>> packages) {
+		if (packages == null || packages.size() == 0) {
+			return;
+		}
+		for (Byte bt : packages.keySet()) {
+			Map<String, Integer> pack = packages.get(bt);
+			if (pack == null) {
+				continue;
+			}
+			for (String str : pack.keySet()) {
+				LogManager.pveLog(role, EventName.RebelForces.getName(), key, (byte) 1, EventName.RebelForces.getName(), str, pack.get(str));
+			}
+		}
+	}
+	
 	public static void addSomethingToPackage(ExpeditePackageType type ,String key,int num,Map<Byte,Map<String,Integer>> packages){
 		if (type == null){
 			return;
@@ -564,9 +624,9 @@ public class MapUtil implements Instances{
 			int preDie  = ftr.getDie();
 			int inju   = army.getInjurie() - preInju;
 			int die    = army.getDied() - preDie;
-			nums[0] += army.getSane();
-			nums[1] += inju;
-			nums[2] += die;
+			nums[0] += army.getSane();//正常的
+			nums[1] += inju;//损伤
+			nums[2] += die;//死亡
 			String asi = army.getKey() + "|" + army.getSane() + "|" + die + "|" + inju + "|" + ftr.getKill();
 			result.add(asi);
 		}
@@ -662,6 +722,9 @@ public class MapUtil implements Instances{
 		report.setStarts(starts);
 		report.setArmyInfo1(armyInfo1);
 		report.setArmyInfo2(armyInfo2);
+		for(ArmyEntity entity: afterAttacker.getArmys()){
+			report.addMyKills(entity.getMyKills());
+		}
 		return report;
 	}
 	
@@ -717,9 +780,12 @@ public class MapUtil implements Instances{
 			report.setStarts(starts);
 			report.setArmyInfo1(armyInfo1);
 			report.setArmyInfo2(armyInfo2);
+			for(ArmyEntity entity: p1.getArmys()){
+				report.addMyKills(entity.getMyKills());
+			}
 			//String battleReport = JsonUtil.ObjectToJsonString(report);
 			//chatMgr.creatBattleReportAndSend(battleReport,ReportType.TYPE_BATTLE_REPORT,null,role);
-			expedite.getReports().add(report);
+			expedite.addReport(report);
 			//任务事件
 			if(title1 == ReportTitleType.TITLE_TYPE_A_P_CITY && title2 == ReportTitleType.TITLE_TYPE_D_P_CITY){
 				byte fightType = Const.ATK_CY;
@@ -754,9 +820,12 @@ public class MapUtil implements Instances{
 			report.setStarts(starts);
 			report.setArmyInfo1(armyInfo2);
 			report.setArmyInfo2(armyInfo1);
+			for(ArmyEntity entity: p2.getArmys()){
+				report.addMyKills(entity.getMyKills());
+			}
 			//String battleReport = JsonUtil.ObjectToJsonString(report);
 			//chatMgr.creatBattleReportAndSend(battleReport,ReportType.TYPE_BATTLE_REPORT,null,role);
-			expedite.getReports().add(report);
+			expedite.addReport(report);
 			//任务事件
 			if(title1 == ReportTitleType.TITLE_TYPE_A_P_CITY && title2 == ReportTitleType.TITLE_TYPE_D_P_CITY){
 				role.handleEvent(GameEvent.TASK_CHECK_EVENT, new TaskEventDelay(), ConditionType.C_FIGHT_RESULT,Const.DEF_HLP_CY,nums1[0],nums1[2]);
@@ -808,6 +877,7 @@ public class MapUtil implements Instances{
 			}
 			nums1[0] += attacker.getAliveNum();
 		}
+		Map<String,Integer> deffMaps = new HashMap<String,Integer>();//我击杀的对象
 		for (String key : defencerResult.keySet()){
 			FightResutTemp frt  = defencerResult.get(key);
 			int inju   = frt.getInjurie();
@@ -824,6 +894,15 @@ public class MapUtil implements Instances{
 			}
 			nums2[1] += inju;
 			nums2[0] += alives;
+			if(frt.getKills() == null)
+				continue;
+			for(String kill:frt.getKills().keySet()){
+				if(deffMaps.get(kill) == null){
+					deffMaps.put(kill, frt.getKills().get(kill));
+				}else{
+					deffMaps.put(kill, frt.getKills().get(kill)+deffMaps.get(kill));
+				}
+			}
 		}
 		for (int i = 0 ; i < defenceBuilds.size() ; i++){
 			RoleBuild build = defenceBuilds.get(i);
@@ -844,6 +923,16 @@ public class MapUtil implements Instances{
 			armyInfo2.add(asi);
 			if (now < pre){
 				nums2[5] += 1 ;
+			}
+			
+			if(frt.getKills() == null)
+				continue;
+			for(String kill:frt.getKills().keySet()){
+				if(deffMaps.get(kill) == null){
+					deffMaps.put(kill, frt.getKills().get(kill));
+				}else{
+					deffMaps.put(key, frt.getKills().get(key)+deffMaps.get(key));
+				}
 			}
 		}
 		nums1[3] = Math.max(0,nums1[0]);
@@ -885,7 +974,10 @@ public class MapUtil implements Instances{
 				battle.reportEff(report,Side.ATTACK);
 				report.setRounds(rounds);
 				report.setStarts(starts);
-				expedite.getReports().add(report);
+				for(ArmyEntity entity: attacker.getArmys()){
+					report.addMyKills(entity.getMyKills());
+				}
+				expedite.addReport(report);
 				//任务事件，进攻方报告
 				int num = record.getKillsNum(attacker);
 				int adie = attackerDies.containsKey(auid) ? attackerDies.get(auid).intValue() : 0;
@@ -922,7 +1014,8 @@ public class MapUtil implements Instances{
 		report.setArmyInfo2(armyInfo1);
 		report.setRounds(rounds);
 		report.setStarts(starts);
-		expedite.getReports().add(report);
+		report.addMyKills(deffMaps);
+		expedite.addReport(report);
 		//任务事件
 		role.handleEvent(GameEvent.TASK_CHECK_EVENT, new TaskEventDelay(), ConditionType.C_FIGHT_RESULT, Const.DEF_CY, nums2[0], nums2[2]);
 	}
@@ -964,6 +1057,7 @@ public class MapUtil implements Instances{
 					killNum += damages.get(auid).intValue();
 				}
 				damages.put(auid,killNum);
+				army.setMyKills(frt.getKills());
 			}
 			nums1[0] += attacker.getAliveNum();
 		}
@@ -1000,6 +1094,10 @@ public class MapUtil implements Instances{
 			battle.reportEff(report,Side.ATTACK);
 			report.setRounds(rounds);
 			report.setStarts(starts);
+			for(ArmyEntity entity: attacker.getArmys()){
+				report.addMyKills(entity.getMyKills());
+			}
+			report.reportAllianceScore();
 			String battleReport = JsonUtil.ObjectToJsonString(report);
 			chatMgr.creatBattleReportAndSend(battleReport,ReportType.TYPE_BATTLE_REPORT,null,role);
 		}
@@ -1032,22 +1130,23 @@ public class MapUtil implements Instances{
 			GameLog.error("read base Buildinglevel is fail");
 			return;
 		}
-		
 		Radar radarPower = dataManager.serach(Radar.class, buildinglevel.getId());
 		if (radarPower == null) {
 			GameLog.error("read base Radar is fail");
 			return;
 		}
 		List<String> spyShowContentIds = radarPower.getScoutfunction();
-		List<String> exclusiveSendTip = new ArrayList<>(Arrays.asList("9","10","11","12","13","14","15","16","17","18","19","20","21"));//包含部队信息
-		//String[] spyShowContentIds = buildinglevel.getParamList().get(0).split(":");
-		//spyShowContentIds = new String[]{"8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30"};
+		List<String> exclusiveSendTip = new ArrayList<>(
+				Arrays.asList("9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21"));// 包含部队信息
+		// String[] spyShowContentIds =
+		// buildinglevel.getParamList().get(0).split(":");
+		// spyShowContentIds = new
+		// String[]{"8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30"};
 		bySpiedReport.setTime(String.valueOf(TimeUtils.nowLong() / 1000));
 		bySpiedReport.setPosition(expedite.getTargetPosition());
 		FightVersus p1 = new FightVersus();
 		p1.copy(selfInfo);
 		bySpiedReport.setAimRole(p1);
-
 		List<String> contentList = spyReport.getContent();
 		// 给出提示 - 是否包含
 		boolean isContain = false;
@@ -1480,7 +1579,12 @@ public class MapUtil implements Instances{
 						continue;
 					}
 					content += "|" + troops.getTroops().getInfo().getName();	//指挥官名字
-					content += "|" + troops.getTroops().getInfo().getLevel();	//指挥官等级
+					Role role = world.getRole(troops.getTroops().getInfo().getUid());
+					if (role == null) {
+						GameLog.error("getRole is error uid = " + troops.getTroops().getInfo().getUid());
+						content += "|" + 0; 
+					}
+					content += "|" + role.getLevel(); // 指挥官等级
 					content += "|" + troops.getTroops().getInfo().getIcon().getIconType() + "$"
 							+ troops.getTroops().getInfo().getIcon().getIconId() + "$"
 							+ (StringUtils.isNull(troops.getTroops().getInfo().getIcon().getIconName()) == true ? 0
@@ -1504,7 +1608,12 @@ public class MapUtil implements Instances{
 								continue;
 							}
 							content += "|" + troops.getTroops().getInfo().getName();	//指挥官名字
-							content += "|" + troops.getTroops().getInfo().getLevel();	//指挥官等级
+							Role role = world.getRole(troops.getTroops().getInfo().getUid());
+							if (role == null) {
+								GameLog.error("getRole is error uid = " + troops.getTroops().getInfo().getUid());
+								content += "|" + 0; 
+							}
+							content += "|" + role.getLevel(); // 指挥官等级
 							content += "|" + troops.getTroops().getInfo().getIcon().getIconType() + "$"
 									+ troops.getTroops().getInfo().getIcon().getIconId() + "$"
 									+ (StringUtils.isNull(troops.getTroops().getInfo().getIcon().getIconName()) == true ? 0
@@ -1533,7 +1642,12 @@ public class MapUtil implements Instances{
 								continue;
 							}
 							content += "|" + troops.getTroops().getInfo().getName();	//指挥官名字
-							content += "|" + troops.getTroops().getInfo().getLevel();	//指挥官等级
+							Role role = world.getRole(troops.getTroops().getInfo().getUid());
+							if (role == null) {
+								GameLog.error("getRole is error uid = " + troops.getTroops().getInfo().getUid());
+								content += "|" + 0; 
+							}
+							content += "|" + role.getLevel(); // 指挥官等级
 							content += "|" + troops.getTroops().getInfo().getIcon().getIconType() + "$"
 									+ troops.getTroops().getInfo().getIcon().getIconId() + "$"
 									+ (StringUtils.isNull(troops.getTroops().getInfo().getIcon().getIconName()) == true ? 0
@@ -1675,7 +1789,12 @@ public class MapUtil implements Instances{
 						continue;
 					}
 					content += "|" + troops.getTroops().getInfo().getName();	//指挥官名字
-					content += "|" + troops.getTroops().getInfo().getLevel();	//指挥官等级
+					Role role = world.getRole(troops.getTroops().getInfo().getUid());
+					if (role == null) {
+						GameLog.error("getRole is error uid = " + troops.getTroops().getInfo().getUid());
+						content += "|" + 0; 
+					}
+					content += "|" + role.getLevel(); // 指挥官等级
 					content += "|" + troops.getTroops().getInfo().getIcon().getIconType() + "$"
 							+ troops.getTroops().getInfo().getIcon().getIconId() + "$"
 							+ (StringUtils.isNull(troops.getTroops().getInfo().getIcon().getIconName()) == true ? 0
@@ -1699,7 +1818,12 @@ public class MapUtil implements Instances{
 								continue;
 							}
 							content += "|" + troops.getTroops().getInfo().getName();	//指挥官名字
-							content += "|" + troops.getTroops().getInfo().getLevel();	//指挥官等级
+							Role role = world.getRole(troops.getTroops().getInfo().getUid());
+							if (role == null) {
+								GameLog.error("getRole is error uid = " + troops.getTroops().getInfo().getUid());
+								content += "|" + 0; 
+							}
+							content += "|" + role.getLevel(); // 指挥官等级
 							content += "|" + troops.getTroops().getInfo().getIcon().getIconType() + "$"
 									+ troops.getTroops().getInfo().getIcon().getIconId() + "$"
 									+ (StringUtils.isNull(troops.getTroops().getInfo().getIcon().getIconName()) == true ? 0
@@ -1728,7 +1852,12 @@ public class MapUtil implements Instances{
 								continue;
 							}
 							content += "|" + troops.getTroops().getInfo().getName();	//指挥官名字
-							content += "|" + troops.getTroops().getInfo().getLevel();	//指挥官等级
+							Role role = world.getRole(troops.getTroops().getInfo().getUid());
+							if (role == null) {
+								GameLog.error("getRole is error uid = " + troops.getTroops().getInfo().getUid());
+								content += "|" + 0; 
+							}
+							content += "|" + role.getLevel(); // 指挥官等级
 							content += "|" + troops.getTroops().getInfo().getIcon().getIconType() + "$"
 									+ troops.getTroops().getInfo().getIcon().getIconId() + "$"
 									+ (StringUtils.isNull(troops.getTroops().getInfo().getIcon().getIconName()) == true ? 0
@@ -1944,7 +2073,12 @@ public class MapUtil implements Instances{
 							continue;
 						}
 						content += "|" + troops.getTroops().getInfo().getName();		//指挥官名字
-						content += "|" + troops.getTroops().getInfo().getLevel();		//指挥官等级
+						Role role = world.getRole(troops.getTroops().getInfo().getUid());
+						if (role == null) {
+							GameLog.error("getRole is error uid = " + troops.getTroops().getInfo().getUid());
+							content += "|" + 0; 
+						}
+						content += "|" + role.getLevel(); // 指挥官等级
 						content += "|" + troops.getTroops().getInfo().getIcon().getIconType() + "$"
 								+ troops.getTroops().getInfo().getIcon().getIconId() + "$"
 								+ (StringUtils.isNull(troops.getTroops().getInfo().getIcon().getIconName()) == true ? 0
@@ -1969,7 +2103,12 @@ public class MapUtil implements Instances{
 							for (int k = 0 ; k < armyEntities.size() ; k++){
 								ArmyEntity armyEntity = armyEntities.get(k);
 								content += "|" + troops.getTroops().getInfo().getName();		//指挥官名字
-								content += "|" + troops.getTroops().getInfo().getLevel();		//指挥官等级
+								Role role = world.getRole(troops.getTroops().getInfo().getUid());
+								if (role == null) {
+									GameLog.error("getRole is error uid = " + troops.getTroops().getInfo().getUid());
+									content += "|" + 0; 
+								}
+								content += "|" + role.getLevel(); // 指挥官等级
 								content += "|" + troops.getTroops().getInfo().getIcon().getIconType() + "$"
 										+ troops.getTroops().getInfo().getIcon().getIconId() + "$"
 										+ (StringUtils.isNull(troops.getTroops().getInfo().getIcon().getIconName()) == true ? 0
@@ -2002,7 +2141,12 @@ public class MapUtil implements Instances{
 							for (int k = 0 ; k < armyEntities.size() ; k++){
 								ArmyEntity armyEntity = armyEntities.get(k);
 								content += "|" + troops.getTroops().getInfo().getName();		//指挥官名字
-								content += "|" + troops.getTroops().getInfo().getLevel();		//指挥官等级
+								Role role = world.getRole(troops.getTroops().getInfo().getUid());
+								if (role == null) {
+									GameLog.error("getRole is error uid = " + troops.getTroops().getInfo().getUid());
+									content += "|" + 0; 
+								}
+								content += "|" + role.getLevel(); // 指挥官等级
 								content += "|" + troops.getTroops().getInfo().getIcon().getIconType() + "$"
 										+ troops.getTroops().getInfo().getIcon().getIconId() + "$"
 										+ (StringUtils.isNull(troops.getTroops().getInfo().getIcon().getIconName()) == true ? 0
@@ -2336,7 +2480,12 @@ public class MapUtil implements Instances{
 						continue;
 					}
 					content += "|" + troops.getTroops().getInfo().getName();	//指挥官名字
-					content += "|" + troops.getTroops().getInfo().getLevel();	//指挥官等级
+					Role role = world.getRole(troops.getTroops().getInfo().getUid());
+					if (role == null) {
+						GameLog.error("getRole is error uid = " + troops.getTroops().getInfo().getUid());
+						content += "|" + 0; 
+					}
+					content += "|" + role.getLevel(); // 指挥官等级
 					content += "|" + troops.getTroops().getInfo().getIcon().getIconType() + "$"
 							+ troops.getTroops().getInfo().getIcon().getIconId() + "$"
 							+ (StringUtils.isNull(troops.getTroops().getInfo().getIcon().getIconName()) == true ? 0
@@ -2361,7 +2510,12 @@ public class MapUtil implements Instances{
 								continue;
 							}
 							content += "|" + troops.getTroops().getInfo().getName();	//指挥官名字
-							content += "|" + troops.getTroops().getInfo().getLevel();	//指挥官等级
+							Role role = world.getRole(troops.getTroops().getInfo().getUid());
+							if (role == null) {
+								GameLog.error("getRole is error uid = " + troops.getTroops().getInfo().getUid());
+								content += "|" + 0; 
+							}
+							content += "|" + role.getLevel(); // 指挥官等级
 							content += "|" + troops.getTroops().getInfo().getIcon().getIconType() + "$"
 									+ troops.getTroops().getInfo().getIcon().getIconId() + "$"
 									+ (StringUtils.isNull(troops.getTroops().getInfo().getIcon().getIconName()) == true ? 0
@@ -2391,7 +2545,12 @@ public class MapUtil implements Instances{
 								continue;
 							}
 							content += "|" + troops.getTroops().getInfo().getName();	//指挥官名字
-							content += "|" + troops.getTroops().getInfo().getLevel();	//指挥官等级
+							Role role = world.getRole(troops.getTroops().getInfo().getUid());
+							if (role == null) {
+								GameLog.error("getRole is error uid = " + troops.getTroops().getInfo().getUid());
+								content += "|" + 0; 
+							}
+							content += "|" + role.getLevel(); // 指挥官等级
 							content += "|" + troops.getTroops().getInfo().getIcon().getIconType() + "$"
 									+ troops.getTroops().getInfo().getIcon().getIconId() + "$"
 									+ (StringUtils.isNull(troops.getTroops().getInfo().getIcon().getIconName()) == true ? 0
@@ -2560,7 +2719,12 @@ public class MapUtil implements Instances{
 						}
 					}
 					content += "|" + troopsData.getInfo().getName();
-					content += "|" + troopsData.getInfo().getLevel();
+					Role role = world.getRole(troopsData.getInfo().getUid());
+					if (role == null) {
+						GameLog.error("getRole is error uid = " + troopsData.getInfo().getUid());
+						content += "|" + 0; 
+					}
+					content += "|" + role.getLevel(); // 指挥官等级
 					content += "|" + troopsData.getInfo().getIcon().getIconType() + "$"
 							+ troopsData.getInfo().getIcon().getIconId() + "$"
 							+ (StringUtils.isNull(troopsData.getInfo().getIcon().getIconName()) == true ? 0
@@ -2580,7 +2744,12 @@ public class MapUtil implements Instances{
 						continue;
 					}
 					content += "|" + troopsData.getInfo().getName();
-					content += "|" + troopsData.getInfo().getLevel();
+					Role role = world.getRole(troopsData.getInfo().getUid());
+					if (role == null) {
+						GameLog.error("getRole is error uid = " + troopsData.getInfo().getUid());
+						content += "|" + 0; 
+					}
+					content += "|" + role.getLevel(); // 指挥官等级
 				}
 			}
 		}
@@ -2670,7 +2839,12 @@ public class MapUtil implements Instances{
 								continue;
 							}
 							content += "|" + troopsData.getInfo().getName();
-							content += "|" + troopsData.getInfo().getLevel();
+							Role role = world.getRole(troopsData.getInfo().getUid());
+							if (role == null) {
+								GameLog.error("getRole is error uid = " + troopsData.getInfo().getUid());
+								content += "|" + 0; 
+							}
+							content += "|" + role.getLevel(); // 指挥官等级
 							content += "|" + troops.getTroops().getInfo().getIcon().getIconType() + "$"
 									+ troops.getTroops().getInfo().getIcon().getIconId() + "$"
 									+ (StringUtils.isNull(troops.getTroops().getInfo().getIcon().getIconName()) == true ? 0
@@ -2770,7 +2944,12 @@ public class MapUtil implements Instances{
 								continue;
 							}
 							content += "|" + troopsData.getInfo().getName();
-							content += "|" + troopsData.getInfo().getLevel();
+							Role role = world.getRole(troopsData.getInfo().getUid());
+							if (role == null) {
+								GameLog.error("getRole is error uid = " + troopsData.getInfo().getUid());
+								content += "|" + 0; 
+							}
+							content += "|" + role.getLevel(); // 指挥官等级
 							content += "|" + troops.getTroops().getInfo().getIcon().getIconType() + "$"
 									+ troops.getTroops().getInfo().getIcon().getIconId() + "$"
 									+ (StringUtils.isNull(troops.getTroops().getInfo().getIcon().getIconName()) == true ? 0
@@ -2892,7 +3071,7 @@ public class MapUtil implements Instances{
 		int down  = Math.min(centerY+height,GameConfig.MAP_HEIGHT-1);
 		for (int i = up ; i <= down ; i++){
 			for (int j = left ; j <= right ; j++){
-				int index = i * GameConfig.MAP_WIDTH + j;
+				int index = PointVector.getPosition(j,i);
 				result.add(Integer.valueOf(index));
 			}
 		}
@@ -2911,8 +3090,8 @@ public class MapUtil implements Instances{
 			result = new ArrayList<Integer>();
 			result.add(Integer.valueOf(baseIndex));
 		}else{
-			int col   = baseIndex % GameConfig.MAP_WIDTH;
-			int row   = baseIndex / GameConfig.MAP_WIDTH;
+			int col   = PointVector.getX(baseIndex);
+			int row   = PointVector.getY(baseIndex);
 			result = getRangeIndexs(col,row,radius,radius);
 		}
 		return result;
@@ -2924,8 +3103,8 @@ public class MapUtil implements Instances{
 			result = new ArrayList<Integer>();
 			result.add(Integer.valueOf(baseIndex));
 		}else{
-			int col   = baseIndex % GameConfig.MAP_WIDTH;
-			int row   = baseIndex / GameConfig.MAP_WIDTH;
+			int col   = PointVector.getX(baseIndex);
+			int row   = PointVector.getY(baseIndex);
 			result = getRangeIndexs(col,row,radius_x,radius_y);
 		}
 		return result;
@@ -2980,6 +3159,7 @@ public class MapUtil implements Instances{
 			}
 		}
 		float serverBuff = NewServerBuff.iGetBuff(BuffTag.ADD_TROOP_GATHER_SPEED)/100.0f;
+		GameLog.info("[updateCollecter-speed]uid="+role.getJoy_id()+"|serverBuff="+serverBuff+"|value="+value);
 		return value + serverBuff;
 	}
 	

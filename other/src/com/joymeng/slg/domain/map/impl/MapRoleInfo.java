@@ -60,6 +60,14 @@ public class MapRoleInfo implements Instances{
 		return "";
 	}
 	
+	public String getUnionShortName(){
+		UnionBody union = unionManager.search(unionId);
+		if (union != null){
+			return union.getShortName();
+		}
+		return "";
+	}
+	
 	public int getLevel() {
 		return level;
 	}
@@ -83,7 +91,7 @@ public class MapRoleInfo implements Instances{
 	public void setPosition(int position) {
 		this.position = position;
 	}
-
+	
 	public void serialize(JoyBuffer out) {
 		out.putLong(uid);//long 玩家编号编号
 		out.putInt(cityId);//int 玩家城市编号

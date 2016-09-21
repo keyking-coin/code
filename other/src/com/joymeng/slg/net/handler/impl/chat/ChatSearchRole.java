@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.joymeng.common.util.I18nGreeting;
 import com.joymeng.common.util.MessageSendUtil;
+import com.joymeng.log.NewLogManager;
 import com.joymeng.services.core.buffer.JoyBuffer;
 import com.joymeng.services.core.message.JoyNormalMessage.UserInfo;
 import com.joymeng.services.core.message.JoyProtocol;
@@ -25,6 +26,8 @@ public class ChatSearchRole extends ServiceHandler{
 		CommunicateResp resp = newResp(info);
 		Role role = getRole(info);
 		if (role == null) {
+			NewLogManager.misTakeLog("Userinfo : " + info, "uid : " + info.getUid(),
+					"className : " + this.getClass().getName(), "params : " + params);
 			resp.fail();
 			return resp;
 		}
@@ -34,11 +37,12 @@ public class ChatSearchRole extends ServiceHandler{
 			resp.fail();
 			return resp;
 		}
-		List<UnionInviteInfo> infos = world.fuzzySearchRole(role,name);
-		if(infos.size() < 1){
+		List<UnionInviteInfo> infos = world.fuzzySearchRole(role, name);
+		if (infos.size() < 1) {
 			MessageSendUtil.sendNormalTip(info, I18nGreeting.MSG_DONT_SEARCH_ROLES);
+		} else {
+			resp.add(infos);
 		}
-		resp.add(infos);
 		return resp;
 	}
 

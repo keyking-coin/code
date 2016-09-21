@@ -76,7 +76,7 @@ public enum BuildName {
 		BuildName[] datas = values();
 		for (int i = 0 ; i < datas.length ; i++){
 			BuildName bn = datas[i];
-			if ( bn.key.equals(key)){
+			if (bn.key.equals(key)){
 				return  bn;
 			}
 		}

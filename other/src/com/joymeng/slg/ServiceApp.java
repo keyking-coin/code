@@ -7,6 +7,7 @@ import org.w3c.dom.Element;
 
 import com.joymeng.common.util.HttpClientUtil;
 import com.joymeng.common.util.JsonUtil;
+import com.joymeng.gm2.GMServer;
 import com.joymeng.http.HttpServer;
 import com.joymeng.http.dao.WebDB;
 import com.joymeng.list.ServerStatus;
@@ -38,7 +39,7 @@ public class ServiceApp {
 	public static void main(String[] args) {
 		try {
 			_load();
-			GameConfig.load();
+			GameConfig.load(); 
 			HttpServer.getInstance().run(20000 + instanceId);
 			if (GameConfig.USE_DATA_EDIT_DB){
 				WebDB.getInstance().init();
@@ -75,8 +76,11 @@ public class ServiceApp {
 			});
 			//启动服务
 			app.start();
+			//启动GM服务 taoxing
+			GMServer.getInstance().start(5555);
 		} catch (Exception e) {
 			e.printStackTrace();
+			GameLog.error(e);
 			System.exit(0);
 		}
 	}

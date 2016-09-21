@@ -11,6 +11,7 @@ import com.joymeng.common.util.MathUtils;
 import com.joymeng.common.util.MessageSendUtil;
 import com.joymeng.common.util.StringUtils;
 import com.joymeng.common.util.TimeUtils;
+import com.joymeng.list.EventName;
 import com.joymeng.log.GameLog;
 import com.joymeng.log.LogManager;
 import com.joymeng.services.core.buffer.JoyBuffer;
@@ -324,7 +325,7 @@ public class RoleRelic implements Instances{
 					GameLog.error("策划ruins的通关奖励表填错了,找洪少文去查表");
 					continue;
 				}
-				role.getBagAgent().sendBagToClient(rms);
+				role.getBagAgent().sendItemsToClient(rms, temp);
 				showItems.add(temp.get(0));
 			} else if (itemDataType.equals("item")) {// 物品
 				List<ItemCell> temp = role.getBagAgent().addGoods(itemId, itemNum);
@@ -332,7 +333,7 @@ public class RoleRelic implements Instances{
 					GameLog.error("策划ruins的通关奖励表填错了,找洪少文去查表");
 					continue;
 				}
-				role.getBagAgent().sendBagToClient(rms);
+				role.getBagAgent().sendItemsToClient(rms, temp);
 				showItems.add(temp.get(0));
 			} else if (itemDataType.equals("material")) {
 				List<ItemCell> temp = role.getBagAgent().addOther(itemId, itemNum);
@@ -340,7 +341,7 @@ public class RoleRelic implements Instances{
 					GameLog.error("策划ruins的通关奖励表填错了,找洪少文去查表");
 					continue;
 				}
-				role.getBagAgent().sendBagToClient(rms);
+				role.getBagAgent().sendItemsToClient(rms, temp);
 				showItems.add(temp.get(0));
 			} else if (itemDataType.equals("resourcestype")) {// 资源
 				ResourceTypeConst resType = ResourceTypeConst.search(itemId);
@@ -396,7 +397,7 @@ public class RoleRelic implements Instances{
 					break;
 				}
 			}
-            LogManager.itemOutputLog(role, itemNum, "ruinsHarvest", itemId);
+            LogManager.itemOutputLog(role, itemNum, EventName.ruinsHarvest.getName(), itemId);
 		}
 		ItemCell[] aCells = new ItemCell[showItems.size()];
 		role.getBagAgent().sendShowItemsToClient(rms, showItems.toArray(aCells));
@@ -412,7 +413,7 @@ public class RoleRelic implements Instances{
 					continue;
 				}
 				String item = restype.getKey();
-				LogManager.itemOutputLog(role, value, "ruinsHarvest", item);
+				LogManager.itemOutputLog(role, value, EventName.ruinsHarvest.getName(), item);
 			}
 		}
 		MessageSendUtil.sendModule(rms, role.getUserInfo());

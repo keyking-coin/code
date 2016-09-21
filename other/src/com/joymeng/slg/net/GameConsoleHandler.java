@@ -3,6 +3,8 @@ package com.joymeng.slg.net;
 import com.joymeng.Instances;
 import com.joymeng.log.GameLog;
 import com.joymeng.services.core.console.ConsoleService;
+import com.joymeng.slg.domain.object.role.Role;
+import com.joymeng.slg.union.UnionBody;
 
 /**
  * @author Dream
@@ -42,6 +44,23 @@ public class GameConsoleHandler implements ConsoleService, Instances {
 			    	serverManager.scan();
 		    		out = "try to save";
 		    		break;
+			    }
+			    case "stop":{
+			    	world.gameServerShutDown();
+			    	System.exit(0);
+			    	out = "save ok!";
+			    }
+			    case "load_union_buff":{
+			    	long uid =Long.parseLong(cmds[1]);
+			    	Role role = world.getOnlineRole(uid);
+			    	if(role!= null && role.getUnionId() > 0){
+			    		UnionBody ub = unionManager.search(role.getUnionId());
+			    		if(ub != null){
+			    			ub.removeMemberAllUnionCityBuff(role);
+			    			ub.updateUnionCityBuff(role,true);
+			    		}
+			    			
+			    	}
 			    }
 				default: {
 					out = "invalid cmd";

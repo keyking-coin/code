@@ -7,39 +7,46 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.w3c.dom.Element;
+
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
-import com.joymeng.log.GameLog;
-import com.joymeng.log.NewLogManager;
+import com.joymeng.services.utils.XmlUtils;
 import com.joymeng.slg.dao.SqlData;
 import com.joymeng.slg.domain.actvt.Actvt;
 import com.joymeng.slg.domain.actvt.ActvtCommonState;
 import com.joymeng.slg.domain.actvt.ClientMod;
-import com.joymeng.slg.domain.actvt.DTManager.SearchFilter;
-import com.joymeng.slg.domain.actvt.data.Activity;
-import com.joymeng.slg.domain.actvt.data.Activity_reward;
-import com.joymeng.slg.domain.actvt.data.Activity_unionoccupycity;
+import com.joymeng.slg.domain.actvt.data.ActvtCommon;
+import com.joymeng.slg.domain.actvt.data.ActvtReward;
+import com.joymeng.slg.domain.evnt.EvntManager;
 import com.joymeng.slg.domain.map.impl.still.union.MapUnionCity;
 import com.joymeng.slg.domain.object.role.Role;
 import com.joymeng.slg.union.UnionBody;
 import com.joymeng.slg.union.UnionManager;
 import com.joymeng.slg.union.impl.UnionMember;
 
-public class UnionOccupyCity extends Actvt {
-	private Activity_unionoccupycity unionOccupyCity;
-	private List<List<Activity_reward>> rewards = new ArrayList<List<Activity_reward>>();
-	private Map<Integer, List<Activity_reward>> rankRewards = new HashMap<Integer, List<Activity_reward>>();
-	private List<UnionBody> unions = new ArrayList<UnionBody>(); // 改成unionId?
-	private List<UnionBody> unionsStage = new ArrayList<UnionBody>(); // 改成unionId?
-
+public class UnionOccupyCity extends Actvt 
+{
+	private static final int CITY_DEST_LEVEL_NUM = 3;
+	
 	private Map<Long, Integer> unionScores = new HashMap<Long, Integer>();
 	private Map<Long, Long> unionFlags = new HashMap<Long, Long>();
 	private Map<Long, Long> roleFlags = new HashMap<Long, Long>();
+	
+	private List<UnionBody> unions = new ArrayList<UnionBody>(); // 改成unionId?
+	private List<UnionBody> unionsStage = new ArrayList<UnionBody>(); // 改成unionId?
+	
+	private List<Integer> cityDestLevels = new ArrayList<Integer>();
+	private List<Integer> cityLevelScores = new ArrayList<Integer>();
+	private List<ActvtReward> rewards = new ArrayList<ActvtReward>();
+	private List<ActvtReward> rankRewards = new ArrayList<ActvtReward>();
+	List<ActvtReward> rewardShowList = new ArrayList<ActvtReward>();
+	
 
 	class ScoreComparator implements Comparator<UnionBody> {
 		@Override
 		public int compare(UnionBody u1, UnionBody u2) {
-
+			
 			if (getUnionScore(u1.getId()) > getUnionScore(u2.getId())) {
 				return -1;
 			}
@@ -49,190 +56,261 @@ public class UnionOccupyCity extends Actvt {
 			return 0;
 		}
 	}
-
 	private ScoreComparator scoreComparator = new ScoreComparator();
-
+	
 	@Override
-	public void start() {
+	public void start()
+	{
 		super.start();
-
-		updateUnions("", "");
-		// unions.clear();
-		// unions.addAll(world.getListObjects(UnionBody.class));
+		
+		stopInnerTimer("statsUnionScores");
+		startInnerTimer("0 0/5 * * * ?", "statsUnionScores");
+		
+		EvntManager.getInstance().Remove(this);
+		EvntManager.getInstance().Listen("unionOccupyCity", this);
+		EvntManager.getInstance().Listen("createUnion", this);
+		EvntManager.getInstance().Listen("dismissUnion", this);
+		
+		updateUnions();
 	}
-
+	
 	@Override
-	public void end() {
+	public void end()
+	{
 		super.end();
+		stopInnerTimer("statsUnionScores");
 		rewardRankUnions();
 	}
 
-	private void rewardRankUnions() {
-		for (int i = 0; i < unionOccupyCity.getRankNum() && i < 6; i++) {
-			if (i >= unionsStage.size()) {
-				break;
+	@Override
+	public void load(Element element) throws Exception
+	{
+		super.load(element);
+		
+		Element eleSpecial = XmlUtils.getChildByName(element, "Special");
+		String str = eleSpecial.getAttribute("cityDestLevels");
+		String[] strs = str.split(",");
+		if (strs.length != CITY_DEST_LEVEL_NUM) {
+			throw new Exception("id="+getId()+" load special cityDestLevels num is not 3");
+		}
+		
+		cityDestLevels.clear();
+		for (int i = 0; i < strs.length; i++) {
+			cityDestLevels.add(Integer.parseInt(strs[i]));
+		}
+		
+		cityLevelScores.clear();
+		str = eleSpecial.getAttribute("cityLevelScores");
+		strs = str.split(",");
+		for (int i = 0; i < strs.length; i++) {
+			cityLevelScores.add(Integer.parseInt(strs[i]));
+		}
+		
+		String str1 = eleSpecial.getAttribute("reward1");
+		String str2 = eleSpecial.getAttribute("reward2");
+		String str3 = eleSpecial.getAttribute("reward3");
+		
+		rewards.clear();
+		rewards.add(getReward(str1));
+		rewards.add(getReward(str2));
+		rewards.add(getReward(str3));
+		
+		int rank = 1;
+		rankRewards.clear();
+		rewardShowList.clear();
+		List<ActvtReward> rewardList = getRewardList();
+		for (int i = 0; i < rewardList.size(); i++)
+		{
+			ActvtReward reward = rewardList.get(i);
+			String id = reward.getId();
+			if (id.equals(str1) || id.equals(str2) || id.equals(str3)) {
+				continue;
 			}
-
-			UnionBody union = unionsStage.get(i);
-			List<UnionMember> members = union.getMembers();
-			int index = i + 1;
-			int[] indexs = {1,2,3,4,7,11};
-			index = indexs[i];
-			List<Activity_reward> rewards = rankRewards.get(index);
-			
-			for (int j = 0; j < members.size(); j++) {
-				long joyId = members.get(j).getUid();
-				// rewardPlayer(joyId, Activity_reward.toString(rewards));
-				sendEmail(joyId, String.format("恭喜你的联盟在“%s”活动中获得“第%d名”，获得以下奖励。", getActivity().getName(), i + 1),
-						rewards);
-				// TEST11 联盟攻城活动奖励 排行奖励 rewards
-				StringBuffer sb = new StringBuffer();
-				sb.append(getActivity().getTypeId()).append(GameLog.SPLIT_CHAR);
-				sb.append(i + 1).append(GameLog.SPLIT_CHAR);
-				for (int n = 0; n < rewards.size(); n++) {
-					Activity_reward reward = rewards.get(n);
-					sb.append(reward.getsID());
-					sb.append(GameLog.SPLIT_CHAR);
-					sb.append(reward.getNum());
-					sb.append(GameLog.SPLIT_CHAR);
+			String[] ids = id.split("-");
+			if (ids.length == 1) {
+				if (rank == Integer.parseInt(ids[0])) {
+					rankRewards.add(reward);
+					rank++;
 				}
-				String newStr = sb.toString().substring(0, sb.toString().length() - 1);
-				Role role = world.getRole(joyId);
-				NewLogManager.activeLog(role, "unionOccupyCity", newStr);
+				else {
+					throw new Exception("id="+getId()+" rank rewards not continuous");
+				}
+			}
+			else {
+				int min = Integer.parseInt(ids[0]);
+				int max = Integer.parseInt(ids[1]);
+				if (rank != min) {
+					throw new Exception("id="+getId()+" rank rewards not continuous");
+				}
+				for (int r = min; r <= max; r++) {
+					rankRewards.add(reward);
+				}
+				rank = max + 1;
+			}
+			rewardShowList.add(reward);
+		}
+	}
+	
+	@Override
+	public void innerTimerCB(String tag)
+	{
+		if (tag.equals("statsUnionScores")) {
+			statsUnionScores();
+		}
+	}
+	
+	@Override
+	public void execute(String event, Object... datas)
+	{
+		if (event.equals("createUnion") || event.equals("dismissUnion")) {
+			updateUnions();
+		}
+		else if (event.equals("unionOccupyCity")) {
+			unionOccupyCity(datas);
+		}
+	}
+	
+	private void rewardRankUnions()
+	{
+		for (int i = 0; i < rankRewards.size() && i < unionsStage.size(); i++)
+		{
+			UnionBody union = unionsStage.get(i);
+			List<UnionMember> members = union.getMembers();			
+			for (int j = 0; j < members.size(); j++)
+			{
+				long joyId = members.get(j).getUid();
+				sendEmail(joyId, String.format("恭喜你的联盟在“%s”活动中获得“第%d名”，获得以下奖励。", getCommonData().getName(), i+1), rankRewards.get(i));
 			}
 		}
 	}
-
-	private int getUnionScore(long uid) {
+	
+	private int getUnionScore(long uid)
+	{
 		if (unionScores.containsKey(uid)) {
 			return unionScores.get(uid);
 		}
 		return 0;
 	}
-
-	private int getRank(long uid) {
-		for (int i = 0; i < unionsStage.size(); i++) {
+	
+	private int getRank(long uid)
+	{
+		for (int i = 0; i < unionsStage.size(); i++)
+		{
 			if (unionsStage.get(i).getId() == uid) {
-				return i + 1;
+				return i+1;
 			}
 		}
 		return 0;
 	}
 
-	@Override
-	public boolean init(Activity actvt) {
-		if (!super.init(actvt)) {
-			return false;
-		}
-		load();
-
-		return true;
-	}
-
-	private int getState(long unionId, long joyId, int index) {
-		if (getUnionFlag(unionId, index) == 0) {
+	private int getState(long unionId, long joyId, int index)
+	{
+		if (!isRuning()) {
 			return ActvtCommonState.NOT_FINISH.ordinal();
 		}
-		if (getRoleFlag(joyId, index) == 0) {
+		if (getUnionFlag(unionId,index) == 0) {
+			return ActvtCommonState.NOT_FINISH.ordinal();
+		}
+		if (getRoleFlag(joyId,index) == 0) {
 			return ActvtCommonState.FINISH.ordinal();
 		}
 		return ActvtCommonState.RECEIVED.ordinal();
 	}
 
 	@Override
-	public void makeUpDetailModule(ClientMod module, Role role) {
-		// unionScores.clear();
-		// unionFlags.clear();
-		// roleFlags.clear();
-		// updateUnions("", "");
-
+	public void makeUpDetailModule(ClientMod module, Role role) 
+	{
 		long unionId = role.getUnionId();
 		long joyId = role.getId();
-
- 		Activity activity = getActivity();
-		module.add(activity.getType());
-		module.add(activity.getName());
-		module.add(activity.getDetailDesc());
-
+		
+		ActvtCommon commonData = getCommonData();
+		module.add(commonData.getType());
+		module.add(commonData.getName());
+		module.add(commonData.getDetailDesc());
+		
 		module.add(getUnionScore(unionId));
 		module.add(getRank(unionId));
 		module.add(getOccupyCityMaxLevel(unionId));
-
-		List<Integer> cityLevels = unionOccupyCity.getCityLevels();
-		module.add(cityLevels.size());
-		for (int i = 0; i < cityLevels.size(); i++) {
-			module.add(cityLevels.get(i)); // String.format("占领一座%d级城市",
-											// cityLevels.get(i))
-			module.add(Activity_reward.toString(rewards.get(i)));
+		
+		module.add(cityDestLevels.size());
+		for (int i = 0; i < cityDestLevels.size(); i++)
+		{
+			module.add(cityDestLevels.get(i));
+			module.add(rewards.get(i).getItems());
 			module.add(getState(unionId, joyId, i));
+		} 
+		
+		module.add(cityLevelScores.size());
+		for (int i = 0; i < cityLevelScores.size(); i++)
+		{
+			module.add(String.format("占领%d级城市一天", i+1));
+			module.add(String.valueOf(cityLevelScores.get(i)));
 		}
-
-		List<Integer> cityScores = unionOccupyCity.getCityScores();
-		module.add(cityScores.size());
-		for (int i = 0; i < cityScores.size(); i++) {
-			module.add(String.format("占领%d级城市一天", i + 1));
-			module.add(String.valueOf(cityScores.get(i)));
+		
+		module.add(rewardShowList.size());
+		for (int i = 0; i < rewardShowList.size(); i++)
+		{
+			ActvtReward reward = rewardShowList.get(i);
+			module.add("第"+reward.getId()+"名");
+			module.add(reward.getItems());
 		}
-
-		int num = unionOccupyCity.getRankNum();
-		// num = num>20?20:num;
-		module.add(num);
-		for (int i = 0; i < num; i++) {
-			module.add(Activity_reward.toString(rankRewards.get(i + 1)));
-		}
-		// System.out.println(module.getParams().toString());
+//		System.out.println(module.getParams().toString());
 	}
-
+	
 	@Override
-	public boolean makeUpActvtRankListModule(ClientMod module, Role role) {
+	public boolean makeUpActvtRankListModule(ClientMod module, Role role) 
+	{
 		long unionId = role.getUnionId();
+		int rankNum = 1;
+		module.add(rankNum);
 		module.add(getUnionScore(unionId));
 		module.add(getRank(unionId));
-		module.add("当你达到目标1的时候，就可以参与排名，获得排名奖励");
+		module.add("当达到目标1的时候，就可以参与排名，获得排名奖励");
 
 		module.add(unionsStage.size());
-		for (int i = 0; i < unionsStage.size(); i++) {
+		for (int i = 0; i < unionsStage.size(); i++) 
+		{
 			UnionBody union = unionsStage.get(i);
 			module.add(union.getName());
 			module.add(getUnionScore(union.getId()));
 		}
-
+		
 		return true;
 	}
-
-	private int getOccupyCityMaxLevel(long unionId) {
+	
+	private int getOccupyCityMaxLevel(long unionId) 
+	{
 		int maxLevel = 0;
-		List<Integer> cityLevels = unionOccupyCity.getCityLevels();
-		for (int i = 0; i < cityLevels.size(); i++) {
+		for (int i = 0; i < cityDestLevels.size(); i++)
+		{
 			if (getUnionFlag(unionId, i) == 1) {
-				maxLevel = cityLevels.get(i);
+				maxLevel = cityDestLevels.get(i);
 			}
 		}
 		return maxLevel;
 	}
-
-	public void unionOccupyCity(String value, String data) {
-		String[] strs = data.split("#");
-		long unionId = Long.parseLong(strs[0]);
-		int level = Integer.parseInt(strs[1]);
-
-		List<Integer> cityLevels = unionOccupyCity.getCityLevels();
-		for (int i = 0; i < cityLevels.size(); i++) {
-			if (cityLevels.get(i) <= level) {
+	
+	public void unionOccupyCity(Object... datas) {
+		long unionId = Long.parseLong(datas[0].toString());
+		int level = Integer.parseInt(datas[1].toString());
+		
+		for (int i = 0; i < cityDestLevels.size(); i++) {
+			if (cityDestLevels.get(i) <= level) {
 				if (getUnionFlag(unionId, i) == 0) {
 					setUnionFlag(unionId, i);
 				}
 			}
 		}
 	}
-
-	public void updateUnions(String value, String data) {
+	
+	public void updateUnions()
+	{
 		unions.clear();
 		unions.addAll(world.getListObjects(UnionBody.class));
 		Collections.sort(unions, scoreComparator);
-
+		
 		unionsStage.clear();
-		int destScore = unionOccupyCity.getCityScores().get(0);
+		int destScore = cityLevelScores.get(0);
 		for (int i = 0; i < unions.size(); i++) {
 			UnionBody ub = unions.get(i);
 			int score = getUnionScore(ub.getId());
@@ -241,54 +319,15 @@ public class UnionOccupyCity extends Actvt {
 			}
 		}
 	}
-
-	@Override
-	public void taskEvent(String value, String data) {
-		if (!isRuning()) {
-			return;
-		}
-
-		try {
-			String[] strs = data.split("#");
-
-			//String taskID = strs[1];
-			// if (!taskID.equals("unionOccupyCity createUnion dissmissUnion"))
-			// { // dissmissUnion
-			// return;
-			// }
-			
-//			if (!taskID.equals("createUnion") || !taskID.equals("dissmissUnion")) {
-//				return;
-//			}
-
-			int level = Integer.parseInt(strs[2]);
-			long unionId = Long.parseLong(strs[0]);
-
-			List<Integer> cityLevels = unionOccupyCity.getCityLevels();
-			for (int i = 0; i < cityLevels.size(); i++) {
-				if (cityLevels.get(i) == level) {
-					if (getUnionFlag(unionId, i) == 0) {
-						setUnionFlag(unionId, i);
-					}
-					break;
-				}
-			}
-		} catch (Exception e) {
-			GameLog.error(e.getMessage());
-		}
-	}
-
-	public void statsUnionScores(String value, String data) {
+	
+	public void statsUnionScores()
+	{
 		if (!isRuning()) {
 			return;
 		}
 		
-		unions.clear();
-		unions.addAll(world.getListObjects(UnionBody.class));
-		Collections.sort(unions, scoreComparator);
-		
-//		List<Integer> cityScores = unionOccupyCity.getCityScores();
-		for (int i = 0; i < unions.size(); i++) {
+		for (int i = 0; i < unions.size(); i++)
+		{
 			UnionBody union = unions.get(i);
 			long uid = union.getId();
 			List<MapUnionCity> citys = mapWorld.searchUnionCity(uid);
@@ -297,29 +336,21 @@ public class UnionOccupyCity extends Actvt {
 				score = unionScores.get(uid);
 			}
 			for (int j = 0; j < citys.size(); j++) {
-				score += getScore(citys.get(j).getLevel()); //cityScores.get(citys.get(j).getLevel() - 1);
+				score += cityLevelScores.get(citys.get(j).getLevel()-1);
 			}
 			unionScores.put(uid, score);
 		}
-
-		updateUnions("", "");
+		
+		updateUnions();
 	}
 	
-	private int getScore(int level) {
-		if (level == 0) {
-			GameLog.error("UnionOccupyCity getScore level="+level);
-			level = 1;
+	@Override
+	public boolean receiveReward(Role role, int index) 
+	{
+		if (!isRuning()) {
+			return false;
 		}
 		
-		List<Integer> cityScores = unionOccupyCity.getCityScores();
-		if (level > cityScores.size()) {
-			level = cityScores.size();
-		}
-		return cityScores.get(level-1);
-	}
-
-	@Override
-	public boolean receiveReward(Role role, int index) {
 		UnionBody union = unionManager.search(role.getUnionId());
 		if (union == null) {
 			return false;
@@ -330,13 +361,12 @@ public class UnionOccupyCity extends Actvt {
 		if (getRoleFlag(role.getId(), index) == 1) {
 			return false;
 		}
-
-		rewardPlayer(role, Activity_reward.toString(rewards.get(index)));
+		
+		rewardPlayer(role, rewards.get(index).getItems());
 		setRoleFlag(role.getId(), index);
-		// TEST11 联盟攻城活动奖励 领取奖励 rewards
 		return true;
 	}
-
+	
 	private long getUnionFlag(long unionId, int index) {
 		if (!unionFlags.containsKey(unionId)) {
 			return 0;
@@ -353,16 +383,18 @@ public class UnionOccupyCity extends Actvt {
 		}
 		flag = setBit(flag, index, 1);
 		unionFlags.put(unionId, flag);
-
+		
 		UnionBody union = UnionManager.getInstance().search(unionId);
-		if (union != null) {
+		if (union != null)
+		{
 			List<UnionMember> members = union.getMembers();
-			for (int i = 0; i < members.size(); i++) {
+			for (int i = 0 ; i< members.size(); i++)
+			{
 				actvtMgr.sendActvtTip(members.get(i).getUid());
 			}
 		}
 	}
-
+	
 	private long getRoleFlag(long joyId, int index) {
 		if (!roleFlags.containsKey(joyId)) {
 			return 0;
@@ -383,70 +415,25 @@ public class UnionOccupyCity extends Actvt {
 
 	@Override
 	public String getStateStr() {
-		return JSON.toJSONString(unionScores) + SPCH + JSON.toJSONString(unionFlags) + SPCH
-				+ JSON.toJSONString(roleFlags);
+		return JSON.toJSONString(unionScores) + STATE_STR_SPLIT_CH + JSON.toJSONString(unionFlags) + STATE_STR_SPLIT_CH + JSON.toJSONString(roleFlags);
 	}
 
 	@Override
 	public void loadFromData(SqlData data) {
 		String[] strs = getStateStrs(data);
-
-		unionScores = JSON.parseObject(strs[0], new TypeReference<Map<Long, Integer>>() {
-		});
-		unionFlags = JSON.parseObject(strs[1], new TypeReference<Map<Long, Long>>() {
-		});
-		roleFlags = JSON.parseObject(strs[2], new TypeReference<Map<Long, Long>>() {
-		});
-		updateUnions("", "");
+		
+		unionScores = JSON.parseObject(strs[0], new TypeReference<Map<Long, Integer>>(){});
+		unionFlags = JSON.parseObject(strs[1], new TypeReference<Map<Long, Long>>(){});
+		roleFlags = JSON.parseObject(strs[2], new TypeReference<Map<Long, Long>>(){});
 	}
 
 	@Override
-	public void load() {
-		unionOccupyCity = actvtMgr.serach(Activity_unionoccupycity.class, "1");
-
-		rewards.clear();
-		List<String> rewardIds = unionOccupyCity.getRewards();
-		for (int i = 0; i < rewardIds.size(); i++) {
-			final String rewardId = rewardIds.get(i);
-			List<Activity_reward> rewardList = actvtMgr.serachList(Activity_reward.class,
-					new SearchFilter<Activity_reward>() {
-						@Override
-						public boolean filter(Activity_reward data) {
-							return data.getrID().equals(rewardId);
-						}
-					});
-			rewards.add(rewardList);
-			Collections.sort(rewardList, rewardComparator);
+	public int getReceiveableNum(long joyId)
+	{
+		if (!isRuning()) {
+			return 0;
 		}
-		// rewards.add(actvtMgr.getReward(rewardIds.get(0)));
-		// rewards.add(actvtMgr.getReward(rewardIds.get(1)));
-		// rewards.add(actvtMgr.getReward(rewardIds.get(2)));
-
-		rankRewards.clear();
-		for (int i = 0; i < unionOccupyCity.getRankNum(); i++) {
-			final int rank = i + 1;
-			List<Activity_reward> rewardList = actvtMgr.serachList(Activity_reward.class,
-					new SearchFilter<Activity_reward>() {
-						@Override
-						public boolean filter(Activity_reward data) {
-							return data.getrID().equals(getActivity().getTypeId() + "_" + rank);
-						}
-					});
-			// List<Activity_reward> rewardList =
-			// actvtMgr.getReward(getActivity().getTypeId()+"_"+(i+1));
-			rankRewards.put(rank, rewardList);
-			Collections.sort(rewardList, rewardComparator);
-		}
-	}
-
-	@Override
-	public void hotLoadEnd() {
-		super.hotLoadEnd();
-		rewardRankUnions();
-	}
-
-	@Override
-	public int getReceiveableNum(long joyId) {
+		
 		Role role = world.getOnlineRole(joyId);
 		if (role == null) {
 			return 0;
@@ -455,10 +442,10 @@ public class UnionOccupyCity extends Actvt {
 		if (union == null) {
 			return 0;
 		}
-
+		
 		int num = 0;
-		List<Integer> cityLevels = unionOccupyCity.getCityLevels();
-		for (int i = 0; i < cityLevels.size(); i++) {
+		for (int i = 0; i < cityDestLevels.size(); i++)
+		{
 			if (getState(union.getId(), joyId, i) == ActvtCommonState.FINISH.ordinal()) {
 				num++;
 			}

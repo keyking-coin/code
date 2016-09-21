@@ -191,7 +191,8 @@ public class ServerManager implements Instances{
 	 * 根据不同渠道显示
 	 */
 	public String serverToChan(String channelId, String language,long uid) {
-		Map<String, Object> map = new HashMap<String, Object>();
+//		Map<String, Object> map = new HashMap<String, Object>();
+		List<TranformState> list = new ArrayList<TranformState>();
 		List<Server> couldLook = search(channelId);
 		Jedis jedis = getConnectResource();
         String ser = String.valueOf(uid); 
@@ -214,8 +215,7 @@ public class ServerManager implements Instances{
             	record= 1;
             }else{
             	record= 0;
-            }
-            
+            }           
             byte st;
             if(must != null){
             	st = must.getKey();
@@ -233,11 +233,14 @@ public class ServerManager implements Instances{
 					st = (byte) 7;
 				}
 			}
-			TranformState tfs = new TranformState(name,server.getServerId(),st,record,tip);
-			map.put(tfs.getName(),tfs);
+			if (st == 0) {
+				tip = "服务器已关闭";
+			}
+			TranformState tfs = new TranformState(server.getPriority(), name, server.getServerId(), st, record, tip);
+			list.add(tfs);
 		}
 		release(jedis);
-		return JsonUtil.ObjectToJsonString(map);
+		return JsonUtil.ObjectToJsonString(list);
 	}
 	
 	/*
@@ -263,7 +266,7 @@ public class ServerManager implements Instances{
 		ServiceState state = stateMap.get(12298);
 		if (state != null){
 			String name = searchName(12298,"zh");
-			TranformState tfs = new TranformState(name,12298,state.getState(),(byte)0,"");
+			TranformState tfs = new TranformState(0,name,12298,state.getState(),(byte)0,"");
 			map.put(name,tfs);
 		}
 		return JsonUtil.ObjectToJsonString(map);

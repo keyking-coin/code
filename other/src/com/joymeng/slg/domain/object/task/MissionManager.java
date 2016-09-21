@@ -9,6 +9,7 @@ import com.joymeng.Instances;
 import com.joymeng.common.util.I18nGreeting;
 import com.joymeng.common.util.MessageSendUtil;
 import com.joymeng.common.util.TimeUtils;
+import com.joymeng.list.EventName;
 import com.joymeng.log.GameLog;
 import com.joymeng.log.LogManager;
 import com.joymeng.log.NewLogManager;
@@ -363,8 +364,7 @@ public class MissionManager implements Instances{
 				} else {
 					if (num > 0) {
 						role.addRoleMoney(num);
-						String event = "getAwordFromMission";
-						LogManager.goldOutputLog(role, num, event);
+						LogManager.goldOutputLog(role, num, EventName.getAwordFromMission.getName());
 					}
 				}
 				role.sendRoleToClient(rms);
@@ -386,11 +386,10 @@ public class MissionManager implements Instances{
 					GameLog.error(" add resource value must > 0");
 					continue;
 				}
-				String event = "getAwordFromMission";
 				String item  = restype.getKey();
-				LogManager.itemOutputLog(role, value, event, item);
+				LogManager.itemOutputLog(role, value, EventName.getAwordFromMission.getName(), item);
 				try {
-					NewLogManager.baseEventLog(role, "get_task_reward",item,value);
+					NewLogManager.baseEventLog(role, "get_task_reward", item, value);
 				} catch (Exception e) {
 					GameLog.info("埋点错误");
 				}

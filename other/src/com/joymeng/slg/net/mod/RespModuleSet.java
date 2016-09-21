@@ -17,6 +17,8 @@ public class RespModuleSet extends JoyResponse {
 
 	List<ClientModule> moduleList = new ArrayList<ClientModule>();
 	
+	boolean splitPackage = false;
+	
 	public RespModuleSet() {
 		super(1111);
 	}
@@ -39,17 +41,21 @@ public class RespModuleSet extends JoyResponse {
 		return moduleList;
 	}
 	
+	public void setSplitPackage(boolean splitPackage) {
+		this.splitPackage = splitPackage;
+	}
+
 	@Override
 	public void _serialize(JoyBuffer out) {
 		try {
-			JoyBuffer temp = JoyBuffer.allocate(1024);
+			JoyBuffer temp = JoyBuffer.allocate(128);
 			temp.put((byte) moduleList.size());
 			for (int i = 0 ; i < moduleList.size() ; i++){
 				ClientModule resp = moduleList.get(i);
 				temp.putShort(resp.getModuleType());
 				resp.serialize(temp);
 			}
-			MessageSendUtil.checkAndZip(out,temp.arrayToPosition());
+			MessageSendUtil.checkAndZip(out,temp.arrayToPosition(),getUserInfo(),splitPackage);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

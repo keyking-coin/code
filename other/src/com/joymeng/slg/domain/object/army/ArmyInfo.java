@@ -1,20 +1,35 @@
 package com.joymeng.slg.domain.object.army;
 
+import java.util.Map;
+
 import com.joymeng.Instances;
 import com.joymeng.slg.domain.object.army.data.Army;
+import com.joymeng.slg.domain.timer.TimerLast;
 
 public class ArmyInfo implements Instances, Comparable<ArmyInfo>{
 	int armyNum;
 	String armyId;
-	byte state;//0-驻守，1-出征，2-受伤, 3-集结, 4-被集结, 99-删除中
+	byte state;// 0-驻守，1-出征，2-受伤, 3-集结, 4-被集结, 88-晋级中, 99-删除中
 	long uid;
 	int cityId;
 	Army armyBase;
+	TimerLast time;
+	String promotId; //晋级后的兵种Id
 	
-	public ArmyInfo(String armyId, int num, byte state){
+	Map<String,Integer> myKills;//我击杀的对象
+	
+	public ArmyInfo(String armyId, int num, byte state) {
 		this.armyId = armyId;
 		this.armyNum = num;
 		this.state = state;
+	}
+	
+	public ArmyInfo(String armyId, int num, byte state, TimerLast time, String promotId) {
+		this.armyId = armyId;
+		this.armyNum = num;
+		this.state = state;
+		this.time = time;
+		this.promotId = promotId;
 	}
 	
 	public void init(long uid, int cityID){
@@ -72,6 +87,31 @@ public class ArmyInfo implements Instances, Comparable<ArmyInfo>{
 	
 	public static float getMinSpeed(){
 		return 0;
+	}
+	
+	public TimerLast getTime() {
+		return time;
+	}
+
+	public void setTime(TimerLast time) {
+		this.time = time;
+	}
+
+	public String getPromotId() {
+		return promotId;
+	}
+
+	public void setPromotId(String promotId) {
+		this.promotId = promotId;
+	}
+	
+
+	public Map<String, Integer> getMyKills() {
+		return myKills;
+	}
+
+	public void setMyKills(Map<String, Integer> myKills) {
+		this.myKills = myKills;
 	}
 
 	@Override

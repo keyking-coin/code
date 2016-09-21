@@ -6,6 +6,7 @@ import com.joymeng.common.util.StringUtils;
 import com.joymeng.http.handler.HttpHandler;
 import com.joymeng.http.request.HttpRequestMessage;
 import com.joymeng.http.response.HttpResponseMessage;
+import com.joymeng.log.GameLog;
 import com.joymeng.slg.ServiceApp;
 import com.joymeng.slg.dao.DaoData;
 import com.joymeng.slg.dao.SqlData;
@@ -15,6 +16,8 @@ import com.joymeng.slg.domain.chat.ChatMsg;
 import com.joymeng.slg.domain.chat.ChatRole;
 import com.joymeng.slg.domain.chat.MsgTextColorType;
 import com.joymeng.slg.domain.chat.MsgTitleType;
+import com.joymeng.slg.domain.chat.MsgType;
+import com.joymeng.slg.domain.chat.ReportType;
 import com.joymeng.slg.world.GameConfig;
 
 public class HttpSysMgr extends HttpHandler {
@@ -65,6 +68,13 @@ public class HttpSysMgr extends HttpHandler {
 					message(response,"load disallow file ok");
 				}else if (operate.equals("activity")) {
 					ActvtManager.getInstance().hotLoad();
+				}else if (operate.equals("advertisement")) {
+					//TODO 广告热加载
+					try {
+						advSgr.load();
+					} catch (Exception e) {
+						GameLog.error(e);
+					}
 				}
 				break;
 			}
@@ -91,8 +101,9 @@ public class HttpSysMgr extends HttpHandler {
 				ChatRole sys = new ChatRole();
 				sys.setUid(-1L);
 				sys.setName("系统公告");
-				ChatMsg msg = new ChatMsg(MsgTitleType.MSG_TITLE_GENERAL_SYSTEM,content,MsgTextColorType.COLOR_BLACK, ChannelType.MAIL_SYSTEM,(byte)3,(byte)0,sys,null);	
-				//添加世界公告
+				ChatMsg msg = new ChatMsg(MsgTitleType.MSG_TITLE_GENERAL_SYSTEM, content, MsgTextColorType.COLOR_BLACK,
+						ChannelType.MAIL_SYSTEM, MsgType.TYPE_HORN, ReportType.TYPE_DEFAULT, sys, null);
+				// 添加世界公告
 				chatMgr.addSystemNotice(msg, priorityLevel);
 				//加入世界聊天
 				chatMgr.addWorldChat(msg);

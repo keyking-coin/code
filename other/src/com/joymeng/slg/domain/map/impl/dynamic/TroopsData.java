@@ -8,10 +8,12 @@ import java.util.Map;
 import com.alibaba.fastjson.JSONArray;
 import com.joymeng.Instances;
 import com.joymeng.common.util.JsonUtil;
+import com.joymeng.log.GameLog;
 import com.joymeng.services.core.buffer.JoyBuffer;
 import com.joymeng.slg.domain.event.GameEvent;
 import com.joymeng.slg.domain.map.MapUtil;
 import com.joymeng.slg.domain.map.data.Monster;
+import com.joymeng.slg.domain.map.fight.result.FightResutTemp;
 import com.joymeng.slg.domain.map.impl.MapRoleInfo;
 import com.joymeng.slg.domain.object.army.ArmyInfo;
 import com.joymeng.slg.domain.object.army.ArmyState;
@@ -23,6 +25,7 @@ import com.joymeng.slg.domain.object.effect.BuffTypeConst.TargetType;
 import com.joymeng.slg.domain.object.resource.ResourceTypeConst;
 import com.joymeng.slg.domain.object.resource.data.Resourcestype;
 import com.joymeng.slg.domain.object.role.Role;
+import com.joymeng.slg.domain.object.role.RoleArmyAttr;
 import com.joymeng.slg.domain.object.task.ConditionType;
 import com.joymeng.slg.domain.object.task.TaskEventDelay;
 import com.joymeng.slg.net.ParametersEntity;
@@ -105,6 +108,7 @@ public class TroopsData implements SerializeEntity,Instances{
 	
 	public float computeCollectSpeed(Role role, String key,float value){
 		//平均采集速度 = ((士兵1采集力+……士兵N采集力)*(1+科技提升的采集速度比例))/士兵类型总数量
+		StringBuffer buffer = new StringBuffer("--------computeCollectSpeed--uid="+role.getJoy_id()+"|key="+key+"------\n");
 		float collectSpeed = 0;
 		int armyTypeNum = 0;
 		for (int i = 0 ; i < armys.size() ; i++){
@@ -115,21 +119,26 @@ public class TroopsData implements SerializeEntity,Instances{
 			rate -= value;
 			rate = Math.max(0,rate);
 			collectSpeed += army.getHarvestSpeed() + army.getHarvestSpeed() * rate;
+			buffer.append("armys="+armyEntity.getKey()+"|rate="+rate+"|army.getHarvestSpeed()="+army.getHarvestSpeed()+"|army.getHarvestSpeed() * rate="+(army.getHarvestSpeed() * rate)+"\n");
 			armyTypeNum ++;
 		}
 		float result = collectSpeed / armyTypeNum;
+		buffer.append("collectSpeed="+collectSpeed+"|armyTypeNum="+armyTypeNum+"\n");
+		GameLog.info(buffer.append("-----------result="+result).toString());
 		return result;
 	}
 	
 	public float computeWeight(Role role){
+		StringBuffer buffer = new StringBuffer("--------computeWeight---------uid="+role.getJoy_id()+"\n");
 		float result = 0;
 		for (int i = 0 ; i < armys.size() ; i++){//先算士兵的负重
 			ArmyEntity armyEntity = armys.get(i);
 			Army army = dataManager.serach(Army.class,armyEntity.getKey());
 			float num = army.getWeight() * armyEntity.getSane();
-			float rate = role.getArmyAttr().getEffVal(TargetType.T_A_IMP_SW,armyEntity.getKey());
+			float rate = RoleArmyAttr.getEffVal(role,TargetType.T_A_IMP_SW,armyEntity.getKey());
 			num *= (1 + rate);
 			result += num;
+			buffer.append("armys="+armyEntity.getKey()+"|weight="+num+"|rate="+rate+"|result="+result+"\n");
 		}
 		Map<String,Integer> reses = packages.get(ExpeditePackageType.PACKAGE_TYPE_RESOURCE.getType());
 		if (reses != null){//计算携带的资源包裹已占用负重
@@ -137,8 +146,10 @@ public class TroopsData implements SerializeEntity,Instances{
 				int num = reses.get(key).intValue();
 				Resourcestype resType = dataManager.serach(Resourcestype.class,key);
 				result -= num * resType.getWeight();
+				buffer.append("reses="+key+"|num="+num+"|weight="+(num * resType.getWeight())+"|result="+result+"\n");
 			}
 		}
+		GameLog.info(buffer.append("----------result="+result+"------------").toString());
 		return result;
 	}
 	
@@ -202,9 +213,9 @@ public class TroopsData implements SerializeEntity,Instances{
 			}
 		}
 		float speed = 0;
-		if (role != null){
+//		if (role != null){
 			speed = MapUtil.computeMoveSpeed(result, role, info.getCityId()) * GameConfig.EXPEDITE_SPEED_EFFECT;//王健规定的速度因子
-		}
+//		}
 		return speed;
 	}
 	
@@ -237,27 +248,29 @@ public class TroopsData implements SerializeEntity,Instances{
 		armyAgent.updateArmysState(ArmyState.ARMY_IN_HOSPITAL.getValue(),injuries);
 		armyAgent.updateArmysState(ArmyState.ARMY_DIED.getValue(),dieds);
 		armyAgent.sendToClient(rms,city);//下发城里士兵状态
+		//部队叛军、资源田逻辑处理(pve)
+		
 		//任务事件
-		List<Object> reses = new ArrayList<Object>();
-		Map<String, Integer> values = packages.get(ExpeditePackageType.PACKAGE_TYPE_RESOURCE);
-		if(values != null){
-			for(Map.Entry<String, Integer> mapSet : values.entrySet()){
-				ResourceTypeConst resType = ResourceTypeConst.search(mapSet.getKey());
-				if(resType != null){
-					reses.add(resType.getKey());
-					reses.add(mapSet.getValue());
-				}
-			}
-		}
-		role.handleEvent(GameEvent.TASK_CHECK_EVENT, new TaskEventDelay(), ConditionType.C_FIGHT_BACK, reses);
+//		List<Object> reses = new ArrayList<Object>();
+//		Map<String, Integer> values = packages.get((byte)ExpeditePackageType.PACKAGE_TYPE_RESOURCE.ordinal());
+//		if(values != null){
+//			for(Map.Entry<String, Integer> mapSet : values.entrySet()){
+//				ResourceTypeConst resType = ResourceTypeConst.search(mapSet.getKey());
+//				if(resType != null){
+//					reses.add(resType.getKey());
+//					reses.add(mapSet.getValue());
+//				}
+//			}
+//		}
+		role.handleEvent(GameEvent.TASK_CHECK_EVENT, new TaskEventDelay(), ConditionType.C_FIGHT_BACK);
 	}
 	
 	public  void addSomethingToPackage(ExpeditePackageType type ,String key,int num){
 		MapUtil.addSomethingToPackage(type,key,num,packages);
 	}
 
-	public void addResourceToCity(Role role, List<ItemCell> changes, List<Object> objs, String event) {
-		role.addPackage(packages, changes, objs, event);
+	public void addResourceToCity(Role role, List<ItemCell> changes, List<Object> objs) {
+		role.addPackage(packages, changes, objs);
 		packages.clear();// 清空包裹
 	}
 
@@ -344,6 +357,15 @@ public class TroopsData implements SerializeEntity,Instances{
 		return  num;
 	}
 	
+	/**
+	 * 
+	* @Title: reportEarnings 
+	* @Description:  计算收益
+	* 
+	* @return void
+	* @param earnings
+	* @param city
+	 */
 	public void reportEarnings(List<String> earnings,RoleCityAgent city) {
 		for (Byte type : packages.keySet()){
 			Map<String,Integer> values = packages.get(type);
@@ -358,7 +380,8 @@ public class TroopsData implements SerializeEntity,Instances{
 			}
 		}
 	}
-
+	
+	
 	public void saveSerialize(JoyBuffer out) {
 		out.putPrefixedString(JsonUtil.ObjectToJsonString(info), JoyBuffer.STRING_TYPE_SHORT);
 		out.putInt(comePosition);//出发的坐标;

@@ -33,6 +33,10 @@ import com.joymeng.slg.domain.object.technology.data.Techupgrade;
 import com.joymeng.slg.union.UnionBody;
 import com.joymeng.slg.union.impl.UnionMember;
 
+/**
+ * 玩家统计信息
+ *
+ */
 public class RoleStatisticInfo implements DaoData, Instances{
 	long uid;
 	int roleFight = 0;
@@ -56,6 +60,7 @@ public class RoleStatisticInfo implements DaoData, Instances{
 	int killSoldsNum = 0;	//消灭玩家士兵数量
 	int deadSoldNum = 0;	//部队损失数量
 	int helpTimes = 0;		//联盟帮助次数，帮助其他玩家
+	int leagueGlory = 0;    //联盟贡献度
 	int buildFortNum = 0;	//累计建造要塞数量
 	//装备信息
 	int equipUpTimes = 0;//升级成功次数
@@ -206,6 +211,12 @@ public class RoleStatisticInfo implements DaoData, Instances{
 	public void setHelpTimes(int helpTimes) {
 		this.helpTimes = helpTimes;
 	}
+	public int getLeagueGlory() {
+		return leagueGlory;
+	}
+	public void setLeagueGlory(int leagueGlory) {
+		this.leagueGlory = leagueGlory;
+	}
 	public int getBuildFortNum() {
 		return buildFortNum;
 	}
@@ -330,7 +341,8 @@ public class RoleStatisticInfo implements DaoData, Instances{
 		researchTimes = data.getInt(DaoData.RED_ALERT_S_RT);
 		killSoldsNum = data.getInt(DaoData.RED_ALERT_S_KSN);
 		deadSoldNum = data.getInt(DaoData.RED_ALERT_S_DSN);
-		helpTimes = data.getInt(DaoData.RED_ALERT_S_FWT);
+		helpTimes = data.getInt(DaoData.RED_ALERT_S_AHT);
+		leagueGlory = data.getInt(DaoData.RED_ALERT_S_LGY);	
 		buildFortNum = data.getInt(DaoData.RED_ALERT_S_BFN);
 		equipUpTimes = data.getInt(DaoData.RED_ALERT_S_EUT);
 		equiplhTimes = data.getInt(DaoData.RED_ALERT_S_ELT);
@@ -373,6 +385,7 @@ public class RoleStatisticInfo implements DaoData, Instances{
 		data.put(DaoData.RED_ALERT_S_KSN, killSoldsNum);
 		data.put(DaoData.RED_ALERT_S_DSN, deadSoldNum);
 		data.put(DaoData.RED_ALERT_S_AHT, helpTimes);
+		data.put(DaoData.RED_ALERT_S_LGY, leagueGlory);
 		data.put(DaoData.RED_ALERT_S_BFN, buildFortNum);
 		data.put(DaoData.RED_ALERT_S_RT, researchTimes);
 		data.put(DaoData.RED_ALERT_S_EUT, equipUpTimes);
@@ -509,7 +522,7 @@ public class RoleStatisticInfo implements DaoData, Instances{
 		}
 		return num;
 	}
-	
+	//
 	private void updateRoleFight(Role role) {
 		int fight = roleTechFight + roleBuildFight + roleArmyFight;
 		if (role != null && role.getUnionId() != 0) {
@@ -537,6 +550,7 @@ public class RoleStatisticInfo implements DaoData, Instances{
 		roleFight = fight;
 		role.handleEvent(GameEvent.RANK_ROLE_FIGHT_CHANGE, new TaskEventDelay());
 		MissionManager taskAgent = role.getTaskAgent();
+		taskAgent.checkTaskConditions(role,TaskConditionType.C_RL_FF_A);//玩家部队战斗力
 		taskAgent.checkTaskConditions(role,TaskConditionType.C_RL_FF);// 玩家总战斗力
 		role.sendFrequentVariables();// 下发战斗力变化
 	}

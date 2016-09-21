@@ -24,4 +24,8 @@ public interface BuildComponent extends TimerOver{
 	public String serialize(RoleBuild build);
 	
 	public void sendToClient(ParametersEntity params);
+	
+	public boolean isWorking(Role role,RoleBuild build);
+	
+	
 }

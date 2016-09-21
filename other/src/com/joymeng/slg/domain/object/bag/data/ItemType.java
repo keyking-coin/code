@@ -19,5 +19,8 @@ public class ItemType {
 	public static final byte TYPE_STAMINA = 16;//体力药水
 	public static final byte TYPE_EQUIP_DRAWING = 17;//装备图纸
 	public static final byte TYPE_TURNTABLE_BOX = 18;//大转盘宝箱
+	public static final byte TYPE_UNION_ITEM_MEMBER = 19;//联盟个人道具
+	public static final byte TYPE_UNION_ITEM = 20;//联盟个人道具
+	
 	public static final byte TYPE_SUDOKU_MULTI = 99;//九宫格倍率
 }

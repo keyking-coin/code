@@ -13,6 +13,7 @@ import com.joymeng.common.util.JsonUtil;
 import com.joymeng.common.util.MessageSendUtil;
 import com.joymeng.common.util.StringUtils;
 import com.joymeng.common.util.TimeUtils;
+import com.joymeng.list.EventName;
 import com.joymeng.log.GameLog;
 import com.joymeng.log.LogManager;
 import com.joymeng.log.NewLogManager;
@@ -40,7 +41,10 @@ public class BuildComponentGem implements BuildComponent,Instances {
 	private int itemSize;//当前可用格子大小
 	private byte state;
 	private String itemId = ""; //正在生产的物品
-
+	//购买加速次数
+	private int accelerateTimes = 0;
+	//刷新时间
+	private int expiration = 0;
 	//
 	long uid;
 	int cityId;
@@ -57,6 +61,9 @@ public class BuildComponentGem implements BuildComponent,Instances {
 		this.uid = uid;
 		this.cityId = cityId;
 		this.buildId = buildId;
+		accelerateTimes = 0;
+		//明天0点
+		expiration = (int)(TimeUtils.getToday24Time()/Const.SECOND) ;
 	}
 	
 	/**
@@ -126,9 +133,8 @@ public class BuildComponentGem implements BuildComponent,Instances {
 		//添加物品到背包
 		RoleBagAgent bagagent = role.getBagAgent();
 		bagagent.addOther(itemId,1);
-		String event = "getGems";
 		String itemst =itemId;
-		LogManager.itemOutputLog(role, 1, event, itemst);
+		LogManager.itemOutputLog(role, 1, EventName.getGems.getName(), itemst);
 		//下发
 		ItemCell e = bagagent.getItemFromBag(itemId);
 		bagagent.sendItemsToClient(rms, e);
@@ -155,8 +161,7 @@ public class BuildComponentGem implements BuildComponent,Instances {
 		}
 		itemSize += 1;
 		role.redRoleMoney(costMoney);
-		String event ="buyItemSize";
-		LogManager.goldConsumeLog(role, costMoney, event);
+		LogManager.goldConsumeLog(role, costMoney, EventName.buyItemSize.getName());
 		RespModuleSet rms = new RespModuleSet();
 		role.sendRoleToClient(rms);
 		build.sendToClient(rms);
@@ -171,7 +176,7 @@ public class BuildComponentGem implements BuildComponent,Instances {
 	
 	@Override
 	public void tick(Role role,RoleBuild build,long now) {
-		
+		tickUpdateExpirationTime(true);
 	}
 
 	@Override
@@ -202,7 +207,16 @@ public class BuildComponentGem implements BuildComponent,Instances {
 				itemIdLst.add(armyId);
 			}
 		}
+		//购买次数
+		String accelerate = map.get("accelerate");
+		if (!StringUtils.isNull(accelerate)){
+			String[] strText = accelerate.split(":");
+			accelerateTimes = Integer.parseInt(strText[0]);
+			expiration = Integer.parseInt(strText[1]);
+		}
+		tickUpdateExpirationTime(false);
 		loadFinish(TimerLastType.TIME_PD_GEM,build);	
+		
 	}
 
 	@Override
@@ -211,6 +225,7 @@ public class BuildComponentGem implements BuildComponent,Instances {
 		map.put("state", String.valueOf(state));
 		map.put("itemSize", String.valueOf(itemSize));
 		map.put("itemId",StringUtils.isNull(itemId) ? "null" : itemId);
+		map.put("accelerate", accelerateTimes+":"+expiration);
 		if (itemIdFinishLst.size() == 0){
 			map.put("itemIdFinishLst","null");
 		}else{
@@ -291,6 +306,8 @@ public class BuildComponentGem implements BuildComponent,Instances {
 		for(String itemid : itemIdFinishLst){
 			params.put(itemid);//物品id
 		}
+		//int 加速金币数量
+		params.put(tickUpdateExpirationTime(false));
 	}
 	@Override
 	public void finish() {
@@ -320,6 +337,54 @@ public class BuildComponentGem implements BuildComponent,Instances {
 		}
 	}
 	
+	
+	/**
+	 * 
+	* @Title: updateExpirationTime 
+	* isDown  是否下发
+	* @Description: 更新时间
+	* 材料加工厂的加速花费，按照10/20/40/60/80/100，6次之后每次消耗100金币；每日0点更新已使用的清除次数；
+	* min 10
+	* max 100
+	* @return int 需要花费的钱
+	* 
+	 */
+	public int tickUpdateExpirationTime(boolean isDown){
+		//超过一天
+		if(TimeUtils.nowLong()/Const.SECOND - expiration  >=0 ){
+			//次数置为0
+			accelerateTimes = 0;
+			expiration = (int)(TimeUtils.getToday24Time()/Const.SECOND) ;
+			if(isDown){
+				//更新到客户端
+				Role role = world.getObject(Role.class, uid);
+				if (role != null) {
+					RoleCityAgent cityAgent = role.getCity(cityId);
+					RoleBuild build = cityAgent.searchBuildById(buildId);
+					if (build != null) {
+						RespModuleSet rms = new RespModuleSet();
+						build.sendToClient(rms);
+						MessageSendUtil.sendModule(rms, role.getUserInfo());
+					}
+				}
+			}
+		}
+		int cost = accelerateTimes*20;
+		cost=Math.min(cost, Const.MAX_GEM_ACCELERATE);
+		return Math.max(Const.MIN_GEM_ACCELERATE, cost);
+	}
+	
+	/**
+	 * 购买加速
+	* @Title: buyAccelerate 
+	* @Description: 
+	* 
+	* @return void
+	 */
+	public void buyAccelerate(){
+		accelerateTimes++;
+	}
+	
 	@Override
 	public BuildComponentType getBuildComponentType() {
 		return buildComType;
@@ -328,5 +393,13 @@ public class BuildComponentGem implements BuildComponent,Instances {
 	@Override
 	public void setBuildParams(RoleBuild build) {
 	}
+
+
+	@Override
+	public boolean isWorking(Role role, RoleBuild build) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
 
 }

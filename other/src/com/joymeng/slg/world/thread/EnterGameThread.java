@@ -75,9 +75,13 @@ public class EnterGameThread extends Thread implements Instances {
 						role.sendFrequentVariables();//下发用户战斗力
 						role.sendCommanderInfo();//下发指挥官的部分数据
 						chatMgr.firstSendMsgs(role);//下发各种聊天消息
+						role.sendRoleRedpackets();//下发用户红包信息
+						role.setNearestEctype();
 						MessageSendUtil.sendModule(rms,role.getUserInfo());
 						EvntManager.getInstance().Notify("roleEnter",String.valueOf(role.getId()));
 						ActvtManager.getInstance().sendActvtTip(role.getId());
+						//下发玩家广告
+						advSgr.sendToClient();
 					}else{
 						enterIn(role);
 					}

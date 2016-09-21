@@ -22,7 +22,6 @@ public interface GameEvent extends Instances {
 	public static final short TASK_CHECK_EVENT = 16;//
 	// 任务状态变更事件
 	public static final short TASK_CHECK_STATE_EVENT = 17;// 任务进度等状态
-	/////
 	public static final short EFFECT_UPDATE = 15;// 更新buff
 	// 玩家统计信息更新
 	public static final short FIGHT_WIN_EVENT = 20;
@@ -35,16 +34,14 @@ public interface GameEvent extends Instances {
 	public static final short ARMY_FACT_CREATE = 26;
 	public static final short ARMY_FACT_LEVEL_UP = 27;// 获取技能点
 	public static final short UNION_WAR_RECORD = 28;// 联盟战争记录
-	//
 	public static final short UNION_FIGHT_CHANGE = 165;// 联盟战斗有变化
-	//
 	public static final short RANK_ROLE_FIGHT_CHANGE = 166;// 排行榜个人战斗力发生变化
 	public static final short RANK_ROLEKILLENEMY_CHANGE = 167;// 排行榜个人击杀部队数发生变化
 	public static final short RANK_ROLECITYLEVEL_CHANGE = 168;// 排行榜个人城市等级发生变化
 	public static final short RANK_ROLEHEROLEVEL_CHANGE = 169;// 排行榜个人英雄等级发生变化
 	
 	public static final short ROLE_RES_BUFF_CHANGE = 170;//资源采集buff发生变化
-	
+	public static final short ROLE_RES_BUFF_CHANGE_1 = 173;//资源采集buff发生变化 不先采集一部分
 	public static final short ACTIVITY_EVENTS = 171; // 活动相关的事件
 	
 	public static final short REMOVE_ROLE = 172; // 删除玩家的事件

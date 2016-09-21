@@ -14,4 +14,6 @@ public class ClientMod extends AbstractClientModule
 	public short getModuleType() {
 		return moduleType;
 	}
+	
+	public ClientMod() {}
 }

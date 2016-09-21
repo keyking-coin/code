@@ -129,7 +129,7 @@ public class MapEctype extends MapObject {
 	public void addSceneReward(Role role , Scene scene , RespModuleSet rms) {
 		List<ItemCell> changes = new ArrayList<ItemCell>();
 		List<Object> objs = new ArrayList<Object>();
-		role.addPackage(scene.getPackages(),changes, objs,"packageBack");
+		role.addPackage(scene.getPackages(),changes, objs);
 		if (role.isOnline()){
 			role.sendRoleToClient(rms);
 			if (changes.size() > 0){

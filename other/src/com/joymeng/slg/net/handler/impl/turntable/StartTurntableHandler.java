@@ -7,6 +7,7 @@ import com.joymeng.common.util.I18nGreeting;
 import com.joymeng.common.util.JsonUtil;
 import com.joymeng.common.util.MathUtils;
 import com.joymeng.common.util.MessageSendUtil;
+import com.joymeng.list.EventName;
 import com.joymeng.log.GameLog;
 import com.joymeng.log.LogManager;
 import com.joymeng.log.NewLogManager;
@@ -15,6 +16,7 @@ import com.joymeng.services.core.message.JoyNormalMessage.UserInfo;
 import com.joymeng.services.core.message.JoyProtocol;
 import com.joymeng.slg.domain.event.GameEvent;
 import com.joymeng.slg.domain.event.impl.ActvtEvent.ActvtEventType;
+import com.joymeng.slg.domain.object.bag.ItemCell;
 import com.joymeng.slg.domain.object.bag.data.Item;
 import com.joymeng.slg.domain.object.bag.data.ItemType;
 import com.joymeng.slg.domain.object.build.RoleBuild;
@@ -47,14 +49,15 @@ public class StartTurntableHandler extends ServiceHandler {
 		String turntableId = params.get(0);
 		Turntable turntable = dataManager.serach(Turntable.class, turntableId);
 		if (turntable == null || turntable.getBuildingLevel() == null || turntable.getBuildingLevel().size() < 2) {
-			GameLog.error("read turntable base date is fail");
+			GameLog.error("read turntable base date is fail, turntableId = " + turntableId);
 			resp.fail();
 			return resp;
 		}
 		List<RoleBuild> roleBuilds = role.getBuildsByBuildId(0, "CityCenter");
 		if (roleBuilds == null || roleBuilds.size() < 1) {
-			GameLog.error("getBuildsByBuildId is fail");
+			GameLog.error("getBuildsByBuildId is fail ,cityId = " + 0 + "buildname = " + "CityCenter");
 			resp.fail();
+			return resp;
 		}
 		if (roleBuilds.get(0).getLevel() <= Byte.parseByte(turntable.getBuildingLevel().get(0))
 				&& roleBuilds.get(0).getLevel() >= Byte.parseByte(turntable.getBuildingLevel().get(1))) {
@@ -74,9 +77,7 @@ public class StartTurntableHandler extends ServiceHandler {
 			resp.fail();
 			return resp;
 		}
-		String event ="StartTurntableHandler";
-		String items ="copper";
-		LogManager.itemConsumeLog(role, GameConfig.TURNTABLE_PRICE, event, items);
+		LogManager.itemConsumeLog(role, GameConfig.TURNTABLE_PRICE, EventName.StartTurntableHandler.getName(), "copper");
 		// 下发列表
 		List<String> vaList = turntable.getItemList();
 		String[] values = new String[vaList.size()];
@@ -107,14 +108,14 @@ public class StartTurntableHandler extends ServiceHandler {
 			return resp;
 		}
 		if (item.getItemType() != ItemType.TYPE_TURNTABLE_BOX) { // 获得物品
+			List<ItemCell> aList = new ArrayList<>();
 			if (item.getMaterialType() == 0) {
-				role.getBagAgent().addGoods(result, 1);
+				aList = role.getBagAgent().addGoods(result, 1);
 			} else {
-				role.getBagAgent().addOther(result, 1);
+				aList = role.getBagAgent().addOther(result, 1);
 			}
-			String itemst  = result;
-			LogManager.itemOutputLog(role, 1, event, itemst);
-			role.getBagAgent().sendBagToClient(rms);
+			LogManager.itemOutputLog(role, 1, EventName.StartTurntableHandler.getName(), result);
+			role.getBagAgent().sendItemsToClient(rms, aList);
 			LogManager.turnTableLog(role,rate,item.getId());
 		} else { // 获得宝箱 进入 九宫格
 			role.getTurntableBody().resetSudoku();
@@ -146,7 +147,6 @@ public class StartTurntableHandler extends ServiceHandler {
 		role.sendRoleToClient(rms);
 		MessageSendUtil.sendModule(rms, role);
 		resp.add(result);
-		
 		role.handleEvent(GameEvent.ACTIVITY_EVENTS,ActvtEventType.LUCKY_WHEEL);
 		return resp;
 	}

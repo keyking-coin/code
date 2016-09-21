@@ -1,194 +1,185 @@
 package com.joymeng.slg.domain.object.build;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.joymeng.Instances;
-import com.joymeng.slg.domain.object.effect.BuffTypeConst.ExtendsType;
 import com.joymeng.slg.domain.actvt.impl.NewServerBuff;
 import com.joymeng.slg.domain.actvt.impl.NewServerBuff.BuffTag;
-import com.joymeng.slg.domain.object.effect.ExtendInfo;
+import com.joymeng.slg.domain.object.effect.BuffTypeConst;
+import com.joymeng.slg.domain.object.effect.BuffTypeConst.ExtendsType;
+import com.joymeng.slg.domain.object.effect.Effect;
 import com.joymeng.slg.domain.object.resource.ResourceTypeConst;
+import com.joymeng.slg.domain.object.role.Role;
 
 public class RoleCityAttr implements Instances {
-	int AddFortNum = 0; // 增加城市可以拥有的要塞数量
-	// float ImpUserCityVision = 0;//扩大玩家城市的视野
-	// float ImpUserFortVision = 0;//扩大要塞/军营的视野
-	// float ImpNpcCityVision = 0;//扩大NPC城市的视野
-	int addBuildQueue = 0; // 增加建造队列
-	float AddmaterialsProd = 0;// 增加城外矿石的产量
 
-	float AddStorageLimit = 0;// 增加物流中心的资源保护比例
-	float ImpProtect = 0;// 提升资源保护比例
-
-	int AddTroopsLimit = 0; // 出征部队数量上限增加
-	int AddSProdLimit_1 = 0;// 单次训练的士兵数量提升
-	int AddSProdLimit_2 = 0;// 单次训练的士兵数量提升
-	int AddSProdLimit_3 = 0;// 单次训练的士兵数量提升
-	int AddSProdLimit_4 = 0;// 单次训练的士兵数量提升
-	float AddSoldLimit = 0;// 单支部队的兵力数量上限
-
-	int AddFenceHp = 0; // 增加城墙的生命值
-	int AddFenceSpace = 0; // 增加城墙的建造空间
-	int AddWarLimit = 0; // 增加集结的队伍数量
-	int AddSoldNum = 0; // 增加集结的部队空间
-	float AddPowerProd = 0; // 发电厂的电力产量提升
-
-	int AddHospCapa = 0; // 增加医院的伤兵容量
-	int AddRepaCapa = 0; // 增加维修厂的受损机械容量
-	float ReduHospTime = 0; // 减少医院的伤兵的治疗时间
-	float ReduRepaTime = 0; // 减少维修厂的受损机械的维修时间
-	float ReduRepaRes_1 = 0; // 治疗伤兵的资源降低
-	float ReduRepaRes_2 = 0; // 维修机械的资源降低
-
-	float ReduFoodCollTime = 0; // 减少部队的食品的采集时间
-	float ReduMetalCollTime = 0;// 减少部队的金属的采集时间
-	float ReduOilCollTime = 0; // 减少部队的石油的采集时间
-	float ReduAlloyCollTime = 0;// 减少部队的钛合金的采集时间
-
-	float ImpFoodCollSpeed = 0; // 增加食品的采集速度
-	float ImpMetalCollSpeed = 0;// 增加金属的采集速度
-	float ImpOilCollSpeed = 0; // 增加石油的采集速度
-	float ImpAlloyCollSpeed = 0;// 增加钛合金的采集速度
-
-	float ImpBuildSpeed = 0;// 提高建造速度
-	float ImpResSpeed = 0;// 提高研究速度
-
+	long uid;
+	long cityId;
 	public RoleCityAttr() {
+		
+	}
+	
+	public void init(long uid,int cityId){
+		this.uid = uid;
+		this.cityId = cityId;
 	}
 
 	public int getFortNum() {
-		return AddFortNum;
-	}
-
-	public void updateFortNum(boolean isRemove, int fortNum) {
-		if (!isRemove) {
-			AddFortNum += fortNum;
+		////要塞数量增加
+		int value = 0;
+		Role role = world.getOnlineRole(this.uid);
+		if (role == null) {
 		} else {
-			AddFortNum -= fortNum;
+			List<Effect> list = role.getEffectAgent().searchBuffByTargetType(BuffTypeConst.TargetType.G_C_ADD_FTN);
+			for (int i = 0; i < list.size(); i++) {
+				value += list.get(i).getNum();
+			}
 		}
-	}
-
-	public int getAddBuildQueue() {
-		return addBuildQueue;
-	}
-
-	public void updateAddBuildQueue(boolean isRemove, int addBuildQueue) {
-		if (!isRemove) {
-			this.addBuildQueue += addBuildQueue;
-		} else {
-			this.addBuildQueue -= addBuildQueue;
-		}
+//		GameLog.info("<BUFF>uid=" + this.uid + "|AddFortNum=" + value);
+		return value;
 	}
 
 	public int getAddTroopsLimit() {
-		return AddTroopsLimit;
-	}
-
-	public void updateAddTroopsLimit(boolean isRemove, int addTroopsLimit) {
-		if (!isRemove) {
-			this.AddTroopsLimit += addTroopsLimit;
+		// 出征部队上限增加1支
+		int value = 0;
+		Role role = world.getOnlineRole(this.uid);
+		if (role == null) {
 		} else {
-			this.AddTroopsLimit -= addTroopsLimit;
+			List<Effect> list = role.getEffectAgent().searchBuffByTargetType(BuffTypeConst.TargetType.T_B_ADD_TL);
+			for (int i = 0; i < list.size(); i++) {
+				value += list.get(i).getNum();
+			}
 		}
+//		GameLog.info("<BUFF>uid=" + this.uid + "|AddTroopsLimit=" + value);
+		return value;
+		// return AddTroopsLimit;
 	}
+	//
+	// public void updateAddTroopsLimit(boolean isRemove, int addTroopsLimit) {
+	// if (!isRemove) {
+	// this.AddTroopsLimit += addTroopsLimit;
+	// } else {
+	// this.AddTroopsLimit -= addTroopsLimit;
+	// }
+	// }
 
 	public int getAddSProdLimit_1() {
-		return AddSProdLimit_1;
+		//// 单次训练的士兵数量提升1
+		int value = 0;
+		Role role = world.getOnlineRole(this.uid);
+		if (role == null) {
+		} else {
+			List<Effect> list = role.getEffectAgent().searchBuffByTargetType(BuffTypeConst.TargetType.T_B_ADD_SPL);
+			for (int i = 0; i < list.size(); i++) {
+				if (list.get(i).getExtendInfo().getType().ordinal() == ExtendsType.EXTEND_ALL.ordinal()
+						|| list.get(i).getExtendInfo().getId() == 1) {
+					value += list.get(i).getNum();
+				}
+			}
+		}
+//		GameLog.info("<BUFF>uid=" + this.uid + "|AddSProdLimit_1=" + value);
+		return value;
 	}
 
 	public int getAddSProdLimit_2() {
-		return AddSProdLimit_2;
+		// 单次训练的士兵数量提升2
+		int value = 0;
+		Role role = world.getOnlineRole(this.uid);
+		if (role == null) {
+		} else {
+			List<Effect> list = role.getEffectAgent().searchBuffByTargetType(BuffTypeConst.TargetType.T_B_ADD_SPL);
+			for (int i = 0; i < list.size(); i++) {
+				if (list.get(i).getExtendInfo().getType().ordinal() == ExtendsType.EXTEND_ALL.ordinal()
+						|| list.get(i).getExtendInfo().getId() == 2) {
+					value += list.get(i).getNum();
+				}
+			}
+		}
+//		GameLog.info("<BUFF>uid=" + this.uid + "|AddSProdLimit_2=" + value);
+		return value;
 	}
 
 	public int getAddSProdLimit_3() {
-		return AddSProdLimit_3;
+		// 单次训练的士兵数量提升3
+		int value = 0;
+		Role role = world.getOnlineRole(this.uid);
+		if (role == null) {
+		} else {
+			List<Effect> list = role.getEffectAgent().searchBuffByTargetType(BuffTypeConst.TargetType.T_B_ADD_SPL);
+			for (int i = 0; i < list.size(); i++) {
+				if (list.get(i).getExtendInfo().getType().ordinal() == ExtendsType.EXTEND_ALL.ordinal()
+						|| list.get(i).getExtendInfo().getId() == 3) {
+					value += list.get(i).getNum();
+				}
+			}
+		}
+//		GameLog.info("<BUFF>uid=" + this.uid + "|AddSProdLimit_3=" + value);
+		return value;
 	}
 
 	public int getAddSProdLimit_4() {
-		return AddSProdLimit_4;
-	}
+		// 单次训练的士兵数量提升4
+		int value = 0;
+		Role role = world.getOnlineRole(this.uid);
+		if (role == null) {
+		} else {
+			List<Effect> list = role.getEffectAgent().searchBuffByTargetType(BuffTypeConst.TargetType.T_B_ADD_SPL);
+			for (int i = 0; i < list.size(); i++) {
+				if (list.get(i).getExtendInfo().getType().ordinal() == ExtendsType.EXTEND_ALL.ordinal()
+						|| list.get(i).getExtendInfo().getId() == 4) {
+					value += list.get(i).getNum();
+				}
 
-	public void updateAddSProdLimit(boolean isRemove, ExtendInfo info, int num) {
-		if (info.getType().ordinal() == ExtendsType.EXTEND_ALL.ordinal()) {
-			if (isRemove) {
-				AddSProdLimit_1 -= num;
-				AddSProdLimit_2 -= num;
-				AddSProdLimit_3 -= num;
-				AddSProdLimit_4 -= num;
-			} else {
-				AddSProdLimit_1 += num;
-				AddSProdLimit_2 += num;
-				AddSProdLimit_3 += num;
-				AddSProdLimit_4 += num;
 			}
-			return;
 		}
-		switch (info.getId()) {
-		case 1:
-			if (!isRemove) {
-				this.AddSProdLimit_1 += num;
-			} else {
-				this.AddSProdLimit_1 -= num;
-			}
-			break;
-		case 2:
-			if (!isRemove) {
-				this.AddSProdLimit_2 += num;
-			} else {
-				this.AddSProdLimit_2 -= num;
-			}
-			break;
-		case 3:
-			if (!isRemove) {
-				this.AddSProdLimit_3 += num;
-			} else {
-				this.AddSProdLimit_3 -= num;
-			}
-			break;
-		case 4:
-			if (!isRemove) {
-				this.AddSProdLimit_4 += num;
-			} else {
-				this.AddSProdLimit_4 -= num;
-			}
-			break;
-		default:
-			break;
-		}
+//		GameLog.info("<BUFF>uid=" + this.uid + "|AddSProdLimit_4=" + value);
+		return value;
 	}
 
 	public float getAddSoldLimit() {
-		return AddSoldLimit;
-	}
-
-	public void updateAddSoldLimit(boolean isRemove, float addSoldLimit) {
-		if (!isRemove) {
-			this.AddSoldLimit += addSoldLimit;
+		// 单支部队兵力上限增加
+		float value = 0;
+		Role role = world.getOnlineRole(this.uid);
+		if (role == null) {
 		} else {
-			this.AddSoldLimit -= addSoldLimit;
+			List<Effect> list = role.getEffectAgent().searchBuffByTargetType(BuffTypeConst.TargetType.T_B_ADD_SL);
+			for (int i = 0; i < list.size(); i++) {
+				value += list.get(i).getRate();
+			}
 		}
+//		GameLog.info("<BUFF>uid=" + this.uid + "|AddSoldLimit=" + value);
+		return value;
 	}
 
 	public int getAddFenceHp() {
-		return AddFenceHp;
-	}
-
-	public void updateAddFenceHp(boolean isRemove, int addFenceHp) {
-		if (!isRemove) {
-			this.AddFenceHp += addFenceHp;
+		// 城防值增加
+		int value = 0;
+		Role role = world.getOnlineRole(this.uid);
+		if (role == null) {
 		} else {
-			this.AddFenceHp -= addFenceHp;
+			List<Effect> list = role.getEffectAgent().searchBuffByTargetType(BuffTypeConst.TargetType.T_B_ADD_FHP);
+			for (int i = 0; i < list.size(); i++) {
+				value += list.get(i).getNum();
+			}
 		}
+//		GameLog.info("<BUFF>uid=" + this.uid + "|AddFenceHp=" + value);
+		return value;
 	}
 
 	public int getAddFenceSpace() {
-		return AddFenceSpace;
-	}
-
-	public void updateAddFenceSpace(boolean isRemove, int addFenceSpace) {
-		if (!isRemove) {
-			this.AddFenceSpace += addFenceSpace;
+		// 城防空间增加
+		int value = 0;
+		Role role = world.getOnlineRole(this.uid);
+		if (role == null) {
 		} else {
-			this.AddFenceSpace -= addFenceSpace;
+			List<Effect> list = role.getEffectAgent().searchBuffByTargetType(BuffTypeConst.TargetType.T_B_ADD_FS);
+			for (int i = 0; i < list.size(); i++) {
+				value += list.get(i).getNum();
+			}
 		}
+//		GameLog.info("<BUFF>uid=" + this.uid + "|AddFenceSpace=" + value);
+		return value;
 	}
 
 	// public float getImpUserCityVision() {
@@ -226,277 +217,311 @@ public class RoleCityAttr implements Instances {
 	// }
 	// }
 	public float getImpProtect() {
-		return ImpProtect;
-	}
-
-	public void updateImpProtect(boolean isRemove, float impProtect) {
-		if (!isRemove) {
-			ImpProtect += impProtect;
+		// 提升资源保护比例
+		float value = 0;
+		Role role = world.getOnlineRole(this.uid);
+		if (role == null) {
 		} else {
-			ImpProtect += impProtect;
+			List<Effect> list = role.getEffectAgent().searchBuffByTargetType(BuffTypeConst.TargetType.G_B_IMP_RT);
+			for (int i = 0; i < list.size(); i++) {
+				value += list.get(i).getRate();
+			}
 		}
+//		GameLog.info("<BUFF>uid=" + this.uid + "|ImpProtect=" + value);
+		return value;
 	}
 
 	public float getAddStorageLimit() {
-		return AddStorageLimit;
-	}
-
-	public void updateAddStorageLimit(boolean isRemove, float addResProt) {
-		if (!isRemove) {
-			this.AddStorageLimit += addResProt;
+		// 仓库资源数量上限增加
+		float value = 0;
+		Role role = world.getOnlineRole(this.uid);
+		if (role == null) {
+			
 		} else {
-			this.AddStorageLimit -= addResProt;
+			List<Effect> list = role.getEffectAgent().searchBuffByTargetType(BuffTypeConst.TargetType.T_B_ADD_SLT);
+			for (int i = 0; i < list.size(); i++) {
+				value += list.get(i).getRate();
+			}
 		}
+//		GameLog.info("<BUFF>uid=" + uid + "|AddStorageLimit=" + value);
+		return value;
 	}
 
 	public float getReduFoodCollTime() {
-		return ReduFoodCollTime;
-	}
-
-	public void updateReduFoodCollTime(boolean isRemove, float reduFoodCollTime) {
-		if (!isRemove) {
-			this.ReduFoodCollTime += reduFoodCollTime;
+		float value = 0;
+		Role role = world.getOnlineRole(this.uid);
+		if (role == null) {
 		} else {
-			this.ReduFoodCollTime -= reduFoodCollTime;
+			List<Effect> list = role.getEffectAgent().searchBuffByTargetType(BuffTypeConst.TargetType.T_A_RED_FCT);
+			for (int i = 0; i < list.size(); i++) {
+				value += list.get(i).getRate();
+			}
 		}
+//		GameLog.info("<BUFF>uid=" + uid + "|ReduFoodCollTime=" + value);
+		return value;
 	}
 
 	public float getReduMetalCollTime() {
-		return ReduMetalCollTime;
-	}
-
-	public void updateReduMetalCollTime(boolean isRemove, float reduMetalCollTime) {
-		if (!isRemove) {
-			this.ReduMetalCollTime += reduMetalCollTime;
+		float value = 0;
+		Role role = world.getOnlineRole(this.uid);
+		if (role == null) {
 		} else {
-			this.ReduMetalCollTime -= reduMetalCollTime;
+			List<Effect> list = role.getEffectAgent().searchBuffByTargetType(BuffTypeConst.TargetType.T_A_RED_MCT);
+			for (int i = 0; i < list.size(); i++) {
+				value += list.get(i).getRate();
+			}
 		}
+//		GameLog.info("<BUFF>uid=" + uid + "|ReduFoodCollTime=" + value);
+		return value;
 	}
 
 	public float getReduOilCollTime() {
-		return ReduOilCollTime;
-	}
-
-	public void updateReduOilCollTime(boolean isRemove, float reduOilCollTime) {
-		if (!isRemove) {
-			this.ReduOilCollTime += reduOilCollTime;
+		float value = 0;
+		Role role = world.getOnlineRole(this.uid);
+		if (role == null) {
 		} else {
-			this.ReduOilCollTime -= reduOilCollTime;
+			List<Effect> list = role.getEffectAgent().searchBuffByTargetType(BuffTypeConst.TargetType.T_A_RED_OCT);
+			for (int i = 0; i < list.size(); i++) {
+				value += list.get(i).getRate();
+			}
 		}
+//		GameLog.info("<BUFF>uid=" + uid + "|ReduOilCollTime=" + value);
+		return value;
 	}
 
 	public float getReduAlloyCollTime() {
-		return ReduAlloyCollTime;
-	}
-
-	public void updateReduAlloyCollTime(boolean isRemove, float reduAlloyCollTime) {
-		if (!isRemove) {
-			this.ReduAlloyCollTime += reduAlloyCollTime;
+		float value = 0;
+		Role role = world.getOnlineRole(this.uid);
+		if (role == null) {
 		} else {
-			this.ReduAlloyCollTime -= reduAlloyCollTime;
+			List<Effect> list = role.getEffectAgent().searchBuffByTargetType(BuffTypeConst.TargetType.T_A_RED_ACT);
+			for (int i = 0; i < list.size(); i++) {
+				value += list.get(i).getRate();
+			}
 		}
+//		GameLog.info("<BUFF>uid=" + uid + "|ReduAlloyCollTime=" + value);
+		return value;
 	}
 
 	public float getImpCollSpeed(ResourceTypeConst type) {
-		switch (type) {
-		case RESOURCE_TYPE_FOOD:
-			return ImpFoodCollSpeed;
-		case RESOURCE_TYPE_METAL:
-			return ImpMetalCollSpeed;
-		case RESOURCE_TYPE_OIL:
-			return ImpOilCollSpeed;
-		case RESOURCE_TYPE_ALLOY:
-			return ImpAlloyCollSpeed;
-		default:
-			break;
+		float value = 0;
+		Role role = world.getOnlineRole(this.uid);
+		List<Effect> list =  new ArrayList<Effect>();
+		if (role == null) {
+			
+		}else{
+			switch (type) {
+			case RESOURCE_TYPE_FOOD:
+				list = role.getEffectAgent().searchBuffByTargetType(BuffTypeConst.TargetType.C_A_IMP_FCS);
+				for (int i = 0; i < list.size(); i++) {
+					value += list.get(i).getRate();
+				}
+//				GameLog.info("<BUFF>uid=" + uid + "|ImpFoodCollSpeed=" + value);
+				return value;
+			case RESOURCE_TYPE_METAL:
+				list = role.getEffectAgent().searchBuffByTargetType(BuffTypeConst.TargetType.C_A_IMP_MCS);
+				for (int i = 0; i < list.size(); i++) {
+					value += list.get(i).getRate();
+				}
+//				GameLog.info("<BUFF>uid=" + uid + "|ImpMetalCollSpeed=" + value);
+				return value;
+
+			case RESOURCE_TYPE_OIL:
+				list = role.getEffectAgent().searchBuffByTargetType(BuffTypeConst.TargetType.C_A_IMP_OCS);
+				for (int i = 0; i < list.size(); i++) {
+					value += list.get(i).getRate();
+				}
+//				GameLog.info("<BUFF>uid=" + uid + "|ImpOilCollSpeed=" + value);
+				return value;
+			case RESOURCE_TYPE_ALLOY:
+				list = role.getEffectAgent().searchBuffByTargetType(BuffTypeConst.TargetType.C_A_IMP_ACS);
+				for (int i = 0; i < list.size(); i++) {
+					value += list.get(i).getRate();
+				}
+//				GameLog.info("<BUFF>uid=" + uid + "|ImpAlloyCollSpeed=" + value);
+				return value;
+			default:
+				break;
+			}
 		}
 		return 0;
 	}
 
-	public void updateImpFoodCollSpeed(boolean isRemove, float impFoodCollSpeed) {
-		if (!isRemove) {
-			this.ImpFoodCollSpeed += impFoodCollSpeed;
-		} else {
-			this.ImpFoodCollSpeed -= impFoodCollSpeed;
-		}
-	}
-
-	public void updateImpMetalCollSpeed(boolean isRemove, float impMetalCollSpeed) {
-		if (!isRemove) {
-			this.ImpMetalCollSpeed += impMetalCollSpeed;
-		} else {
-			this.ImpMetalCollSpeed -= impMetalCollSpeed;
-		}
-	}
-
-	public void updateImpOilCollSpeed(boolean isRemove, float impOilCollSpeed) {
-		if (!isRemove) {
-			this.ImpOilCollSpeed += impOilCollSpeed;
-		} else {
-			this.ImpOilCollSpeed -= impOilCollSpeed;
-		}
-	}
-
-	public void updateImpAlloyCollSpeed(boolean isRemove, float impAlloyCollSpeed) {
-		if (!isRemove) {
-			this.ImpAlloyCollSpeed += impAlloyCollSpeed;
-		} else {
-			this.ImpAlloyCollSpeed -= impAlloyCollSpeed;
-		}
-	}
-
 	public float getImpBuildSpeed() {
 		float newServerBuff = NewServerBuff.iGetBuff(BuffTag.REDUCE_BUILD_TIME) / 100.0f;
-		return ImpBuildSpeed + newServerBuff;
-	}
-
-	public void updateImpBuildSpeed(boolean isRemove, float impBuildSpeed) {
-		if (!isRemove) {
-			this.ImpBuildSpeed += impBuildSpeed;
+		float value = 0;
+		Role role = world.getOnlineRole(this.uid);
+		if (role == null) {
 		} else {
-			this.ImpBuildSpeed -= impBuildSpeed;
+			List<Effect> list = role.getEffectAgent().searchBuffByTargetType(BuffTypeConst.TargetType.G_C_IMP_BS);
+			for (int i = 0; i < list.size(); i++) {
+				value += list.get(i).getRate();
+			}
 		}
+//		GameLog.info("<BUFF>uid=" + uid + "|ImpBuildSpeed=" + value + ",newServerBuff="+newServerBuff);
+		return value + newServerBuff;
 	}
 
 	public float getImpResSpeed() {
 		float newServerBuff = NewServerBuff.iGetBuff(BuffTag.REDUCE_RESEARCH_SCIENCE_TIME) / 100.0f;
-		return ImpResSpeed + newServerBuff;
-	}
-
-	public void updateImpResSpeed(boolean isRemove, float impResSpeed) {
-		if (!isRemove) {
-			this.ImpResSpeed += impResSpeed;
+		// 单次训练的士兵数量提升2
+		float value = 0;
+		Role role = world.getOnlineRole(this.uid);
+		if (role == null) {
+			
 		} else {
-			this.ImpResSpeed -= impResSpeed;
+			List<Effect> list = role.getEffectAgent().searchBuffByTargetType(BuffTypeConst.TargetType.G_C_IMP_RS);
+			for (int i = 0; i < list.size(); i++) {
+					value += list.get(i).getRate();
+			}
 		}
-	}
-
-	public float getAddMaterialsProd() {
-		return AddmaterialsProd;
-	}
-
-	public void updateAddMaterialsProd(byte type, float addMaterialsProd) {
-		if (type == 0) {
-			this.AddmaterialsProd += addMaterialsProd;
-		} else {
-			this.AddmaterialsProd -= addMaterialsProd;
-		}
+//		GameLog.info("<BUFF>uid=" + this.uid + "|ImpResSpeed=" + value+",newServerBuff="+newServerBuff);
+		return value + newServerBuff;
 	}
 
 	public int getAddWarLimit() {
-		return AddWarLimit;
-	}
-
-	public void updateAddWarLimit(boolean isRemove, int addWarLimit) {
-		if (!isRemove) {
-			this.AddWarLimit += addWarLimit;
+		// 增加战争大厅的部队数量上限
+		int value = 0;
+		Role role = world.getOnlineRole(this.uid);
+		if (role == null) {
 		} else {
-			this.AddWarLimit -= addWarLimit;
+			List<Effect> list = role.getEffectAgent().searchBuffByTargetType(BuffTypeConst.TargetType.T_B_ADD_WL);
+			for (int i = 0; i < list.size(); i++) {
+				value += list.get(i).getNum();
+			}
 		}
+//		GameLog.info("<BUFF>uid=" + this.uid + "|AddWarLimit=" + value);
+		return value;
 	}
 
 	public int getAddSoldNum() {
-		return AddSoldNum;
-	}
-
-	public void updateAddSoldNum(boolean isRemove, int addSoldNum) {
-		if (!isRemove) {
-			this.AddSoldNum += addSoldNum;
+		//// 增加战争大厅的士兵数量
+		int value = 0;
+		Role role = world.getOnlineRole(this.uid);
+		if (role == null) {
 		} else {
-			this.AddSoldNum -= addSoldNum;
+			List<Effect> list = role.getEffectAgent().searchBuffByTargetType(BuffTypeConst.TargetType.G_B_ADD_SDN);
+			for (int i = 0; i < list.size(); i++) {
+				value += list.get(i).getNum();
+			}
 		}
+//		GameLog.info("<BUFF>uid=" + this.uid + "|AddSoldNum=" + value);
+		return value;
 	}
 
 	public float getAddPowerProd() {
-		return AddPowerProd;
-	}
-
-	public void updateAddPowerProd(boolean isRemove, float addPowerProd) {
-		if (!isRemove) {
-			this.AddPowerProd += addPowerProd;
+		// 发电厂的电力产量提升
+		float value = 0;
+		Role role = world.getOnlineRole(this.uid);
+		if (role == null) {
 		} else {
-			this.AddPowerProd -= addPowerProd;
+			List<Effect> list = role.getEffectAgent().searchBuffByTargetType(BuffTypeConst.TargetType.T_B_ADD_PP);
+			for (int i = 0; i < list.size(); i++) {
+				value += list.get(i).getRate();
+			}
 		}
+//		GameLog.info("<BUFF>uid=" + this.uid + "|AddPowerProd=" + value);
+		return value;
 	}
 
 	public int getAddHospCapa() {
-		return AddHospCapa;
-	}
-
-	public void updateAddHospCapa(boolean isRemove, int addHospCapa) {
-		if (isRemove) {
-			AddHospCapa -= addHospCapa;
+		//// 医院伤兵数量上限提升
+		int value = 0;
+		Role role = world.getOnlineRole(this.uid);
+		if (role == null) {
 		} else {
-			AddHospCapa += addHospCapa;
+			List<Effect> list = role.getEffectAgent().searchBuffByTargetType(BuffTypeConst.TargetType.T_B_ADD_HC);
+			for (int i = 0; i < list.size(); i++) {
+				value += list.get(i).getNum();
+			}
 		}
+//		GameLog.info("<BUFF>uid=" + uid + "|HospCapa=" + value);
+		return value;
 	}
 
 	public int getAddRepaCapa() {
-		return AddRepaCapa;
-	}
-
-	public void updateAddRepaCapa(boolean isRemove, int addHospCapa) {
-		if (isRemove) {
-			AddRepaCapa -= addHospCapa;
+		int value = 0;
+		Role role = world.getOnlineRole(this.uid);
+		if (role == null) {
 		} else {
-			AddRepaCapa += addHospCapa;
+			List<Effect> list = role.getEffectAgent().searchBuffByTargetType(BuffTypeConst.TargetType.T_B_ADD_RC);
+			for (int i = 0; i < list.size(); i++) {
+				value += list.get(i).getNum();
+			}
 		}
+//		GameLog.info("<BUFF>uid=" + uid + "|AddRepaCapa=" + value);
+		return value;
 	}
 
 	public float getReduRepaTime() {
 		float newServerBuff = NewServerBuff.iGetBuff(BuffTag.REDUCE_TREAT_SOLDIER_TIME) / 100.0f;
-		return ReduRepaTime + newServerBuff;
-	}
-
-	public void updateReduRepaTime(boolean isRemove, float reduRepaTime) {
-		if (isRemove) {
-			this.ReduRepaTime -= reduRepaTime;
+		float value = 0;
+		Role role = world.getOnlineRole(this.uid);
+		if (role == null) {
+			
 		} else {
-			this.ReduRepaTime += reduRepaTime;
+			List<Effect> list = role.getEffectAgent().searchBuffByTargetType(BuffTypeConst.TargetType.T_B_RED_RT);
+			for (int i = 0; i < list.size(); i++) {
+					value += list.get(i).getRate();
+			}
 		}
+//		GameLog.info("<BUFF>uid=" + this.uid + "|ReduRepaTime=" + value+",newServerBuff="+newServerBuff);
+		return value + newServerBuff;
 	}
 
 	public float getReduHospTime() {
 		float newServerBuff = NewServerBuff.iGetBuff(BuffTag.REDUCE_TREAT_SOLDIER_TIME) / 100.0f;
-		return ReduHospTime + newServerBuff;
-	}
-
-	public void updateReduHospTime(boolean isRemove, float ReduHospTime) {
-		if (isRemove) {
-			this.ReduHospTime -= ReduHospTime;
+		float value = 0;
+		Role role = world.getOnlineRole(this.uid);
+		if (role == null) {
+			
 		} else {
-			this.ReduHospTime += ReduHospTime;
+			List<Effect> list = role.getEffectAgent().searchBuffByTargetType(BuffTypeConst.TargetType.T_B_RED_HT);
+			for (int i = 0; i < list.size(); i++) {
+					value += list.get(i).getRate();
+			}
 		}
+//		GameLog.info("<BUFF>uid=" + this.uid + "|ReduHospTime=" + value+",newServerBuff="+newServerBuff);
+		return value + newServerBuff;
 	}
 
 	public float getReduRepaRes_1() {
-		return ReduRepaRes_1;
+		float value = 0;
+		Role role = world.getOnlineRole(this.uid);
+		if (role == null) {
+			
+		} else {
+			List<Effect> list = role.getEffectAgent().searchBuffByTargetType(BuffTypeConst.TargetType.T_A_RED_RRHR);
+			for (int i = 0; i < list.size(); i++) {
+				if(list.get(i).getExtendInfo().getId()==1)
+					value += list.get(i).getRate();
+				if (list.get(i).getExtendInfo().getType() != ExtendsType.EXTEND_BIO) {
+					continue;
+				}
+			}
+		}
+//		GameLog.info("<BUFF>uid=" + this.uid + "|ReduRepaRes_1=" + value);
+		return value ;
 	}
 
 	public float getReduRepaRes_2() {
-		return ReduRepaRes_2;
+		float value = 0;
+		Role role = world.getOnlineRole(this.uid);
+		if (role == null) {
+			
+		} else {
+			List<Effect> list = role.getEffectAgent().searchBuffByTargetType(BuffTypeConst.TargetType.T_A_RED_RRHR);
+			for (int i = 0; i < list.size(); i++) {
+				if(list.get(i).getExtendInfo().getId()==2)
+					value += list.get(i).getRate();
+				if (list.get(i).getExtendInfo().getType() != ExtendsType.EXTEND_BIO) {
+					continue;
+				}
+			}
+		}
+//		GameLog.info("<BUFF>uid=" + this.uid + "|ReduRepaRes_2=" + value);
+		return value ;
 	}
 
-	public void updateReduRepaRes(boolean isRemove, float ReduRepaRes, ExtendInfo info) {
-		if (info.getType() != ExtendsType.EXTEND_BIO) {
-			return;
-		}
-		switch (info.getId()) {
-		case 1:
-			if (isRemove) {
-				this.ReduRepaRes_1 -= ReduRepaRes;
-			} else {
-				this.ReduRepaRes_1 += ReduRepaRes;
-			}
-			break;
-		case 2:
-			if (isRemove) {
-				this.ReduRepaRes_2 -= ReduRepaRes;
-			} else {
-				this.ReduRepaRes_2 += ReduRepaRes;
-			}
-			break;
-		}
-	}
 
 }

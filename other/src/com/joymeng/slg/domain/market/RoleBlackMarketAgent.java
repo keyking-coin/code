@@ -21,6 +21,7 @@ import com.joymeng.common.util.MathUtils;
 import com.joymeng.common.util.MessageSendUtil;
 import com.joymeng.common.util.StringUtils;
 import com.joymeng.common.util.TimeUtils;
+import com.joymeng.list.EventName;
 import com.joymeng.log.GameLog;
 import com.joymeng.log.LogManager;
 import com.joymeng.log.NewLogManager;
@@ -423,7 +424,7 @@ public class RoleBlackMarketAgent implements Instances,TimerOver{
 			return false;
 		}
 		role.redRoleMoney(needMoney);
-		LogManager.goldConsumeLog(role, needMoney, "tryToRefresh");
+		LogManager.goldConsumeLog(role, needMoney, EventName.tryToRefresh.getName());
 		RespModuleSet rms = new RespModuleSet();
 		role.sendRoleToClient(rms);
 		MessageSendUtil.sendModule(rms,role);
@@ -503,23 +504,22 @@ public class RoleBlackMarketAgent implements Instances,TimerOver{
 				return false;
 			}
 		}
-		String event ="tryToBuyCell";
 		List<ItemCell> itemCells = null;
 		if (target.getMaterialType() > 0){
 			itemCells = role.getBagAgent().addOther(target.getId(),1);
 		}else{
 			itemCells = role.getBagAgent().addGoods(target.getId(),1);
 		}
-		LogManager.itemOutputLog(role, 1, event, target.getId());
+		LogManager.itemOutputLog(role, 1, EventName.tryToBuyCell.getName(), target.getId());
 		RespModuleSet rms = new RespModuleSet();
 		role.getBagAgent().sendItemsToClient(rms,itemCells);
 		if (rtc.ordinal() <= ResourceTypeConst.RESOURCE_TYPE_ALLOY.ordinal()){
 			role.redResourcesFromCity(rms,0,rtc,need);
-			LogManager.itemConsumeLog(role, need, event, rtc.getKey());
+			LogManager.itemConsumeLog(role, need, EventName.tryToBuyCell.getName(), rtc.getKey());
 		}else if (rtc == ResourceTypeConst.RESOURCE_TYPE_GOLD){
 			role.redRoleMoney(need);
 			role.sendRoleToClient(rms);
-			LogManager.goldConsumeLog(role, need, event);
+			LogManager.goldConsumeLog(role, need, EventName.tryToBuyCell.getName());
 			MessageSendUtil.sendModule(rms,role.getUserInfo());
 		}
 		int newNum = Math.max(0,buyCell.getNum()-1);

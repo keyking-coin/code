@@ -9,6 +9,7 @@ import com.joymeng.common.util.JsonUtil;
 import com.joymeng.common.util.MessageSendUtil;
 import com.joymeng.common.util.StringUtils;
 import com.joymeng.common.util.TimeUtils;
+import com.joymeng.list.EventName;
 import com.joymeng.log.GameLog;
 import com.joymeng.log.LogManager;
 import com.joymeng.log.NewLogManager;
@@ -83,9 +84,8 @@ public class OnlineAgent implements TimerOver, Instances{
 			String itemId = wards[0];
 			int itemNum = Integer.parseInt(wards[1]);
 			cells.addAll(role.getBagAgent().addGoods(itemId, itemNum));
-			String event = "getDailyReward";
 			String itemst = itemId;
-			LogManager.itemOutputLog(role, itemNum, event, itemst);
+			LogManager.itemOutputLog(role, itemNum, EventName.getDailyReward.getName(), itemst);
 			try {
 				NewLogManager.baseEventLog(role, "receive_supplies",itemId,itemNum);
 			} catch (Exception e) {

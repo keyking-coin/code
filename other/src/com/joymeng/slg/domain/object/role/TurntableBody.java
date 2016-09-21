@@ -10,9 +10,11 @@ import com.joymeng.common.util.I18nGreeting;
 import com.joymeng.common.util.MathUtils;
 import com.joymeng.common.util.MessageSendUtil;
 import com.joymeng.common.util.StringUtils;
+import com.joymeng.list.EventName;
 import com.joymeng.log.GameLog;
 import com.joymeng.log.LogManager;
 import com.joymeng.slg.domain.data.SearchFilter;
+import com.joymeng.slg.domain.object.bag.ItemCell;
 import com.joymeng.slg.domain.object.bag.data.Item;
 import com.joymeng.slg.domain.object.bag.data.ItemType;
 import com.joymeng.slg.domain.object.build.RoleBuild;
@@ -414,18 +416,17 @@ public class TurntableBody implements Instances {
 			GameLog.error("read item base data is fail!");
 			return false;
 		}
+		List<ItemCell> alList = new ArrayList<>();
 		if (item.getItemType() == ItemType.TYPE_SUDOKU_MULTI) {
 			nextMultiple = Integer.parseInt(item.getEffectAfterUse());
 		} else {
 			lastMultiple = nextMultiple;
 			if (item.getMaterialType() == 0) { // 物品
-				role.getBagAgent().addGoods(itemId, nextMultiple);
+				alList = role.getBagAgent().addGoods(itemId, nextMultiple);
 			} else { // 材料
-				role.getBagAgent().addOther(itemId, nextMultiple);
+				alList = role.getBagAgent().addOther(itemId, nextMultiple);
 			}
-			String event = "sudokuOpen";
-			String itemst  = itemId;
-			LogManager.itemOutputLog(role, nextMultiple, event, itemst);
+			LogManager.itemOutputLog(role, nextMultiple, EventName.sudokuOpen.getName(), itemId);
 			nextMultiple = 1;
 		}
 		// 加入已经打开的list
@@ -442,7 +443,7 @@ public class TurntableBody implements Instances {
 		}
 		// 发送背包 + 九宫格消息
 		RespModuleSet rms = new RespModuleSet();
-		role.getBagAgent().sendBagToClient(rms);
+		role.getBagAgent().sendItemsToClient(rms, alList);
 		sendTurntableToClient(rms);
 		MessageSendUtil.sendModule(rms, role);
 		return true;

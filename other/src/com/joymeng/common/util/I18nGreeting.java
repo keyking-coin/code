@@ -18,6 +18,10 @@ public class I18nGreeting {
 	public static final String MSG_ROLE_NAME_REPEAT         = "msg_role_name_repeat";
 	//{0}用户名不合法
 	public static final String MSG_ROLE_NAME_ILLEGAL         = "msg_role_name_illegal";
+	// {0}用户名含有非法字符
+	public static final String MSG_ROLE_NAME_ILLEGAL_SENSITIVE = "msg_role_name_illegal_sensitive";
+	// {0}用户名长度不合法
+	public static final String MSG_ROLE_NAME_ILLEGAL_LENGTH = "msg_role_name_illegal_length";
 	//{0}只能建造{1}个。
 	public static final String MSG_BUILD_MUST_ONLY          = "msg_build_must_only";
 	//不能拆除该建筑{0}
@@ -32,6 +36,8 @@ public class I18nGreeting {
 	public static final String MSG_NO_BUILD_QUEUE           = "msg_no_build_queue";
 	//建筑队列时间不足
 	public static final String MSG_TIME_BUILD_QUEUE         = "msg_time_build_queue";
+	//建筑队列已满
+	public static final String MSG_MAX_BUILD_QUEUE          = "msg_max_build_queue";
 	//操作失败,建筑{0}已满级。
 	public static final String MSG_BUILD_LEVEL_MAX	        = "msg_build_level_max";
 	//建筑{0}时间已被占用。
@@ -52,6 +58,8 @@ public class I18nGreeting {
 	public static final String MSG_ROLE_NO_SILVER 			= "msg_role_no_silver";
 	//联盟捐献不存在
 	public static final String MSG_UNION_DONATE_INEXIST		    = "msg_union_donate_inexist";
+	//联盟捐献倒计时中不可捐赠
+	public static final String MSG_UNION_DONATE_TIME_RUN		    = "msg_union_donate_time_run";
 	//电力不足
 	public static final String MSG_BUILD_NO_POWER		    = "msg_build_no_power";
 	//建筑忙碌中
@@ -188,7 +196,8 @@ public class I18nGreeting {
 	public static final String MSG_MISSION_REWARD_NOT_EXSIT		="msg_mission_reward_not_exsit";
 	//任务{0}未完成
 	public static final String MSG_MISSION_NOT_OVER		= "msg_mission_not_over";
-	//.......................................................
+	//由于主动退出联盟,暂时不能加入联盟
+	public static final String MSG_DONT_JOIN_UNION_HAVE_CD		= "msg_dont_join_union_have_cd";
 	//讨论组已经超出用户上限
 	public static final String CHAT_GROUP_BEYOND_ROLE_NUM_LIMIT = "chat_group_beyond_role_num_limit";
 	//讨论组不包含用户
@@ -229,7 +238,9 @@ public class I18nGreeting {
 	public static final String CHAT_PRIVATE_FAIL_IN_MY_BLCAKS="chat_private_fail_in_my_blcaks";
 	public static final String CHAT_PRIVATE_FAIL_IN_OTHER_BLCAKS="chat_private_fail_in_other_blcaks";
 	public static final String CHAT_PRIVATE_FAIL_NEED_PLAYER_ID="chat_private_fail_need_player_id";
-	public static final String PLAYER_NO_ONLINE = "player_no_online";
+	
+	//聊天内容不能为空
+	public static final String CHAT_CONTENT_ISNT_NULL = "chat_content_isnt_null";
 			
 	//对方已加入其它联盟
 	public static final String MSG_UNION_MEMBER_HAVE_IN_OTHER   = "msg_union_member_have_in_other";
@@ -279,10 +290,16 @@ public class I18nGreeting {
 	public static final String MSG_UNION_NAME_ILLEGALITY_LENGTH = "msg_union_name_illegality_length";
 	//联盟缩写非法长度
 	public static final String MSG_UNION_SHORTNAME_ILLEGALITY_LENGTH = "msg_union_shortname_illegality_length";
+	//联盟宣言非法长度
+	public static final String MSG_UNION_NOTICE_ILLEGALITY_LENGTH = "msg_union_notice_illegality_length";
+	//联盟公告非法长度
+	public static final String MSG_UNION_IN_NOTICE_ILLEGALITY_LENGTH = "msg_union_in_notice_illegality_length";
 	//联盟名字/简称不合法(含有敏感字符)
 	public static final String MSG_UNION_NAME_OR_SHORTNAME_ILLEGALITY_SENSITIVE = "msg_union_name_or_shortname_illegality_sensitive";
 	//联盟宣言含有敏感字符
 	public static final String  MSG_UNION_NOTICE_ILLEGALITY_SENSITIVE = "msg_union_notice_illegality_sensitive";
+	//联盟内部公告含有敏感字符
+	public static final String  MSG_UNION_IN_NOTICE_ILLEGALITY_SENSITIVE = "msg_union_in_notice_illegality_sensitive";
 	//此城市不是您的联盟攻打下来的，无法占领
 	public static final String  MSG_UNION_OCCUPY_CITY_NO_YOUR = "msg_union_occupy_city_no_your";
 	//此效果已存在无法重复使用
@@ -303,6 +320,8 @@ public class I18nGreeting {
 	public static final String  MSG_MAP_CITY_MASS_NO_GRID = "msg_map_city_mass_no_grid";
 	//资源交换失败,数量不匹配
 	public static final String  MSG_ROLE_CHG_RES_ERROR = "msg_role_can_not_change_resource";
+	//清除资源交易CD失败
+	public static final String  MSG_ROLE_CHG_TRAN_CD = "msg_role_can_not_clear_tran_cd";
 	//没有空闲的格子了，请先解锁
 	public static final String MSG_BUILD_GEM_NO_GRAD	= "msg_build_gem_no_grad";
 	//部队数量过多:{0}/{1},您派出的数量是{2}。
@@ -335,6 +354,8 @@ public class I18nGreeting {
 	public static final String  MSG_STATION_TROOPS_DIE_ALL = "msg_station_troops_die_all";
 	//请先升级技能{0}
 	public static final String MSG_SKILL_NO_PRETECH = "msg_skill_no_pretech";
+	//技能{0}不可用
+	public static final String MSG_ROLE_SKILL_CANNOT_USE = "msg_role_skill_cannot_use";
 	//技能{0}解锁条件不足
 	public static final String MSG_SKILL_LIMITED = "msg_skill_limited";
 	//玩家技能点剩余数量不足
@@ -513,7 +534,59 @@ public class I18nGreeting {
 	public static final String  MSG_UNION_BUILD_COULD_NOT_USE = "msg_union_build_could_not_use";
 	//没有联盟，没法攻击城市
 	public static final String  MSG_ATTACK_CITY_NO_UNION = "msg_attack_city_no_union";
-	
+	//奖励已被领取
+	public static final String  MSG_ROLE_MSG_ANNEXES_HAS_GOT = "msg_role_msg_annexes_has_got";	
+	//系统禁言:您因违规操作被系统禁言{0}小时，剩余时间：{1}小时
+	public static final String  MSG_ROLE_MSG_SYSTEM_GAG = "msg_role_msg_system_gag";
+	//系统禁言:您因违规操作被系统永久禁言！
+	public static final String  MSG_ROLE_MSG_GAG_FORVEVR = "msg_role_msg_gag_forever";
+	//系统禁言:您因违规操作，该帐号封停登录服务器{0}小时，剩余时间：{1}小时
+	public static final String  MSG_ROLE_MSG_SYSTEM_LOGIN = "msg_role_msg_system_login";
+	//系统禁言:您因违规操作，该帐号永久封停登录服务器！
+	public static final String  MSG_ROLE_MSG_LOGIN_FORVEVR = "msg_role_msg_login_forever";
+	//系统禁言:您因违规操作，该设备封停登录服务器{0}小时，剩余时间：{1}小时
+	public static final String  MSG_ROLE_MSG_EQUIP_LOGIN = "msg_role_msg_equip_login";
+	//系统禁言:您因违规操作，该设备永久封停登录服务器！
+	public static final String  MSG_ROLE_MSG_EQUIP_FORVEVR = "msg_role_msg_equip_forever";
+	//发送红包主城等级不足{0}级
+	public static final String  MSG_ROLE_REDPACKET_CENTER_CITY_LV_INF = "msg_role_redpacket_center_city_lv_inf";
+	//红包金币数量超出限制
+	public static final String  MSG_ROLE_REDPACKET_GOLD_BEYOND_LIMITE = "msg_role_redpacket_gold_beyond_limite";
+	//世界红包个数不能少于{0}
+	public static final String  MSG_ROLE_REDPACKET_NUM_WORLD_LITTE = "msg_role_redpacket_num_world_litte";
+	//联盟红包个数不能少于{0}
+	public static final String  MSG_ROLE_REDPACKET_NUM_UNION_LITTE = "msg_role_redpacket_num_union_litte";
+	// 红包数量不能大于总金额的1/10
+	public static final String MSG_ROLE_REDPACKET_BEYOND_MAX_NUM = "msg_role_redpacket_beyond_max_num";
+	//红包祝福语长度不合法
+	public static final String  MSG_ROLE_REDPACKET_GREETING_LENGTH_ILLEGAL = "msg_role_redpacket_greeting_length_illegal";
+	//红包祝福语不合法(含敏感字)
+	public static final String  MSG_ROLE_REDPACKET_GREETING_SENSITION_ILLEGAL = "msg_role_redpacket_greeting_sensition_illegal";
+	//该红包不存在
+	public static final String  MSG_ROLE_REDPACKET_IS_NULL = "msg_role_redpacket_is_null";
+	//该红包已失效
+	public static final String  MSG_ROLE_REDPACKET_IS_INVALID = "msg_role_redpacket_is_invalid";
+	//该红包已被领取完	
+	public static final String  MSG_ROLE_REDPACKET_IS_GOT_OVER = "msg_role_redpacket_is_got_over";
+	//已超超出当天最大红包金额
+	public static final String  MSG_ROLE_REDPACKET_BEYOND_GOT_MAX = "msg_role_redpacket_beyond_got_max";
+	//已领取,无法重复领取
+	public static final String  MSG_ROLE_REDPACKET_HAVED_GOT = "msg_role_redpacket_haved_got";
+	//晋级兵种类型不一致
+	public static final String  MSG_ROLE_PROMOT_ERROR_TYPE = "msg_role_promot_error_type";
+	//未找到需要晋级的兵种
+	public static final String  MSG_ROLE_PROMOT_ARMY_NOEXIST = "msg_role_promot_army_noexist";
+	//联盟系统建筑无法攻击
+	public static final String  MSG_UNION_BUILD_NO_FIGHT = "msg_union_build_no_fight";
+	//建筑等级不足
+	public static final String  MSG_ROLE_BUILD_LEVEL_NOEXIST = "msg_role_build_level_noexist";
+	//建筑类型不对
+	public static final String  MSG_ROLE_BUILD_TYPE_ERROR = "msg_role_build_type_error";
+	//已经调节最大
+	public static final String  MSG_ROLE_BUILD_POWER_MAX = "msg_role_build_power_max";
+	//工作中无法改变电力
+	public static final String  MSG_ROLE_BUILD_WORKING = "msg_role_build_working";
+
 	public static String search(String key,Object... params){
 		Stringcontent vaule = DataManager.getInstance().serach(Stringcontent.class,key);
 		if (vaule == null){

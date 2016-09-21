@@ -12,7 +12,9 @@ import com.joymeng.slg.net.resp.CommunicateResp;
 public class ManualStartHandler extends ServiceHandler 
 {
 	@Override
-	public void _deserialize(JoyBuffer in, ParametersEntity params) { }
+	public void _deserialize(JoyBuffer in, ParametersEntity params) { 
+		params.put(in.getInt());
+	}
 
 	@Override
 	public JoyProtocol handle(UserInfo info, ParametersEntity params) throws Exception 

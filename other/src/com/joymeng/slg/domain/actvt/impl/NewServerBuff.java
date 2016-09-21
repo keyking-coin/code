@@ -4,14 +4,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.w3c.dom.Element;
+
 import com.joymeng.common.util.MessageSendUtil;
-import com.joymeng.log.GameLog;
+import com.joymeng.services.utils.XmlUtils;
 import com.joymeng.slg.dao.SqlData;
 import com.joymeng.slg.domain.actvt.Actvt;
 import com.joymeng.slg.domain.actvt.ClientMod;
-import com.joymeng.slg.domain.actvt.DTManager.SearchFilter;
-import com.joymeng.slg.domain.actvt.data.Activity;
-import com.joymeng.slg.domain.actvt.data.Activity_newserverbuff;
+import com.joymeng.slg.domain.actvt.data.ActvtCommon;
 import com.joymeng.slg.domain.object.role.Role;
 import com.joymeng.slg.net.mod.AbstractClientModule;
 import com.joymeng.slg.net.mod.ClientModule;
@@ -41,71 +41,57 @@ public class NewServerBuff extends Actvt {
 		}
 	}
 	
-	private static Map<String,NewServerBuff> buffInstances = new HashMap<String, NewServerBuff>();
-	
-//	private static NewServerBuff instance = null;
-	private List<Activity_newserverbuff> buffs;
-	
-	public NewServerBuff() {
-		super();
-//		instance = this;
+	class NSBuff
+	{
+		String type;
+		String desc;
+		int num;
 	}
 	
+	private static Map<String, NSBuff> sBuffs = new HashMap<String, NSBuff>();
+	
+	private Map<String, NSBuff> buffs = new HashMap<String, NSBuff>();
+	
 	@Override
-	public boolean init(Activity activity)
+	public void load(Element element) throws Exception
 	{
-		if (!super.init(activity)) {
-			return false;
+		super.load(element);
+		
+		Element eleSpecial = XmlUtils.getChildByName(element, "Special");
+		Element[] eles = XmlUtils.getChildrenByName(eleSpecial, "Buff");
+		for (int i = 0; i < eles.length; i++)
+		{
+			Element ele = eles[i];
+			NSBuff buff = new NSBuff();
+			buff.type = ele.getAttribute("type");
+			buff.desc = ele.getAttribute("desc");
+			buff.num = Integer.parseInt(ele.getAttribute("num"));
+			buffs.put(buff.type, buff);
 		}
-		load();
-//		buffs = actvtMgr.serachList(Activity_newserverbuff.class, new SearchFilter<Activity_newserverbuff>(){
-//			@Override
-//			public boolean filter(Activity_newserverbuff data) {
-//				return true;
-//			}
-//		});
-		buffInstances.put(activity.getTypeId(), this);
-		return true;
 	}
 	
 	public static int iGetBuff(BuffTag type)
 	{
-		for (Map.Entry<String, NewServerBuff> entry : buffInstances.entrySet())
+		for (Map.Entry<String, NSBuff> entry : sBuffs.entrySet())
 		{
-			NewServerBuff instance = entry.getValue();
-			if (instance != null && instance.isRuning())
-			{
-				int buff = instance.getBuff(type);
-				if (buff > 0) {
-					return buff;
-				}
+			NSBuff buff = entry.getValue();
+			if (buff.type.equals(type.getName())) {
+				return buff.num;
 			}
 		}
 		return 0;
-	}
-	
-	public int getBuff(BuffTag type)
-	{
-		for (int i = 0; i < buffs.size(); i++)
-		{
-			Activity_newserverbuff buff = buffs.get(i);
-			if (buff.getType().equals(type.getName()))
-			{
-				return buff.getNumber();
-			}
-		}
-		return 0;
-	}
-	
-	public void toggleNewServerBuff(String value, String data)
-	{
-		GameLog.info("NewServerBuff: " + value);
 	}
 	
 	@Override
 	public void start()
 	{
 		super.start();
+		
+		for (Map.Entry<String, NSBuff> entry : buffs.entrySet())
+		{
+			NSBuff buff = entry.getValue();
+			sBuffs.put(buff.type, buff);
+		}
 		
 		List<Role> roles = world.getOnlineRoles();
 		AbstractClientModule mod = getNewServerBuffMod(false);
@@ -123,6 +109,12 @@ public class NewServerBuff extends Actvt {
 	@Override
 	public void end()
 	{
+		for (Map.Entry<String, NSBuff> entry : buffs.entrySet())
+		{
+			NSBuff buff = entry.getValue();
+			sBuffs.remove(buff.type);
+		}
+		
 		List<Role> roles = world.getOnlineRoles();
 		AbstractClientModule mod = getNewServerBuffMod(true);
 		for (int i = 0; i < roles.size(); i++)
@@ -140,81 +132,47 @@ public class NewServerBuff extends Actvt {
 	
 	public static AbstractClientModule getNewServerBuffMod(boolean end) 
 	{
-		boolean flag = false;
 		ClientMod module = new ClientMod(ClientModule.NTC_DTCD_NEW_SERVER_BUFF);
-		
-		int num = 0;
-		for (Map.Entry<String, NewServerBuff> entry : buffInstances.entrySet())
+
+		module.add(sBuffs.size());
+		for (Map.Entry<String, NSBuff> entry : sBuffs.entrySet())
 		{
-			NewServerBuff instance = entry.getValue();
-			if (instance != null && instance.isRuning()) {
-				num += instance.buffs.size();
+			NSBuff buff = entry.getValue();
+			module.add(buff.type);
+			if (end) {
+				module.add(0);
+			}
+			else {
+				module.add(buff.num);
 			}
 		}
 		
-		module.add(num);
-		for (Map.Entry<String, NewServerBuff> entry : buffInstances.entrySet())
-		{
-			NewServerBuff instance = entry.getValue();
-			if (instance == null || !instance.isRuning()) {
-				continue;
-			}
-			
-			List<Activity_newserverbuff> buffs = instance.buffs;
-			for (int i = 0; i < buffs.size(); i++)
-			{
-				flag = true;
-				module.add(buffs.get(i).getType());
-				if (end) {
-					module.add(0);
-				}
-				else {
-					module.add(buffs.get(i).getNumber());
-				}
-			}
-		}
-		if (flag) {
-			return module;
-		}
-		return null;
+//		if (!sBuffs.isEmpty()) {
+//			return module;
+//		}
+		return module;
 	}
 	
 	@Override
 	public void makeUpDetailModule(ClientMod module, Role role)
 	{
-		Activity activity = getActivity();
-		module.add(activity.getType());
-		module.add(activity.getName());
-		module.add(activity.getDetailDesc());
+		ActvtCommon commonData = getCommonData();
+		module.add(commonData.getType());
+		module.add(commonData.getName());
+		module.add(commonData.getDetailDesc());
 		module.add(buffs.size());
-		for (int i = 0; i < buffs.size(); i ++)
+		for (Map.Entry<String, NSBuff> entry : buffs.entrySet())
 		{
-			Activity_newserverbuff buff = buffs.get(i);
-			String content = buff.getContent();
-			int number = buff.getNumber();
-			module.add(String.format(content, number));
+			NSBuff buff = entry.getValue();
+			module.add(String.format(buff.desc, buff.num));
 		}
 		
-		module.add(activity.getTypeId());
+		module.add(commonData.getType()+getId());
 		module.add(getStartSeconds());
 		module.add(getLastSeconds());
-		module.add(getNowSeconds(role.getId()));
+		module.add(getNowSeconds());
 	}
 
 	@Override
-	public void loadFromData(SqlData data) {
-		
-	}
-
-	@Override
-	public void load() 
-	{
-		buffs = actvtMgr.serachList(Activity_newserverbuff.class, new SearchFilter<Activity_newserverbuff>(){
-			@Override
-			public boolean filter(Activity_newserverbuff data) {
-				return data.getTypeId().equals(getActivity().getTypeId());
-			}
-		});
-	}
-
+	public void loadFromData(SqlData data) {}
 }

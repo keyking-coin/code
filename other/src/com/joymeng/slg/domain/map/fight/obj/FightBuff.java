@@ -4,6 +4,7 @@ import com.joymeng.slg.domain.map.fight.obj.enumType.FightBuffType;
 
 
 public class FightBuff {
+	String skillId;
 	String buffId;
     FightBuffType type;
     float value;
@@ -47,11 +48,19 @@ public class FightBuff {
 		this.buffId = buffId;
 	}
 
+	public String getSkillId() {
+		return skillId;
+	}
+
+	public void setSkillId(String skillId) {
+		this.skillId = skillId;
+	}
 
 	public FightBuff copy() {
 		FightBuff buff = new FightBuff(type,value);
 		buff.lastRound = lastRound;
 		buff.buffId = buffId;
+		buff.skillId = skillId;
 		return buff;
 	}
 

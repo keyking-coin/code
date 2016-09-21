@@ -13,6 +13,7 @@ import com.joymeng.common.util.I18nGreeting;
 import com.joymeng.common.util.JsonUtil;
 import com.joymeng.common.util.MessageSendUtil;
 import com.joymeng.common.util.TimeUtils;
+import com.joymeng.list.EventName;
 import com.joymeng.log.GameLog;
 import com.joymeng.log.LogManager;
 import com.joymeng.log.NewLogManager;
@@ -231,7 +232,7 @@ public class DailyTaskAgent implements DaoData, Instances {
 			}
 			int num = Integer.parseInt(awardArray[1]);
 			List<ItemCell> newItems = bagAgent.addGoods(itemId, num);
-			LogManager.itemOutputLog(role, num, "getAwardDailyTask", itemId);
+			LogManager.itemOutputLog(role, num, EventName.getAwardDailyTask.getName(), itemId);
 			try {
 				NewLogManager.baseEventLog(role, "get_daily_task_reward",itemId,num);
 			} catch (Exception e) {

@@ -6,6 +6,7 @@ import java.util.Map;
 import com.joymeng.common.util.JsonUtil;
 import com.joymeng.common.util.MessageSendUtil;
 import com.joymeng.http.HtppOprateType;
+import com.joymeng.list.EventName;
 import com.joymeng.log.LogManager;
 import com.joymeng.services.core.buffer.JoyBuffer;
 import com.joymeng.services.core.message.JoyNormalMessage.UserInfo;
@@ -96,8 +97,7 @@ public class ModifyBasicInfo extends ServiceHandler {
 				break;
 			case "money":
 				role.addRoleMoney(Integer.valueOf(parameter));
-				String event= "ModifyBasicInfo";
-				LogManager.goldOutputLog(role, Integer.valueOf(parameter), event);
+				LogManager.goldOutputLog(role, Integer.valueOf(parameter), EventName.ModifyBasicInfo.getName());
 				break;
 			case "level":
 				role.setLevel(Byte.valueOf(parameter));

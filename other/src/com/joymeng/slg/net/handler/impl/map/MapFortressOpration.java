@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.joymeng.common.util.I18nGreeting;
 import com.joymeng.common.util.MessageSendUtil;
+import com.joymeng.list.EventName;
 import com.joymeng.log.GameLog;
 import com.joymeng.services.core.buffer.JoyBuffer;
 import com.joymeng.services.core.message.JoyNormalMessage.UserInfo;
@@ -70,7 +71,7 @@ public class MapFortressOpration extends ServiceHandler {
 				resp.fail();
 			}else{
 				RespModuleSet rms = new RespModuleSet();
-				List<Object> costs = city.redCostResource(wbl.getBuildCostList(),0,"FortressLevelUp");
+				List<Object> costs = city.redCostResource(wbl.getBuildCostList(),0,EventName.FortressLevelUp.getName());
 				role.sendResourceToClient(rms,city.getId(),costs.toArray());
 			}
 		}else if (opration == 1){

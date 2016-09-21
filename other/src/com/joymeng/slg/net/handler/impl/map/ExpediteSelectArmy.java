@@ -8,6 +8,7 @@ import java.util.Map;
 import com.joymeng.common.util.I18nGreeting;
 import com.joymeng.common.util.MessageSendUtil;
 import com.joymeng.common.util.TimeUtils;
+import com.joymeng.list.EventName;
 import com.joymeng.log.GameLog;
 import com.joymeng.log.LogManager;
 import com.joymeng.log.NewLogManager;
@@ -23,6 +24,7 @@ import com.joymeng.slg.domain.map.data.Worldbuildinglevel;
 import com.joymeng.slg.domain.map.impl.dynamic.ArmyEntity;
 import com.joymeng.slg.domain.map.impl.dynamic.ExpediteTroops;
 import com.joymeng.slg.domain.map.impl.dynamic.GarrisonTroops;
+import com.joymeng.slg.domain.map.impl.still.copy.data.Ruins;
 import com.joymeng.slg.domain.map.impl.still.moster.MapMonster;
 import com.joymeng.slg.domain.map.impl.still.proxy.MapProxy;
 import com.joymeng.slg.domain.map.impl.still.res.MapEctype;
@@ -266,7 +268,24 @@ public class ExpediteSelectArmy extends ServiceHandler {
 				resp.fail();
 				return resp;
 			}
-			int maxNum = city.getMaxOutBattleAllNum();
+			int maxNum = 0;
+			if (type == 9) {// 如果副本出征的上限
+				if (targetCell.getTypeKey() != MapEctype.class) {
+					MessageSendUtil.sendNormalTip(info, I18nGreeting.MSG_MAP_TARGET_ISNT_ECTYPE);
+					resp.fail();
+					return resp;
+				}
+				MapEctype ectype = (MapEctype) targetObj;
+				Ruins ruins = dataManager.serach(Ruins.class, ectype.getBulidKey());
+				if (ruins == null) {
+					GameLog.error("read Ruins data is fail!");
+					resp.fail();
+					return resp;
+				}
+				maxNum = ruins.getMaxPoint();
+			} else {
+				maxNum = city.getMaxOutBattleAllNum();
+			}
 			if (needNum > maxNum){//单次出征的部队超过上限。
 				resp.fail();
 				MessageSendUtil.sendNormalTip(info,I18nGreeting.MSG_EXPEDITE_NUM_ONE,maxNum);
@@ -331,14 +350,14 @@ public class ExpediteSelectArmy extends ServiceHandler {
 			}
 			//需要扣资源的地方
 			if (type <= 1){//建造要塞、迁城点消耗的资源
-				List<Object> costRes = city.redCostResource(wbl.getBuildCostList(),costMoney,"fortressAnd");
+				List<Object> costRes = city.redCostResource(wbl.getBuildCostList(),costMoney,EventName.fortressAnd.getName());
 				role.sendResourceToClient(false,rms,city.getId(),costRes.toArray());
 			}
 			if (type == 4){//侦查消耗粮食
 				city.redResource(ResourceTypeConst.RESOURCE_TYPE_FOOD,spyNeedFood);
 				role.sendResourceToClient(false,rms,city.getId(),ResourceTypeConst.RESOURCE_TYPE_FOOD,-spyNeedFood);
 				ResourceTypeConst resource = ResourceTypeConst.RESOURCE_TYPE_FOOD;
-				LogManager.itemConsumeLog(role, spyNeedFood, "investConsumption", resource.getKey());
+				LogManager.itemConsumeLog(role, spyNeedFood, EventName.investConsumption.getName(), resource.getKey());
 			}
 			
 			//如果处于保护状态攻击别人,自动消除保护状态
@@ -393,14 +412,19 @@ public class ExpediteSelectArmy extends ServiceHandler {
 			}
 		}
 		// byte 0建造要塞,1建造迁城点,2其他,3驻防,4侦查,5调拨,6集结,7去集结,8联盟采集,9去副本
-		String event = null;
+		long id = 0;
+		if (expedite == null) {
+			id = -1;
+		} else {
+			id = expedite.getId();
+		}
 		switch (type) {
 		case 0:
-			event = "buildFortress";
+			LogManager.mapLog(role, startPos, target, id, EventName.buildFortress.getName());
 			role.handleEvent(GameEvent.ACTIVITY_EVENTS,ActvtEventType.BUILD_STRONG_HOLD);
 			break;
 		case 1:
-			event = "buildCity";
+			LogManager.mapLog(role, startPos, target, id, EventName.buildCity.getName());
 			try {
 				PointVector point = MapUtil.getPointVector(expedite.getTargetPosition());
 				StringBuffer sb = new StringBuffer();
@@ -420,43 +444,36 @@ public class ExpediteSelectArmy extends ServiceHandler {
 
 			break;
 		case 2:
-			event = "others";
+			LogManager.mapLog(role, startPos, target, id, EventName.others.getName());
 			break;
 		case 3:
-			event = "garrison";
+			LogManager.mapLog(role, startPos, target, id, EventName.garrison.getName());
 			role.handleEvent(GameEvent.ACTIVITY_EVENTS,ActvtEventType.GARRISON);
 			break;
 		case 4:
-			event = "spy";
+			LogManager.mapLog(role, startPos, target, id, EventName.spy.getName());
 			role.handleEvent(GameEvent.ACTIVITY_EVENTS,ActvtEventType.SPY);
 			break;
 		case 5:
-			event = "allocation";
+			LogManager.mapLog(role, startPos, target, id, EventName.allocation.getName());
 			break;
 		case 6:
-			event = "aggregation";
+			LogManager.mapLog(role, startPos, target, id, EventName.aggregation.getName());
 			NewLogManager.mapLog(role, "teamattack");
 			break;
 		case 7:
-			event = "toAggregation";
+			LogManager.mapLog(role, startPos, target, id, EventName.toAggregation.getName());
 //			role.handleEvent(GameEvent.ACTIVITY_EVENTS,ActvtEventType.ASSEMBLE);
 			break;
 		case 8:
-			event = "collection";
+			LogManager.mapLog(role, startPos, target, id, EventName.collection.getName());
 			break;
 		case 9:
-			event = "toEctype";
+			LogManager.mapLog(role, startPos, target, id, EventName.toEctype.getName());
 			break;
 		default:
 			break;
 		}
-		long id = 0;
-		if (expedite == null) {
-			id = -1;
-		} else {
-			id = expedite.getId();
-		}
-		LogManager.mapLog(role, startPos, target, id, event);
 		return resp;
 	}
 	

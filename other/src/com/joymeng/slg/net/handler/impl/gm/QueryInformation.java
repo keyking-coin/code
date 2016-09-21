@@ -302,16 +302,15 @@ public class QueryInformation extends ServiceHandler {
 				int ltNUm = 0;
 				for (int i = 0 ; i < deBuilds.size() ; i++){
 					RoleBuild bd = deBuilds.get(i);
-					BuildComponentDefense defenseComponent = bd
-							.getComponent(BuildComponentType.BUILD_COMPONENT_DEFENSE);
+					BuildComponentDefense defenseComponent = bd.getComponent(BuildComponentType.BUILD_COMPONENT_DEFENSE);
 					if (defenseComponent != null) {
-						if (bd.getName().equals("GrandeCannon")) {
+						if (bd.getBuildId().equals("GrandeCannon")) {
 							gdNUm++;
 						}
-						if (bd.getName().equals("TeslaCoil")) {
+						if (bd.getBuildId().equals("TeslaCoil")) {
 							tcNum++;
 						}
-						if (bd.getName().equals("LaserTower")) {
+						if (bd.getBuildId().equals("LaserTower")) {
 							ltNUm++;
 						}
 					}

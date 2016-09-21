@@ -14,6 +14,7 @@ public class Ruins implements DataKey {
 	List<String> Reward = new ArrayList<>();
 	String Prefab;
 	String ServerName;
+	int maxPoint;
 
 	public String getId() {
 		return Id;
@@ -77,6 +78,14 @@ public class Ruins implements DataKey {
 
 	public void setServerName(String serverName) {
 		ServerName = serverName;
+	}
+
+	public int getMaxPoint() {
+		return maxPoint;
+	}
+
+	public void setMaxPoint(int maxPoint) {
+		this.maxPoint = maxPoint;
 	}
 
 	@Override

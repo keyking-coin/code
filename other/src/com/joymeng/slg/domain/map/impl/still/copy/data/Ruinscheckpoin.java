@@ -8,6 +8,7 @@ public class Ruinscheckpoin implements DataKey {
 	String id;
 	List<String> monster;
 	float DieProbability;
+	List<String> buffList;
 
 	public String getId() {
 		return id;
@@ -33,9 +34,16 @@ public class Ruinscheckpoin implements DataKey {
 		DieProbability = dieProbability;
 	}
 
+	public List<String> getBuffList() {
+		return buffList;
+	}
+
+	public void setBuffList(List<String> buffList) {
+		this.buffList = buffList;
+	}
+
 	@Override
 	public Object key() {
-		// TODO Auto-generated method stub
 		return id;
 	}
 

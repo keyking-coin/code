@@ -1,6 +1,7 @@
 package com.joymeng.slg.net.handler.impl.build;
 
 import com.joymeng.log.GameLog;
+import com.joymeng.log.NewLogManager;
 import com.joymeng.services.core.buffer.JoyBuffer;
 import com.joymeng.services.core.message.JoyNormalMessage.UserInfo;
 import com.joymeng.services.core.message.JoyProtocol;
@@ -25,7 +26,8 @@ public class BuildCreateHandler extends ServiceHandler {
 	public JoyProtocol handle(UserInfo info,ParametersEntity params) throws Exception {
 		CommunicateResp resp = newResp(info);
 		Role role = getRole(info);
-		if (role == null){
+		if (role == null) {
+			NewLogManager.misTakeLog("BuildCreateHandler getRole is null where uid = " + info.getUid());
 			resp.fail();
 			return resp;
 		}

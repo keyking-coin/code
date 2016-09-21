@@ -32,7 +32,7 @@ public enum ConditionType {
 	COND_FORT(28,"buildFortNum"),//累计建造要塞数量
 	COND_ALLI_ADD(29,"addUnionMember"),//添加联盟成员
 	COND_ALLI_TECH(30,"unionTechLevelup"),//联盟科技升级
-	COND_ALLI_SCORE(31,"roleUnionScore"),//玩家的联盟积分
+	COND_ALLI_SCORE(31,"roleUnionScore"),//玩家的联盟贡献度
 	COND_ALLI_BUILD(32,"unionBuildLevelup"),//联盟建筑升级
 	COND_ALLI_POS(32,"roleUnionPosition"),//玩家在联盟中的职位
 	COND_ALLI_OCP_CITY(33,"UnionOcpCity"),//联盟占领城池
@@ -62,6 +62,7 @@ public enum ConditionType {
 	C_RECHARGE(55,"recharge"),	//119	充值
 	C_CARBON_N(56,"normalCarbon"),	//120	通过普通副本
 	C_CARBON_H(57,"hardCarbon"),	//121	通关困难副本
+	C_RESS_ROB(58,"collectRes"),   // 19     掠夺某种资源达到多少				参数：资源类型，数量
 	;
 	String name;
 	int key;

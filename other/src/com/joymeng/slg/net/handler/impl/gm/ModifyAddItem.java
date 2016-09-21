@@ -1,15 +1,19 @@
 package com.joymeng.slg.net.handler.impl.gm;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.joymeng.common.util.JsonUtil;
 import com.joymeng.common.util.MessageSendUtil;
 import com.joymeng.http.HtppOprateType;
+import com.joymeng.list.EventName;
 import com.joymeng.log.LogManager;
 import com.joymeng.services.core.buffer.JoyBuffer;
 import com.joymeng.services.core.message.JoyNormalMessage.UserInfo;
 import com.joymeng.services.core.message.JoyProtocol;
+import com.joymeng.slg.domain.object.bag.ItemCell;
 import com.joymeng.slg.domain.object.bag.data.Item;
 import com.joymeng.slg.domain.object.role.Role;
 import com.joymeng.slg.net.ParametersEntity;
@@ -63,21 +67,20 @@ public class ModifyAddItem extends ServiceHandler{
 			resp.getParams().put(serverId);
 		 
 		    //itemId 物品 number 数量
+			List<ItemCell> aList = new ArrayList<>();
 			Item it = dataManager.serach(Item.class, itemId);
 			if(it.getMaterialType()!=0){
-				role.getBagAgent().addOther(itemId, Integer.valueOf(number));	
+				aList = role.getBagAgent().addOther(itemId, Integer.valueOf(number));	
 			}else{
-				role.getBagAgent().addGoods(itemId, Integer.valueOf(number));
+				aList = role.getBagAgent().addGoods(itemId, Integer.valueOf(number));
 			}
 			
 			if(role.isOnline()){
 				RespModuleSet rms = new RespModuleSet();
-				role.getBagAgent().sendBagToClient(rms);
+				role.getBagAgent().sendItemsToClient(rms, aList);
 				MessageSendUtil.sendModule(rms,role.getUserInfo());
 			}
-	        String event = "ModifyAddItem";
-			String itemst  = itemId;
-			LogManager.itemOutputLog(role, Integer.valueOf(number), event, itemst);
+			LogManager.itemOutputLog(role, Integer.valueOf(number), EventName.ModifyAddItem.getName(), itemId);
 			Map<String,Object> map =new HashMap<String,Object>();
 			map.put("status", 1);
 			map.put("msg", "success");

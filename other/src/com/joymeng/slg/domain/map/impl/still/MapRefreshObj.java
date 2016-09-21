@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import com.joymeng.common.util.JsonUtil;
+import com.joymeng.common.util.StringUtils;
+import com.joymeng.common.util.TimeUtils;
 import com.joymeng.slg.dao.SqlData;
 import com.joymeng.slg.domain.map.MapObject;
 import com.joymeng.slg.domain.map.MapUtil;
@@ -16,20 +19,26 @@ import com.joymeng.slg.domain.map.fight.result.ReportTitleType;
 import com.joymeng.slg.domain.map.impl.MapRoleInfo;
 import com.joymeng.slg.domain.map.impl.dynamic.ExpediteTroops;
 import com.joymeng.slg.domain.map.impl.dynamic.TroopsData;
+import com.joymeng.slg.domain.map.physics.MapCell;
 import com.joymeng.slg.domain.object.role.Role;
+import com.joymeng.slg.domain.timer.TimerLast;
+import com.joymeng.slg.domain.timer.TimerLastType;
+import com.joymeng.slg.domain.timer.TimerOver;
 
 /**
  * 可以被刷新的对象
  * @author tanyong
  *
  */
-public abstract class MapRefreshObj extends MapObject {
+public abstract class MapRefreshObj extends MapObject{
 	
 	protected String refreshId;//刷新的编号
 	
 	protected int level;	//等级
 	
 	protected String key;	//固化编号
+	
+	protected TimerLast autoDie = null;//自动消失倒计时
 	
 	public String getRefreshId() {
 		return refreshId;
@@ -62,6 +71,12 @@ public abstract class MapRefreshObj extends MapObject {
 		refreshId          = data.getString(RED_ALERT_RESOURCES_REFRESHID);
 		key                = data.getString(RED_ALERT_GENERAL_TYPE);
 		super.loadFromData(data);
+		String str = data.getString(RED_ALERT_GENERAL_AUTO_DIE);
+		if (!StringUtils.isNull(str)){
+			autoDie = JsonUtil.JsonToObject(str,TimerLast.class);
+			autoDie.registTimeOver(new AutoDieFinish(this));
+			taskPool.mapTread.addObj(this,autoDie);
+		}
 		_loadFromData(data);
 	}
 
@@ -71,7 +86,16 @@ public abstract class MapRefreshObj extends MapObject {
 		data.put(RED_ALERT_RESOURCES_REFRESHID,refreshId);
 		data.put(RED_ALERT_GENERAL_TYPE,key);
 		super.saveToData(data);
+		String str = autoDie == null ? "null" : JsonUtil.ObjectToJsonString(autoDie);
+		data.put(RED_ALERT_GENERAL_AUTO_DIE,str);
 		_saveToData(data);
+	}
+	
+	@Override
+	public void _tick(long now) {
+		if (autoDie != null && autoDie.over(now)){
+			autoDie.die();
+		}
 	}
 	
 	public boolean attackMonster(TroopsData defender,ExpediteTroops expedite,boolean send,ReportTitleType title) throws Exception{
@@ -123,6 +147,45 @@ public abstract class MapRefreshObj extends MapObject {
 		}
 		return isWin;
 	}
+	/**
+	 * 注册自动死亡倒计时
+	 * @param time
+	 */
+	public void registAutoDie(long time) {
+		if (time > 0){//自动死亡
+			autoDie = new TimerLast(TimeUtils.nowLong() / 1000,time,TimerLastType.TIME_OBJ_AUTO_DIE);
+			autoDie.registTimeOver(new AutoDieFinish(this));
+			taskPool.mapTread.addObj(this,autoDie);
+		}
+	}
+	
+	class AutoDieFinish implements TimerOver{
+		MapRefreshObj mro = null;
+		public AutoDieFinish(MapRefreshObj mro){
+			this.mro = mro;
+		}
+		@Override
+		public void finish() {
+			mro.die();
+		}
+	}
+	
+	/***
+	 * 判断是否被锁定
+	 * @return
+	 */
+	public boolean isLock(){
+		if (info.getUid() > 0){
+			return true;
+		}
+		MapCell cell = mapWorld.getMapCell(position);
+		if (cell.getExpedites() != null){
+			return cell.getExpedites().size() > 0;
+		}
+		return false;
+	}
+	
+	public abstract void die();
 	
 	public abstract void _loadFromData(SqlData data);
 	

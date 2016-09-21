@@ -21,6 +21,8 @@ public class Npccity implements DataKey {
 	String buildingmodelID;
 	String worldbuildingid; 
 	String viewrange;
+	List<String> alliancebuildingposition;
+	List<String> resbuff;
 	
 	public String getId() {
 		return id;
@@ -108,6 +110,23 @@ public class Npccity implements DataKey {
 
 	public void setViewrange(String viewrange) {
 		this.viewrange = viewrange;
+	}
+	
+
+	public List<String> getResbuff() {
+		return resbuff;
+	}
+
+	public void setResbuff(List<String> resbuff) {
+		this.resbuff = resbuff;
+	}
+
+	public List<String> getAlliancebuildingposition() {
+		return alliancebuildingposition;
+	}
+
+	public void setAlliancebuildingposition(List<String> alliancebuildingposition) {
+		this.alliancebuildingposition = alliancebuildingposition;
 	}
 
 	@Override

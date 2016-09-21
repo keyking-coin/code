@@ -11,6 +11,7 @@ import com.joymeng.common.util.MathUtils;
 import com.joymeng.common.util.MessageSendUtil;
 import com.joymeng.common.util.StringUtils;
 import com.joymeng.common.util.TimeUtils;
+import com.joymeng.list.EventName;
 import com.joymeng.log.GameLog;
 import com.joymeng.log.LogManager;
 import com.joymeng.log.NewLogManager;
@@ -108,9 +109,7 @@ public class RoleSevenSignIn implements Instances {
 			String itemId = awardArray[0];
 			int itemNum = Integer.parseInt(awardArray[1]) * multiple;
 			cells.addAll(role.getBagAgent().addGoods(itemId, itemNum));
-			String event = "roleSevenSignIn";
-			String itemst  = itemId;
-			LogManager.itemOutputLog(role, itemNum, event, itemst);
+			LogManager.itemOutputLog(role, itemNum, EventName.roleSevenSignIn.getName(), itemId);
 			try {
 				NewLogManager.baseEventLog(role, "week_sign",signCount,itemId,itemNum);
 			} catch (Exception e) {

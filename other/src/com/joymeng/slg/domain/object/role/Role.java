@@ -15,6 +15,7 @@ import com.joymeng.common.util.MathUtils;
 import com.joymeng.common.util.MessageSendUtil;
 import com.joymeng.common.util.StringUtils;
 import com.joymeng.common.util.TimeUtils;
+import com.joymeng.list.EventName;
 import com.joymeng.log.GameLog;
 import com.joymeng.log.LogManager;
 import com.joymeng.log.NewLogManager;
@@ -42,7 +43,6 @@ import com.joymeng.slg.domain.event.impl.TaskEvent;
 import com.joymeng.slg.domain.event.impl.UnionEvent;
 import com.joymeng.slg.domain.map.fight.obj.FightTroops;
 import com.joymeng.slg.domain.map.fight.obj.enumType.FightBuffType;
-import com.joymeng.slg.domain.map.fight.obj.enumType.TroopsType;
 import com.joymeng.slg.domain.map.impl.dynamic.ExpeditePackageType;
 import com.joymeng.slg.domain.map.impl.dynamic.ExpediteTroops;
 import com.joymeng.slg.domain.map.impl.dynamic.GarrisonTroops;
@@ -69,12 +69,14 @@ import com.joymeng.slg.domain.object.build.data.Buildinglevel;
 import com.joymeng.slg.domain.object.daily.OnlineAgent;
 import com.joymeng.slg.domain.object.effect.BuffTypeConst.ExtendsType;
 import com.joymeng.slg.domain.object.effect.BuffTypeConst.TargetType;
+import com.joymeng.slg.domain.object.effect.Effect;
 import com.joymeng.slg.domain.object.effect.EffectAgent;
 import com.joymeng.slg.domain.object.rank.RoleRank;
+import com.joymeng.slg.domain.object.redpacket.RoleRedpacket;
 import com.joymeng.slg.domain.object.resource.ResourceTypeConst;
 import com.joymeng.slg.domain.object.resource.data.Resourcestype;
-import com.joymeng.slg.domain.object.role.data.Userlevel;
 import com.joymeng.slg.domain.object.role.data.Heroicon;
+import com.joymeng.slg.domain.object.role.data.Userlevel;
 import com.joymeng.slg.domain.object.role.imp.RoleStaticData;
 import com.joymeng.slg.domain.object.role.imp.RoleStatisticInfo;
 import com.joymeng.slg.domain.object.role.signin.RoleSevenSignIn;
@@ -86,10 +88,13 @@ import com.joymeng.slg.domain.object.task.HonorMissionAgent;
 import com.joymeng.slg.domain.object.task.MissionManager;
 import com.joymeng.slg.domain.object.task.TaskEventDelay;
 import com.joymeng.slg.domain.shop.RoleShopAgent;
+import com.joymeng.slg.domain.timer.TimerLast;
+import com.joymeng.slg.domain.timer.TimerLastType;
 import com.joymeng.slg.net.mod.AbstractClientModule;
 import com.joymeng.slg.net.mod.RespModuleSet;
 import com.joymeng.slg.union.UnionBody;
 import com.joymeng.slg.union.impl.UnionHelper;
+import com.joymeng.slg.union.impl.UnionMember;
 import com.joymeng.slg.world.GameConfig;
 import com.joymeng.slg.world.thread.OnlineRunnable;
 
@@ -122,6 +127,8 @@ public class Role extends AbstractObject implements Instances{
 	int silver=0;//银币
 	
 	long unionId;//联盟id
+	
+	TimerLast joinTimer = null;//加入联盟所需的倒计时
 	
 	List<RoleCityAgent> cityAgents = new ArrayList<RoleCityAgent>();//拥有的建筑群
 	
@@ -163,9 +170,9 @@ public class Role extends AbstractObject implements Instances{
 
 	OnlineAgent onlineAgent = new OnlineAgent();
 	
-	RoleArmyAttr armyAttr = new RoleArmyAttr(); //军队相关的buff
+//	RoleArmyAttr armyAttr = new RoleArmyAttr(); //军队相关的buff
 	
-	HonorMissionAgent honorAgent = new HonorMissionAgent();
+	HonorMissionAgent honorAgent = new HonorMissionAgent();//数据库荣誉榜
 	
 	RoleStatisticInfo statictisInfo = new RoleStatisticInfo();
 	
@@ -211,13 +218,15 @@ public class Role extends AbstractObject implements Instances{
 	
 	RoleSetting roleSetting = new RoleSetting();//用户设置
 	
-	DailyTaskAgent dailyTaskAgent = new DailyTaskAgent();
+	DailyTaskAgent dailyTaskAgent = new DailyTaskAgent();//每日任务
 	
-	RoleBlackMarketAgent blackMarketAgent = new RoleBlackMarketAgent();
+	RoleBlackMarketAgent blackMarketAgent = new RoleBlackMarketAgent();//玩家黑市
 	
 	RoleAntiAddiction roleAnti = new RoleAntiAddiction();//防沉迷系统
 	
 	Map<Integer, RoleRelic> roleCopys = new HashMap<Integer, RoleRelic>();//用户副本进度
+	
+	RoleRedpacket roleRedpackets = new RoleRedpacket(joy_id);
 	
 	CodeManager code  = new CodeManager();//兑换码
 
@@ -226,6 +235,23 @@ public class Role extends AbstractObject implements Instances{
 	int gmFortressDropTime = 0;//大地图建筑放弃调试时间
 	int gmCityMoveTime = 0;//大地图迁城点调试时间
 	
+	int chargeSuccessNum = 0; // 充值成功的次数
+	
+	MapEctype nearestEctype;
+	public MapEctype getNearestEctype() {
+		return nearestEctype;
+	}
+	
+	public void setNearestEctype() {
+		MapEctype ectype = mapWorld.getNearestEctype(this);
+		nearestEctype = ectype;
+	}
+	
+	public long getJoy_id() {
+		return joy_id;
+	}
+
+
 	public String getOpenId() {
 		return openId;
 	}
@@ -310,6 +336,14 @@ public class Role extends AbstractObject implements Instances{
 		return lastLoginTime;
 	}
 
+	public TimerLast getJoinTimer() {
+		return joinTimer;
+	}
+
+	public void setJoinTimer(TimerLast joinTimer) {
+		this.joinTimer = joinTimer;
+	}
+
 	public Map<Integer, RoleRelic> getRoleCopys() {
 		return roleCopys;
 	}
@@ -364,6 +398,14 @@ public class Role extends AbstractObject implements Instances{
 
 	public void setTurntableBody(TurntableBody turntableBody) {
 		this.turntableBody = turntableBody;
+	}
+
+	public RoleRedpacket getRoleRedpackets() {
+		return roleRedpackets;
+	}
+
+	public void setRoleRedpackets(RoleRedpacket roleRedpackets) {
+		this.roleRedpackets = roleRedpackets;
 	}
 
 	public void setArmyGroups(Map<Integer, ArmyGroup> armyGroups) {
@@ -654,12 +696,6 @@ public class Role extends AbstractObject implements Instances{
 		return onlineAgent;
 	}
 	
-	public RoleArmyAttr getArmyAttr() {
-		return armyAttr;
-	}
-	public void setArmyAttr(RoleArmyAttr armyAttr) {
-		this.armyAttr = armyAttr;
-	}
 	public RoleStatisticInfo getRoleStatisticInfo(){
 		return statictisInfo;
 	}
@@ -670,17 +706,15 @@ public class Role extends AbstractObject implements Instances{
 	public void setLastJoin(long lastJoin) {
 		this.lastJoin = lastJoin;
 	}
-
-	public void addFreeTimeBuff(long time){
-		freeTime += time;
-	}
-	
-	public void resetFreeTime(){
-		freeTime = Const.FIVE_MINUTE;
-	}
 	
 	public long getFreeTime(){
-		return freeTime;
+		List<Effect> effets = effectAgent.searchBuffByTargetType(TargetType.G_C_REDU_BT);
+		int num = 0;
+		for(Effect ef:effets){
+			num += ef.getNum();
+		}
+		//GameLog.info("[getFreeTime]uid="+joy_id+"|freeTime="+freeTime+"|buff="+num);
+		return freeTime + num;
 	}
 
 	public void heartBeat() {
@@ -980,6 +1014,8 @@ public class Role extends AbstractObject implements Instances{
 		module.add(GameConfig.FORTRESS_NAME_MIN);//要塞名字的最小值
 		module.add(GameConfig.FORTRESS_NAME_MAX);//要塞名字的最大值
 		module.add(GameConfig.CHARGE_SHOP_TIP);//充值商店是否开启的提示
+//		RoleStatisticInfo sInfo = getRoleStatisticInfo();
+//		module.add(sInfo.getBuildFortNum());
 		rms.addModule(module);
     }
     
@@ -992,6 +1028,13 @@ public class Role extends AbstractObject implements Instances{
 		};
 		module.add(joy_id);
 		module.add(unionId);//联盟编号 0没加入联盟
+		//TODO 加入联盟的倒计时
+		if (joinTimer != null) {
+			module.add(1);
+			joinTimer.sendToClient(module.getParams());
+		} else {
+			module.add(0);
+		}
 		module.add(countryId);
 		module.add(name);
 		module.add(sex);
@@ -1013,6 +1056,7 @@ public class Role extends AbstractObject implements Instances{
 		module.add(addFlag);//是否加入过联盟
 		module.add(getExpediteMaxNum(0));//获取玩家最大可出征队伍数量 int
     	rms.addModule(module);
+    	System.out.println(module.getParams().toString());
     }
     
 	@Override
@@ -1031,6 +1075,16 @@ public class Role extends AbstractObject implements Instances{
 			language = "zh";
 		}
 		unionId    = data.getLong(RED_ALERT_GENERAL_UNION_ID);
+		String joinStr = data.getString(RED_ALERT_JOIN_UNION_TIMER);
+		if (StringUtils.isNull(joinStr)) {
+			joinTimer = null;
+		} else {
+			joinTimer = JsonUtil.JsonToObject(joinStr, TimerLast.class);
+			if (joinTimer != null && joinTimer.over(TimeUtils.nowLong())) {
+				joinTimer.die();
+			}
+			joinTimer.registTimeOver(new JoinUnionTimerFinish(joy_id));
+		}
 		channelId  = data.getString(RED_ALERT_ROLE_CHANNELID);
 		countryId  = data.getInt(RED_ALERT_ROLE_COUNTRY);
 		sex        = data.getByte(RED_ALERT_ROLE_SEX);
@@ -1118,6 +1172,13 @@ public class Role extends AbstractObject implements Instances{
 		skillAgent.deserialize(data.get(RED_ALERT_ROLE_SKILLDATAS));
 		roleAnti.deserialize((byte[])data.get(RED_ALERT_ROLE_ANTI));
 		roleCopyDeserialize(data.get(RED_ALERT_ROLE_COPYS));
+		String roleRedpacketData = data.getString(RED_ALERT_ROLE_REDPACKET);
+		if(!StringUtils.isNull(roleRedpacketData)){
+			roleRedpackets = JsonUtil.JsonToObject(roleRedpacketData, RoleRedpacket.class);
+			if (!TimeUtils.isSameDay(roleRedpackets.getSaveTime(), TimeUtils.nowLong())) {
+				roleRedpackets.resetDailyData();
+			}
+		}
 		tickFlag = false;
 	}
 
@@ -1126,6 +1187,7 @@ public class Role extends AbstractObject implements Instances{
 		data.put(RED_ALERT_ROLE_ID,joy_id);
 		data.put(RED_ALERT_GENERAL_NAME,name);
 		data.put(RED_ALERT_GENERAL_UNION_ID,unionId);
+		data.put(RED_ALERT_JOIN_UNION_TIMER, JsonUtil.ObjectToJsonString(joinTimer));
 		data.put(RED_ALERT_ROLE_CHANNELID,channelId);
 		data.put(RED_ALERT_ROLE_COUNTRY,countryId);
 		data.put(RED_ALERT_ROLE_SEX,sex);
@@ -1183,17 +1245,20 @@ public class Role extends AbstractObject implements Instances{
 		skillAgent.serialize(data);
 		roleAnti.serialize(data);
 		roleCopySerialize(data);
-		
-		
+		data.put(RED_ALERT_ROLE_REDPACKET, JsonUtil.ObjectToJsonString(roleRedpackets));
+		roleRedpackets.setSaveTime(TimeUtils.nowLong());//设置保存时间
 	}
 
 	@Override
 	public void insertData(SqlData data) {
 		saveToData(data);
 	}
-	
+	public long timeNow = 0l;
 	@Override
 	public void _tick(long now) {
+		if (joinTimer != null && joinTimer.over(now)) {
+			joinTimer.die();
+		}
 		if (now > lastSaveTime + Const.MINUTE * 15){
 			//15分钟自动保存
 			GameLog.info("role id = " +joy_id + " auto save ");
@@ -1203,22 +1268,35 @@ public class Role extends AbstractObject implements Instances{
 		if (now > heartTime + Const.MINUTE * 5 && !tickFlag){//5分钟还没收到心跳就删除
 			kick();
 		}
-		if (!tickFlag){
+		//每秒运行一次
+		if (!tickFlag && now - timeNow >= Const.SECOND){
+			timeNow = now;
 			stamina.tick(now);
 			for (int i = 0 ; i < cityAgents.size() ; i++){
 				RoleCityAgent agent = cityAgents.get(i);
 				agent.tick(this,now);
 			}
 			if(vipInfo != null){
+				//更新玩家最大体力
 				vipInfo.tick(this,now);
 			}
 			if(skillAgent != null){
+				//技能效果
 				skillAgent.tick(this);
 			}
 			onlineAgent.tick(now);
 			blackMarketAgent.tick(now);
 			effectAgent.tick(this,now);
 			roleAnti.tick(this,now);
+			if (unionId != 0) {
+				UnionBody body = unionManager.search(unionId);
+				if (body != null) {
+					UnionMember unionMember = body.searchMember(joy_id);
+					if (unionMember != null) {
+						unionMember.tick(now);
+					}
+				}
+			}
 		}
 	}
 	
@@ -1239,6 +1317,7 @@ public class Role extends AbstractObject implements Instances{
 		registerEventHandler(mapEvent,GameEvent.UNION_FIGHT_CHANGE);
 		registerEventHandler(mapEvent, GameEvent.ROlE_CHANGE_BASE_INFO);
 		registerEventHandler(mapEvent, GameEvent.ROLE_RES_BUFF_CHANGE);
+		registerEventHandler(mapEvent, GameEvent.ROLE_RES_BUFF_CHANGE_1);
 		
 		RoleBagEvent bagEvent = new RoleBagEvent();
 		registerEventHandler(bagEvent,GameEvent.ROLE_CREATE);
@@ -1289,14 +1368,24 @@ public class Role extends AbstractObject implements Instances{
 
 	}
 	
-	public void kick(){
-		GameLog.info("system kick <" + joy_id +">");
+	public void kick() {
+		GameLog.info("system kick <" + joy_id + ">");
 		tickFlag = true;
-		if (isOnline()){
+		if (isOnline()) {
 			LogManager.leaveLog(this);
-			OnlineRunnable.recordTime(this,(byte)2);
+			OnlineRunnable.recordTime(this, (byte) 2);
 		}
 		save();
+		//把玩家踢下线，返回登录界面
+		RespModuleSet rms = new RespModuleSet();
+		AbstractClientModule module = new AbstractClientModule() {
+			@Override
+			public short getModuleType() {
+				return NTC_DTCD_KICK_ROLE;
+			}
+		};
+		rms.addModule(module);
+		MessageSendUtil.sendModule(rms, userInfo);
 	}
 	
 	private int getMaxLevel(){
@@ -1327,10 +1416,21 @@ public class Role extends AbstractObject implements Instances{
 	
 	public void addExp(int exp){
 		this.exp += exp;
+		this.exp = this.exp > maxExp() ? maxExp() : this.exp;
 		if (levelUp()){
 			handleEvent(GameEvent.RANK_ROLEHEROLEVEL_CHANGE, new TaskEventDelay());
 			handleEvent(GameEvent.TASK_CHECK_EVENT, new TaskEventDelay(), ConditionType.COND_LEVEL, level);
 		}
+	}
+	
+	private int maxExp() {
+		int max = getMaxLevel();
+		Userlevel ul = dataManager.serach(Userlevel.class, max);
+		if (ul == null) {
+			GameLog.error("找不到固化数据了,roleLevel=" + level);
+			return Integer.MAX_VALUE;
+		}
+		return ul.getExperience();
 	}
 	
 	public boolean isOnline(){
@@ -1532,7 +1632,7 @@ public class Role extends AbstractObject implements Instances{
 	 * @return
 	 */
 	public float getExpediteSpeedEffect(int cityId, String armyId){
-		float value = armyAttr.getEffVal(TargetType.T_A_IMP_SS, armyId);
+		float value = RoleArmyAttr.getEffVal(this,TargetType.T_A_IMP_SS, armyId);
 		return value;
 	}
 	
@@ -1560,7 +1660,7 @@ public class Role extends AbstractObject implements Instances{
 				break;
 			}
 		}
-		float buffSold = this.armyAttr.getEffVal(TargetType.T_A_ADD_IC, armyId);
+		float buffSold = RoleArmyAttr.getEffVal(this,TargetType.T_A_ADD_IC, armyId);
 		float buffRes = agent.getCityAttr().getImpCollSpeed(ResourceTypeConst.search(resId));
 		float newServerBuff = NewServerBuff.iGetBuff(BuffTag.ADD_TROOP_GATHER_SPEED)/100.0f;
 		return buffSold + buffRes + buildBuff + newServerBuff;
@@ -1674,7 +1774,7 @@ public class Role extends AbstractObject implements Instances{
 					for (int k = 0 ; k < lis.size() ; k++){
 						FightTroops troops = lis.get(k);
 						String armyId = troops.getAttribute().getName();
-						float value = armyAttr.getEffVal(key,armyId);
+						float value = RoleArmyAttr.getEffVal(this,key,armyId);
 						int symbol = key.getSymbol() % 2 == 0 ? -1 : 1;
 						if (value > 0){
 							troops.addBuff(bts[i],value * symbol);
@@ -1694,7 +1794,7 @@ public class Role extends AbstractObject implements Instances{
 	public float getFightInjurieRate(int cityId , int armyType){
 		RoleCityAgent city = getCity(cityId);
 		List<RoleBuild> builds = null;
-		if (armyType == TroopsType.TROOP_CARBON_TRUST.ordinal()){
+		if (armyType == 1){
 			builds = city.searchBuildByBuildId(BuildName.HOSPITAL.getKey());
 		}else{
 			builds = city.searchBuildByBuildId(BuildName.REPAIRER.getKey());
@@ -1706,8 +1806,11 @@ public class Role extends AbstractObject implements Instances{
 			float temp = Float.parseFloat(str.get(0));
 			result = Math.max(result, temp);
 		}
+		float buff = RoleArmyAttr.getEffValV2(this,TargetType.T_A_RED_DR, ExtendsType.EXTEND_ARMY, armyType);
+		//战斗受伤率
+		GameLog.info("[getFightInjurieRate]roleuid="+this.getJoy_id()+"|city="+cityId+"|armyType="+armyType+"|buildcount="+result+"|buff="+buff);
 		//add buff
-		result += this.getArmyAttr().getEffValV2(TargetType.T_A_RED_DR, ExtendsType.EXTEND_ARMY, armyType);
+		result += buff;
 
 		return result;
 	}
@@ -1828,23 +1931,23 @@ public class Role extends AbstractObject implements Instances{
 				return NTC_DTCD_ROLE_ARMY_MOVEBUFF;
 			}
 		};
-		float buff = armyAttr.getEffValV2(TargetType.T_A_IMP_SS, ExtendsType.EXTEND_ARMY, 1);
+		float buff = RoleArmyAttr.getEffValV2(this,TargetType.T_A_IMP_SS, ExtendsType.EXTEND_ARMY, 1);
 		module.add(String.valueOf(buff));//string, 步兵速度加成 
-		buff = armyAttr.getEffValV2(TargetType.T_A_IMP_SS, ExtendsType.EXTEND_ARMY, 2);
+		buff = RoleArmyAttr.getEffValV2(this,TargetType.T_A_IMP_SS, ExtendsType.EXTEND_ARMY, 2);
 		module.add(String.valueOf(buff));//string, 战车速度加成 
-		buff = armyAttr.getEffValV2(TargetType.T_A_IMP_SS, ExtendsType.EXTEND_ARMY, 3);
+		buff = RoleArmyAttr.getEffValV2(this,TargetType.T_A_IMP_SS, ExtendsType.EXTEND_ARMY, 3);
 		module.add(String.valueOf(buff));//string, 坦克速度加成 
-		buff = armyAttr.getEffValV2(TargetType.T_A_IMP_SS, ExtendsType.EXTEND_ARMY, 4);
+		buff = RoleArmyAttr.getEffValV2(this,TargetType.T_A_IMP_SS, ExtendsType.EXTEND_ARMY, 4);
 		module.add(String.valueOf(buff));//string, 飞机速度加成 
-		buff = armyAttr.getEffValV2(TargetType.T_A_IMP_SW, ExtendsType.EXTEND_ALL, 0);
+		buff = RoleArmyAttr.getEffValV2(this,TargetType.T_A_IMP_SW, ExtendsType.EXTEND_ALL, 0);
 		module.add(String.valueOf(buff));//string, 所有部队负重 加成百分比
-		buff = armyAttr.getEffValV2(TargetType.T_A_IMP_SW, ExtendsType.EXTEND_ARMY, 1);
+		buff = RoleArmyAttr.getEffValV2(this,TargetType.T_A_IMP_SW, ExtendsType.EXTEND_ARMY, 1);
 		module.add(String.valueOf(buff));//string, 提升步兵的负重量	加成百分比
-		buff = armyAttr.getEffValV2(TargetType.T_A_IMP_SW, ExtendsType.EXTEND_ARMY, 2);
+		buff = RoleArmyAttr.getEffValV2(this,TargetType.T_A_IMP_SW, ExtendsType.EXTEND_ARMY, 2);
 		module.add(String.valueOf(buff));//string, 提升战车的负重量	加成百分比
-		buff = armyAttr.getEffValV2(TargetType.T_A_IMP_SW, ExtendsType.EXTEND_ARMY, 3);
+		buff = RoleArmyAttr.getEffValV2(this,TargetType.T_A_IMP_SW, ExtendsType.EXTEND_ARMY, 3);
 		module.add(String.valueOf(buff));//string, 提升坦克的负重量	加成百分比
-		buff = armyAttr.getEffValV2(TargetType.T_A_IMP_SW, ExtendsType.EXTEND_ARMY, 4);
+		buff = RoleArmyAttr.getEffValV2(this,TargetType.T_A_IMP_SW, ExtendsType.EXTEND_ARMY, 4);
 		module.add(String.valueOf(buff));//string, 提升战机的负重量	加成百分比
 		module.add(getCity(0).getMaxOutBattleBaseNum());//int 出征部队空间的基础量
 		module.add(String.valueOf(getCity(0).getCityAttr().getAddSoldLimit())); //string  出征部队空间的buff增加量
@@ -2232,7 +2335,7 @@ public class Role extends AbstractObject implements Instances{
 		return roleRelic.getRelicArmys().get(pos);
 	}
 	
-	public void addPackage(Map<Byte,Map<String,Integer>> packages,List<ItemCell> changes, List<Object> objs,String event){
+	public void addPackage(Map<Byte,Map<String,Integer>> packages,List<ItemCell> changes, List<Object> objs){
 		for (Byte type : packages.keySet()){
 			Map<String,Integer> values = packages.get(type);
 			if (type.byteValue() == ExpeditePackageType.PACKAGE_TYPE_GOODS.ordinal()){
@@ -2240,28 +2343,28 @@ public class Role extends AbstractObject implements Instances{
 					int num = values.get(key).intValue();
 					changes.addAll(bagAgent.addGoods(key,num));
 					String itemst  = key;
-					LogManager.itemOutputLog(this, num, event, itemst);
+					LogManager.itemOutputLog(this, num, EventName.packageBack.getName(), itemst);
 				}
 			}else if (type.byteValue() == ExpeditePackageType.PACKAGE_TYPE_EQUIP.ordinal()){
 				for (String key : values.keySet()){
 					int num = values.get(key).intValue();
 					changes.addAll(bagAgent.addEquip(key,num));
 					Equip equip  = dataManager.serach(Equip.class, key);
-					LogManager.equipLog(this, equip.getEquipType(), equip.getBeizhuname(), "行军部队收获");
+					LogManager.equipLog(this, equip.getEquipType(), equip.getBeizhuname(), EventName.packageBack.getName());
 				}
 			}else if (type.byteValue() == ExpeditePackageType.PACKAGE_TYPE_STONE.ordinal()){
 				for (String key : values.keySet()){
 					int num = values.get(key).intValue();
 					changes.addAll(bagAgent.addOther(key,num));
 					String itemst =key;
-					LogManager.itemOutputLog(this, num, event, itemst);
+					LogManager.itemOutputLog(this, num, EventName.packageBack.getName(), itemst);
 				}
 			}else if (type.byteValue() == ExpeditePackageType.PACKAGE_TYPE_RESOURCE.ordinal()){
 				for (String key : values.keySet()){
 					long num = values.get(key).longValue();
 					objs.add(ResourceTypeConst.search(key));
 					objs.add(num);
-					LogManager.itemOutputLog(this, num, event, key);
+					LogManager.itemOutputLog(this, num, EventName.packageBack.getName(), key);
 					try {
 						NewLogManager.buildLog(this, "grain_resource",key,num);
 					} catch (Exception e) {
@@ -2277,7 +2380,7 @@ public class Role extends AbstractObject implements Instances{
 				for (String key : values.keySet()){
 					int num = values.get(key).intValue();
 					addRoleMoney(num);
-					LogManager.goldOutputLog(this, num, event);
+					LogManager.goldOutputLog(this, num, EventName.packageBack.getName());
 				}
 			}
 		}
@@ -2347,5 +2450,39 @@ public class Role extends AbstractObject implements Instances{
 			List<UnionHelper> list = unionHelpers.get(buildId);
 			list.clear();
 		}
+	}
+	
+	/**
+	 * 下发用户红包信息
+	 */
+	public void sendRoleRedpackets() {
+		RespModuleSet rms = new RespModuleSet();
+		roleRedpackets.sendClient(rms);
+		MessageSendUtil.sendModule(rms, userInfo);
+	}
+
+	public int getChargeSuccessNum() {
+		return chargeSuccessNum;
+	}
+
+	public void setChargeSuccessNum(int chargeSuccessNum) {
+		this.chargeSuccessNum = chargeSuccessNum;
+	}
+	
+	/**
+	 * 增加一个加入联盟的倒计时
+	 */
+	public void addJoinUnionTimer() {
+		joinTimer = new TimerLast(TimeUtils.nowLong() / 1000, GameConfig.EXIT_UNION_TO_JOIN_CD_TIME,
+				TimerLastType.TIME_JOIN_UNION);
+		joinTimer.registTimeOver(new JoinUnionTimerFinish(joy_id));
+	}
+	
+	/**
+	 * 可以加入(没有加入倒计时)
+	 * @return
+	 */
+	public boolean isCanJoinUnion() {
+		return joinTimer == null;
 	}
 }

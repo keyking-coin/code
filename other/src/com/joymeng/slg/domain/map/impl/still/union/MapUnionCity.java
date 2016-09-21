@@ -10,7 +10,9 @@ import com.joymeng.Instances;
 import com.joymeng.common.util.I18nGreeting;
 import com.joymeng.common.util.JsonUtil;
 import com.joymeng.common.util.TimeUtils;
+import com.joymeng.list.EventName;
 import com.joymeng.log.GameLog;
+import com.joymeng.log.LogManager;
 import com.joymeng.log.NewLogManager;
 import com.joymeng.services.core.buffer.JoyBuffer;
 import com.joymeng.slg.dao.SqlData;
@@ -32,6 +34,13 @@ import com.joymeng.slg.domain.map.impl.dynamic.ArmyEntity;
 import com.joymeng.slg.domain.map.impl.dynamic.ExpediteTroops;
 import com.joymeng.slg.domain.map.impl.dynamic.GarrisonTroops;
 import com.joymeng.slg.domain.map.impl.dynamic.TroopsData;
+import com.joymeng.slg.domain.map.impl.still.union.impl.MapUnionDefenderTower;
+import com.joymeng.slg.domain.map.impl.still.union.impl.MapUnionDetector;
+import com.joymeng.slg.domain.map.impl.still.union.impl.MapUnionNuclearsilo;
+import com.joymeng.slg.domain.map.impl.still.union.impl.MapUnionOther;
+import com.joymeng.slg.domain.map.impl.still.union.impl.MapUnionResource;
+import com.joymeng.slg.domain.map.impl.still.union.impl.MapUnionSatellite;
+import com.joymeng.slg.domain.map.impl.still.union.impl.MapUnionWareHouse;
 import com.joymeng.slg.domain.map.physics.MapCellType;
 import com.joymeng.slg.domain.map.physics.PointVector;
 import com.joymeng.slg.domain.map.spyreport.data.SpyType;
@@ -59,7 +68,7 @@ public class MapUnionCity extends MapObject {
 	Map<Long,Long> notifyTimes = new HashMap<Long,Long>();//公告通知事件
 	
 	public void init(NPCDistributionData data, Npccity npc) {
-		position = data.getCenterY() * GameConfig.MAP_WIDTH + data.getCenterX();
+		position = PointVector.getPosition(data.getCenterX(),data.getCenterY());
 		level    = npc.getLevel();
 		key      = npc.getId();
 		name     = npc.getCityname();
@@ -67,6 +76,55 @@ public class MapUnionCity extends MapObject {
 		initMonster(npc);
 	}
 	
+	public void initConstBuilds(Npccity npc) {
+		List<String> bps = npc.getAlliancebuildingposition();
+		for (int i = 0 ; i < bps.size() ; i++){
+			String str = bps.get(i);
+			String[] ss = str.split(":");
+			byte level = Byte.parseByte(ss[1]);
+			int x = Integer.parseInt(ss[2]);
+			int y = Integer.parseInt(ss[3]);
+			int pos = PointVector.getPosition(x,y);
+			List<MapUnionBuild> haves = search(ss[0]);
+			if (haves.size() > 0){//这建筑一键存在了
+				for (int j = 0 ; j < haves.size() ; j++){
+					MapUnionBuild build = haves.get(j);
+					build.setConst(true);
+				}
+			}else{
+				MapUnionBuild build = createBuild(ss[0]);
+				build.setCityKey(npc.getId());
+				build.setBuildKey(ss[0]);
+				build.setUnionId(info.getUnionId());
+				build.setLevel(level);
+				build.init();
+				build.setConst(true);
+				mapWorld.insertObj(build);
+				mapWorld.updatePosition(build,pos);
+				addBuild(pos);
+			}
+		}
+	}
+	
+	public static MapUnionBuild createBuild(String key) {
+		BuildName bn = BuildName.search(key);
+		if (bn == BuildName.MAP_UNION_STORAGE){
+			return new MapUnionWareHouse();
+		}else if (bn.ordinal() >= BuildName.MAP_UNION_FOOD.ordinal() && bn.ordinal() <= BuildName.MAP_UNION_ALLOY.ordinal()){
+			return new MapUnionResource();
+		}else if (bn.ordinal() >= BuildName.Map_UNION_TOWER_AIR.ordinal() && bn.ordinal() <= BuildName.MAP_UNION_TOWER_TURRET.ordinal()){
+			return new MapUnionDefenderTower();
+		}else if (bn == BuildName.MAP_UNION_TOWER_SATELLITE){
+			return new MapUnionSatellite();
+		}else if (bn == BuildName.MAP_UNION_TOWER_DETECTOR){
+			return new MapUnionDetector();
+		}else if (bn == BuildName.MAP_UNION_TOWER_NUCLEARSILO){
+			return new MapUnionNuclearsilo();
+		}else{
+			return new MapUnionOther();
+		}
+	}
+
 	public void initMonster(Npccity npc){
 		//精英守卫
 		List<String> monsterStr = npc.getLitemonster();
@@ -238,11 +296,13 @@ public class MapUnionCity extends MapObject {
 							attackersResult.putAll(temp);
 						}
 						Side winnerSide = battle.GetWinner();
+						Role role =world.getRole(expedite.getLeader().getInfo().getUid());
 						if (winnerSide != null && winnerSide == Side.ATTACK){
 							//攻击方获胜
 							TroopsData nowDefender = defender;
 							defender = getNext(expedite,defender);
 							MapUtil.report(expedite,true,nowDefender,position,attackersResult,defenderResult,battle,record,damages);
+							LogManager.pvpLog(role,Long.valueOf(key) , EventName.AllianceWar.getName(), EventName.OffensiveNPCCity.getName(), (byte)1, "0", 0);
 						}else{
 							expedite.isWin = false;
 							MapUtil.report(expedite,false,defender,position,attackersResult,defenderResult,battle,record,damages);
@@ -252,6 +312,7 @@ public class MapUnionCity extends MapObject {
 							}else{
 								GameLog.info(header + " attack " + name + "'s normalMonster fail at " + position);
 							}
+							LogManager.pvpLog(role,Long.valueOf(key) , EventName.AllianceWar.getName(), EventName.OffensiveNPCCity.getName(), (byte)0, "0", 0);
 							break;
 						}
 					}else{
@@ -336,7 +397,10 @@ public class MapUnionCity extends MapObject {
 					}
 					union.notifyAttackCitySucc(this);
 					union.getUsInfo().updateOcpCitys(level);
+					union.sendOcpCityToMems(level);
+					union.motifyCityBuff(this, true);
 					notifyAttackSucc(union);
+					union.sendMeToAllMembers(0);
 					//奖励下发
 					union.computeReword(getData(),damages);
 					Worldbuildinglevel wbl = dataManager.serach(Worldbuildinglevel.class, BuildName.MAP_UNION_CITY_NAME.getKey() + level);
@@ -351,6 +415,9 @@ public class MapUnionCity extends MapObject {
 				}
 				if (preUnion != null){
 					preUnion.sendMeToAllMembers(0);
+					union.sendMeToAllMembers(0);
+					preUnion.motifyCityBuff(this, false);
+
 				}
 			}
 			expedite.goBackToCome();
@@ -398,7 +465,7 @@ public class MapUnionCity extends MapObject {
 					cityName = "0$" + defenceUnion.getName();
 				}
 			}
-			chatMgr.addStringContentNotice(5,true,I18nGreeting.MSG_UNION_ATTCK_CITY_ING,"0$" + union.getName(),cityName);
+			chatMgr.addStringContentNotice(-1,true,I18nGreeting.MSG_UNION_ATTCK_CITY_ING,"0$" + union.getName(),cityName);
 			notifyTimes.put(attUnionId,now);
 		}
 	}
@@ -435,7 +502,7 @@ public class MapUnionCity extends MapObject {
 		flag = temps.size() >= index + 1;
 		String param6 = flag ? ("0$" + temps.get(index).getName()) : "1$nil";
 		String param7 = "0$" + (flag ? temps.get(index).getNum() : 0);
-		chatMgr.addStringContentNotice(5,true,I18nGreeting.MSG_UNION_ATTCK_CITY_SUCC,"0$" + union.getName() , "1$" + city.getCityname(),param2,param3,param4,param5,param6,param7);
+		chatMgr.addStringContentNotice(-1,true,I18nGreeting.MSG_UNION_ATTCK_CITY_SUCC,"0$" + union.getName() , "1$" + city.getCityname(),param2,param3,param4,param5,param6,param7);
 	}
 	
 	private void createUnionBattleRecord(boolean isWin,boolean isMass, MapRoleInfo attInfo, MapRoleInfo defInfo) {
@@ -508,8 +575,6 @@ public class MapUnionCity extends MapObject {
 		}
 		str         = data.getString(RED_ALERT_NPC_CITY_BUILDS);
 		builds      = JsonUtil.JsonToObjectList(str,Integer.class);
-		Npccity npc = dataManager.serach(Npccity.class,key);
-		initMonster(npc);
 		Object obj = data.get(RED_ALERT_NPC_CITY_CONQUERER);
 		if (obj != null){
 			JoyBuffer buffer = JoyBuffer.wrap((byte[])obj);
@@ -639,7 +704,8 @@ public class MapUnionCity extends MapObject {
 				state = 2;
 				UnionBody body = unionManager.search(info.getUnionId());
 				if(body != null){
-					body.sendOcpCityToMems(level);
+					body.setPosition(position);
+//					body.sendOcpCityToMems(level);
 				}
 				activeBuilds();
 			}
@@ -676,6 +742,10 @@ public class MapUnionCity extends MapObject {
 	 */
 	private void lockBuilds(){
 		state = 1;
+		UnionBody body = unionManager.search(info.getUnionId());
+		if (body != null) {
+			body.setUnionPosition();
+		}
 		for (int i = 0 ; i < builds.size() ;){
 			int ub = builds.get(i).intValue();
 			MapUnionBuild build = mapWorld.searchObject(ub);
@@ -717,14 +787,20 @@ public class MapUnionCity extends MapObject {
 	}
 	
 	private void destoryBuilds(){
-		for (int i = 0 ; i < builds.size() ; i++){
+		for (int i = 0 ; i < builds.size() ;){
 			int pos = builds.get(i).intValue();
-			MapUnionBuild buid = mapWorld.searchObject(pos);
-			if (buid != null){
-				buid.remove(false);
+			MapUnionBuild build = mapWorld.searchObject(pos);
+			if (build != null){
+				if (build.isConst()){
+					build.setUnionId(info.getUnionId());
+				}else{
+					build.remove(false);
+					builds.remove(i);
+					continue;
+				}
 			}
+			i++;
 		}
-		builds.clear();
 	}
 	
 	public void giveUpOver(UnionBody union){
@@ -734,6 +810,7 @@ public class MapUnionCity extends MapObject {
 		rebirthMonster();
 		destoryBuilds();
 		if (union != null){
+			union.setUnionPosition();
 			union.sendViewsToAllMember();
 		}
 	}
@@ -817,13 +894,13 @@ public class MapUnionCity extends MapObject {
 			garrison.die();
 		}
 		state = 0;
-		UnionBody union = unionManager.search(info.getUnionId());
+		//UnionBody union = unionManager.search(info.getUnionId());
 		info.setUnionId(0);
 		rebirthMonster();
 		destoryBuilds();
-		if (union != null){
-			union.sendViewsToAllMember();
-		}
+		//if (union != null){
+		//	union.sendViewsToAllMember();
+		//}
 		return true;
 	}
 
@@ -850,6 +927,7 @@ public class MapUnionCity extends MapObject {
 		@Override
 		public void finish() {
 			UnionBody union = unionManager.search(info.getUnionId());
+			
 			giveUpOver(union);
 			sendChange();
 		}

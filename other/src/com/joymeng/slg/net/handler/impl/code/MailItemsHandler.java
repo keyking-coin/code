@@ -5,14 +5,19 @@ import java.util.List;
 
 import com.joymeng.common.util.I18nGreeting;
 import com.joymeng.common.util.MessageSendUtil;
+import com.joymeng.list.EventName;
 import com.joymeng.log.GameLog;
 import com.joymeng.log.LogManager;
+import com.joymeng.log.NewLogManager;
 import com.joymeng.services.core.buffer.JoyBuffer;
 import com.joymeng.services.core.message.JoyNormalMessage.UserInfo;
 import com.joymeng.services.core.message.JoyProtocol;
+import com.joymeng.slg.domain.chat.ChatMsg;
+import com.joymeng.slg.domain.chat.RoleChatMail;
 import com.joymeng.slg.domain.object.army.ArmyInfo;
 import com.joymeng.slg.domain.object.army.ArmyState;
 import com.joymeng.slg.domain.object.army.RoleArmyAgent;
+import com.joymeng.slg.domain.object.bag.BriefItem;
 import com.joymeng.slg.domain.object.bag.ItemCell;
 import com.joymeng.slg.domain.object.bag.data.Item;
 import com.joymeng.slg.domain.object.build.RoleCityAgent;
@@ -30,13 +35,7 @@ public class MailItemsHandler extends ServiceHandler {
 
 	@Override
 	public void _deserialize(JoyBuffer in, ParametersEntity params) {
-		int size = in.getInt();
-		params.put(size); //种类个数
-		for (int i = 0; i < size; i++) {
-			params.put(in.getPrefixedString(JoyBuffer.STRING_TYPE_SHORT));// 物品id
-			params.put(in.getPrefixedString(JoyBuffer.STRING_TYPE_SHORT));// 物品type
-			params.put(in.getInt()); // 数量
-		}
+		params.put(in.getLong());//msgId long
 	}
 
 	@Override
@@ -45,18 +44,43 @@ public class MailItemsHandler extends ServiceHandler {
 		CommunicateResp resp = newResp(info);
 		Role role = world.getRole(info.getUid());
 		if (role == null) {
+			NewLogManager.misTakeLog("MailItemsHandler getRole is null where uid = " + info.getUid());
 			resp.fail();
 			return resp;
 		}
-		int size = params.get(0);
+		long msgId = params.get(0);
+		resp.add(msgId);
+		RoleChatMail roleMailBox = chatMgr.getRoleMail().get(role.getId());
+		if (roleMailBox == null) {
+			MessageSendUtil.sendNormalTip(role.getUserInfo(), I18nGreeting.MSG_ROLE_MSG_ANNEXES_HAS_GOT);
+			resp.fail();
+			return resp;
+		}
+		ChatMsg msg = roleMailBox.getRoleChatMails().get(msgId);
+		if (msg == null) {
+			MessageSendUtil.sendNormalTip(role.getUserInfo(), I18nGreeting.MSG_ROLE_MSG_ANNEXES_HAS_GOT);
+			resp.fail();
+			return resp;
+		}
+
+		List<BriefItem> msgAnnexes = msg.getMsgAnnex();
+		if (msgAnnexes == null || msgAnnexes.size() < 1) {
+			MessageSendUtil.sendNormalTip(role.getUserInfo(), I18nGreeting.MSG_ROLE_MSG_ANNEXES_HAS_GOT);
+			resp.fail();
+			return resp;
+		}
 		List<ItemCell> items = new ArrayList<ItemCell>();
-		for (int i = 1; i < size * 3 + 1;) {
-			String itemId = params.get(i++);
-			String type = params.get(i++);
-			int number = params.get(i++);
-			if (type.equals("Equip")) { // 装备
+		for (int i = 0; i < msgAnnexes.size(); i++) {
+			BriefItem briefItem = msgAnnexes.get(i);
+			if (briefItem == null) {
+				continue;
+			}
+			String itemId = briefItem.getItemId();
+			String type = briefItem.getItemType();
+			int number = briefItem.getNum();
+			if (type.equalsIgnoreCase("Equip")) { // 装备
 				items.addAll(role.getBagAgent().addEquip(itemId, number));
-			} else if (type.equals("Item") || type.equals("test")) {//物品
+			} else if (type.equalsIgnoreCase("Item") || type.equalsIgnoreCase("test")) {//物品
 				Item it = dataManager.serach(Item.class, itemId);
 				if (it == null) {
 					GameLog.error("email error itemId = " + itemId);
@@ -67,7 +91,7 @@ public class MailItemsHandler extends ServiceHandler {
 				} else {
 					items.addAll(role.getBagAgent().addGoods(itemId, number));
 				}
-			} else if(type.equals("Resources")){ // 资源
+			} else if(type.equalsIgnoreCase("Resources")){ // 资源
 				ResourceTypeConst resource = ResourceTypeConst.search(itemId);
 	            if (resource ==null){
 	            	GameLog.error("email error resType = " + itemId);
@@ -141,7 +165,7 @@ public class MailItemsHandler extends ServiceHandler {
 					role.sendRoleToClient(rmsp);
 					MessageSendUtil.sendModule(rmsp, role.getUserInfo());
 				}
-			}else{ //部队   
+			}else if(type.equalsIgnoreCase("Armys")){ //部队   
 				List<RoleCityAgent> agents = role.getCityAgents();
 				for (int m = 0; m < agents.size(); m++) {
 					RoleCityAgent cityAgent = agents.get(m);
@@ -154,8 +178,10 @@ public class MailItemsHandler extends ServiceHandler {
 					armyAgent.sendToClient(rms, cityAgent);// 下发城里士兵状态
 					MessageSendUtil.sendModule(rms, role.getUserInfo());
 				}
+			} else {
+				GameLog.info("email error type:" + type + "cannot find");
 			}
-			LogManager.itemOutputLog(role, number, "MailItemsHandler", itemId);
+			LogManager.itemOutputLog(role, number, EventName.MailItemsHandler.getName(), itemId);
 		}
 		RespModuleSet rms = new RespModuleSet();
 		ItemCell[] itemArray = items.toArray(new ItemCell[items.size()]);

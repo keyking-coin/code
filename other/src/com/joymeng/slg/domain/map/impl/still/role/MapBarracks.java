@@ -263,6 +263,7 @@ public class MapBarracks extends MapFortress {
 					safeTimer = new TimerLast(now,wbl.getFreetime(),TimerLastType.TIME_MAP_OBJ_SAFE);
 					info.copy(occuper.getTroops().getInfo());
 					initNpc();
+					addGrid(occuper);
 				}else{
 					expedite.goBackToCome();
 				}	
@@ -291,6 +292,7 @@ public class MapBarracks extends MapFortress {
 		if (cureTimer != null && cureTimer.over(now)){
 			cureTimer.die();
 		}
+		super._tick(now);
 	}
 	
 	@Override

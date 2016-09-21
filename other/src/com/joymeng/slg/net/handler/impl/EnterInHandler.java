@@ -73,10 +73,25 @@ public class EnterInHandler extends ServiceHandler {
 		int memory = params.get(12);
 		String registrationId = params.get(13);
 		Role role = world.getRole(info.getUid());
+		if (!codeVersion.equals(GameConfig.CODE_VERSION)){
+			resp.add(I18nGreeting.MSG_VERSION_ERROR);
+			resp.fail();
+			return resp;
+		}
+		if (chinnelId.equals(ChannelKey.CHANNEL_ID_360.getKey())){
+			if (role != null && !role.getRoleAnti().couldLogin()){
+				resp.add(I18nGreeting.MSG_ANTI_LOGIN_TIP);
+				resp.fail();
+				return resp;
+			}
+		}
 		if (role == null){
 			role = world.createNewRole(info.getUid(),chinnelId, country,language,uuid, uuidRegisTime,model,version,resolution,memory,registrationId);
 			role.getRoleAnti().setUserType(userType);
 			RecordServers.sendRecord(info.getUid(), String.valueOf(ServiceApp.instanceId));
+			resp.add(0);
+		} else {
+			resp.add(1);
 		}
 		role.setChannelId(chinnelId);
 		role.setCountry(country);
@@ -95,22 +110,26 @@ public class EnterInHandler extends ServiceHandler {
 				role.setSignIn(0);
 			}
 		}
-		if (!codeVersion.equals(GameConfig.CODE_VERSION)){
-			resp.add(I18nGreeting.MSG_VERSION_ERROR);
-			resp.fail();
-			return resp;
-		}
-		if (chinnelId.equals(ChannelKey.CHANNEL_ID_360.getKey())){
-			if (!role.getRoleAnti().couldLogin()){
-				resp.add(I18nGreeting.MSG_ANTI_LOGIN_TIP);
-				resp.fail();
-				return resp;
-			}
-		}
 		String ip = params.get(0);
 		role.setLastLoginIp(ip);
 		if(!role.isOnline()){
 			OnlineRunnable.recordTime(role,(byte)1);
+		}
+		//帐号禁止登录服务器
+		if (!forbidden.roleForbidden(role, (byte) 2)) {
+			if (!forbidden.judgmentBan(info, (byte) 2, I18nGreeting.MSG_ROLE_MSG_LOGIN_FORVEVR,
+					I18nGreeting.MSG_ROLE_MSG_SYSTEM_LOGIN)) {
+				resp.fail();
+				return resp;
+			}
+		}
+		// 玩家设备禁封
+		if (forbidden.getUuidList().contains(uuid)) {
+			if (!forbidden.judgmentBan(uuid, info, (byte) 4, I18nGreeting.MSG_ROLE_MSG_EQUIP_FORVEVR,
+					I18nGreeting.MSG_ROLE_MSG_EQUIP_LOGIN)) {
+				resp.fail();
+				return resp;
+			}
 		}
 		role.setUserInfo(info);//设置玩家在线
 		RespModuleSet rms = role.sendToClient(1);

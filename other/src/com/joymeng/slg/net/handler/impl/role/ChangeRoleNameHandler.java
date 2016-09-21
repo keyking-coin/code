@@ -3,6 +3,7 @@ package com.joymeng.slg.net.handler.impl.role;
 import com.joymeng.Instances;
 import com.joymeng.common.util.I18nGreeting;
 import com.joymeng.common.util.MessageSendUtil;
+import com.joymeng.common.util.StringUtils;
 import com.joymeng.log.GameLog;
 import com.joymeng.log.NewLogManager;
 import com.joymeng.services.core.buffer.JoyBuffer;
@@ -16,6 +17,7 @@ import com.joymeng.slg.domain.shop.data.Shop;
 import com.joymeng.slg.net.ParametersEntity;
 import com.joymeng.slg.net.handler.ServiceHandler;
 import com.joymeng.slg.net.resp.CommunicateResp;
+import com.joymeng.slg.world.GameConfig;
 
 public class ChangeRoleNameHandler extends ServiceHandler implements Instances {
 
@@ -37,8 +39,14 @@ public class ChangeRoleNameHandler extends ServiceHandler implements Instances {
 		String newName = params.get(1);
 		resp.add(handlerType);
 		if (handlerType == 0) {
-			if (!nameManager.isNameLegal(newName)) {
-				MessageSendUtil.sendNormalTip(info, I18nGreeting.MSG_ROLE_NAME_ILLEGAL, newName);
+			if (StringUtils.countStringLength(newName) < GameConfig.ROLE_NAME_MIN || StringUtils.countStringLength(newName) > GameConfig.ROLE_NAME_MAX) {
+				MessageSendUtil.sendNormalTip(info, I18nGreeting.MSG_ROLE_NAME_ILLEGAL_LENGTH, newName);
+				resp.fail();
+				return resp;
+			}
+			if (!nameManager.isNameCharLegal(newName, GameConfig.REGEX_CHINESE_AND_NUMBER_AND_ALL_LETTER)
+					|| !nameManager.isNameLegal(newName)) {
+				MessageSendUtil.sendNormalTip(info, I18nGreeting.MSG_ROLE_NAME_ILLEGAL_SENSITIVE, newName);
 				resp.fail();
 				return resp;
 			}
@@ -48,7 +56,13 @@ public class ChangeRoleNameHandler extends ServiceHandler implements Instances {
 				return resp;
 			}
 		} else if (handlerType == 1) {
-			if (!nameManager.isNameLegal(newName)) {
+			if (StringUtils.countStringLength(newName) < GameConfig.ROLE_NAME_MIN || StringUtils.countStringLength(newName) > GameConfig.ROLE_NAME_MAX) {
+				MessageSendUtil.sendNormalTip(info, I18nGreeting.MSG_ROLE_NAME_ILLEGAL_LENGTH, newName);
+				resp.fail();
+				return resp;
+			}
+			if (!nameManager.isNameCharLegal(newName, GameConfig.REGEX_CHINESE_AND_NUMBER_AND_ALL_LETTER)
+					|| !nameManager.isNameLegal(newName)) {
 				MessageSendUtil.sendNormalTip(info, I18nGreeting.MSG_ROLE_NAME_ILLEGAL, newName);
 				resp.fail();
 				return resp;
@@ -60,6 +74,7 @@ public class ChangeRoleNameHandler extends ServiceHandler implements Instances {
 			}
 			RoleBagAgent bagAgent = role.getBagAgent();
 			if (bagAgent == null) {
+				GameLog.error("role.getBagAgent() is null role.uid = " + role.getId());
 				resp.fail();
 				return resp;
 			}

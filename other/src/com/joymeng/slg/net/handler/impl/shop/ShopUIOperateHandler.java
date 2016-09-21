@@ -2,12 +2,26 @@ package com.joymeng.slg.net.handler.impl.shop;
 
 import java.util.List;
 
+import org.joda.time.DateTime;
+
 import com.joymeng.common.util.MessageSendUtil;
+import com.joymeng.common.util.TimeUtils;
+import com.joymeng.log.GameLog;
+import com.joymeng.log.LogManager;
+import com.joymeng.log.NewLogManager;
 import com.joymeng.services.core.buffer.JoyBuffer;
 import com.joymeng.services.core.message.JoyNormalMessage.UserInfo;
+import com.joymeng.services.core.message.trade.ChargeNotifyMessage;
 import com.joymeng.services.core.message.JoyProtocol;
+import com.joymeng.services.core.message.JoyResponse;
+import com.joymeng.slg.dao.DaoData;
+import com.joymeng.slg.dao.SqlData;
+import com.joymeng.slg.domain.activity.data.Activity;
 import com.joymeng.slg.domain.object.role.Role;
+import com.joymeng.slg.domain.shop.RoleShopAgent;
+import com.joymeng.slg.domain.shop.data.Banner;
 import com.joymeng.slg.domain.shop.data.ShopCell;
+import com.joymeng.slg.domain.shop.data.ShopLayout;
 import com.joymeng.slg.net.ParametersEntity;
 import com.joymeng.slg.net.handler.ServiceHandler;
 import com.joymeng.slg.net.mod.RespModuleSet;
@@ -78,6 +92,9 @@ public class ShopUIOperateHandler extends ServiceHandler {
 					activityManager.sendShopLayoutToClient(rms,role);
 					resp.fail();
 				}
+				else {
+					onChargeNotify(role, activityId, shopId, bannerId);
+				}
 				MessageSendUtil.sendModule(rms,info);
 				break;
 			}
@@ -85,4 +102,63 @@ public class ShopUIOperateHandler extends ServiceHandler {
 		return resp;
 	}
 
+	public void onChargeNotify(Role role, String activityId, String shopId, String bannerId) {
+		Activity activity = activityManager.searchActivity(activityId);
+		ShopLayout shop = activity.searchElement(shopId);
+		Banner banner = shop.search(bannerId);
+		
+		final long joyId = role.getId();
+		final long orderId = DateTime.now().getMillis();
+		final int value = Integer.parseInt(banner.getPrice());
+		final byte orderType = 0;
+		final String productId = banner.getProductId();
+		final String reward = "";
+
+		new DaoData() {
+			@Override
+			public String[] wheres() {
+				return new String[]{RED_ALERT_CHARGE_ORDER_ID};
+			}
+			@Override
+			public String table() {
+				return TABLE_RED_ALERT_CHARGE_ORDER;
+			}
+			
+			@Override
+			public void saveToData(SqlData data) {
+				data.put(RED_ALERT_CHARGE_ORDER_ID, orderId);
+				data.put(RED_ALERT_CHARGE_JOYID, joyId);
+				data.put(RED_ALERT_CHARGE_VALUE, value);
+				data.put(RED_ALERT_CHARGE_ORDERTYPE, orderType);
+				data.put(RED_ALERT_CHARGE_ORDER_PRODUCTID, productId);
+				data.put(RED_ALERT_CHARGE_ORDER_REWARD, reward);
+				data.put(RED_ALERT_CHARGE_ORDER_TIME,TimeUtils.nowStr());
+			}
+			
+			@Override
+			public void save() {
+				taskPool.saveThread.addSaveData(this);
+			}
+			@Override
+			public void over() {
+				
+			}
+			@Override
+			public void loadFromData(SqlData data) {
+				
+			}
+			@Override
+			public void insertData(SqlData data) {
+				saveToData(data);
+			}
+			@Override
+			public boolean delete() {
+				return false;
+			}
+			@Override
+			public boolean saving() {
+				return true;
+			}
+		}.save();
+	}
 }

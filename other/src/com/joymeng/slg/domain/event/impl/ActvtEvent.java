@@ -65,6 +65,9 @@ public class ActvtEvent extends AbstractGameEvent {
 	public void _handle(IObject trigger, Object[] params) {
 		short code = get(params[0]);
 		Role role = get(trigger);
+		long roleId = role.getId();
+		int deNum = 1;
+		EvntManager evntMgr = EvntManager.getInstance();
 		switch (code) {
 		case GameEvent.ACTIVITY_EVENTS: {
 			ActvtEventType type = get(params[1]);
@@ -83,49 +86,40 @@ public class ActvtEvent extends AbstractGameEvent {
 			case UNION_HELP:
 			case UNION_DONATE:
 			case UNION_SHOP_BUY: {
-				String value = role.getId() + CV + type.getName();
-				EvntManager.getInstance().Notify("taskEvent", value);
+				evntMgr.Notify("taskEvent", roleId, type.getName(), deNum);
 				break;
 			}
 
 			case UPGRADE_BUILD: {
 				String buildId = get(params[2]);
-				// List<RoleBuild> builds =
-				// role.getCity(0).searchBuildByBuildId(buildId);
 				int level = get(params[3]);
-				String value = role.getId() + CV + type.getName() + CT + buildId + CV + level;
-				EvntManager.getInstance().Notify("taskEvent", value);
+				evntMgr.Notify("taskEvent", roleId, type.getName(), deNum, buildId, level);
 				break;
 			}
 
 			case FINISH_INSTANCCE: {
 				int instanceType = get(params[2]);
-				String value = role.getId() + CV + type.getName() + CT + instanceType;
-				EvntManager.getInstance().Notify("taskEvent", value);
+				evntMgr.Notify("taskEvent", roleId, type.getName(), deNum, instanceType);
 				break;
 			}
 
 			case KILL_NPC: {
 				int level = get(params[2]);
-				// int num = get(params[3]);
-				String value = role.getId() + CV + type.getName() + CT + level;
-				EvntManager.getInstance().Notify("taskEvent", value);
+				evntMgr.Notify("taskEvent", roleId, type.getName(), deNum, level);
 				break;
 			}
 
 			case KILL_SOLDIER: {
 				String soldierId = get(params[2]);
 				int num = get(params[3]);
-				String value = role.getId() + CV + type.getName() + CT + soldierId + CV + num;
-				EvntManager.getInstance().Notify("taskEvent", value);
+				evntMgr.Notify("taskEvent", roleId, type.getName(), num, soldierId);
 				break;
 			}
 
 			case PRODUCE_MATERIAL:
 			case COMPOSE_MATERIAL: {
 				int num = get(params[2]);
-				String value = role.getId() + CV + type.getName() + CV + num;
-				EvntManager.getInstance().Notify("taskEvent", value);
+				evntMgr.Notify("taskEvent", roleId, type.getName(), num);
 				break;
 			}
 
@@ -134,8 +128,7 @@ public class ActvtEvent extends AbstractGameEvent {
 			case ROB_RESOURCE: {
 				String resourceId = get(params[2]);
 				int num = get(params[3]);
-				String value = role.getId() + CV + type.getName() + CT + resourceId + CV + num;
-				EvntManager.getInstance().Notify("taskEvent", value);
+				evntMgr.Notify("taskEvent", roleId, type.getName(), num, resourceId);
 				break;
 			}
 
@@ -144,15 +137,11 @@ public class ActvtEvent extends AbstractGameEvent {
 				Army armyBase = dataManager.serach(Army.class, armyId);
 				if (armyBase != null) {
 					int num = get(params[3]);
-					String value = role.getId() + CV + type.getName() + CT + armyId + CV + num;
-					EvntManager.getInstance().Notify("taskEvent", value);
+					evntMgr.Notify("taskEvent", roleId, type.getName(), num, armyId);
 
-					value = role.getId() + CV + ActvtEventType.TRAIN_SOLDIER_TYPE.getName() + CT
-							+ armyBase.getArmyType() + CV + num;
-					EvntManager.getInstance().Notify("taskEvent", value);
+					evntMgr.Notify("taskEvent", roleId, ActvtEventType.TRAIN_SOLDIER_TYPE.getName(), num, armyBase.getArmyType());
 
-					value = role.getId() + CV + ActvtEventType.TRAIN_SOLDIERS.getName() + CV + num;
-					EvntManager.getInstance().Notify("taskEvent", value);
+					evntMgr.Notify("taskEvent", roleId, ActvtEventType.TRAIN_SOLDIERS.getName(), num);
 				}
 				break;
 			}
@@ -162,15 +151,14 @@ public class ActvtEvent extends AbstractGameEvent {
 				Army armyBase = dataManager.serach(Army.class, armyId);
 				if (armyBase != null) {
 					int num = get(params[3]);
-					String value = role.getId() + CV + type.getName() + CT + armyId + CV + num;
-					EvntManager.getInstance().Notify("taskEvent", value);
+					evntMgr.Notify("taskEvent", roleId, type.getName(), num, armyId);
 
 					if (armyBase.getArmyType() == 1) {
-						value = role.getId() + CV + ActvtEventType.TREAT_PERSON.getName() + CV + num;
-						EvntManager.getInstance().Notify("taskEvent", value);
+//						value = role.getId() + CV + ActvtEventType.TREAT_PERSON.getName() + CV + num;
+						evntMgr.Notify("taskEvent", roleId, ActvtEventType.TREAT_PERSON.getName(), num);
 					} else {
-						value = role.getId() + CV + ActvtEventType.TREAT_MACHINE.getName() + CV + num;
-						EvntManager.getInstance().Notify("taskEvent", value);
+//						value = role.getId() + CV + ActvtEventType.TREAT_MACHINE.getName() + CV + num;
+						evntMgr.Notify("taskEvent", roleId, ActvtEventType.TREAT_MACHINE.getName(), num);
 					}
 				}
 				break;
@@ -178,37 +166,25 @@ public class ActvtEvent extends AbstractGameEvent {
 
 			case PUTON_EQUIP: {
 				int num = get(params[2]);
-				String value = role.getId() + CV + type.getName() + CT + num;
-				EvntManager.getInstance().Notify("taskEvent", value);
+				evntMgr.Notify("taskEvent", roleId, type.getName(), num);
 				break;
 			}
 
 			case USE_ITEM: {
 				String itemId = get(params[2]);
 				long num = get(params[3]);
-				String value = role.getId() + CV + type.getName() + CT + itemId + CV + num;
-				EvntManager.getInstance().Notify("taskEvent", value);
+				evntMgr.Notify("taskEvent", roleId, type.getName(), num, itemId);
 				break;
 			}
 
 			case ACCELERATE: {
 				long time = get(params[2]);
-				String value = role.getId() + CV + time;
-				EvntManager.getInstance().Notify("accelerate", value);
+				evntMgr.Notify("accelerate", roleId, time);
 				break;
 			}
 
 			case ARMY_REBELL_OVER: {
-				boolean isWin = get(params[2]);
-				isWin = !isWin;
-
-				String value = role.getId() + CV + (isWin ? "1" : "0") + CV;
-				@SuppressWarnings("unchecked")
-				HashMap<String, Integer> kills = (HashMap<String, Integer>) params[2];
-				for (Map.Entry<String, Integer> entry : kills.entrySet()) {
-					value = value + entry.getKey() + CT + entry.getValue();
-				}
-				EvntManager.getInstance().Notify("armyRebellOver", value);
+				evntMgr.Notify("rebellAttackOver", role.getId(), params[2], params[3]);
 				break;
 			}
 

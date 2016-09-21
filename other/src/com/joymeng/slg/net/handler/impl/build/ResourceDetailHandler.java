@@ -31,6 +31,7 @@ public class ResourceDetailHandler extends ServiceHandler{
 		}
 		if(!agent.getAllResDetails(role)){
 			resp.fail();
+			return resp;
 		}
 		return resp;
 	}

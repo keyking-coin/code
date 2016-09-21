@@ -8,6 +8,7 @@ import com.alibaba.fastjson.JSON;
 import com.joymeng.common.util.JsonUtil;
 import com.joymeng.common.util.StringUtils;
 import com.joymeng.common.util.TimeUtils;
+import com.joymeng.list.EventName;
 import com.joymeng.log.GameLog;
 import com.joymeng.log.LogManager;
 import com.joymeng.log.NewLogManager;
@@ -135,7 +136,7 @@ public class MapProxy extends MapObject{
 					mapWorld.insertObj(fortress);
 					mapWorld.updatePosition(fortress,position);//放置要塞
 					role.handleEvent(GameEvent.ACTIVITY_EVENTS,ActvtEventType.BUILD_STRONG_HOLD);//活动建筑要塞
-					LogManager.mapLog(role, start, end,expedite.getId(), "startBuildFortres");
+					LogManager.mapLog(role, start, end,expedite.getId(), EventName.startBuildFortres.getName());
 				}else{//原路返回
 					expedite.goBackToCome();
 				}
@@ -157,7 +158,7 @@ public class MapProxy extends MapObject{
 					move.getInfo().copy(occuper.getTroops().getInfo());
 					mapWorld.insertObj(move);
 					mapWorld.updatePosition(move,occuper.getPosition());//放置迁城点
-					LogManager.mapLog(role, start, end, expedite.getId(),"startBuildCity");
+					LogManager.mapLog(role, start, end, expedite.getId(),EventName.startBuildCity.getName());
 				}
 			}else if (timer.getType() == TimerLastType.TIME_MAP_GARRISON){
 				expedite.goBackToCome();

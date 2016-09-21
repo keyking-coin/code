@@ -139,7 +139,7 @@ public class QueryUnionDl extends ServiceHandler implements Instances{
 					Map<String, Object> cityMap = new LinkedHashMap<String, Object>();
 					MapUnionCity city = unionCitys.get(i);
 					cityMap.put("cityName", city.getName());
-					cityMap.put("position", city.getPosition());
+					cityMap.put("cityPos", city.getPosition());
 					cityMap.put("level", city.getLevel());
 					cityList.add(cityMap);
 				}

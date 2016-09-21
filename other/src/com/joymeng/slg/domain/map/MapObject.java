@@ -7,6 +7,7 @@ import java.util.Map;
 import com.joymeng.common.util.I18nGreeting;
 import com.joymeng.common.util.MessageSendUtil;
 import com.joymeng.common.util.TimeUtils;
+import com.joymeng.list.EventName;
 import com.joymeng.log.GameLog;
 import com.joymeng.log.LogManager;
 import com.joymeng.log.NewLogManager;
@@ -319,7 +320,7 @@ public abstract class MapObject extends AbstractObject implements SerializeEntit
 				MapUtil.triggerAE_kill_soldier(dRole,defenderResult.values());
 			}else{//怪物攻城
 				defenderResult = MapUtil.computeFightResult(troopses,defender.getTroops(),0);
-				MapUtil.triggerAE_kill_monster(dRole,attacker.getInfo().getLevel(),defenderResult.values());
+				//MapUtil.triggerAE_kill_monster(dRole,attacker.getInfo().getLevel(),defenderResult.values());
 				MapUtil.triggerAE_monster_act_role(dRole,isWin,defenderResult.values());
 			}
 			//攻击损耗
@@ -412,7 +413,7 @@ public abstract class MapObject extends AbstractObject implements SerializeEntit
 	}
 	
 	public void logSpy(Role role,int start,int end,long expediteId){
-		LogManager.mapLog(role,start,end,expediteId,"InvestCompletion");
+		LogManager.mapLog(role,start,end,expediteId,EventName.InvestCompletion.getName());
 	}
 	
 	@Override

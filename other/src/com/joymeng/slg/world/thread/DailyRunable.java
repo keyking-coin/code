@@ -1,5 +1,7 @@
 package com.joymeng.slg.world.thread;
 
+import java.util.List;
+
 import com.joymeng.Instances;
 import com.joymeng.common.util.MessageSendUtil;
 import com.joymeng.common.util.TimeUtils;
@@ -8,6 +10,7 @@ import com.joymeng.log.GameLog;
 import com.joymeng.log.LogManager;
 import com.joymeng.slg.domain.map.impl.still.copy.RoleRelic;
 import com.joymeng.slg.domain.market.RoleBlackMarketAgent;
+import com.joymeng.slg.domain.object.build.RoleCityAgent;
 import com.joymeng.slg.domain.object.role.Role;
 import com.joymeng.slg.domain.object.role.signin.RoleSevenSignIn;
 import com.joymeng.slg.domain.object.role.signin.RoleThirtySignIn;
@@ -56,6 +59,14 @@ public class DailyRunable implements Runnable, Instances {
 				}
 			}
 			role.sendRoleCopysToClient(rms, false);
+			//重置红包相关数据
+			role.getRoleRedpackets().resetDailyData();//重置每日数据
+			role.getRoleRedpackets().setSaveTime(TimeUtils.nowLong() + 1000);//设置保存时间为当前(确保不会在登陆的时候再操作一次)
+			List<RoleCityAgent> agents = role.getCityAgents(); // 交易CD清除次数
+			for (int i = 0; i < agents.size(); i++) {
+				RoleCityAgent agent = agents.get(i);
+				agent.initCDCount();
+			}
 			MessageSendUtil.sendModule(rms, role.getUserInfo());
 		}
 		RoleBlackMarketAgent.refreshDailyDiscounts(false);

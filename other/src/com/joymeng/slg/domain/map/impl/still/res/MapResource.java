@@ -6,8 +6,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import com.joymeng.Const;
 import com.joymeng.common.util.JsonUtil;
 import com.joymeng.common.util.TimeUtils;
+import com.joymeng.list.EventName;
 import com.joymeng.log.GameLog;
 import com.joymeng.log.LogManager;
 import com.joymeng.log.NewLogManager;
@@ -20,6 +22,7 @@ import com.joymeng.slg.domain.event.impl.ActvtEvent.ActvtEventType;
 import com.joymeng.slg.domain.map.MapUtil;
 import com.joymeng.slg.domain.map.data.Monster;
 import com.joymeng.slg.domain.map.data.Resourcefield;
+import com.joymeng.slg.domain.map.data.Resourcerefresh;
 import com.joymeng.slg.domain.map.fight.result.ReportTitleType;
 import com.joymeng.slg.domain.map.impl.MapRoleInfo;
 import com.joymeng.slg.domain.map.impl.dynamic.ArmyEntity;
@@ -28,6 +31,7 @@ import com.joymeng.slg.domain.map.impl.dynamic.ExpediteTroops;
 import com.joymeng.slg.domain.map.impl.dynamic.GarrisonTroops;
 import com.joymeng.slg.domain.map.impl.dynamic.TroopsData;
 import com.joymeng.slg.domain.map.impl.still.MapRefreshObj;
+import com.joymeng.slg.domain.map.impl.still.RebirthLogic;
 import com.joymeng.slg.domain.map.physics.MapCell;
 import com.joymeng.slg.domain.map.physics.MapCellType;
 import com.joymeng.slg.domain.map.physics.PointVector;
@@ -88,6 +92,7 @@ public class MapResource extends MapRefreshObj implements TimerOver {
 	
 	@Override
 	public void _tick(long now) {
+		super._tick(now);
 		if (collecter.getTroopId() > 0){
 			collecter.tick(this);
 		}
@@ -196,10 +201,11 @@ public class MapResource extends MapRefreshObj implements TimerOver {
 						int grabNum = Math.round(have);
 						resources.put(key,grabNum);
 						role.handleEvent(GameEvent.ACTIVITY_EVENTS,ActvtEventType.ROB_RESOURCE,key,grabNum);
+						GameLog.info("[mapresource-lueduo]uid="+role.getJoy_id()+"|key="+key+"|num="+grabNum);
 						expedite.goBackToCome(resources);//资源塞入行军部队的包裹
 						backToComeFrom(-1);
 						GameLog.info(info.getUid() + "'s resource<" + key + "> was destroyed by " + expedite.getLeader().getInfo().getUid() + " at " + position);
-					    LogManager.mapLog(role, start, end, expedite.getId(), "endOfBattle");
+					    LogManager.mapLog(role, start, end, expedite.getId(), EventName.endOfBattle.getName());
 					}else{
 						expedite.goBackToCome();
 						//检测采集者战斗后负重够了
@@ -211,7 +217,7 @@ public class MapResource extends MapRefreshObj implements TimerOver {
 						}else{
 							updateCollecteBuff(preRole,weight,have,cRate);
 						}
-						LogManager.mapLog(role, start, end, expedite.getId(), "endOfBattle");
+						LogManager.mapLog(role, start, end, expedite.getId(), EventName.endOfBattle.getName());
 						GameLog.info(info.getUid() + "'s resource<" + key + "> defend successful when fight with " + expedite.getLeader().getInfo().getUid() + " at " + position);
 					}
 				}else{//怪物防守
@@ -226,15 +232,16 @@ public class MapResource extends MapRefreshObj implements TimerOver {
 						if (isWin){
 							MapUtil.drop(monster,expedite);
 							startCollect(expedite,resourceField);
-							LogManager.mapLog(role, start, end, expedite.getId(), "endOfBattle");
-							LogManager.mapLog(role, start, end,  expedite.getId(),"startCollecting");
+							LogManager.mapLog(role, start, end, expedite.getId(), EventName.endOfBattle.getName());
+							LogManager.mapLog(role, start, end,  expedite.getId(),EventName.startCollecting.getName());
 							GameLog.info(expedite.getLeader().getInfo().getUid() + " occopy resource<" + key + "> successful at " + position);
 						}else{
-							LogManager.mapLog(role, start, end,  expedite.getId(),"endOfBattle");
+							LogManager.pveLog(role, EventName.ResourceCollection.getName(), monsterKey, (byte)0, EventName.ResourceCollection.getName(), "0", 0);
+							LogManager.mapLog(role, start, end,  expedite.getId(),EventName.endOfBattle.getName());
 							GameLog.info(expedite.getLeader().getInfo().getUid() + " occopy resource<" + key + "> fail at " + position);
 							expedite.goBackToCome();
 						}
-						role.handleEvent(GameEvent.TASK_CHECK_EVENT, new TaskEventDelay(),ConditionType.C_FIT_MST_T, isWin, monster.getId());
+//						role.handleEvent(GameEvent.TASK_CHECK_EVENT, new TaskEventDelay(),ConditionType.C_FIT_MST_T, isWin, monster.getId());
 					}
 				}
 			}
@@ -277,6 +284,7 @@ public class MapResource extends MapRefreshObj implements TimerOver {
 			}
 			String newStr = sb.toString().substring(0,sb.toString().length() - 1);
 			NewLogManager.mapLog(role, "attack_resource_field",key,(int)point.x,(int)point.y,newStr);
+			GameLog.info("[startCollect]uid"+cInfo.getUid()+"|weight="+"|total="+total+"|value="+value+"|collectSpeed="+collectSpeed+"|rate="+rate+"|garrisonTime="+garrisonTime);
 		} catch (Exception e) {
 			GameLog.info("埋点错误");
 		}
@@ -317,8 +325,12 @@ public class MapResource extends MapRefreshObj implements TimerOver {
 			ExpediteTroops expedite = collecterTroops.backToCome();
 			if (total > 0){
 				expedite.getLeader().addSomethingToPackage(ExpeditePackageType.PACKAGE_TYPE_RESOURCE,key,total);//添加资源到行军部队
+				//采集完成生成一条pve日志
+				Resourcefield resourceField = getData();//资源田固化数据
+				String monsterKey = resourceField.getMonster();
+				LogManager.pveLog(role, EventName.ResourceCollection.getName(), monsterKey, (byte)1, EventName.ResourceCollection.getName(), key, total);
 				// 下发采集报告
-				CollectReport report = new CollectReport(String.valueOf(TimeUtils.nowLong() / 1000), position, total,level, key);
+				CollectReport report = new CollectReport(String.valueOf(TimeUtils.nowLong() / Const.SECOND), position, total,level, key);
 				String reportStr = JsonUtil.ObjectToJsonString(report);
 				chatMgr.creatBattleReportAndSend(reportStr, ReportType.TYPE_COLLECTION, null, role);
 				//任务事件
@@ -333,14 +345,14 @@ public class MapResource extends MapRefreshObj implements TimerOver {
 			} else {
 				setDeleteFlag(true);
 				save();
+				sendChange();
 			}
 			int start = role.getCity(0).getPosition();
 			int end = collecterTroops.getPosition();
-			LogManager.mapLog(role, start, end, collecterTroops.getId(),"endOfCollection");
+			LogManager.mapLog(role, start, end, collecterTroops.getId(),EventName.endOfCollection.getName());
 			collecter.clear();
 			safeTimer = null;
 			info.clear();
-			sendChange();
 		}
 	}
 	
@@ -356,11 +368,23 @@ public class MapResource extends MapRefreshObj implements TimerOver {
 			float value = MapUtil.updateCollecter(this,collecter,role,info.getCityId());
 			float collectSpeed = troops.getTroops().computeCollectSpeed(role,key,value);
 			long now = TimeUtils.nowLong() / 1000 ;
-			float total = weight - have;
+			float max = Math.min(weight,output);
+			float total = max - have;
 			long collectTime = Math.max(0,now - troops.getTimer().getStart());
 			collecter.addBuff(collectTime,have,collectSpeed,value);
 			int garrisonTime = (int)(rate * total / (collectSpeed + collectSpeed * value));
+			GameLog.info("[updateCollecteBuff1]uid="+role.getJoy_id()+"|weight="+weight+"|have="+have+"|rate="+rate);
 			troops.getTimer().resetLastAt(now,garrisonTime);//修改持续时间
+		}
+	}
+	
+	public void updateCollecteBuffNoRecive(Role role){
+		GarrisonTroops troops = collecter.troops();
+		if (troops != null){
+			float value = MapUtil.updateCollecter(this,collecter,role,info.getCityId());
+			float collectSpeed = troops.getTroops().computeCollectSpeed(role,key,value);
+			collecter.motifyBuff(collectSpeed,value);
+			GameLog.info("[updateCollecteBuffNoRecive]uid="+role.getJoy_id()+"|collectSpeed="+collectSpeed+"|value="+value);
 		}
 	}
 	
@@ -378,6 +402,22 @@ public class MapResource extends MapRefreshObj implements TimerOver {
 			float rate = MapUtil.getCollectRate(key);
 			float have = collecter.computeCollectNum(rate,level);
 			updateCollecteBuff(role,weight,have,rate);
+			GameLog.info("[updateCollecteBuff2]uid="+role.getJoy_id()+"|weight="+weight+"|have="+have+"|rate="+rate);
 		}
+	}
+	
+	public void die(){
+		if (info.getUid() > 0){//如果正在被采集就不删除
+			return;
+		}
+		//其他刷新逻辑
+		Resourcerefresh rf = dataManager.serach(Resourcerefresh.class,refreshId);
+		if (rf != null && rf.getDeathRefresh() > 0){//死亡重生逻辑
+			RebirthLogic rl = RebirthLogic.create(RebirthLogic.REBIRTH_TYPE_RESOUCE,refreshId);
+			TimerLast timer = new TimerLast(TimeUtils.nowLong() / 1000,rf.getDeathRefresh(),TimerLastType.TIME_OBJ_REBIRTH);
+			rl.registTimer(timer);
+			rl.addSelf();
+		}
+		remove();
 	}
 }

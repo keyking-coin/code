@@ -8,6 +8,7 @@ public interface Const {
 	String RES_PATH = "./res/";
 	String CONF_PATH = "./conf/";
 	String NOC_PATH = "./notice/";
+	String NOC_ADV = "./resxml/";
 	String MARKET_SAVE_FILE_NAME = CONF_PATH + "Market.json";
 	//redAlert
 	long ONE_HOUR_TIME = 60*60;
@@ -71,4 +72,19 @@ public interface Const {
 	//屏蔽字
 	String[] CHAT_WORDS_CLEAR = new String[] { "", "*", "**", "***", "****",
 			"*****", "******", "*******", "********", "*********" , "**********" };
+	
+	//资源收集加工厂购买加速最大最小花费
+	static final int MIN_GEM_ACCELERATE = 10;
+	static final int MAX_GEM_ACCELERATE = 100;
+
+	
+	//资源交易清除CD最大最小花费
+	static final int MIN_DEAL_ACCELERATE = 10;
+	static final int MAX_DEAL_ACCELERATE = 100;
+
+	//默认电力消耗比例
+	static final float DEFAULT_CONSUMPTION = 1.0f;
+	//可以调节的等级限制
+	static final int ELECTR_LEVLE = 5;
+	static final float MAX_RATIO = 1.5f;
 }

@@ -1,5 +1,6 @@
 package com.joymeng.slg.net.handler.impl.skill;
 
+import com.joymeng.log.GameLog;
 import com.joymeng.services.core.buffer.JoyBuffer;
 import com.joymeng.services.core.message.JoyNormalMessage.UserInfo;
 import com.joymeng.services.core.message.JoyProtocol;
@@ -33,11 +34,13 @@ public class ResetArmyPointsHandler extends ServiceHandler{
 		RoleCityAgent agent = role.getCity(cityId);
 		RoleBuild build = agent.searchBuildById(buildId);
 		if(build == null || build.getPointsAgent() == null){
+			GameLog.error("agent.searchBuildById is null buildId = " + buildId);
 			resp.fail();
 			return resp;
 		}
 		if(!build.getPointsAgent().resetArmysPoints(role, type)){
 			resp.fail();
+			return resp;
 		}
 		return resp;
 	}

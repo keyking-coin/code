@@ -13,8 +13,8 @@ public class ReceiveActvtRewardHandler extends ServiceHandler {
 
 	@Override
 	public void _deserialize(JoyBuffer in, ParametersEntity params) {
-		params.put(in.getInt()); // actvtId
-		params.put(in.getInt()); // index	
+		params.put(in.getInt());
+		params.put(in.getInt());	
 	}
 
 	@Override
@@ -30,7 +30,6 @@ public class ReceiveActvtRewardHandler extends ServiceHandler {
 		int index = params.get(1);
 		if (!ActvtManager.getInstance().receiveActvtReward(role, actvtId, index)) {
 			resp.fail();
-			return resp;
 		}
 		return resp;
 	}

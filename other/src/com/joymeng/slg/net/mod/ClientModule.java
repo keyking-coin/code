@@ -6,6 +6,7 @@ public interface ClientModule {
 	public static final byte DATA_TRANS_TYPE_ADD              = 0;//添加
 	public static final byte DATA_TRANS_TYPE_DEL              = 1;//删除
 	public static final byte DATA_TRANS_TYPE_UPDATE           = 2;//修改
+	public static final short NTC_DTCD_DATA_MODULE            = 10000;//拆包数据模块
 	public static final short NTC_DTCD_ENTER_SERVICE_START    = 10001;//服务器启动木块
 	public static final short NTC_DTCD_USER_INFO               = 10002;//玩家数据
 	public static final short NTC_DTCD_ROLE_CITY               = 10003;//城市信息
@@ -75,7 +76,11 @@ public interface ClientModule {
 	public static final short NTC_DTCD_ATTACK_CITY_SUCC = 10066; //攻城胜利
 	public static final short NTC_DTCD_ACTIVITY_TIP = 10067; // 活动HUD提示和领奖提示
 	public static final short NTC_DTCD_MAP_OBJ_CHANGE = 10068; //大地图有建筑编号
-
+	public static final short NTC_DTCD_REDPACKET_ROLE_RP = 10069; //用户的红包记录
+	public static final short NTC_DTCD_REBELLION_INFO = 10070; // 叛军暴乱信息
+	public static final short NTC_DTCD_KICK_ROLE = 10071; //把玩家踢下线，返回登录界面
+	public static final short NTC_DTCD_ADVERTISEMENT = 10072; // 广告内容
+	public static final short NTC_DTCD_ECECT = 10073; // 电力调节
 
 	/**
 	 * 模块类型

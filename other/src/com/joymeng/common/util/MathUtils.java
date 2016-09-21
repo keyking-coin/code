@@ -676,22 +676,18 @@ public class MathUtils {
 		return state ^ bit;
 	}
 	
-	public static class RateComparator implements Comparable<RateComparator>{
-		
-		public Object value;
-		
-		public int rate;
-		
-		public RateComparator(Object value ,int rate){
-			this.value = value;
-			this.rate  = rate;
+	public static RateComparator getRandomObj(List<RateComparator> datas,int total){
+		int random = MathUtils.random(total) + 1;
+		int r = 0;
+		for (int i= 0 ; i < datas.size() ; i++){
+			RateComparator data = datas.get(i);
+			r += data.rate;
+			if(random <= r){
+				return data;
+			}
 		}
-
-		@Override
-		public int compareTo(RateComparator o) {
-			return rate - o.rate;
-		}
-	};
+		return null;
+	}
 	
 	@SuppressWarnings("unchecked")
 	public static <T> T getRandomObj(T[] objs,int[] rates){
@@ -703,14 +699,9 @@ public class MathUtils {
 			datas.add(data);
 		}
 		Collections.sort(datas);
-		int random = MathUtils.random(total) + 1;
-		int r = 0;
-		for (int i= 0 ; i < datas.size() ; i++){
-			RateComparator data = datas.get(i);
-			r += data.rate;
-			if(random <= r){
-				return (T)data.value;
-			}
+		RateComparator rc = getRandomObj(datas,total);
+		if (rc != null){
+			return (T)rc.value;
 		}
 		return null;
 	}

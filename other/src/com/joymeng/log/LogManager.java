@@ -11,13 +11,13 @@ import org.slf4j.LoggerFactory;
 import com.joymeng.Instances;
 import com.joymeng.list.BuildOperation;
 import com.joymeng.list.EquipPosRarQue;
-import com.joymeng.list.EventName;
 import com.joymeng.list.ItemType;
 import com.joymeng.list.RealtimeData;
 import com.joymeng.slg.ServiceApp;
 import com.joymeng.slg.dao.DaoData;
 import com.joymeng.slg.dao.SqlData;
 import com.joymeng.slg.domain.map.MapUtil;
+import com.joymeng.slg.domain.object.bag.data.Equip;
 import com.joymeng.slg.domain.object.bag.data.Item;
 import com.joymeng.slg.domain.object.role.Role;
 import com.joymeng.slg.union.UnionBody;
@@ -46,7 +46,8 @@ public class LogManager implements Instances {
 		LOGGER_TYPE_EQUIP("equip"),  // 装备日志
 		LOGGER_TYPE_GUIDE("guide"),  // 指引日志
 		LOGGER_TYPE_PVP("pvp"),  // pvp日志
-		LOGGER_TYPE_PVE("pve")// pve日志
+		LOGGER_TYPE_PVE("pve"),// pve日志
+		LOGGER_TYPE_USER("user")// 玩家状态日志
 		;
 		private LoggerType(String key){
 			this.key = key;
@@ -190,7 +191,7 @@ public class LogManager implements Instances {
 		String country = role.getCountry();
 		String language = role.getLanguage();
 		int propnum = money;
-		String type_name = getTypeName(event);
+		String type_name = event;
 		HourRunable.recordProduce(channelId,type_name,money,(byte)1);
 		info(logger,serverId, appid, uid, channelId, vipLevel, level,
 				reg_uid_time, country, language, propnum, type_name);
@@ -210,7 +211,7 @@ public class LogManager implements Instances {
 		String country = role.getCountry();
 		String language = role.getLanguage();
 		int propnum = money;
-		String type_name = getTypeName(event);
+		String type_name = event;
 		info(logger,serverId, appid, uid, channelId, vipLevel, level,
 				reg_uid_time, country, language, propnum, type_name);
 	}
@@ -228,7 +229,7 @@ public class LogManager implements Instances {
 		String country = role.getCountry();
 		String language = role.getLanguage();
 		long propnum = num;
-		String type_name = getTypeName(event);
+		String type_name = event;
 		String item_type = getItemType(itemName);
 		String item_name = getCHName(itemName);
 		byte type = RealtimeData.getType(itemName);
@@ -251,7 +252,7 @@ public class LogManager implements Instances {
 		String country = role.getCountry();
 		String language = role.getLanguage();
 		long propnum = num;
-		String type_name = getTypeName(event);
+		String type_name = event;
 		String item_type = getItemType(itemName);
 		String item_name = getCHName(itemName);
 		info(logger,serverId, appid, uid, channelId, vipLevel, level,
@@ -342,7 +343,7 @@ public class LogManager implements Instances {
 		int vipLevel = role.getVipInfo().getVipLevel();
 		int level = role.getLevel();
 		String reg_uid_time = role.getUidRegisTime();
-		String type_name = getTypeName(event);
+		String type_name = event;
 		info(logger,serverId, appid, uid, channelId,country,language, vipLevel, level,
 				reg_uid_time, name, type_name, parameter);
 	}
@@ -361,7 +362,7 @@ public class LogManager implements Instances {
 		String reg_uid_time = role.getUidRegisTime();
 		String start = MapUtil.getStrPosition(startPos);
 		String  end  = MapUtil.getStrPosition(endPos);
-		String type_name = getTypeName(event);
+		String type_name = event;
 		info(logger,serverId, appid, uid, channelId,country,language,vipLevel, level,reg_uid_time, start, end,id, type_name);
 	}
 	
@@ -453,7 +454,7 @@ public class LogManager implements Instances {
 		info(logger,serverId, appid, uid, channelId, country, language, vipLevel, level, reg_uid_time, guideId);
 	}
 	
-	public static void pvpLog(Role role, long group_id, byte result, String prop_name, int number) { // pvp日志
+	public static void pvpLog(Role role, long group_id, String dung_type,String type_name, byte result, String prop_name, int number) { // pvp日志
 		Logger logger = loggers.get(LoggerType.LOGGER_TYPE_PVP);
 		if (logger == null) {
 			return;
@@ -467,8 +468,7 @@ public class LogManager implements Instances {
 		int vipLevel = role.getVipInfo().getVipLevel();
 		int level = role.getLevel();
 		String reg_uid_time = role.getUidRegisTime();
-		String dung_name = "个人挑战";
-		String dung_type = "个人挑战";
+		String dung_name = "玩家pvp记录";
 		String name = getCHName(prop_name);
 		long ally_id;
 		byte ally_type;
@@ -481,10 +481,10 @@ public class LogManager implements Instances {
 			ally_type = 1;
 		}
 		info(logger, serverId, appid, uid, channelId, vipLevel, level,reg_uid_time, country, language, dung_name, dung_type,
-				group_id, result, "进攻玩家城市", name, number, ally_id,ally_type);
+				group_id, result, type_name, name, number, ally_id,ally_type);
 	}
 	
-	public static void pveLog(Role role, String dung_name,String dung_type,byte result, String prop_name, long number) { // pvp日志
+	public static void pveLog(Role role, String dung_name,String dung_type,byte result,String type_name, String prop_name, long number) { // pvp日志
 		Logger logger = loggers.get(LoggerType.LOGGER_TYPE_PVE);
 		if (logger == null) {
 			return;
@@ -505,8 +505,7 @@ public class LogManager implements Instances {
 		if(prop_name.equals("0")){
 			name = prop_name;
 		}else{
-			Item item = dataManager.serach(Item.class, prop_name);
-			name = item.getBeizhuname();
+			name = getCHName(prop_name);
 		}
 		UnionBody unionBody = unionManager.search(role.getUnionId());
 		if (unionBody == null) {
@@ -518,7 +517,15 @@ public class LogManager implements Instances {
 		}
 		info(logger, serverId, appid, uid, channelId, vipLevel, level,
 				reg_uid_time, country, language, dung_name, dung_type, result,
-				pass_star, "废墟副本", name, number, ally_id, ally_type);
+				pass_star, type_name, name, number, ally_id, ally_type);
+	}
+	
+	public static void userLog(Object... params) { // 玩家状态日志
+		Logger logger = loggers.get(LoggerType.LOGGER_TYPE_USER);
+		if (logger == null) {
+			return;
+		}
+		info(logger, params);
 	}
 	
 	public static String getBuildOp(byte operation) {
@@ -609,346 +616,6 @@ public class LogManager implements Instances {
 			break;
 		}
 		return msg_type;
-	}
-	
-	
-	
-	public static String getTypeName(String event) {
-		String type_name = "";
-		switch (event) {
-		case "Garrison":
-			type_name = EventName.Garrison.getName();
-			break;
-		case "Expedite":
-			type_name = EventName.Expedite.getName();
-			break;
-		case "BackCity":
-			type_name = EventName.BackCity.getName();
-			break;
-		case "BackFortress":
-			type_name = EventName.BackFortress.getName();
-			break;
-		case "HttpGmRoleMgr":
-			type_name = EventName.HttpGmRoleMgr.getName();
-			break;
-		case "addResourceToCity":
-			type_name = EventName.addResourceToCity.getName();
-			break;
-		case "useItem":
-			type_name = EventName.useItem.getName();
-			break;
-		case "getHonorReward":
-			type_name = EventName.getHonorReward.getName();
-			break;
-		case "getAwordFromMission":
-			type_name = EventName.getAwordFromMission.getName();
-			break;
-		case "ModifyBasicInfo":
-			type_name = EventName.ModifyBasicInfo.getName();
-			break;
-		case "completeCreate":
-			type_name = EventName.completeCreate.getName();
-			break;
-		case "resetArmysPoints":
-			type_name = EventName.resetArmysPoints.getName();
-			break;
-		case "secondKill":
-			type_name = EventName.secondKill.getName();
-			break;
-		case "BuildLevelup":
-			type_name = EventName.BuildLevelup.getName();
-			break;
-		case "createBuild":
-			type_name = EventName.createBuild.getName();
-			break;
-		case "removeBuild":
-			type_name = EventName.removeBuild.getName();
-			break;
-		case "trainArmy":
-			type_name = EventName.trainArmy.getName();
-			break;
-		case "cureArmys":
-			type_name = EventName.cureArmys.getName();
-			break;
-		case "repairDefenseArmys":
-			type_name = EventName.repairDefenseArmys.getName();
-			break;
-		case "buyItemSize":
-			type_name = EventName.buyItemSize.getName();
-			break;
-		case "upgradeTech":
-			type_name = EventName.upgradeTech.getName();
-			break;
-		case "resetSkills":
-			type_name = EventName.resetSkills.getName();
-			break;
-		case "tryToBuySomeThing":
-			type_name = EventName.tryToBuySomeThing.getName();
-			break;
-		case "UnlockLandIdHandler":
-			type_name = EventName.UnlockLandIdHandler.getName();
-			break;
-		case "UnionCreateHandler":
-			type_name = EventName.UnionCreateHandler.getName();
-			break;
-		case "tryToChangeFlag":
-			type_name = EventName.tryToChangeFlag.getName();
-			break;
-		case "unionDonate":
-			type_name = EventName.unionDonate.getName();
-			break;
-		case "packageBack":
-			type_name = EventName.packageBack.getName();
-			break;
-		case "troopsArrive":
-			type_name = EventName.troopsArrive.getName();
-			break;
-		case "disMissArmy":
-			type_name = EventName.disMissArmy.getName();
-			break;
-		case "equipDecompose":
-			type_name = EventName.equipDecompose.getName();
-			break;
-		case "materialSynthesis":
-			type_name = EventName.materialSynthesis.getName();
-			break;
-		case "cancelBuildLevelup":
-			type_name = EventName.cancelBuildLevelup.getName();
-			break;
-		case "cancelCreateBuild":
-			type_name = EventName.cancelCreateBuild.getName();
-			break;
-		case "cancelTrainArmy":
-			type_name = EventName.cancelTrainArmy.getName();
-			break;
-		case "EquipUpgradeOver":
-			type_name = EventName.EquipUpgradeOver.getName();
-			break;
-		case "getGems":
-			type_name = EventName.getGems.getName();
-			break;
-		case "collectResource":
-			type_name = EventName.collectResource.getName();
-			break;
-		case "cancelUpgradeTech":
-			type_name = EventName.cancelUpgradeTech.getName();
-			break;
-		case "getDailyReward":
-			type_name = EventName.getDailyReward.getName();
-			break;
-		case "sudokuOpen":
-			type_name = EventName.sudokuOpen.getName();
-			break;
-		case "roleSevenSignIn":
-			type_name = EventName.roleSevenSignIn.getName();
-			break;
-		case "roleThirtySignIn":
-			type_name = EventName.roleThirtySignIn.getName();
-			break;
-		case "ModifyAddItem":
-			type_name = EventName.ModifyAddItem.getName();
-			break;
-		case "ModifyPlayerItem":
-			type_name = EventName.ModifyPlayerItem.getName();
-			break;
-		case "StartTurntableHandler":
-			type_name = EventName.StartTurntableHandler.getName();
-			break;
-		case "buyUnionGoods":
-			type_name = EventName.buyUnionGoods.getName();
-			break;
-		case "equipRefine":
-			type_name = EventName.equipRefine.getName();
-			break;
-		case "getOutlineConsumption":
-			type_name = EventName.getOutlineConsumption.getName();
-			break;
-		case "grainConsumption":
-			type_name = EventName.grainConsumption.getName();
-			break;
-		case "redCostResource":
-			type_name = EventName.redCostResource.getName();
-			break;
-		case "upgradeEquipment":
-			type_name = EventName.upgradeEquipment.getName();
-			break;
-		case "tryToBuyCell":
-			type_name = EventName.tryToBuyCell.getName();
-			break;
-		case "tryToRefresh":
-			type_name = EventName.tryToRefresh.getName();
-			break;	
-		case "creatUnion":
-			type_name = EventName.creatUnion.getName();
-			break;	
-		case "applyJoinUnion":
-			type_name = EventName.applyJoinUnion.getName();
-			break;
-		case "exitUnion":
-			type_name = EventName.exitUnion.getName();
-			break;
-		case "memberAppoint":
-			type_name = EventName.memberAppoint.getName();
-			break;
-		case "changeUnionName":
-			type_name = EventName.changeUnionName.getName();
-			break;	
-		case "changeRecruit":
-			type_name = EventName.changeRecruit.getName();
-			break;	
-		case "changeFlag":
-			type_name = EventName.changeFlag.getName();
-			break;
-		case "levelUpUnion":
-			type_name = EventName.levelUpUnion.getName();
-			break;
-		case "kickMember":
-			type_name = EventName.kickMember.getName();
-			break;
-		case "invitMemberSearch":
-			type_name = EventName.invitMemberSearch.getName();
-			break;
-		case "inviteMemberIn":
-			type_name = EventName.inviteMemberIn.getName();
-			break;
-		case "addAssistance":
-			type_name = EventName.addAssistance.getName();
-			break;
-		case "techDonate":
-			type_name = EventName.techDonate.getName();
-			break;
-		case "techUpgrade":
-			type_name = EventName.techUpgrade.getName();
-			break;
-		case "convertGoods":
-			type_name = EventName.convertGoods.getName();
-			break;
-		case "buyGoods":
-			type_name = EventName.buyGoods.getName();
-			break;
-		case "changeTitle":
-			type_name = EventName.changeTitle.getName();
-			break;
-		case "acceptJionIn":
-			type_name = EventName.acceptJionIn.getName();
-			break;
-		case "removeItemTo":
-			type_name = EventName.removeItemTo.getName();
-			break;
-		case "changeUnionShort":
-			type_name = EventName.changeUnionShort.getName();
-			break;
-		case "changeUnionDeclar":
-			type_name = EventName.changeUnionDeclar.getName();
-			break;
-		case "dissolveUnion":
-			type_name = EventName.dissolveUnion.getName();
-			break;
-		case "buildFortress":
-			type_name = EventName.buildFortress.getName();
-			break;
-		case "buildCity":
-			type_name = EventName.buildCity.getName();
-			break;
-		case "others":
-			type_name = EventName.others.getName();
-			break;
-		case "garrison":
-			type_name = EventName.garrison.getName();
-			break;
-		case "spy":
-			type_name = EventName.spy.getName();
-			break;
-		case "allocation":
-			type_name = EventName.allocation.getName();
-			break;
-		case "aggregation":
-			type_name = EventName.aggregation.getName();
-			break;
-		case "toAggregation":
-			type_name = EventName.toAggregation.getName();
-			break;
-		case "collection":
-			type_name = EventName.collection.getName();
-			break;	
-		case "getAwardDailyTask":
-			type_name = EventName.getAwardDailyTask.getName();
-			break;
-		case "_buyOk":
-			type_name = EventName._buyOk.getName();
-			break;	
-		case "toEctype":
-			type_name = EventName.toEctype.getName();
-			break;
-		case "arriveAtGarrisonPoint":
-			type_name = EventName.arriveAtGarrisonPoint.getName();
-			break;
-		case "InvestCompletion":
-			type_name = EventName.InvestCompletion.getName();
-			break;
-		case "endOfBattle":
-			type_name = EventName.endOfBattle.getName();
-			break;
-		case "startCollecting":
-			type_name = EventName.startCollecting.getName();
-			break;
-		case "endOfCollection":
-			type_name = EventName.endOfCollection.getName();
-			break;
-		case "startBuildFortres":
-			type_name = EventName.startBuildFortres.getName();
-			break;
-		case "startBuildCity":
-			type_name = EventName.startBuildCity.getName();
-			break;
-		case "moveCityComplete":
-			type_name = EventName.moveCityComplete.getName();
-			break;
-		case "buildFortComplete":
-			type_name = EventName.buildFortComplete.getName();
-			break;
-		case "withdrawalForce":
-			type_name = EventName.withdrawalForce.getName();
-			break;
-		case "investConsumption":
-			type_name = EventName.investConsumption.getName();
-			break;
-		case "startFighting":
-			type_name = EventName.startFighting.getName();
-			break;
-			
-		case "creatUnionBuild":
-			type_name = EventName.creatUnionBuild.getName();
-			break;
-		case "levelUpunionBuild":
-			type_name = EventName.levelUpunionBuild.getName();
-			break;
-		case "removeUnionBuild":
-			type_name = EventName.removeUnionBuild.getName();
-			break;
-		case "cRemoveUnionBuild":
-			type_name = EventName.cRemoveUnionBuild.getName();
-			break;
-		case "ruinsHarvest":
-			type_name = EventName.ruinsHarvest.getName();
-			break;
-		case "roleTradeCityResource":
-			type_name = EventName.roleTradeCityResource.getName();
-			break;	
-		case "fortressAnd":
-			type_name = EventName.fortressAnd.getName();
-			break;
-		case "FortressLevelUp":
-			type_name = EventName.FortressLevelUp.getName();
-			break;
-		case "MailItemsHandler":
-			type_name = EventName.MailItemsHandler.getName();
-			break;
-		default:
-			type_name = "尚未记录事件";
-			break;
-		}
-		return type_name;
 	}
 
 	public static String getItemType(String itemName) {
@@ -1089,8 +756,11 @@ public class LogManager implements Instances {
 	public static String getCHName(String item) {
 		String name = "";
 		Item it = dataManager.serach(Item.class, item);
+		Equip eq = dataManager.serach(Equip.class, item);
 		if (it != null) {
 			name = it.getBeizhuname();
+		} else if (eq != null) {
+			name = eq.getBeizhuname();
 		} else {
 			switch (item) {
 			case "food":
@@ -1152,6 +822,9 @@ public class LogManager implements Instances {
 				break;
 			case "stamina":
 				name = "玩家体力";
+				break;
+			case "0":
+				name = "0";
 				break;
 			default:
 				name = "未知";

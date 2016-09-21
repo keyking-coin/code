@@ -7,7 +7,7 @@ import com.joymeng.common.util.TimeUtils;
 
 /**
  * 聊天组
- * @author zhouyongjun
+ * @author houshanping
  */
 public class ChatGroup {
 	public static byte MAX_NUM = 100;

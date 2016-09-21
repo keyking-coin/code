@@ -3,11 +3,11 @@ package com.joymeng.slg.domain.actvt;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.lang.reflect.Method;
+import java.text.MessageFormat;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.zip.GZIPInputStream;
@@ -22,29 +22,32 @@ import org.quartz.CronScheduleBuilder;
 import org.quartz.CronTrigger;
 import org.quartz.JobBuilder;
 import org.quartz.JobDetail;
+import org.quartz.JobKey;
+import org.quartz.SchedulerException;
 import org.quartz.TriggerBuilder;
+import org.quartz.impl.StdSchedulerFactory;
+import org.w3c.dom.Element;
 
-import com.alibaba.fastjson.JSON;
 import com.joymeng.Instances;
 import com.joymeng.common.util.MessageSendUtil;
+import com.joymeng.common.util.Yotils;
 import com.joymeng.log.GameLog;
+import com.joymeng.services.utils.XmlUtils;
 import com.joymeng.slg.dao.DaoData;
 import com.joymeng.slg.dao.SqlData;
-import com.joymeng.slg.domain.actvt.DTManager.SearchFilter;
-import com.joymeng.slg.domain.actvt.data.Activity;
-import com.joymeng.slg.domain.actvt.data.Activity_cmd;
-import com.joymeng.slg.domain.actvt.data.Activity_reward;
-import com.joymeng.slg.domain.evnt.EventMgr;
-import com.joymeng.slg.domain.evnt.EvntManager;
+import com.joymeng.slg.domain.actvt.data.ActvtCommon;
+import com.joymeng.slg.domain.actvt.data.ActvtReward;
+import com.joymeng.slg.domain.actvt.data.ActvtTask;
+import com.joymeng.slg.domain.chat.MsgTitleType;
 import com.joymeng.slg.domain.evnt.IEvnt;
 import com.joymeng.slg.domain.object.bag.BriefItem;
 import com.joymeng.slg.domain.object.bag.ItemCell;
 import com.joymeng.slg.domain.object.role.Role;
 import com.joymeng.slg.net.mod.RespModuleSet;
 
-public abstract class Actvt extends EventMgr implements IEvnt, Instances, DaoData {
+public abstract class Actvt implements IEvnt, Instances, DaoData {
 	public enum ActvtState {
-		PREPARE("未开始"), RUNING("进行中"), END("已结束"), ENDING("正在结束");
+		PREPARE("未开始"), RUNING("进行中"), END("已结束"), HIDE("已隐藏");
 
 		private String name;
 
@@ -57,42 +60,25 @@ public abstract class Actvt extends EventMgr implements IEvnt, Instances, DaoDat
 		}
 	}
 
-	protected static final String SPCH = "#";
-
-	private int id = 0;
-	protected ActvtState state = ActvtState.PREPARE;
-
-	private Activity activity;
-	private List<Activity_cmd> cmds;
-
+	protected static final String STATE_STR_SPLIT_CH = "#";
 	private DateTimeFormatter jodaFormatter = DateTimeFormat.forPattern("yyyy/MM/dd HH:mm:ss");
+
+	protected ActvtState state;
+	protected ActvtCommon commonData = new ActvtCommon();
+	protected Map<String, ActvtReward> rewardMap = new HashMap<String, ActvtReward>();
+	protected List<ActvtReward> rewardList = new ArrayList<ActvtReward>();
+	protected Map<String, ActvtTask> taskMap = new HashMap<String, ActvtTask>();
+	protected List<ActvtTask> taskList = new ArrayList<ActvtTask>();
 
 	private DateTime showTime;
 	private DateTime startTime;
 	private DateTime endTime;
 	private DateTime hideTime;
 	boolean savIng = false;
-	
-	private Timer startTimer;
-	private Timer endTimer;
 
-	class RewardComparator implements Comparator<Activity_reward> 
-	{
-		@Override
-		public int compare(Activity_reward reward1, Activity_reward reward2) 
-		{
-			return reward1.getsID().compareTo(reward2.getsID());
-		}
-	}
-	protected RewardComparator rewardComparator = new RewardComparator();
-	
-	public Activity getActivity() {
-		return activity;
-	}
-
-	public int getId() {
-		return id;
-	}
+	protected Timer startTimer;
+	protected Timer endTimer;
+	protected Timer hideTimer;
 
 	public boolean isRuning() {
 		return state == ActvtState.RUNING;
@@ -102,12 +88,12 @@ public abstract class Actvt extends EventMgr implements IEvnt, Instances, DaoDat
 		return state.getName();
 	}
 
-	public int getStateOdinal(long joyId) {
+	public int getStateOdinal() {
 		return state.ordinal();
 	}
 
 	public long getStartSeconds() {
-		if (state == ActvtState.END) {
+		if (state == ActvtState.END || state == ActvtState.HIDE) {
 			return 0L;
 		} else if (state == ActvtState.PREPARE) {
 			return showTime.getMillis() / 1000;
@@ -116,7 +102,7 @@ public abstract class Actvt extends EventMgr implements IEvnt, Instances, DaoDat
 	}
 
 	public long getLastSeconds() {
-		if (state == ActvtState.END) {
+		if (state == ActvtState.END || state == ActvtState.HIDE) {
 			return 0L;
 		} else if (state == ActvtState.PREPARE) {
 			return startTime.getMillis() / 1000 - showTime.getMillis() / 1000;
@@ -124,8 +110,8 @@ public abstract class Actvt extends EventMgr implements IEvnt, Instances, DaoDat
 		return endTime.getMillis() / 1000 - startTime.getMillis() / 1000;
 	}
 
-	public long getNowSeconds(long joyId) {
-		if (state == ActvtState.END) {
+	public long getNowSeconds() {
+		if (state == ActvtState.END || state == ActvtState.HIDE) {
 			return 0L;
 		}
 		return DateTime.now().getMillis() / 1000;
@@ -143,6 +129,32 @@ public abstract class Actvt extends EventMgr implements IEvnt, Instances, DaoDat
 		return "";
 	}
 
+	public ActvtCommon getCommonData() {
+		return commonData;
+	}
+
+	public List<ActvtReward> getRewardList() {
+		return rewardList;
+	}
+
+	public List<ActvtTask> getTaskList() {
+		return taskList;
+	}
+
+	public ActvtReward getReward(String id) {
+		if (rewardMap.containsKey(id)) {
+			return rewardMap.get(id);
+		}
+		return null;
+	}
+
+	public ActvtTask getTask(String id) {
+		if (taskMap.containsKey(id)) {
+			return taskMap.get(id);
+		}
+		return null;
+	}
+
 	private DateTime parseTime(String timestr) {
 		if (timestr.equals("now")) {
 			return DateTime.now();
@@ -153,218 +165,213 @@ public abstract class Actvt extends EventMgr implements IEvnt, Instances, DaoDat
 		}
 	}
 
-	public boolean init(Activity actvt) {
-		this.activity = actvt;
-		id = actvtMgr.GenerateActvtId();
-
-		showTime = parseTime(activity.getShowTime());
-		startTime = parseTime(activity.getStartTime());
-		endTime = parseTime(activity.getEndTime());
-//		if (activity.getType().equals("ScoreRush")) {
-//			endTime = DateTime.now();
-//			int idx = Integer.parseInt(activity.getTypeId().substring(9));
-//			endTime.plusMinutes(2*idx);
-//		}
-		hideTime = parseTime(activity.getHideTime());
-		if (!showTime.isBefore(startTime) || !startTime.isBefore(endTime) || !endTime.isBefore(hideTime)) {
-			GameLog.error("actvt: " + activity.getTypeId() + " time have error");
-			return false;
-		}
-
-		cmds = actvtMgr.serachList(Activity_cmd.class, new SearchFilter<Activity_cmd>() {
-			@Override
-			public boolean filter(Activity_cmd data) {
-				return data.getActivity().equals(activity.getType()) || data.getActivity().equals(activity.getTypeId());
-			}
-		});
-		for (int i = 0; i < cmds.size(); i++) {
-			Activity_cmd cmd = cmds.get(i);
-			EvntManager.getInstance().Listen(cmd.getEvents(), this);
-			Listen(cmd.getEvents(), this);
-		}
-
+	public void init() {
 		state = ActvtState.PREPARE;
-		if (endTime.isBefore(DateTime.now())) {
-			state = ActvtState.END;
-		} else {
-			startTimer = new Timer();
-			startTimer.schedule(new TimerTask() {
-				@Override
-				public void run() {
-					start();
-				}
-			}, startTime.toDate());
 
-			endTimer = new Timer();
-			endTimer.schedule(new TimerTask() {
-				@Override
-				public void run() {
-					end();
-				}
-			}, endTime.toDate());
-		}
-
-		return true;
-	}
-	
-	public boolean hotInit(Activity actvt)
-	{
-		this.activity = actvt;
-		
-		for (int i = 0; i < cmds.size(); i++) {
-			Activity_cmd cmd = cmds.get(i);
-			EvntManager.getInstance().Remove(cmd.getEvents(), this);
-			Remove(cmd.getEvents(), this);
-		}
-		
 		if (startTimer != null) {
 			startTimer.cancel();
-		}
-		if (endTimer != null) {
-			endTimer.cancel();
-		}
-		
-		showTime = parseTime(activity.getShowTime());
-		startTime = parseTime(activity.getStartTime());
-		endTime = parseTime(activity.getEndTime());
-		hideTime = parseTime(activity.getHideTime());
-		
-		if (!showTime.isBefore(startTime) || !startTime.isBefore(endTime) || !endTime.isBefore(hideTime)) {
-			GameLog.error("actvt: " + activity.getTypeId() + " time have error");
-			return false;
+			startTimer = null;
 		}
 
-		cmds = actvtMgr.serachList(Activity_cmd.class, new SearchFilter<Activity_cmd>() {
+		startTimer = new Timer();
+		startTimer.schedule(new TimerTask() {
 			@Override
-			public boolean filter(Activity_cmd data) {
-				return data.getActivity().equals(activity.getType()) || data.getActivity().equals(activity.getTypeId());
+			public void run() {
+				start();
 			}
-		});
-		for (int i = 0; i < cmds.size(); i++) {
-			Activity_cmd cmd = cmds.get(i);
-			EvntManager.getInstance().Listen(cmd.getEvents(), this);
-			Listen(cmd.getEvents(), this);
-		}
+		}, startTime.toDate());
 
-		state = ActvtState.PREPARE;
-		if (endTime.isBefore(DateTime.now())) {
-			state = ActvtState.END;
-		} else {
-			startTimer = new Timer();
-			startTimer.schedule(new TimerTask() {
-				@Override
-				public void run() {
-					start();
-				}
-			}, startTime.toDate());
-
-			endTimer = new Timer();
-			endTimer.schedule(new TimerTask() {
-				@Override
-				public void run() {
-					end();
-				}
-			}, endTime.toDate());
-		}
-		return true;
-	}
-	
-	public void hotLoadEnd()
-	{
-		state = ActvtState.END;
-
-		for (int i = 0; i < cmds.size(); i++) {
-			Activity_cmd cmd = cmds.get(i);
-			EvntManager.getInstance().Remove(cmd.getEvents(), this);
-			Remove(cmd.getEvents(), this);
-		}
-		
-		if (startTimer != null) {
-			startTimer.cancel();
-		}
 		if (endTimer != null) {
 			endTimer.cancel();
+			endTimer = null;
 		}
+
+		endTimer = new Timer();
+		endTimer.schedule(new TimerTask() {
+			@Override
+			public void run() {
+				end();
+			}
+		}, endTime.toDate());
+
+		if (hideTimer != null) {
+			hideTimer.cancel();
+			hideTimer = null;
+		}
+
+		hideTimer = new Timer();
+		hideTimer.schedule(new TimerTask() {
+			@Override
+			public void run() {
+				hide();
+			}
+		}, hideTime.toDate());
 	}
 
 	public void start() {
-		GameLog.info("actvt start: " + activity.getName());
 		state = ActvtState.RUNING;
-		Notify("start", "");
+		GameLog.info("actvt start name=" + commonData.getName() + " id=" + getId());
 	}
-	
-	public abstract void load();
 
 	public void end() {
 		state = ActvtState.END;
-		Notify("end", "");
+		GameLog.info("actvt end name=" + commonData.getName() + " id=" + getId());
+	}
 
-		for (int i = 0; i < cmds.size(); i++) {
-			Activity_cmd cmd = cmds.get(i);
-			EvntManager.getInstance().Remove(cmd.getEvents(), this);
-			Remove(cmd.getEvents(), this);
-		}
-		
+	public void hide() {
 		if (startTimer != null) {
 			startTimer.cancel();
+			startTimer = null;
 		}
 		if (endTimer != null) {
 			endTimer.cancel();
+			endTimer = null;
+		}
+		if (hideTimer != null) {
+			hideTimer.cancel();
+			hideTimer = null;
+		}
+		state = ActvtState.HIDE;
+		GameLog.info("actvt hide name=" + commonData.getName() + " id=" + getId());
+		ActvtManager.getInstance().hideActvt(getId());
+	}
+
+	public void load(Element element) throws Exception {
+		commonData.setId(Integer.parseInt(element.getAttribute("id")));
+		commonData.setType(element.getAttribute("type"));
+		commonData.setName(element.getAttribute("name"));
+		commonData.setIcon(element.getAttribute("icon"));
+		commonData.setShowTime(element.getAttribute("showTime"));
+		commonData.setStartTime(element.getAttribute("startTime"));
+		commonData.setEndTime(element.getAttribute("endTime"));
+		commonData.setHideTime(element.getAttribute("hideTime"));
+		commonData.setBriefDesc(element.getAttribute("briefDesc"));
+		commonData.setDetailDesc(element.getAttribute("detailDesc"));
+
+		showTime = parseTime(commonData.getShowTime());
+		startTime = parseTime(commonData.getStartTime());
+		endTime = parseTime(commonData.getEndTime());
+		hideTime = parseTime(commonData.getHideTime());
+		if (showTime.isAfter(startTime) || startTime.isAfter(endTime) || endTime.isAfter(hideTime)) {
+			throw new Exception("id =" + commonData.getId() + " time order is error");
+		}
+		if (!endTime.isAfter(DateTime.now())) {
+			throw new Exception("id =" + commonData.getId() + " endTime=" + commonData.getEndTime() + " already ended");
+		}
+
+		rewardList.clear();
+		rewardMap.clear();
+		Element eleRewards = XmlUtils.getChildByName(element, "Rewards");
+		if (eleRewards != null) {
+			if (eleRewards.hasChildNodes()) {
+				Element[] eles = XmlUtils.getChildrenByName(eleRewards, "Reward");
+				for (int i = 0; i < eles.length; i++) {
+					ActvtReward rd = new ActvtReward();
+					Element ele = eles[i];
+					rd.setId(ele.getAttribute("id"));
+					if (ele.hasAttribute("tag")) {
+						rd.setTag(ele.getAttribute("tag"));
+					}
+					rd.setItems(ele.getAttribute("items"));
+					if (!rd.checkValide()) {
+						throw new Exception("id =" + commonData.getId() + " rewardId=" + rd.getId() + " error");
+					}
+					if (rewardMap.containsKey(rd.getId())) {
+						throw new Exception(
+								"id =" + commonData.getId() + " rewardId=" + rd.getId() + " id already exist");
+					}
+					rewardList.add(rd);
+					rewardMap.put(rd.getId(), rd);
+				}
+			}
+		}
+
+		taskList.clear();
+		taskMap.clear();
+		Element eleTasks = XmlUtils.getChildByName(element, "Tasks");
+		if (eleTasks != null) {
+			if (eleTasks.hasChildNodes()) {
+				Element[] eles = XmlUtils.getChildrenByName(eleTasks, "Task");
+				for (int i = 0; i < eles.length; i++) {
+					Element ele = eles[i];
+					ActvtTask td = new ActvtTask();
+					td.setId(ele.getAttribute("id"));
+					if (!ele.hasAttribute("isShow") || ele.getAttribute("isShow").equals("1")) {
+						td.setShow(true);
+					} else {
+						td.setShow(false);
+					}
+					td.setDesc(ele.getAttribute("desc"));
+					td.setType(ele.getAttribute("type"));
+
+					int n = 1;
+					List<String> args = td.getArgs();
+					while (true) {
+						String name = "arg" + n++;
+						if (ele.hasAttribute(name)) {
+							args.add(ele.getAttribute(name));
+						} else {
+							break;
+						}
+					}
+
+					String nums = ele.getAttribute("num");
+					if (!Yotils.isNumeric(nums) || Integer.parseInt(nums) <= 0) {
+						throw new Exception("id =" + commonData.getId() + " taskId=" + td.getId() + " num error");
+					}
+					td.setNum(Integer.parseInt(nums));
+					taskList.add(td);
+					taskMap.put(td.getId(), td);
+				}
+			}
 		}
 	}
 
-	public void innerTimer(String value, String data) {
-		GameLog.info("innerTimer, " + value + ", " + data);
+	public void startInnerTimer(String cron, String tag) {
+		try {
+			JobDetail job = JobBuilder.newJob(ActvtInnerTimerJob.class)
+					.withIdentity(MessageFormat.format("job_{0}_{1}", getId(), tag), "actvt")
+					.usingJobData("actvtId", getId()).usingJobData("tag", tag).build();
 
-		String[] values = value.split("#");
-		if (values.length < 2) {
-			GameLog.error("actvt type=" + activity.getTypeId() + " innerTimer value=" + value);
-			return;
-		}
+			CronTrigger trigger = TriggerBuilder.newTrigger()
+					.withIdentity(MessageFormat.format("trigger_{0}_{1}", getId(), tag), "actvt")
+					.withSchedule(CronScheduleBuilder.cronSchedule(cron)).build();
 
-		String tag = values[0];
-		String times = values[1];
-
-		JobDetail job = JobBuilder.newJob(ActvtInnerTimerJob.class)
-				.withIdentity(String.format("job_%d_%s", getId(), tag), "actvt").usingJobData("actvtId", getId())
-				.usingJobData("tag", tag).build();
-
-		CronTrigger trigger = TriggerBuilder.newTrigger()
-				.withIdentity(String.format("trigger_%d_%s", getId(), tag), "actvt")
-				.withSchedule(CronScheduleBuilder.cronSchedule(times)).build();
-
-		actvtMgr.scheduleJob(job, trigger);
-	}
-	
-	public void stopInnerTimer(String value, String data)
-	{
-		String[] values = value.split("#");
-		for (int i = 0; i < values.length; i++)
-		{
-			String tag = values[i];
-			actvtMgr.stopJob(String.format("job_%d_%s", getId(), tag), "actvt");
+			StdSchedulerFactory.getDefaultScheduler().scheduleJob(job, trigger);
+		} catch (SchedulerException e) {
+			GameLog.error("startInnerTimer exception:", e);
 		}
 	}
 
-	public void logActvt(String arg, String data) {
+	public void innerTimerCB(String tag) {
 
 	}
-	
-	public void sendEmail(long joyId, String content, List<Activity_reward> rewards)
-	{
-		if (rewards != null && rewards.size() > 0)
-		{
+
+	public void stopInnerTimer(String tag) {
+		try {
+			StdSchedulerFactory.getDefaultScheduler()
+					.deleteJob(JobKey.jobKey(MessageFormat.format("job_{0}_{1}", getId(), tag), "actvt"));
+		} catch (SchedulerException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public int getId() {
+		return commonData.getId();
+	}
+
+	public void sendEmail(long joyId, String content, ActvtReward reward) {
+		if (reward != null) {
 			List<BriefItem> annex = new ArrayList<BriefItem>();
-			for (int i = 0; i < rewards.size(); i++)
-			{
-				Activity_reward reward = rewards.get(i);
-				BriefItem bri = new BriefItem(reward.getType(),reward.getsID(),reward.getNum());
+			Map<String, Integer> items = reward.getRewardMap();
+			for (Map.Entry<String, Integer> entry : items.entrySet()) {
+				String itemId = entry.getKey();
+				int num = entry.getValue();
+				BriefItem bri = new BriefItem("test", itemId, num);
 				annex.add(bri);
 			}
-			chatMgr.creatSystemEmail(content, annex, joyId);
-		}
-		else 
-		{
+			chatMgr.creatSystemEmail(MsgTitleType.MSG_TITLE_GENERAL_SYSTEM, content, annex, joyId);
+		} else {
 			chatMgr.creatSystemEmail(content, joyId);
 		}
 	}
@@ -380,18 +387,21 @@ public abstract class Actvt extends EventMgr implements IEvnt, Instances, DaoDat
 	}
 
 	public void startTick(String value, String data) {
-		GameLog.info("startTick, " + value + ", " + data);
+		try {
+			String times = value;
 
-		String times = value;
+			JobDetail job = JobBuilder.newJob(ActvtTickJob.class)
+					.withIdentity(String.format("job_tick_%s", commonData.getId()), "actvt")
+					.usingJobData("actvtId", commonData.getId()).build();
 
-		JobDetail job = JobBuilder.newJob(ActvtTickJob.class)
-				.withIdentity(String.format("job_tick_%d", getId()), "actvt").usingJobData("actvtId", getId()).build();
+			CronTrigger trigger = TriggerBuilder.newTrigger()
+					.withIdentity(String.format("trigger_tick_%s", commonData.getId()), "actvt")
+					.withSchedule(CronScheduleBuilder.cronSchedule(times)).build();
 
-		CronTrigger trigger = TriggerBuilder.newTrigger()
-				.withIdentity(String.format("trigger_tick_%d", getId()), "actvt")
-				.withSchedule(CronScheduleBuilder.cronSchedule(times)).build();
-
-		actvtMgr.scheduleJob(job, trigger);
+			StdSchedulerFactory.getDefaultScheduler().scheduleJob(job, trigger);
+		} catch (Exception e) {
+			GameLog.error("startTick exception:", e);
+		}
 	}
 
 	public void rewardPlayer(long joyId, String reward) {
@@ -402,24 +412,6 @@ public abstract class Actvt extends EventMgr implements IEvnt, Instances, DaoDat
 			// SN 错误处理
 		}
 	}
-
-//	public void rewardPlayer(String rewardId, String data) {
-//		if (!Yotils.isNumeric(data)) {
-//			GameLog.error(
-//					"actvt id=" + id + " type=" + activity.getTypeId() + " rewardPlayer data=" + data + " is not number");
-//			return;
-//		}
-//
-//		long joyId = Long.parseLong(data);
-//		Role role = world.getRole(joyId);
-//		if (role != null) {
-//	List<Activity_reward> rewardList = actvtMgr.getReward(rewardId);
-//			rewardPlayer(role, Activity_reward.toString(rewardList));
-//		} else {
-//			GameLog.error("actvt id=" + id + " type=" + activity.getTypeId() + " rewardPlayer data=" + data
-//					+ " role doesn't exist");
-//		}
-//	}
 
 	public void rewardPlayer(Role role, String reward) {
 		RespModuleSet rms = new RespModuleSet();
@@ -447,8 +439,8 @@ public abstract class Actvt extends EventMgr implements IEvnt, Instances, DaoDat
 			} else if (ActvtRewardType.UNION_SCORE.equals(type)) {
 
 			} else {
-				GameLog.error("actvt id=" + id + " type=" + activity.getTypeId() + " rewardPlayer joyId=" + role.getId()
-						+ " reward=" + reward + " doesn't exist");
+				GameLog.error("actvt id=" + commonData.getId() + " type=" + commonData.getType()
+						+ " rewardPlayer joyId=" + role.getId() + " reward=" + reward + " doesn't exist");
 			}
 		}
 		MessageSendUtil.sendModule(rms, role.getUserInfo());
@@ -468,15 +460,10 @@ public abstract class Actvt extends EventMgr implements IEvnt, Instances, DaoDat
 		return false;
 	}
 
-	public void taskEvent(String value, String data) {
+	public void taskEvent(Object... datas) {
 	}
 
 	public void tick() {
-	}
-
-	@Override
-	public String toString() {
-		return JSON.toJSONString(activity);
 	}
 
 	public static long getBit(long value, int position) {
@@ -490,61 +477,45 @@ public abstract class Actvt extends EventMgr implements IEvnt, Instances, DaoDat
 		return ~(value ^ (~(1L << position)));
 	}
 
-	// SN 预获取反射方法，存储，提高效率
-	// SN 处理各种报错
 	@Override
-	public void execute(String event, String data) {
-		for (int i = 0; i < cmds.size(); i++) {
-			Activity_cmd cmd = cmds.get(i);
-			if (cmd.getEvents().equals(event)) {
-				String methodName = cmd.getCmd();
-				String value = cmd.getArgs();
+	public void execute(String event, Object... datas) {
 
-				try {
-					Method m = this.getClass().getMethod(methodName, String.class, String.class);
-					m.invoke(this, value, data);
-				} catch (Exception e) {
-					GameLog.error("Actvt execute event="+event+" data="+data+" "+ExceptionUtils.getMessage(e));
-				}
-			}
-		}
 	}
-	
-	public int getReceiveableNum(long joyId)
-	{
+
+	public int getReceiveableNum(long joyId) {
 		return 0;
 	}
 
 	public String getStateStr() {
 		return "";
 	}
-	
-	public String getStateStrZip() 
-	{
+
+	public String getStateStrZip() {
 		try {
 			String str = getStateStr();
-			
+
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
-			GZIPOutputStream gos = new GZIPOutputStream(baos);  
-			gos.write(str.getBytes(),0,str.length()); 
+			GZIPOutputStream gos = new GZIPOutputStream(baos);
+			gos.write(str.getBytes(), 0, str.length());
 			gos.finish();
 			gos.flush();
 			gos.close();
-			
+
 			byte[] smallData = baos.toByteArray();
 			return Hex.encodeHexString(smallData);
-		}
-		catch (Exception e) {
-			GameLog.error("Actvt type="+activity.getTypeId()+" getStateStrZip exception="+ExceptionUtils.getMessage(e));
+		} catch (Exception e) {
+			GameLog.error(
+					"Actvt type=" + commonData.getId() + " getStateStrZip exception=" + ExceptionUtils.getMessage(e));
 			return "";
 		}
 	}
-	
+
 	@Override
 	public void saveToData(SqlData data) {
-		data.put(RED_ALERT_GENERAL_ID, id);
-		data.put(RED_ALERT_GENERAL_TYPE, activity.getTypeId());
-		data.put(RED_ALERT_GENERAL_STATE, getStateStrZip());
+		data.put(RED_ALERT_GENERAL_ID, commonData.getId());
+		data.put(RED_ALERT_GENERAL_TYPE, commonData.getType());
+		data.put(RED_ALERT_GENERAL_STATE, state.ordinal());
+		data.put(TABLE_RED_ALERT_ACTVT_STATES, getStateStrZip());
 	}
 
 	@Override
@@ -573,8 +544,10 @@ public abstract class Actvt extends EventMgr implements IEvnt, Instances, DaoDat
 			return;
 		}
 		savIng = true;
-
-		dbMgr.getGameDao().saveDaoData(this,new HashMap<String, Object>());
+		
+//		Map<String, Object> map = new HashMap<String, Object>();
+//		dbMgr.getGameDao().saveDaoData(this,map);//活动是及时保存，不进保存队列
+		taskPool.saveThread.addSaveData(this);
 	}
 
 	@Override
@@ -586,41 +559,40 @@ public abstract class Actvt extends EventMgr implements IEvnt, Instances, DaoDat
 	public boolean saving() {
 		return savIng;
 	}
-	
+
 	public static byte[] compress(String string) throws IOException {
-	    ByteArrayOutputStream os = new ByteArrayOutputStream(string.length());
-	    GZIPOutputStream gos = new GZIPOutputStream(os);
-	    gos.write(string.getBytes());
-	    gos.close();
-	    byte[] compressed = os.toByteArray();
-	    os.close();
-	    return compressed;
+		ByteArrayOutputStream os = new ByteArrayOutputStream(string.length());
+		GZIPOutputStream gos = new GZIPOutputStream(os);
+		gos.write(string.getBytes());
+		gos.close();
+		byte[] compressed = os.toByteArray();
+		os.close();
+		return compressed;
 	}
 
 	public static String decompress(byte[] compressed) throws IOException {
-	    final int BUFFER_SIZE = 32;
-	    ByteArrayInputStream is = new ByteArrayInputStream(compressed);
-	    GZIPInputStream gis = new GZIPInputStream(is, BUFFER_SIZE);
-	    StringBuilder string = new StringBuilder();
-	    byte[] data = new byte[BUFFER_SIZE];
-	    int bytesRead;
-	    while ((bytesRead = gis.read(data)) != -1) {
-	        string.append(new String(data, 0, bytesRead));
-	    }
-	    gis.close();
-	    is.close();
-	    return string.toString();
+		final int BUFFER_SIZE = 32;
+		ByteArrayInputStream is = new ByteArrayInputStream(compressed);
+		GZIPInputStream gis = new GZIPInputStream(is, BUFFER_SIZE);
+		StringBuilder string = new StringBuilder();
+		byte[] data = new byte[BUFFER_SIZE];
+		int bytesRead;
+		while ((bytesRead = gis.read(data)) != -1) {
+			string.append(new String(data, 0, bytesRead));
+		}
+		gis.close();
+		is.close();
+		return string.toString();
 	}
 
-	String[] tmpStateStrs = {""};
-	protected String[] getStateStrs(SqlData data) 
-	{
+	String[] tmpStateStrs = { "" };
+
+	protected String[] getStateStrs(SqlData data) {
 		try {
-			String stateStr = data.getString(RED_ALERT_GENERAL_STATE);
+			String stateStr = data.getString(TABLE_RED_ALERT_ACTVT_STATES);
 			stateStr = decompress(Hex.decodeHex(stateStr.toCharArray()));
-			return stateStr.split(SPCH);
-		} 
-		catch (Exception e) {
+			return stateStr.split(STATE_STR_SPLIT_CH);
+		} catch (Exception e) {
 			return tmpStateStrs;
 		}
 	}

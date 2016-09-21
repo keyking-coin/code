@@ -29,7 +29,10 @@ public class ChatGroupCreate extends ServiceHandler {
 		CommunicateResp resp = newResp(info);
 		Role role = getRole(info);
 		if (role == null) {
+			NewLogManager.misTakeLog("Userinfo : " + info, "uid : " + info.getUid(),
+					"className : " + this.getClass().getName(), "params : " + params);
 			resp.fail();
+			return resp;
 		}
 		int size = params.get(0);
 		List<Long> uids = new ArrayList<Long>();
@@ -38,6 +41,7 @@ public class ChatGroupCreate extends ServiceHandler {
 		}
 		if (!chatMgr.newGroupChat(role, uids)) {
 			resp.fail();
+			return resp;
 		}
 		try {
 			NewLogManager.baseEventLog(role, "create_conversation");

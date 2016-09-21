@@ -6,6 +6,7 @@ import com.joymeng.common.util.I18nGreeting;
 import com.joymeng.common.util.MessageSendUtil;
 import com.joymeng.common.util.TimeUtils;
 import com.joymeng.common.util.expression.ProtoExpression;
+import com.joymeng.list.EventName;
 import com.joymeng.log.GameLog;
 import com.joymeng.log.LogManager;
 import com.joymeng.log.NewLogManager;
@@ -17,12 +18,7 @@ import com.joymeng.slg.domain.map.data.Worldbuilding;
 import com.joymeng.slg.domain.map.data.Worldbuildinglevel;
 import com.joymeng.slg.domain.map.impl.still.union.MapUnionBuild;
 import com.joymeng.slg.domain.map.impl.still.union.MapUnionCity;
-import com.joymeng.slg.domain.map.impl.still.union.impl.MapUnionDefenderTower;
-import com.joymeng.slg.domain.map.impl.still.union.impl.MapUnionNuclearsilo;
-import com.joymeng.slg.domain.map.impl.still.union.impl.MapUnionOther;
 import com.joymeng.slg.domain.map.impl.still.union.impl.MapUnionResource;
-import com.joymeng.slg.domain.map.impl.still.union.impl.MapUnionSatellite;
-import com.joymeng.slg.domain.map.impl.still.union.impl.MapUnionWareHouse;
 import com.joymeng.slg.domain.object.build.BuildName;
 import com.joymeng.slg.domain.object.role.Role;
 import com.joymeng.slg.domain.timer.TimerLast;
@@ -173,76 +169,62 @@ public class UnionBuildOprate extends ServiceHandler {
 						e.printStackTrace();
 					}
 				}
-				MapUnionBuild newBuild = null;
+				MapUnionBuild newBuild = MapUnionCity.createBuild(buildKey);
 				if (buildKey.equals(BuildName.MAP_UNION_STORAGE.getKey())){
-					MapUnionWareHouse warHouse = mapWorld.create(MapUnionWareHouse.class,false);
-					if (!mapWorld.checkPosition(warHouse,target)){//不能放下
+					if (!mapWorld.checkPosition(newBuild,target)){//不能放下
 						Worldbuilding wb = dataManager.serach(Worldbuilding.class,buildKey);
 						MessageSendUtil.sendNormalTip(role.getUserInfo(),I18nGreeting.MSG_UNION_BUILD_IN_ERROR_POS,wb.getBuildingName());
 						resp.fail();
 						return resp;
 					}
-					newBuild = warHouse;
 				}else if (buildKey.equals(BuildName.MAP_UNION_FOOD.getKey()) ||
 						   buildKey.equals(BuildName.MAP_UNION_METAL.getKey()) ||
 						   buildKey.equals(BuildName.MAP_UNION_OIL.getKey()) ||
 						   buildKey.equals(BuildName.MAP_UNION_ALLOY.getKey())){
-					if (city.search(BuildName.MAP_UNION_FOOD.getKey()).size() > 0 ||
-						city.search(BuildName.MAP_UNION_METAL.getKey()).size() > 0 ||
-						city.search(BuildName.MAP_UNION_OIL.getKey()).size() > 0 ||
-						city.search(BuildName.MAP_UNION_ALLOY.getKey()).size() > 0){
+					if (city.search(buildKey).size() > 0){
 						MessageSendUtil.sendNormalTip(role.getUserInfo(),I18nGreeting.MSG_UNION_RESOURCE_ONLY_ONE);
 						resp.fail();
 						return resp;
 					}
-					MapUnionResource resource = mapWorld.create(MapUnionResource.class,false);
-					if (!mapWorld.checkPosition(resource,target)){//不能放下
+					if (!mapWorld.checkPosition(newBuild,target)){//不能放下
 						Worldbuilding wb = dataManager.serach(Worldbuilding.class,buildKey);
 						MessageSendUtil.sendNormalTip(role.getUserInfo(),I18nGreeting.MSG_UNION_BUILD_IN_ERROR_POS,wb.getBuildingName());
 						resp.fail();
 						return resp;
 					}
-					newBuild = resource;
 					String[] ss = wbl.getParamList().get(0).split(":");
 					long value = Long.parseLong(ss[1]);
-					resource.setTotal(value);
+					((MapUnionResource)newBuild).setTotal(value);
 				}else if (buildKey.equals(BuildName.Map_UNION_TOWER_AIR.getKey()) || 
 						  buildKey.equals(BuildName.MAP_UNION_TOWER_TURRET.getKey())){
-					MapUnionDefenderTower tower = mapWorld.create(MapUnionDefenderTower.class,false);
-					if (!mapWorld.checkPosition(tower,target)){//不能放下
+					if (!mapWorld.checkPosition(newBuild,target)){//不能放下
 						Worldbuilding wb = dataManager.serach(Worldbuilding.class,buildKey);
 						MessageSendUtil.sendNormalTip(role.getUserInfo(),I18nGreeting.MSG_UNION_BUILD_IN_ERROR_POS,wb.getBuildingName());
 						resp.fail();
 						return resp;
 					}
-					newBuild = tower;
-				}else if (buildKey.equals(BuildName.MAP_UNION_TOWER_SATELLITE.getKey())){
-					MapUnionSatellite satellite =  mapWorld.create(MapUnionSatellite.class,false);
-					if (!mapWorld.checkPosition(satellite,target)){//不能放下
+				}else if (buildKey.equals(BuildName.MAP_UNION_TOWER_SATELLITE.getKey()) ||
+						  buildKey.equals(BuildName.MAP_UNION_TOWER_DETECTOR.getKey())){
+					if (!mapWorld.checkPosition(newBuild,target)){//不能放下
 						Worldbuilding wb = dataManager.serach(Worldbuilding.class,buildKey);
 						MessageSendUtil.sendNormalTip(role.getUserInfo(),I18nGreeting.MSG_UNION_BUILD_IN_ERROR_POS,wb.getBuildingName());
 						resp.fail();
 						return resp;
 					}
-					newBuild = satellite;
 				}else if (buildKey.equals(BuildName.MAP_UNION_TOWER_NUCLEARSILO.getKey())){
-					MapUnionNuclearsilo nuclearsilo = mapWorld.create(MapUnionNuclearsilo.class,false);
-					if (!mapWorld.checkPosition(nuclearsilo,target)){//不能放下
+					if (!mapWorld.checkPosition(newBuild,target)){//不能放下
 						Worldbuilding wb = dataManager.serach(Worldbuilding.class,buildKey);
 						MessageSendUtil.sendNormalTip(role.getUserInfo(),I18nGreeting.MSG_UNION_BUILD_IN_ERROR_POS,wb.getBuildingName());
 						resp.fail();
 						return resp;
 					}
-					newBuild = nuclearsilo;
 				}else{//所有buff类型的
-					MapUnionOther other = mapWorld.create(MapUnionOther.class,false);
-					if (!mapWorld.checkPosition(other,target)){//不能放下
+					if (!mapWorld.checkPosition(newBuild,target)){//不能放下
 						Worldbuilding wb = dataManager.serach(Worldbuilding.class,buildKey);
 						MessageSendUtil.sendNormalTip(role.getUserInfo(),I18nGreeting.MSG_UNION_BUILD_IN_ERROR_POS,wb.getBuildingName());
 						resp.fail();
 						return resp;
 					}
-					newBuild = other;
 				}
 				newBuild.setCityKey(cityData.getId());
 				newBuild.setBuildKey(buildKey);
@@ -258,7 +240,7 @@ public class UnionBuildOprate extends ServiceHandler {
 				union.useScore(needScore);
 				union.sendMeToAllMembers(0);
 			    String parameter = buildKey + "|" + target;
-				LogManager.unionLog(role, union.getName(), "creatUnionBuild",parameter);
+				LogManager.unionLog(role, union.getName(), EventName.creatUnionBuild.getName(),parameter);
 				NewLogManager.unionLog(role, "alliance_build_building",newBuild.getId());
 				break;
 			}
@@ -267,6 +249,11 @@ public class UnionBuildOprate extends ServiceHandler {
 				MapUnionBuild build = mapWorld.searchObject(target);
 				if (build == null){
 					GameLog.error("SB 客户端把参数传错了");
+					resp.fail();
+					return resp;
+				}
+				if (build.isConst()){
+					GameLog.error("是城市固定建筑无法升级");
 					resp.fail();
 					return resp;
 				}
@@ -327,7 +314,7 @@ public class UnionBuildOprate extends ServiceHandler {
 				union.useScore(needScore);
 				build.levelUp(union);
 			    String parameter = build.getName() + "|" + target;
-				LogManager.unionLog(role, union.getName(), "levelUpunionBuild",parameter);
+				LogManager.unionLog(role, union.getName(), EventName.levelUpunionBuild.getName(),parameter);
 				break;
 			}	
 			case UNION_BUILD_REMOVE:{
@@ -335,6 +322,11 @@ public class UnionBuildOprate extends ServiceHandler {
 				MapUnionBuild build = mapWorld.searchObject(target);
 				if (build == null){
 					GameLog.error("SB 客户端把参数传错了");
+					resp.fail();
+					return resp;
+				}
+				if (build.isConst()){
+					GameLog.error("是城市固定建筑无法拆除");
 					resp.fail();
 					return resp;
 				}
@@ -363,7 +355,7 @@ public class UnionBuildOprate extends ServiceHandler {
 				build.registTimer(timer);
 				UnionBody un = unionManager.search( build.getUnionId());
 			    String parameter = build.getName() + "|" + target;
-				LogManager.unionLog(role, un.getName(), "removeUnionBuild",parameter);
+				LogManager.unionLog(role, un.getName(), EventName.removeUnionBuild.getName(),parameter);
 				break;
 			}
 			case UNION_BUILD_C_REMOVE:{
@@ -382,7 +374,7 @@ public class UnionBuildOprate extends ServiceHandler {
 				build.cancleRemove();
 				UnionBody un = unionManager.search( build.getUnionId());
 			    String parameter = build.getName() + "|" + target;
-				LogManager.unionLog(role, un.getName(), "cRemoveUnionBuild",parameter);
+				LogManager.unionLog(role, un.getName(), EventName.cRemoveUnionBuild.getName(),parameter);
 				break;
 			}
 		}

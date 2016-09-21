@@ -23,13 +23,13 @@ public enum MapCellType {
 	MAP_CELL_TYPE_UINON_WAREHOUSE(1,false),//联盟仓库
 	MAP_CELL_TYPE_UINON_RESOURCE(1,false),//联盟资源
 	MAP_CELL_TYPE_UINON_TOWER(0,false),//联盟防御塔
-	MAP_CELL_TYPE_UINON_SATELLITE(0,false),//联盟间谍卫星
-	MAP_CELL_TYPE_UINON_NUCLEARSILO(0,false),//联盟核弹发射井
-	MAP_CELL_TYPE_UINON_OTHER(0,false),//联盟BUFF类型的建筑
+	MAP_CELL_TYPE_UINON_SATELLITE(1,false),//联盟间谍卫星
+	MAP_CELL_TYPE_UINON_NUCLEARSILO(1,false),//联盟核弹发射井
+	MAP_CELL_TYPE_UINON_OTHER(1,false),//联盟BUFF类型的建筑
 	MAP_CELL_NUCLEARSILO_RADIATION(0,false),//核弹辐射对象
 	MAP_CELL_TYPE_BOSS(0,false),//大地图Boss
 	MAP_CELL_TYPE_NPC(0,false),//大地图NPC
-	MAP_CELL_TYPE_UINON_DETECTOR(0,false)//联盟心灵探测仪
+	MAP_CELL_TYPE_UINON_DETECTOR(1,false)//联盟心灵探测仪
 	;
 	
 	private MapCellType(int volume,boolean proxy){

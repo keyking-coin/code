@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.joda.time.DateTime;
+
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
 import com.joymeng.Instances;
@@ -13,6 +15,7 @@ import com.joymeng.common.util.I18nGreeting;
 import com.joymeng.common.util.JsonUtil;
 import com.joymeng.common.util.MessageSendUtil;
 import com.joymeng.common.util.StringUtils;
+import com.joymeng.list.EventName;
 import com.joymeng.log.GameLog;
 import com.joymeng.log.LogManager;
 import com.joymeng.log.NewLogManager;
@@ -164,7 +167,7 @@ public class RoleShopAgent implements Instances{
 				}
 				List<ItemCell> cells = role.getBagAgent().addGoods(data.getItemid(),num);
 				Item it = dataManager.serach(Item.class, data.getItemid());
-				LogManager.itemOutputLog(role, num, "tryToBuySomeThing", data.getItemid());
+				LogManager.itemOutputLog(role, num, EventName.tryToBuySomeThing.getName(), data.getItemid());
 				LogManager.shopLog(role, num, needMoney / num, "gold", it.getBeizhuname(),"金币商城");
 				try {
 					NewLogManager.baseEventLog(role, "bug_goods",it.getId(),num,needMoney);
@@ -196,8 +199,7 @@ public class RoleShopAgent implements Instances{
 					left = data.getServerLimitNum() - newNum;
 				}
 				role.redRoleMoney(needMoney);
-				String event1 = "tryToBuySomeThing";
-				LogManager.goldConsumeLog(role, needMoney, event1);
+				LogManager.goldConsumeLog(role, needMoney, EventName.tryToBuySomeThing.getName());
 				RespModuleSet rms = new RespModuleSet();
 				role.getBagAgent().sendItemsToClient(rms,cells);
 				role.sendRoleToClient(rms);
@@ -219,7 +221,7 @@ public class RoleShopAgent implements Instances{
 			}
 			List<ItemCell> cells = role.getBagAgent().addGoods(data.getItemid(),num);
 			Item it = dataManager.serach(Item.class, data.getItemid());
-			LogManager.itemOutputLog(role, num, "tryToBuySomeThing", data.getItemid());
+			LogManager.itemOutputLog(role, num,  EventName.tryToBuySomeThing.getName(), data.getItemid());
 			LogManager.shopLog(role, num, needMoney / num, "gold", it.getBeizhuname(), "金币商城");
 			try {
 				NewLogManager.baseEventLog(role, "bug_goods", it.getId(), num, needMoney);
@@ -234,8 +236,7 @@ public class RoleShopAgent implements Instances{
 			sl.setNum(newNum);
 			int left = data.getPersonLimitNum() - newNum;
 			role.addRoleMoney(-needMoney);
-			String event2 = "tryToBuySomeThing";
-			LogManager.goldConsumeLog(role, needMoney, event2);
+			LogManager.goldConsumeLog(role, needMoney, EventName.tryToBuySomeThing.getName());
 			RespModuleSet rms = new RespModuleSet();
 			ItemCell[] items = new ItemCell[cells.size()];
 			cells.toArray(items);
@@ -249,7 +250,7 @@ public class RoleShopAgent implements Instances{
 		}else{//非服务器限购
 			List<ItemCell> cells = role.getBagAgent().addGoods(data.getItemid(),num);
 			Item it = dataManager.serach(Item.class, data.getItemid());
-			LogManager.itemOutputLog(role, num, "tryToBuySomeThing", data.getItemid());
+			LogManager.itemOutputLog(role, num, EventName.tryToBuySomeThing.getName(), data.getItemid());
 			LogManager.shopLog(role, num, needMoney / num, "gold", it.getBeizhuname(), "金币商城");
 			try {
 				NewLogManager.baseEventLog(role, "bug_goods", it.getId(), num, needMoney);
@@ -265,8 +266,7 @@ public class RoleShopAgent implements Instances{
 			cells.toArray(items);
 			role.getBagAgent().sendItemsToClient(rms,items);
 			role.addRoleMoney(-needMoney);
-			String event3 = "tryToBuySomeThing";
-			LogManager.goldConsumeLog(role, needMoney, event3);
+			LogManager.goldConsumeLog(role, needMoney, EventName.tryToBuySomeThing.getName());
 			role.sendRoleToClient(rms);
 			MessageSendUtil.sendModule(rms,role.getUserInfo());
 			resp.add(-1);//剩余数量
@@ -344,4 +344,8 @@ public class RoleShopAgent implements Instances{
 		}
 		return false;
 	}
+	
+//	public static void main(String[] args) {
+//		System.out.println(DateTime.now().getMillis());
+//	}
 }

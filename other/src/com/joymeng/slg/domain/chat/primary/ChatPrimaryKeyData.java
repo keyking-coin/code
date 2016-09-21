@@ -27,16 +27,6 @@ public class ChatPrimaryKeyData implements Instances {
 			return worldMsgHead;			
 		}
 	}
-//	
-//	public long getUnionMsgHead(long unionId) {
-//		synchronized (unionMsgHead) {
-//			if (unionMsgHead.size() == 0 || unionMsgHead.get(unionId) == null) {
-//				unionMsgHead.put(unionId, (long) 1);
-//			}
-//			long temp = unionMsgHead.get(unionId);
-//			return temp;
-//		}
-//	}
 
 	public long worldMsgHeadIncrement() {
 		synchronized (worldMsgHead) {
@@ -71,7 +61,9 @@ public class ChatPrimaryKeyData implements Instances {
 	}
 
 	public long getWorldMsgsIdMax() {
-		return worldMsgsId - 1;
+		synchronized (worldMsgsId) {
+			return worldMsgsId - 1;
+		}
 	}
 
 	public long getUnionMsgsId(long unionId) {
@@ -89,7 +81,9 @@ public class ChatPrimaryKeyData implements Instances {
 	}
 	
 	public long getUnionMsgsIdMax(long unionId){
-		return unionMsgsId.get(unionId) == null ? 1 : unionMsgsId.get(unionId) - 1;
+		synchronized (unionMsgsId) {
+			return unionMsgsId.get(unionId) == null ? 1 : unionMsgsId.get(unionId) - 1;
+		}
 	}
 	
 	public long getGroupId(){	

@@ -42,7 +42,6 @@ public class QueryBykeyWord extends ServiceHandler {
 		}
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public JoyProtocol handle(final UserInfo info, final ParametersEntity params)
 			throws Exception {
@@ -62,7 +61,7 @@ public class QueryBykeyWord extends ServiceHandler {
 			resp.getParams().put(TransmissionResp.JOY_RESP_SUCC);
 			resp.getParams().put(serverId);
 			
-			Map<String,Object> map = JsonUtil.JsonToObject(parameter, Map.class);
+			Map<String,String> map = JsonUtil.JsonToObjectMap(parameter, String.class,String.class);
 			StringBuffer sqlbuff = new StringBuffer(256);
 			String role = DaoData.TABLE_RED_ALERT_ROLE;
 			String city = DaoData.TABLE_RED_ALERT_CITY;
@@ -96,7 +95,7 @@ public class QueryBykeyWord extends ServiceHandler {
 				result.add((Long) data.get("joy_id"));
 			}
 			List<Long> remove = new ArrayList<Long>(); //需要删除的玩家uid
-			for (int i = 0; i < remove.size(); i++) {
+			for (int i = 0; i < result.size(); i++) {
 				Long joy_id = result.get(i);
 				Role rl = world.getRole(joy_id);
 				if (map.get("playerVipLevel") != null) {
@@ -109,10 +108,8 @@ public class QueryBykeyWord extends ServiceHandler {
 				if (map.get("playerStamina") != null) {
 					String stam = (String) map.get("playerStamina");
 					RoleStamina stamina = rl.getRoleStamina();
-					short mina=stamina.getCurStamina();
-					investigate(stam, mina, remove, joy_id);
+					investigate(stam, stamina.getCurStamina(),remove, joy_id);
 				}
-				
 				int position = rl.getCity(0).getPosition();
 				String point = MapUtil.getStrPosition(position);
 				String[] xy = point.split(",");
@@ -157,8 +154,8 @@ public class QueryBykeyWord extends ServiceHandler {
 				
 				if (map.get("playerUnion") != null) {
 					String union = (String) map.get("playerUnion");
-					String[] un = union.split("|");
-					UnionBody unionBody = unionManager.search(joy_id);
+					String[] un = union.split("\\|");
+					UnionBody unionBody = unionManager.search(rl.getUnionId());
 					if (unionBody != null) {
 						if (un[0].equals("is")) {
 							if (!unionBody.getName().equals(un[1])) {
@@ -176,8 +173,7 @@ public class QueryBykeyWord extends ServiceHandler {
 				
 				if (map.get("playerIsOnline") != null) {
 					String isOnline = (String) map.get("playerIsOnline");
-					String[] onLine = isOnline.split("|");
-					if (onLine[1].equals("YES")) {
+					if (isOnline.equals("YES")) {
 						if (!rl.isOnline()) {
 							remove.add(joy_id);
 						}
@@ -189,8 +185,7 @@ public class QueryBykeyWord extends ServiceHandler {
 				}	
 				
 			}		
-			result.removeAll(remove);   //最终查询结果 List<Long> result 
-			
+			result.removeAll(remove);   //最终查询结果 List<Long> result 			
 			if(result==null||result.size()==0){
 				resp.getParams().put("null");
 				return resp;
@@ -242,7 +237,7 @@ public class QueryBykeyWord extends ServiceHandler {
 	
 	
 	public static void investigate(String pl,long count, List<Long> remove, Long joy_id) {
-		String[] str = pl.split("|");
+		String[] str = pl.split("\\|");
 		long number = Long.valueOf(str[1]);
 		switch (str[0]) {
 		case "<":

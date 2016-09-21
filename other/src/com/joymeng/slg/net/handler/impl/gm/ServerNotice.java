@@ -9,6 +9,8 @@ import com.joymeng.slg.domain.chat.ChatMsg;
 import com.joymeng.slg.domain.chat.ChatRole;
 import com.joymeng.slg.domain.chat.MsgTextColorType;
 import com.joymeng.slg.domain.chat.MsgTitleType;
+import com.joymeng.slg.domain.chat.MsgType;
+import com.joymeng.slg.domain.chat.ReportType;
 import com.joymeng.slg.net.ParametersEntity;
 import com.joymeng.slg.net.handler.NeedContinueDoSomthing;
 import com.joymeng.slg.net.handler.ServiceHandler;
@@ -57,7 +59,8 @@ public class ServerNotice extends ServiceHandler{
 			ChatRole sys = new ChatRole();
 			sys.setUid(-1L);
 			sys.setName("系统公告");
-			ChatMsg msg = new ChatMsg(MsgTitleType.MSG_TITLE_GENERAL_SYSTEM,content,MsgTextColorType.COLOR_BLACK, ChannelType.MAIL_SYSTEM,(byte)3,(byte)0,sys,null);	
+			ChatMsg msg = new ChatMsg(MsgTitleType.MSG_TITLE_GENERAL_SYSTEM, content, MsgTextColorType.COLOR_BLACK,
+					ChannelType.MAIL_SYSTEM, MsgType.TYPE_HORN, ReportType.TYPE_DEFAULT, sys, null);	
 			//添加世界公告
 			chatMgr.addSystemNotice(msg, 11);
 			//加入世界聊天

@@ -1,5 +1,6 @@
 package com.joymeng.slg.net.handler.impl.equip;
 
+import com.joymeng.log.GameLog;
 import com.joymeng.services.core.buffer.JoyBuffer;
 import com.joymeng.services.core.message.JoyNormalMessage.UserInfo;
 import com.joymeng.services.core.message.JoyProtocol;
@@ -26,7 +27,12 @@ public class EquipDecomposeHandler extends ServiceHandler {
 		}
 		long equipId = params.get(0);
 		RoleBagAgent roleBagAgent = role.getBagAgent();
-		if (roleBagAgent != null && !roleBagAgent.equipDecompose(role, equipId)) {
+		if (roleBagAgent == null) {
+			GameLog.error("role.getBagAgent() is null role.uid = " + role.getId());
+			resp.fail();
+			return resp;
+		}
+		if (!roleBagAgent.equipDecompose(role, equipId)) {
 			resp.fail();
 			return resp;
 		}

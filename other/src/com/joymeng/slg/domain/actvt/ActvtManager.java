@@ -2,6 +2,11 @@ package com.joymeng.slg.domain.actvt;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -11,23 +16,28 @@ import java.util.concurrent.TimeUnit;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
-import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.joda.time.DateTime;
+import org.quartz.CronScheduleBuilder;
+import org.quartz.CronTrigger;
+import org.quartz.JobBuilder;
 import org.quartz.JobDetail;
 import org.quartz.JobKey;
-import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
-import org.quartz.Trigger;
-import org.quartz.UnableToInterruptJobException;
+import org.quartz.TriggerBuilder;
 import org.quartz.impl.StdSchedulerFactory;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.xml.sax.InputSource;
 
 import com.joymeng.common.util.MessageSendUtil;
 import com.joymeng.log.GameLog;
+import com.joymeng.services.utils.XmlUtils;
 import com.joymeng.slg.dao.DBManager;
 import com.joymeng.slg.dao.DaoData;
 import com.joymeng.slg.dao.SqlData;
-import com.joymeng.slg.domain.actvt.data.Activity;
+import com.joymeng.slg.domain.actvt.Actvt.ActvtState;
+import com.joymeng.slg.domain.actvt.data.ActvtCommon;
+import com.joymeng.slg.domain.actvt.impl.ArmyRebellion;
 import com.joymeng.slg.domain.actvt.impl.RushSevenDay;
 import com.joymeng.slg.domain.object.role.Role;
 import com.joymeng.slg.net.mod.ClientModule;
@@ -35,233 +45,305 @@ import com.joymeng.slg.net.mod.RespModuleSet;
 import com.joymeng.slg.world.TaskPool;
 import com.joymeng.slg.world.World;
 
-public class ActvtManager extends DTManager
+public class ActvtManager
 {
-	enum ActvtOperate
-	{
-		KEEP("keep"), NEW("new"), UPDATE("update"), ADD("add"), DELETE("delete");
-		
-		private String name;
-		
-		public String getName() {
-			return name;
-		}
-		
-		public boolean equals(String type) {
-			return name.equals(type);
-		}
-		
-		private ActvtOperate(String name) {
-			this.name = name;
-		}
-	}
+	private static final String PATH = "./activity/";
+	private static final String PATH_LOADS = PATH + "loads/";
+	private static final String PATH_LOADS_END = PATH_LOADS + "end/";
+	private static final String PATH_LOADS_HISTORY = PATH_LOADS + "history/";
+	private static final String ACTIVITY_FILE  = "Activitys";
+	private static final String ACTIVITY_TAIL = ".xml";
+	private static final String ACTIVITY_CLASS_PATH = "com.joymeng.slg.domain.actvt.impl.";
 	
-	private Map<Integer, Actvt> actvts = new HashMap<Integer, Actvt>();
-//	private Map<String, List<Activity_reward>> rewards = new HashMap<String, List<Activity_reward>>();
-	
-	private Scheduler scheduler;
-	
+	private Map<Integer, Actvt> actvtsAlive = new HashMap<Integer, Actvt>();
+	private Map<Integer, Actvt> actvtsDead = new HashMap<Integer, Actvt>();
+	private List<String> loadsPath = new ArrayList<String>(); 
+
 	private static ActvtManager instance = new ActvtManager();
-	public static ActvtManager getInstance()
-	{
+	public static ActvtManager getInstance() {
 		return instance;
 	}
 	
 	private ActvtManager()
 	{
-		 
-	}
-	
-	private Actvt createActvt(Activity activity)
-	{
-		String classPath = this.getClass().getName();
-		classPath = classPath.substring(0, classPath.lastIndexOf('.')+1) + "impl." + activity.getType();
+		new File(PATH_LOADS_END).mkdirs();
+		new File(PATH_LOADS_HISTORY).mkdirs();
 		
 		try {
-			@SuppressWarnings("unchecked")
-			Class<? extends Actvt> clazz = (Class< ? extends Actvt>)Class.forName(classPath);
-			Actvt actvt = clazz.newInstance();
-			if (!actvt.init(activity)) {
-				return null;
-			}
-			return actvt;
-			
-		} catch (Exception e) {
-			GameLog.error("ClassNotFoundException: " + activity.getType());
-			return null;
+			StdSchedulerFactory.getDefaultScheduler().start();
+		} catch (SchedulerException e) {
+			e.printStackTrace();
 		}
+	}
+	
+	
+	public boolean idExist(int id)
+	{
+		if (actvtsAlive.containsKey(id)) {
+			return true;
+		}
+		if (actvtsDead.containsKey(id)) {
+			return true;
+		}
+		return false;
+	}
+	
+	public void hideActvt(int id)
+	{
+		if (!actvtsAlive.containsKey(id)) {
+			return;
+		}
+		Actvt actvt = actvtsAlive.get(id);
+		actvtsDead.put(actvt.getId(), actvt);
+		actvtsAlive.remove(id);
+		
+		String fname = String.format("%s_%d%s", actvt.getCommonData().getType(), id, ACTIVITY_TAIL);
+		File[] files = new File(PATH_LOADS).listFiles();
+		for (int i = 0; i < files.length; i++)
+		{
+			File f = files[i];
+			if (!f.isDirectory() && f.getName().startsWith(fname))
+			{
+				File dst = new File(PATH_LOADS_END + f.getName());
+				f.renameTo(dst);
+			}
+		}
+	}
+	
+	private void backupLoads()
+	{
+		String times = DateTime.now().toString("yyMMddHHmmss");
+		
+		new File(PATH_LOADS_HISTORY + times).mkdirs();
+		for (int i = 0; i < loadsPath.size(); i++)
+		{
+			String srcPath = loadsPath.get(i);
+			String dstPath = PATH_LOADS_HISTORY + times + "/" + Paths.get(srcPath).getFileName();
+			File src = new File(srcPath);
+			File dst = new File(dstPath);
+			try {
+				Files.copy(src.toPath(), dst.toPath());
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			
+			if (i == 0) {
+				src.delete();
+			}
+		}
+		
+		for (int i = 1; i < loadsPath.size(); i++)
+		{
+			String srcPath = loadsPath.get(i);
+			String dstPath = PATH_LOADS + Paths.get(srcPath).getFileName();
+			File src = new File(srcPath);
+			File dst = new File(dstPath);
+			if (dst.exists()) {
+				dst.renameTo(new File(dstPath+".bak" + times));
+			}
+			src.renameTo(new File(dstPath));
+		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	public boolean load(boolean hotLoad)
+	{
+		try {
+			String actvtPath = PATH + ACTIVITY_FILE + ACTIVITY_TAIL;
+			if (!new File(actvtPath).exists()) {
+				return false;
+			}
+			
+			loadsPath.clear();
+			loadsPath.add(actvtPath);
+			Document document = XmlUtils.load(actvtPath);
+			Element element = document.getDocumentElement();
+			Element[] elements = XmlUtils.getChildrenByName(element,"Actvt");
+			for (int i = 0; i < elements.length; i++)
+			{
+				Element eleActvt = elements[i];
+				int id = Integer.parseInt(eleActvt.getAttribute("id"));
+				String tp = eleActvt.getAttribute("type");
+				
+				String operate = eleActvt.getAttribute("operate");
+				
+				if (operate.equals(ActvtOperateType.NEW.getName()))
+				{
+					if (idExist(id)) {
+						throw new Exception("id="+id+" already exist");
+					}
+					
+					String filePath = String.format("%s%s_%d%s", PATH,tp,id,ACTIVITY_TAIL);
+					File f = new File(filePath);
+					if (!f.exists() || f.isDirectory()) {
+						throw new Exception("id="+id+" file="+tp+" not exist");
+					}
+					loadsPath.add(filePath);
+					
+					Document doc = XmlUtils.load(filePath);
+					Element eleNew = doc.getDocumentElement();
+					String type = eleNew.getAttribute("type");
+					Class<? extends Actvt> clazz = (Class<? extends Actvt>)Class.forName(ACTIVITY_CLASS_PATH+type);
+					
+					Actvt actvt = clazz.newInstance();
+					actvt.load(eleNew);
+					if (actvt.getId() != id) {
+						throw new Exception("id not same with id1="+id+" id2="+actvt.getId());
+					}
+					actvtsAlive.put(actvt.getId(), actvt);
+					actvt.init();
+				}
+				else if (operate.equals(ActvtOperateType.UPDATE.getName())) 
+				{
+					Actvt actvt = getActvt(id);
+					if (actvt == null) {
+						throw new Exception("actvt id="+id+" not exist");
+					}
+					
+					String filePath = String.format("%s%s_%d%s", PATH,tp,id,ACTIVITY_TAIL);
+					File f = new File(filePath);
+					if (!f.exists() || f.isDirectory()) {
+						throw new Exception("id="+id+" file="+tp+" not exist");
+					}
+					loadsPath.add(filePath);
+					
+					Document doc = XmlUtils.load(filePath);
+					Element eleNew = doc.getDocumentElement();
+					actvt.load(eleNew);
+					actvt.init();
+				}
+				else if (operate.equals(ActvtOperateType.DELETE.getName())) {
+					Actvt actvt = getActvt(id);
+					if (actvt == null) {
+						throw new Exception("actvt id="+id+" not exist");
+					}
+					actvt.end();
+					actvt.hide();
+					actvtsAlive.remove(id);
+					actvtsDead.put(id, actvt);
+				}
+				else {
+					throw new Exception("id="+id+" operate="+operate+" not exist");
+				}
+				
+				GameLog.info("load activity file id="+id+" file="+tp+" done");
+			}
+		} 
+		catch (Exception e) {
+			GameLog.error("load activity files error ", e);
+			return false;
+		}
+		
+		backupLoads();
+		return true;
 	}
 	
 	public void init()
 	{
-		load(true);
-		
-		try {
-			scheduler = StdSchedulerFactory.getDefaultScheduler();
-			scheduler.start();
-		} catch (SchedulerException e) {
-			e.printStackTrace();
-		}
-		
-		// arrange reward datas
-//		List<Activity_reward>   = ActvtManager.getInstance().serachList(Activity_reward.class, new SearchFilter<Activity_reward>(){
-//			@Override
-//			public boolean filter(Activity_reward data) {
-//				return true;
-//			}
-//		});
-//		for (int i = 0; i < rewardDatas.size(); i++)
-//		{
-//			Activity_reward item = rewardDatas.get(i);
-//			List<Activity_reward> list;
-//			if (rewards.containsKey(item.getrID())) {
-//				list = rewards.get(item.getrID());
-//			}
-//			else {
-//				list = new ArrayList<Activity_reward>();
-//				rewards.put(item.getrID(), list);
-//			}
-//			list.add(item);
-//		}
-//		for (Map.Entry<String, List<Activity_reward>> entry : rewards.entrySet())
-//		{
-//			List<Activity_reward> rewardList = entry.getValue();
-//			Collections.sort(rewardList, rewardComparator);
-//		}
-		
-		// init activitys
-		List<Activity> datas = ActvtManager.getInstance().serachList(Activity.class, new SearchFilter<Activity>(){
-			@Override
-			public boolean filter(Activity data) {
-				return true;
-			}
-		});
-		
-		for (int i = 0; i < datas.size(); i++)
-		{
-			Activity activity = datas.get(i);
-			if (!ActvtOperate.DELETE.equals(activity.getOperate()))
-			{
-				Actvt actvt = createActvt(datas.get(i));
-				if (actvt != null)
-				{
-					actvts.put(actvt.getId(), actvt);
-				}
-			}
-		}
-		
 		loadFromDB();
 		
+		if (!load(false)) {
+			return;
+		}
+		
+		long savePeriod = 10 * TaskPool.SECONDS_PER_MINTUE;
 		TaskPool.getInstance().scheduleAtFixedRate(null, new Runnable() {
 			@Override
 			public void run() {
 				save();
 			}
-		}, 1 * TaskPool.SECONDS_PER_MINTUE, 1 * TaskPool.SECONDS_PER_MINTUE, TimeUnit.SECONDS);
+		}, savePeriod, savePeriod, TimeUnit.SECONDS);
+		save();
 	}
 
-	public void hotLoad()
+	public boolean hotLoad()
 	{
-		load(true);
+		boolean ret = load(false);
+		if (ret) {
+			save();
+		}
+		return ret;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public void loadFromDB() 
+	{
+		List<SqlData> datas = DBManager.getInstance().getGameDao().getDatas(DaoData.TABLE_RED_ALERT_ACTVT);
+		if (datas == null) {
+			return;
+		}
 		
-		// init activitys
-		List<Activity> datas = ActvtManager.getInstance().serachList(Activity.class, new SearchFilter<Activity>(){
-			@Override
-			public boolean filter(Activity data) {
-				return true;
-			}
-		});
-		for (int i = 0; i < datas.size(); i++)
+		try 
 		{
-			Activity activity = datas.get(i);
-			if  (ActvtOperate.ADD.equals(activity.getOperate())) 
+			for (int i = 0 ; i < datas.size() ; i++)
 			{
-				Actvt actvt = getActvt(activity.getTypeId());
-				if (actvt == null) 
+				SqlData data = datas.get(i);
+	
+				int id = data.getInt(DaoData.RED_ALERT_GENERAL_ID);
+				if (idExist(id)) {
+					throw new Exception("id="+id+" already exist");
+				}
+				
+				String tp = data.getString(DaoData.RED_ALERT_GENERAL_TYPE);			
+				String filePath = String.format("%s%s_%d%s", PATH_LOADS, tp, id, ACTIVITY_TAIL);
+				File f = new File(filePath);
+				if (!f.exists() || f.isDirectory()) {
+					throw new Exception("id="+id+" file="+tp+" not exist");
+				}
+	
+				Document doc = XmlUtils.load(filePath);
+				Element eleNew = doc.getDocumentElement();
+				String type = eleNew.getAttribute("type");
+				Class<? extends Actvt> clazz = (Class<? extends Actvt>)Class.forName(ACTIVITY_CLASS_PATH+type);
+				
+				Actvt actvt = clazz.newInstance();
+				actvt.load(eleNew);
+				if (actvt.getId() != id) {
+					throw new Exception("id not same with id1="+id+" id2="+actvt.getId());
+				}
+				int st = data.getInt(DaoData.RED_ALERT_GENERAL_STATE);
+				if (st < 0 || st > ActvtState.HIDE.ordinal()) {
+					throw new Exception("id ="+id+" state="+st+" is illegal");
+				}
+				ActvtState state = ActvtState.values()[st];
+				if (state == ActvtState.HIDE) 
 				{
-					actvt = createActvt(activity);
-					if (actvt != null)
-					{
-						actvts.put(actvt.getId(), actvt);
-					}
+					actvtsDead.put(actvt.getId(), actvt);
+					actvt.loadFromData(data);
 				}
-				else 
+				else
 				{
-					GameLog.error("already exist same activity typeId=" + activity.getTypeId());
+					actvtsAlive.put(actvt.getId(), actvt);
+					actvt.init();
+					actvt.loadFromData(data);
 				}
+				GameLog.info("load activity from db id="+id+" type="+tp+" done");
 			}
-			else if (ActvtOperate.UPDATE.equals(activity.getOperate()))
-			{
-				Actvt actvt = getActvt(activity.getTypeId());
-				if (actvt != null && actvt.hotInit(activity)) {
-					actvt.load();
-				}
-			}
-			else if (ActvtOperate.DELETE.equals(activity.getOperate()))
-			{
-				Actvt actvt = getActvt(activity.getTypeId());
-				if (actvt != null) {
-					actvt.hotLoadEnd();
-					actvts.remove(actvt.getId());
-				}
-			}
+		}
+		catch (Exception e) {
+			
 		}
 	}
 	
-	public Actvt getActvt(String typeId)
+	public Actvt getFirstActvt(String type)
 	{
-		for (Map.Entry<Integer, Actvt> entry : actvts.entrySet())
+		for(Map.Entry<Integer, Actvt> entry : actvtsAlive.entrySet())
 		{
 			Actvt actvt = entry.getValue();
-			if (actvt.getActivity().getTypeId().equals(typeId)) {
+			if (actvt.getCommonData().getType().equals(type)) {
 				return actvt;
 			}
 		}
 		return null;
 	}
-	
-	public void loadFromDB() {
-		List<SqlData> datas = DBManager.getInstance().getGameDao().getDatas(DaoData.TABLE_RED_ALERT_ACTVT);
-		if (datas != null)
-		{
-			for (int i = 0 ; i < datas.size() ; i++)
-			{
-				SqlData data = datas.get(i);
-				for (Map.Entry<Integer, Actvt> entry : actvts.entrySet())
-				{
-					Actvt actvt = entry.getValue();
-					if (actvt.getActivity().getTypeId().equals(data.getString(DaoData.RED_ALERT_GENERAL_TYPE)))
-					{
-						actvt.loadFromData(data);
-						break;
-					}
-				}
-			}
-		}
-	}
-	
-//	public List<Activity_reward> getReward(String id)
-//	{
-//		if (!rewards.containsKey(id)) {
-//			return null;
-//		}
-//		return rewards.get(id);
-//	}
-	
+
 	public Actvt getActvt(int actvtId) {
-		if (actvts.containsKey(actvtId)) {
-			return actvts.get(actvtId);
+		if (actvtsAlive.containsKey(actvtId)) {
+			return actvtsAlive.get(actvtId);
 		}
 		return null;
 	}
-	
-	//SN 活动全局ID生成规则
-	private int sActvtId = 0;
-	public int GenerateActvtId()
-	{
-		return ++sActvtId;
-	}
-	
+
 	public static Document getDocumentAndClose(File file) throws Exception{
 		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 		dbf.setIgnoringComments(false);
@@ -279,11 +361,6 @@ public class ActvtManager extends DTManager
         }
 		return document;
 	}
-	
-	public static void invoke(String method, String args)
-	{
-		
-	}
 
 	public void sendReq(Role role, ClientModule... modules)
 	{
@@ -297,46 +374,42 @@ public class ActvtManager extends DTManager
 		ClientMod module = new ClientMod(ClientModule.NTC_DTCD_GET_ACTVT_LIST);
 
 		module.add(getShowActvtsNum(joyId));
-		for (Map.Entry<Integer, Actvt> entry : actvts.entrySet())
+		for (Map.Entry<Integer, Actvt> entry : actvtsAlive.entrySet())
 		{
-			Actvt a = entry.getValue();
-			if (a == null) {
-				//SN 错误处理
+			Actvt actvt = entry.getValue();
+			if (!actvt.canShow(joyId)) {
 				continue;
 			}
-			if (!a.canShow(joyId)) {
-				continue;
-			}
-			Activity activity = a.getActivity();
-			module.add(a.getId());
-			module.add(activity.getType());
-			module.add(activity.getName());
-			module.add(activity.getIcon());
-			module.add(a.getStateOdinal(joyId));
-			module.add(activity.getBriefDesc());
-			module.add(a.getDestDesc());
 			
-			module.add(activity.getTypeId());
-			module.add(a.getStartSeconds());
-			module.add(a.getLastSeconds());
-			module.add(a.getNowSeconds(joyId));
+			ActvtCommon commonData = actvt.getCommonData();
+			module.add(commonData.getId());
+			module.add(commonData.getType());
+			module.add(commonData.getName());
+			module.add(commonData.getIcon());
+			module.add(actvt.getStateOdinal());
+			module.add(commonData.getBriefDesc());
+			module.add(actvt.getDestDesc());
+			
+			module.add(commonData.getType()+commonData.getId());
+			module.add(actvt.getStartSeconds());
+			module.add(actvt.getLastSeconds());
+			module.add(actvt.getNowSeconds());
 		}
 //		System.out.println(module.getParams().toString());
 		return module;
 	}
 
-	//SN 如果为null的错误处理
 	private ClientModule makeUpActvtDetailModule(Role role, int actvtId)
 	{
 		ClientMod module = new ClientMod(ClientModule.NTC_DTCD_GET_ACTVT_DETAIL);
 		Actvt act = getActvt(actvtId);
 		if (act != null) {
 			act.makeUpDetailModule(module, role);
+			return module;
 		}
-		return module;
+		return null;
 	}
 	
-	//SN 如果为null的错误处理
 	private ClientModule makeUpActvtRankListModule(Role role, int actvtId)
 	{
 		ClientMod module = new ClientMod(ClientModule.NTC_DTCD_GET_ACTVT_RANK_LIST);
@@ -350,7 +423,7 @@ public class ActvtManager extends DTManager
 	private int getShowActvtsNum(long joyId)
 	{
 		int num = 0;
-		for (Map.Entry<Integer, Actvt> entry : actvts.entrySet())
+		for (Map.Entry<Integer, Actvt> entry : actvtsAlive.entrySet())
 		{
 			if (entry.getValue().canShow(joyId)) {
 				num++;
@@ -358,19 +431,7 @@ public class ActvtManager extends DTManager
 		}
 		return num;
 	}
-	
-	private int getStartActvtsNum()
-	{
-		int num = 0;
-		for (Map.Entry<Integer, Actvt> entry : actvts.entrySet())
-		{
-			if (entry.getValue().isRuning()) {
-				num++;
-			}
-		}
-		return num;
-	}
-	
+
 	public void sendActvtTip(long joyId)
 	{
 		Role role = World.getInstance().getOnlineRole(joyId);
@@ -379,35 +440,37 @@ public class ActvtManager extends DTManager
 		}
 		
 		ClientMod module = new ClientMod(ClientModule.NTC_DTCD_ACTIVITY_TIP);
-		module.add(getStartActvtsNum());
-		for (Map.Entry<Integer, Actvt> entry : actvts.entrySet())
+		module.add(getShowActvtsNum(joyId));
+		for (Map.Entry<Integer, Actvt> entry : actvtsAlive.entrySet())
 		{
 			Actvt actvt = entry.getValue();
-			if (!actvt.isRuning()) {
+			if (!actvt.canShow(joyId)) {
 				continue;
 			}
-			Activity activity = actvt.getActivity();
-			module.add(actvt.getId());
-			module.add(activity.getType());
-			module.add(activity.getTypeId());
-			int num = actvt.getReceiveableNum(role.getId());
-			num = 0;
-			module.add(num);
-			module.add(activity.getType().equals("RushSevenDay")?1:0);
 			
-			module.add(activity.getTypeId()+"_tip");
-			if (activity.getType().equals("RushSevenDay"))
+			ActvtCommon commonData = actvt.getCommonData();
+			module.add(commonData.getId());
+			module.add(commonData.getType());
+			module.add(commonData.getType()+commonData.getId());
+
+//			int num = actvt.getReceiveableNum(role.getId());
+			int num = 0;
+			module.add(num);
+			module.add(commonData.getType().equals("RushSevenDay")?1:0);
+			
+			module.add(commonData.getId()+"_tip");
+			if (commonData.getType().equals("RushSevenDay"))
 			{
 				RushSevenDay rsd = (RushSevenDay)actvt;
 				module.add(0L);
-				module.add(rsd.isRun(joyId)?(long)RushSevenDay.ONE_DAY_SECONDS:0L);
-				module.add(rsd.isRun(joyId)?(long)(rsd.getSeconds(joyId)%RushSevenDay.ONE_DAY_SECONDS):0L);
+				module.add(rsd.isRun(joyId)?rsd.getOneDaySeconds():0L);
+				module.add(rsd.isRun(joyId)?(long)rsd.getSeconds(joyId)%rsd.getOneDaySeconds():0L);
 			}
 			else 
 			{
 				module.add(actvt.getStartSeconds());
 				module.add(actvt.getLastSeconds());
-				module.add(actvt.getNowSeconds(joyId));
+				module.add(actvt.getNowSeconds());
 			}
 			
 		}
@@ -415,15 +478,28 @@ public class ActvtManager extends DTManager
 		sendReq(role, module);
 	}
 	
-	//SN 返回多个值，标记请求是否成功
-	public boolean sendActvtListReq(Role role) {
+	public void sendActvtListReq(Role role) {
 		sendReq(role, makeUpActvtListModule(role.getId()));
-		return true;
+	}
+	
+	public void sendRebellionInfo(Role role, int actvtId) {
+		Actvt actvt = ActvtManager.getInstance().getActvt(actvtId);
+		if (actvt == null || !actvt.getCommonData().getType().equals("ArmyRebellion")) {
+			return;
+		}
+		ArmyRebellion ar = (ArmyRebellion)actvt;
+		ClientMod module = new ClientMod(ClientModule.NTC_DTCD_REBELLION_INFO);
+		ar.makeUpInfoModule(module, role);
+		sendReq(role, module);
 	}
 	
 	public boolean sendActvtDetailReq(Role role, int actvtId)
 	{
 		ClientModule mod1 = makeUpActvtDetailModule(role, actvtId);
+		if (mod1 == null) {
+			return false;
+		}
+		
 		ClientModule mod2 = makeUpActvtRankListModule(role, actvtId);
 		if (mod2 != null) {
 			sendReq(role, mod1, mod2);
@@ -434,9 +510,12 @@ public class ActvtManager extends DTManager
 		return true;
 	}
 	
-	public boolean sendActvtRankListReq(Role role, int actvtId)
-	{
-		sendReq(role, makeUpActvtRankListModule(role, actvtId));
+	public boolean sendActvtRankListReq(Role role, int actvtId)	{
+		ClientModule mod = makeUpActvtRankListModule(role, actvtId);
+		if (mod == null) {
+			return false;
+		}
+		sendReq(role, mod);
 		return true;
 	}
 	
@@ -446,7 +525,9 @@ public class ActvtManager extends DTManager
 		if (actvt == null) {
 			return false;
 		}
-		actvt.receiveReward(role, index);
+		if (!actvt.receiveReward(role, index)) {
+			return false;
+		}
 		sendActvtDetailReq(role, actvtId);
 		return true;
 	}
@@ -457,101 +538,54 @@ public class ActvtManager extends DTManager
 		if (actvt == null) {
 			return false;
 		}
-		actvt.manualStart(role);
-		sendActvtDetailReq(role, actvtId);
-		return true;
-	}
-	
-	public boolean scheduleJob(JobDetail job, Trigger trigger)
-	{
-		try {
-			scheduler.scheduleJob(job, trigger);
-		} catch (SchedulerException e) {
-			GameLog.error("scheduleJob exception: " + ExceptionUtils.getMessage(e));
+		if (!actvt.manualStart(role)) {
 			return false;
 		}
+		sendRebellionInfo(role, actvtId);
 		return true;
 	}
-	
-	public void stopJob(String jobKey, String groupKey)
-	{
-		try {
-			scheduler.interrupt(JobKey.jobKey(jobKey, groupKey));
-		} catch (UnableToInterruptJobException e) {
-			GameLog.error("stopJob exception: " + ExceptionUtils.getMessage(e));
+
+	public void save() {
+		for (Map.Entry<Integer, Actvt> entry : actvtsAlive.entrySet()) {
+			Actvt actvt = entry.getValue();
+			actvt.save();
 		}
 	}
 	
-	public void save() 
-	{
-		for (Map.Entry<Integer, Actvt> entry : actvts.entrySet())
-		{
-			entry.getValue().save();
-		}
-	}
-	
-	//SN 活动XML合法性检测测试方法
 	public static void main(String[] args) 
 	{
-		int flag = 1;
-		for (int i = 0; i < 34; i++) {
-			System.out.println(Actvt.getBit(flag, i));
+		List<Integer> ints = new ArrayList<Integer>();
+		for (int i = 0; i < 10; i++) {
+			ints.add(i);
 		}
-		
-		
-//		Map<Long, Integer> flags = new HashMap<Long, Integer>();
-//		for (int i = 0; i < 5000; i++) {
-//			flags.put(209889076L+i, 340210);
-//		}
-//		
-//		String s = JSON.toJSONString(flags);
-//		
+		for (int i = 0; i < ints.size(); ) {
+			if (ints.get(i)%2 == 0) {
+				ints.remove(i);
+			}
+			else {
+				i++;
+			}
+		}
+		System.out.println(ints);
 //		try {
-//			ByteArrayOutputStream baos = new ByteArrayOutputStream();
-//			GZIPOutputStream gos = new GZIPOutputStream(baos);  
-//			gos.write(s.getBytes(),0,s.length()); 
-//			gos.finish();
-//			gos.flush();
-//			gos.close();
-//			
-//			byte[] smallData = baos.toByteArray();
-//			 
-//			PrintWriter out = new PrintWriter("filename.txt");
-//			out.println(Hex.encodeHexString(smallData));
-//		}
-//		catch (Exception e) {
-//			
-//		}
-
-//		System.out.println(JSON.toJSONString(flags));
-		
-//		String[] dd = {"dd_1", "dd_r1", "d_1r", "dd_11", "dd_2123123123", "dd_rr11dd", "dd_12rr1"};
-//		for (int i = 0; i < dd.length; i++)
-//		{
-//			System.out.println(dd[i].matches("dd_[0-9]+$"));
-//		}
-		
-		
-//		final Random rand = new Random();
-//		final String[] keys = {"useItem", "trainSoldier", "killSoldier", "killNpc", "gatherResource", "robResource", "treatSoldier", "finishActivityInstance"};
+//			int id = 123456;
+//			String tag = "tick";
+//			JobDetail job = JobBuilder.newJob(ActvtInnerTimerJob.class)
+//					.withIdentity(MessageFormat.format("job_{0}_{1}", id, tag), "actvt")
+//					.usingJobData("actvtId", id)
+//					.usingJobData("tag", tag).build();
 //	
-//		new Thread(){
-//			@Override
-//			public void run() {
-//				while(true) {
-//					try {
-//						Thread.sleep(10000);
-//						
-//						String key = keys[rand.nextInt(8)];
-//						EvntManager.getInstance().Notify(key, "1");
-//					} catch (InterruptedException e) {
-//						// TODO Auto-generated catch block
-//						e.printStackTrace();
-//					}
-////					GameLog.info("main thread sleep");
-//				}
-//				
-//			}
-//		}.start();
+//			CronTrigger trigger = TriggerBuilder.newTrigger()
+//					.withIdentity(MessageFormat.format("trigger_{0}_{1}", id, tag), "actvt")
+//					.withSchedule(CronScheduleBuilder.cronSchedule("* * * * * ?")).build();
+//
+//			StdSchedulerFactory.getDefaultScheduler().scheduleJob(job, trigger);
+//			
+//			boolean ret = StdSchedulerFactory.getDefaultScheduler().deleteJob(JobKey.jobKey(MessageFormat.format("job_{0}_{1}", 123456, "tick"), "actvt"));
+//			System.out.println(ret);
+//		} 
+//		catch (SchedulerException e) {
+//			e.printStackTrace();
+//		}
 	}
 }

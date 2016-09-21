@@ -52,7 +52,7 @@ public class HttpServer {
 				return;
 			}
 			setEncoding("UTF-8");
-			acceptor = new NioSocketAcceptor();;
+			acceptor = new NioSocketAcceptor();
 			acceptor.getFilterChain().addLast("protocolFilter",new ProtocolCodecFilter(new HttpServerProtocolCodecFactory()));
 			acceptor.setHandler(new HttpServerHandler());
 			acceptor.bind(new InetSocketAddress("0.0.0.0",port));

@@ -216,7 +216,7 @@ public class EquipItem extends ItemCell {
 	public List<String> randomBuffIdList(String keyId) {
 		Equip equip = dataManager.serach(Equip.class, keyId);
 		if (equip == null) {
-			GameLog.error("equip base data is null!");
+			GameLog.error("equip base data is null! equipKeyId = " + keyId);
 			return null;
 		}
 		List<String> buffList = equip.getBuffList();

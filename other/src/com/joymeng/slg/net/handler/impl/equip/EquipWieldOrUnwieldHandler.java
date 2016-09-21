@@ -1,5 +1,6 @@
 package com.joymeng.slg.net.handler.impl.equip;
 
+import com.joymeng.log.GameLog;
 import com.joymeng.services.core.buffer.JoyBuffer;
 import com.joymeng.services.core.message.JoyNormalMessage.UserInfo;
 import com.joymeng.services.core.message.JoyProtocol;
@@ -29,6 +30,11 @@ public class EquipWieldOrUnwieldHandler extends ServiceHandler {
 		long equipId = params.get(0);
 		int operationState = params.get(1);
 		RoleBagAgent roleBagAgent = role.getBagAgent();
+		if (roleBagAgent == null) {
+			GameLog.error("getBagAgent is error role.uid = " + role.getId());
+			resp.fail();
+			return resp;
+		}
 		if (operationState == 0) { // 给角色装备上装备
 			if (roleBagAgent == null || !roleBagAgent.equipWield(role, equipId)) {
 				resp.fail();

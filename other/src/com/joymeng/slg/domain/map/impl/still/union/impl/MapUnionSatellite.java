@@ -56,11 +56,13 @@ public class MapUnionSatellite extends MapUnionBuild {
 	
 	@Override
 	public boolean destroy(String buffStr) {
-		super.destroy(buffStr);
+		return super.destroy(buffStr);
+		/*视野的逻辑不要了
 		UnionBody union = unionManager.search(info.getUnionId());
 		if (union != null){
 			union.sendViewsToAllMember();
 		}
 		return false;
+		*/
 	}
 }

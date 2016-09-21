@@ -1,5 +1,6 @@
 package com.joymeng.slg.net.handler.impl.build;
 
+import com.joymeng.log.NewLogManager;
 import com.joymeng.services.core.buffer.JoyBuffer;
 import com.joymeng.services.core.message.JoyNormalMessage.UserInfo;
 import com.joymeng.services.core.message.JoyProtocol;
@@ -22,6 +23,7 @@ public class BuildChangeSlotIdHandler extends ServiceHandler{
 		CommunicateResp resp = newResp(info);
 		Role role = getRole(info);
 		if (role == null){
+			NewLogManager.misTakeLog("BuildChangeSlotIdHandler getRole is null where uid = " + info.getUid());
 			resp.fail();
 			return resp;
 		}

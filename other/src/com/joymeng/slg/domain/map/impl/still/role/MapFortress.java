@@ -7,6 +7,7 @@ import com.joymeng.common.util.I18nGreeting;
 import com.joymeng.common.util.JsonUtil;
 import com.joymeng.common.util.MessageSendUtil;
 import com.joymeng.common.util.TimeUtils;
+import com.joymeng.list.EventName;
 import com.joymeng.log.GameLog;
 import com.joymeng.log.LogManager;
 import com.joymeng.services.core.buffer.JoyBuffer;
@@ -206,7 +207,8 @@ public class MapFortress extends MapObject implements TimerOver{
 			TimerLast timer = creater.getTimer();
 			timer.setType(TimerLastType.TIME_MAP_STATION);//修改部队状态
 			timer.setLast(0);
-			LogManager.mapLog(role, role.getCity(0).getPosition(), creater.getPosition(), creater.getId(),"buildFortComplete");
+			timer.removeTimeOver(this);
+			LogManager.mapLog(role, role.getCity(0).getPosition(), creater.getPosition(), creater.getId(),EventName.buildFortComplete.getName());
 		}else if (buildTimer != null){
 			if (buildTimer.getType() == TimerLastType.TIME_LEVEL_UP){//升级
 				level ++;
@@ -342,8 +344,7 @@ public class MapFortress extends MapObject implements TimerOver{
 					MessageSendUtil.sendNormalTip(role.getUserInfo(),I18nGreeting.MSG_ROLE_NO_MONEY,costMoney);
 					return false;
 				}
-				String event ="completeCreate";
-				LogManager.goldConsumeLog(role, costMoney, event);
+				LogManager.goldConsumeLog(role, costMoney, EventName.completeCreate.getName());
 				creater.die();
 				if (role.isOnline()){
 					RespModuleSet rms = new RespModuleSet();
@@ -590,12 +591,13 @@ public class MapFortress extends MapObject implements TimerOver{
 	
 	@Override
 	public boolean destroy(String buffStr){
-		super.destroy(buffStr);
-		Role role = world.getOnlineRole(info.getUid());
-		if (role != null){
-			role.sendViews(new RespModuleSet(),true);
-		}
-		return false;
+		return super.destroy(buffStr);
+		//视野的逻辑不要了
+		//Role role = world.getOnlineRole(info.getUid());
+		//if (role != null){
+		//	role.sendViews(new RespModuleSet(),true);
+		//}
+		//return false;
 	}
 	
 }

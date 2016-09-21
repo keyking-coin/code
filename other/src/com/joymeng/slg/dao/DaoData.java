@@ -42,6 +42,7 @@ public interface DaoData {
 	String RED_ALERT_GENERAL_TYPE         = "type";
 	String RED_ALERT_GENERAL_CITY_ID      = "cityId";
 	String RED_ALERT_GENERAL_UNION_ID     = "unionId";
+	String RED_ALERT_JOIN_UNION_TIMER     = "joinUnionTimer";
 	String RED_ALERT_GENERAL_CREATE_TIME  = "createTime";
 	String RED_ALERT_GENERAL_FIGHT         = "fight";
 	String RED_ALERT_GENERAL_POSITION      = "_position";
@@ -50,6 +51,7 @@ public interface DaoData {
 	String RED_ALERT_GENERAL_OTHER		     = "other";
 	String RED_ALERT_GENERAL_NUM		     = "num";
 	String RED_ALERT_GENERAL_SAFETIMER     = "safeTimer";
+	String RED_ALERT_GENERAL_AUTO_DIE	     = "autoDie";
 	
 	/**
 	 * 玩家表
@@ -107,7 +109,7 @@ public interface DaoData {
 	String RED_ALERT_ROLE_CHANNELID     = "channelId";
 	String RED_ALERT_ROLE_COPYS			= "roleCopys";
 	String RED_ALERT_ROLE_RANK_INFO		= "rankInfo";
-	
+	String RED_ALERT_ROLE_REDPACKET 	= "roleRedpacket";	
 	
 	/**
 	 * 建筑数据字段部分
@@ -141,6 +143,7 @@ public interface DaoData {
 	String RED_ALERT_CITY_TECHDATAS		   = "techDatas";
 	String RED_ALERT_CITY_WALLINFO		   = "wallInfo";
 	String RED_ALERT_CITY_HELPER_NUM	   = "helperNum";
+	String RED_CITY_POWER_RATIO	           = "powerRatio";
 	/**
 	 * 玩家军队
 	 */
@@ -190,7 +193,7 @@ public interface DaoData {
 	 * 怪物
 	 */
 	String TABLE_RED_ALERT_MONSTER	                   = "monster";
-	String RED_ALERT_MONSTER_AUTO_DIE	               = "autoDie";
+
 	
 	/**
 	 * 驻防者表
@@ -240,8 +243,10 @@ public interface DaoData {
 	String TABLE_RED_ALERT_UNION	                 = "unionBody";
 	String RED_ALERT_UNION_ICON                    = "icon";
 	String RED_ALERT_UNION_SHORT_NAME              = "shortName";
+	String RED_ALERT_UNION_POSITION					= "position";
 	String RED_ALERT_UNION_LANGUAGE					="language";
 	String RED_ALERT_UNION_NOTICE                  = "notice";
+	String RED_ALERT_UNION_IN_NOTICE               = "inNotice";
 	String RED_ALERT_UNION_SCORE                   = "score";
 	String RED_ALERT_UNION_SCOREDAILY              = "scoreDaily";
 	String RED_ALERT_UNION_SCOREWEEKLY             = "scoreWeekly";
@@ -357,6 +362,14 @@ public interface DaoData {
 	String RED_ALERT_MONSTER_ID = "monsterId";
 	String RED_ALERT_MONSTER_NUM = "killNum";
 	/**
+	 * 玩家禁封
+	 */	
+	String TABLE_RED_ALERT_PLAY_BAN = "playerBan";
+	String RED_ALERT_FORBIDDEN_TYPE = "type";
+	String RED_ALERT_STARTTIME = "startTime";
+	String RED_ALERT_ENDTIME = "endTime";
+	
+	/**
 	 * 玩家统计数据表
 	 */
 	String TABLE_RED_ALERT_STATIC = "statisticData";
@@ -380,6 +393,7 @@ public interface DaoData {
 	String RED_ALERT_S_KSN = "killSoldsNum";
 	String RED_ALERT_S_DSN = "deadSoldNum";
 	String RED_ALERT_S_AHT = "alliHelpTimes";
+	String RED_ALERT_S_LGY = "leagueGlory";
 	String RED_ALERT_S_BFN = "buildFortNum";
 	String RED_ALERT_S_RT = "researchTimes";
 	String RED_ALERT_S_EUT = "equipUpTimes";
@@ -422,4 +436,5 @@ public interface DaoData {
 	 * 活动相关
 	 */
 	String TABLE_RED_ALERT_ACTVT = "actvt";
+	String TABLE_RED_ALERT_ACTVT_STATES = "states";
 }

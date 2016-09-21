@@ -19,7 +19,7 @@ public class HourRunable implements Runnable, Instances{
 	static int serverid = ServiceApp.instanceId - GameConfig.SERVER_LIST_ID;
 	@Override
 	public void run() {
-		GameLog.info("Do things at fifty-ninth hours per hour");
+		GameLog.info("Do things at fifty-ninth per hour");
 		if(GameConfig.SEND_REALTIME_DATA){
 			 RealtimeData.liveData();   //实时数据（玩家充值）接口
 			 liveProduce();             //实时道具产出接口
