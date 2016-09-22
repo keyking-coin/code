@@ -41,7 +41,7 @@ public class AppLogin extends AbstractLogic {
 		}
 		resp.put("androidUrl",Service.APK_URL);
 		if (StringUtil.isNull(pushId)){
-			resp.setError("推送注册Id为空");
+			resp.setError("登录失败,请稍候重试,错误码(001)");
 			return resp;
 		}
 		UserCharacter user = CTRL.search(account);

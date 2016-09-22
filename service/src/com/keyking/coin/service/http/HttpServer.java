@@ -4,9 +4,11 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 
 import org.apache.mina.filter.codec.ProtocolCodecFilter;
+import org.apache.mina.filter.executor.ExecutorFilter;
 import org.apache.mina.transport.socket.SocketAcceptor;
 import org.apache.mina.transport.socket.nio.NioSocketAcceptor;
 
+import com.keyking.coin.service.Service;
 import com.keyking.coin.service.http.codec.HttpRequestDecoder;
 import com.keyking.coin.service.http.codec.HttpResponseEncoder;
 import com.keyking.coin.service.http.codec.HttpServerProtocolCodecFactory;
@@ -52,6 +54,7 @@ public class HttpServer {
 			setEncoding("UTF-8");
 			acceptor = new NioSocketAcceptor();;
 			acceptor.getFilterChain().addLast("protocolFilter",new ProtocolCodecFilter(new HttpServerProtocolCodecFactory()));
+			acceptor.getFilterChain().addLast("threadPool",new ExecutorFilter(Service.configureExecutorService()));
 			acceptor.setHandler(new HttpServerHandler());
 			acceptor.bind(new InetSocketAddress("0.0.0.0",port));
 			isRunning = true;

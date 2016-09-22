@@ -43,7 +43,8 @@ public class Service implements Instances{
 	public static String VERSION = "1.0.1";
 	
 	public static String APK_URL;
-
+	
+	public static SocketAcceptor acceptor;
 	
 	public static void main(String[] args) {
         try {
@@ -53,7 +54,7 @@ public class Service implements Instances{
         	PK.load();
         	SMS.init();
         	CTRL.load();
-        	SocketAcceptor acceptor = new NioSocketAcceptor();  
+        	acceptor = new NioSocketAcceptor();  
             SocketSessionConfig config = acceptor.getSessionConfig();
             config.setReceiveBufferSize(10 * 1024);
             config.setReadBufferSize(1024);
@@ -115,6 +116,16 @@ public class Service implements Instances{
 		}
 		int k = Integer.parseInt(str3);
 		return new ThreadPoolExecutor(i, j, 60L, TimeUnit.SECONDS, new ArrayBlockingQueue<Runnable>(k));
+	}
+	
+	public static void stop(){
+		try {
+			acceptor.unbind();
+			acceptor.dispose();
+			ServerLog.info("Server is stoped");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 }
  
