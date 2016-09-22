@@ -5,6 +5,7 @@ import com.keyking.coin.service.domain.ad.ADEntity;
 import com.keyking.coin.service.http.handler.HttpHandler;
 import com.keyking.coin.service.http.request.HttpRequestMessage;
 import com.keyking.coin.service.http.response.HttpResponseMessage;
+import com.keyking.coin.util.ServerLog;
 
 public class HttpAdInsert extends HttpHandler {
 
@@ -24,6 +25,7 @@ public class HttpAdInsert extends HttpHandler {
 			ade.setPic(picName);
 			if (DB.getAdDao().save(ade)){
 				response.put("result","ok");
+				ServerLog.info("insert ad where id=" + id + "rank=" + rank);
 			}else{
 				response.put("result","fail");
 			}
