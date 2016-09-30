@@ -15,6 +15,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 	<meta http-equiv="keywords" content="keyword1,keyword2,keyword3">
 	<meta http-equiv="description" content="This is my page">
 	<script type="text/javascript" src="<%=path%>/js/jquery-2.1.1.min.js"></script>
+	<script type="text/javascript" src="<%=path%>/js/jquery.cookie.js"></script>
   	<script type="text/javascript">
 		function on_submit(){ 
 			if(loginForm.username.value == ""){ 
@@ -31,6 +32,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 			if (!on_submit()){
 				return;
 			}
+			//http://www.jb51.net/article/44557.htm
 			var params = "account=" + loginForm.username.value + "&pwd=" + loginForm.userpassword.value;
 		    $.ajax({
 			  	type: "post",

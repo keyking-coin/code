@@ -17,13 +17,12 @@
          <property name="url" value="${jdbc.url}" />
          <property name="username" value="${jdbc.username}" />
          <property name="password" value="${jdbc.password}" />
-         <property name="initialSize" value="${dbcp.initialSize}" />
-         <property name="maxActive" value="${dbcp.maxActive}" />
-         <property name="maxIdle" value="${dbcp.maxIdle}" />
-         <property name="minIdle" value="${dbcp.minIdle}" />
-         <property name="testOnReturn" value="${dbcp.testOnReturn}" />
-         <property name="testWhileIdle" value="${dbcp.testWhileIdle}" />
-         <property name="validationQuery" value="${dbcp.validationQuery}" />
+		 <property name="minPoolSize" value="10" />
+		 <property name="maxPoolSize" value="30" />
+		 <property name="initialPoolSize" value="10" />
+		 <property name="checkoutTimeout" value="60000" />
+		 <property name="debugUnreturnedConnectionStackTraces" value="true" />
+		 <property name="maxIdleTime" value="190" />
     </bean>
 	<bean id="userDao" class="com.keyking.coin.service.dao.impl.UserDAO">
 	    <property name="dataSource" ref="DAOS" />

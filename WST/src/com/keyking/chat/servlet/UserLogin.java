@@ -1,4 +1,4 @@
-package com.keyking.chat;
+package com.keyking.chat.servlet;
 
 import java.io.IOException;
 import java.io.PrintWriter;

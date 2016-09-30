@@ -67,6 +67,9 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
   			<p>账号：<input type="text" size="10" name="account"/> 
   			<p>密码: <input type="password" size="10" name="pwd"/> 
   			<p>确认密码: <input type="password" size="10" name="re_pwd"/> 
+  			<p>昵称: <input type="text" size="10" name="nickname"/>
+  			<p>Email: <input type="text" size="10" name="email"/>
+  			<p>tel: <input type="text" size="10" name="tel"/>
   			<p>
   			<input type="button" value="提交" onclick="regist()" />
   			<input type="button" value="返回" onclick="backLogin()" />
